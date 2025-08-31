@@ -84,12 +84,13 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
     max-width: 1200px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto auto auto;
     gap: 24px;
     grid-template-areas:
       "hero hero status"
       "bio portrait skills"
-      "contact social skills";
+      "contact social skills"
+      "press press press";
   }
 
   /* Accentuate bio and contact height difference */
@@ -153,6 +154,7 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
   .contact-card { grid-area: contact; }
   .social-card { grid-area: social; }
   .unified-skills-card { grid-area: skills; }
+  .press-card { grid-area: press; }
 
   /* Hero Card */
   .hero-card {
@@ -436,6 +438,132 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
     flex-shrink: 0;
   }
 
+  /* Press Card */
+  .press-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .press-articles {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .press-article {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .press-image-container {
+    flex-shrink: 0;
+    width: 120px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface-secondary);
+  }
+
+  .press-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .press-image-container:hover .press-image {
+    transform: scale(1.05);
+  }
+
+  .press-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .press-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .press-publication {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .press-date {
+    font-weight: 400;
+  }
+
+  .press-publication::after {
+    content: "•";
+    margin-left: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .press-title {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .press-description {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .press-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-decoration: none;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--surface-primary) 0%, var(--surface-secondary) 100%);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    box-shadow: var(--shadow-card);
+    transition: all var(--transition-medium);
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+
+  .press-button:hover {
+    border-color: var(--border-accent);
+    background: var(--surface-secondary);
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-1px);
+  }
+
+  .press-icon {
+    transition: transform 0.2s ease;
+  }
+
+  .press-button:hover .press-icon {
+    transform: translate(2px, -2px);
+  }
+
   /* Responsive Design */
   @media (max-width: 1199px) {
     .bio-bento {
@@ -445,7 +573,8 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
         "status portrait"
         "bio portrait"
         "contact social"
-        "skills skills";
+        "skills skills"
+        "press press";
     }
   }
 
@@ -459,7 +588,8 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
         "bio"
         "contact"
         "social"
-        "skills";
+        "skills"
+        "press";
     }
 
     .hero-name {
@@ -472,6 +602,21 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
     }
     /* On small screens, fall back to one per line for readability */
     .skill-tools { grid-template-columns: 1fr; gap: 10px; }
+
+    /* Press card mobile adjustments */
+    .press-article {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .press-image-container {
+      width: 100%;
+      height: 200px;
+    }
+
+    .press-title {
+      font-size: 18px;
+    }
   }
 
   @media (max-width: 699px) {
@@ -566,6 +711,39 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
 
   html[data-theme="dark"] .skills-section:not(:last-child) {
     border-bottom-color: #333333;
+  }
+
+  /* Press Card Dark Theme */
+  html[data-theme="dark"] .press-title {
+    color: #ffffff;
+  }
+
+  html[data-theme="dark"] .press-description {
+    color: #cccccc;
+  }
+
+  html[data-theme="dark"] .press-meta {
+    color: #999999;
+  }
+
+  html[data-theme="dark"] .press-publication::after {
+    color: #666666;
+  }
+
+  html[data-theme="dark"] .press-button {
+    color: #ffffff;
+    background: linear-gradient(135deg, #1a1a1a 0%, #222222 100%);
+    border-color: #333333;
+  }
+
+  html[data-theme="dark"] .press-button:hover {
+    border-color: #ffffff;
+    background: #2a2a2a;
+    color: #ffffff;
+  }
+
+  html[data-theme="dark"] .press-image-container {
+    background: #222222;
   }
 
   /* Dark mode modern design system overrides */
@@ -727,6 +905,50 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
             </div>
           );
         })}
+      </div>
+    ) : null}
+
+    <!-- Press Card -->
+    {(data?.press || []).length > 0 ? (
+      <div class="bento-card press-card" data-animation-delay="700">
+        <div class="card-label">Press</div>
+        <div class="press-articles">
+          {(data?.press || []).map((article: any) => (
+            <article class="press-article">
+              <div class="press-image-container">
+                <img 
+                  class="press-image" 
+                  src={article.imageUrl} 
+                  alt={article.title}
+                  loading="lazy"
+                />
+              </div>
+              <div class="press-content">
+                <div class="press-meta">
+                  {article.publication && (
+                    <span class="press-publication">{article.publication}</span>
+                  )}
+                  {article.publishDate && (
+                    <span class="press-date">{article.publishDate}</span>
+                  )}
+                </div>
+                <h3 class="press-title">{article.title}</h3>
+                <p class="press-description">{article.description}</p>
+                <a 
+                  class="press-button" 
+                  href={article.articleUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  <span>Lire l'article</span>
+                  <svg class="press-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
     ) : null}
   </div>

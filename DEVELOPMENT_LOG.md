@@ -105,6 +105,7 @@ Last updated: 2025-08-31 (Code spring cleaning + DEVELOPMENT_LOG optimization)
 - Deleted unused components (BioBW, welcome page, backup files)
 - Cleaned debug console statements while preserving production monitoring
 - Token optimization for AI agents (~30-40% reduction)
+- Mobile development message: French informational overlay for mobile users
 
 ## Current Status
 
@@ -123,6 +124,7 @@ Last updated: 2025-08-31 (Code spring cleaning + DEVELOPMENT_LOG optimization)
 - Overlay system: Circular clip-path with resize handling, dual overlay support
 - Asset system: Auto-detection of hero/thumbnail files, video support
 - Configuration chain: user-tweaks.js → atom.config.js → components
+- Mobile detection: Multi-method detection (viewport, touch, user agent) with French message overlay
 
 ## Content Management
 

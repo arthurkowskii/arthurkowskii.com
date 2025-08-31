@@ -169,6 +169,18 @@ const bioCollection = defineCollection({
         })
       )
       .optional(),
+    press: z
+      .array(
+        z.object({
+          title: z.string(),
+          description: z.string(), 
+          imageUrl: z.string(),
+          articleUrl: z.string().url(),
+          publishDate: z.string().optional(),
+          publication: z.string().optional(),
+        })
+      )
+      .optional(),
   }),
 });
 
