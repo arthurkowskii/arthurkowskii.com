@@ -353,7 +353,7 @@ export const userTweaks = {
     home: {
       title: 'Arthur Kowskii — Portfolio Interactif',
       description: 'Explorez mes productions dans une expérience portfolio interactive basée sur un atome.',
-      image: '/images/social/webpage_preview.webp',
+      image: '/images/social/webpage_preview.gif',
       imageAlt: 'Portfolio Interactif Arthur Kowskii - Visualisation atomique avec projets orbitaux'
     },
     bio: {
