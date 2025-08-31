@@ -620,6 +620,10 @@ const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join
     border-bottom: 1px solid #2a2a2a;
   }
 
+  html[data-theme="dark"] .challenge-item:last-child {
+    border-bottom: none;
+  }
+
   html[data-theme="dark"] .challenge-title {
     color: #f4f4f5;
   }
@@ -1228,15 +1232,19 @@ const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join
     grid-row: 4;
   }
 
+  .challenges-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+  }
+
   .challenge-item {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
+    padding: 1.2rem 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
 
   .challenge-item:last-child {
     border-bottom: none;
-    margin-bottom: 0;
   }
 
   .challenge-title {
@@ -1921,12 +1929,14 @@ const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join
           <p class="card-subtitle">{bento.challenges.subtitle}</p>
         )}
         
-        {bento.challenges.items.map(challenge => (
-          <div class="challenge-item">
-            <div class="challenge-title">{challenge.title}</div>
-            <div class="challenge-text">{challenge.description}</div>
-          </div>
-        ))}
+        <ul class="challenges-list">
+          {bento.challenges.items.map(challenge => (
+            <li class="challenge-item">
+              <div class="challenge-title">{challenge.title}</div>
+              <div class="challenge-text">{challenge.description}</div>
+            </li>
+          ))}
+        </ul>
       </div>
     )}
 
