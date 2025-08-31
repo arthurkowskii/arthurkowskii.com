@@ -366,6 +366,11 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 		<meta name="googlebot" content="index, follow" />
 		<link rel="canonical" href={currentUrl} />
 		
+		<!-- Visited Indicators CSS Custom Properties -->
+		<style define:vars={{
+			'indicator-dim-opacity': atomConfig.visitedIndicators.filtering.dimOpacity
+		}}></style>
+		
 			<style>
             body {
                 margin: 0;
@@ -429,9 +434,27 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 				opacity: 0.7;
 			}
 			
-			/* Visited indicator styling */
+			/* Simple visited indicator styling */
 			.visited-indicator {
-				transition: opacity 0.3s ease;
+				pointer-events: none;
+			}
+
+			/* Theme-aware colors for visited indicators */
+			:root {
+				--indicator-bg: #ffffff;
+				--indicator-border: #e5e5e5;
+				--indicator-check: #171717;
+			}
+
+			[data-theme="dark"] {
+				--indicator-bg: #1a1a1a;
+				--indicator-border: #333333;
+				--indicator-check: #ffffff;
+			}
+
+			/* Filtering integration - dim indicators when electrons are filtered */
+			.visited-indicator.filtered {
+				opacity: var(--indicator-dim-opacity, 0.25);
 			}
 
             /* One-page overlay for project details (masked by clip-path) */
@@ -1243,7 +1266,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 										>
 											<title>{project.data.title}</title>
 										</circle>
-										{/* Visited indicator checkmark - positioned relative to electron */}
+										{/* Sophisticated visited indicator - circular design with dynamic accent colors */}
 										<g 
 											class="visited-indicator"
 											data-project={project.slug}
@@ -1251,18 +1274,22 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 											data-electron-cy={y}
 											style="display: none; pointer-events: none;"
 										>
+											{/* Background circle with theme-aware styling */}
 											<circle
-												cx={x + atomConfig.electrons.radius * 0.7}
-												cy={y - atomConfig.electrons.radius * 0.7}
-												r="8"
-												fill="#10b981"
-												stroke="white"
-												stroke-width="1.5"
+												class="indicator-bg"
+												cx={x + atomConfig.electrons.radius * atomConfig.visitedIndicators.offset.x}
+												cy={y + atomConfig.electrons.radius * atomConfig.visitedIndicators.offset.y}
+												r={atomConfig.visitedIndicators.size * atomConfig.visitedIndicators.scale}
+												fill="var(--indicator-bg)"
+												stroke={atomConfig.visitedIndicators.outline ? "var(--indicator-border)" : "none"}
+												stroke-width={atomConfig.visitedIndicators.outline ? atomConfig.visitedIndicators.strokeWidth : 0}
 											/>
+											{/* Checkmark using theme-aware colors */}
 											<path
-												d={`M ${x + atomConfig.electrons.radius * 0.7 - 4} ${y - atomConfig.electrons.radius * 0.7} L ${x + atomConfig.electrons.radius * 0.7 - 1} ${y - atomConfig.electrons.radius * 0.7 + 3} L ${x + atomConfig.electrons.radius * 0.7 + 4} ${y - atomConfig.electrons.radius * 0.7 - 3}`}
-												stroke="white"
-												stroke-width="2"
+												class="indicator-check"
+												d={`M ${x + atomConfig.electrons.radius * atomConfig.visitedIndicators.offset.x - (atomConfig.visitedIndicators.size * atomConfig.visitedIndicators.scale) * 0.35} ${y + atomConfig.electrons.radius * atomConfig.visitedIndicators.offset.y - (atomConfig.visitedIndicators.size * atomConfig.visitedIndicators.scale) * 0.05} L ${x + atomConfig.electrons.radius * atomConfig.visitedIndicators.offset.x - (atomConfig.visitedIndicators.size * atomConfig.visitedIndicators.scale) * 0.1} ${y + atomConfig.electrons.radius * atomConfig.visitedIndicators.offset.y + (atomConfig.visitedIndicators.size * atomConfig.visitedIndicators.scale) * 0.25} L ${x + atomConfig.electrons.radius * atomConfig.visitedIndicators.offset.x + (atomConfig.visitedIndicators.size * atomConfig.visitedIndicators.scale) * 0.35} ${y + atomConfig.electrons.radius * atomConfig.visitedIndicators.offset.y - (atomConfig.visitedIndicators.size * atomConfig.visitedIndicators.scale) * 0.35}`}
+												stroke="var(--indicator-check)"
+												stroke-width={Math.max(1.5, (atomConfig.visitedIndicators.strokeWidth * atomConfig.visitedIndicators.scale) * 0.75)}
 												stroke-linecap="round"
 												stroke-linejoin="round"
 												fill="none"
@@ -1333,18 +1360,21 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
               }
             }
             
-            window.markProjectAsVisited = function(slug) {
+            window.markProjectAsVisited = function(slug, withAnimation = true) {
               try {
                 const visited = window.getVisitedProjects();
-                if (!visited.includes(slug)) {
+                const isNew = !visited.includes(slug);
+                
+                if (isNew) {
                   visited.push(slug);
                   window.visitedProjectsMemory = visited;
                 }
-                window.updateVisitedIndicators();
+                
+                window.updateVisitedIndicators(isNew && withAnimation ? slug : null);
               } catch {}
             }
             
-            window.updateVisitedIndicators = function() {
+            window.updateVisitedIndicators = function(newIndicatorSlug = null) {
               const visited = window.getVisitedProjects();
               
               // Update all electrons and their indicators
@@ -1354,10 +1384,65 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 
                 if (visited.includes(slug)) {
                   electron.classList.add('visited');
-                  if (indicator) indicator.style.display = 'block';
+                  if (indicator) {
+                    // Show the indicator with sophisticated animation for new ones
+                    if (slug === newIndicatorSlug && window.gsap) {
+                      // Emergence animation for new indicators
+                      indicator.style.display = 'block';
+                      window.gsap.fromTo(indicator, 
+                        {
+                          scale: 0.3,
+                          opacity: 0
+                        },
+                        {
+                          scale: 1,
+                          opacity: 1,
+                          duration: 0.4,
+                          ease: "back.out(1.7)",
+                          delay: 0.1
+                        }
+                      );
+                    } else {
+                      indicator.style.display = 'block';
+                    }
+                    
+                    // Apply filtering state if needed
+                    window.updateIndicatorFiltering(indicator);
+                  }
                 } else {
                   electron.classList.remove('visited');
                   if (indicator) indicator.style.display = 'none';
+                }
+              });
+            }
+            
+            // Update indicator filtering based on current filter state
+            window.updateIndicatorFiltering = function(indicator) {
+              if (!indicator || !window.currentFilter) return;
+              
+              const projectSlug = indicator.dataset.project;
+              const project = window.projectBySlug?.get(projectSlug);
+              
+              if (window.currentFilter !== 'all' && project) {
+                const projectDomain = project.domain || 'unknown';
+                const selectedDomain = window.currentFilter.toLowerCase().replace(' ', '-');
+                const isFiltered = projectDomain !== selectedDomain;
+                
+                if (isFiltered) {
+                  indicator.classList.add('filtered');
+                } else {
+                  indicator.classList.remove('filtered');
+                }
+              } else {
+                indicator.classList.remove('filtered');
+              }
+            }
+            
+            // Global function to update all indicator filtering states
+            window.updateAllIndicatorFiltering = function() {
+              document.querySelectorAll('.visited-indicator').forEach(indicator => {
+                if (indicator.style.display !== 'none') {
+                  window.updateIndicatorFiltering(indicator);
                 }
               });
             }
@@ -1417,6 +1502,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 
                 // Update global filter state
                 currentFilter = domain;
+                window.currentFilter = domain; // Make available globally
                 
                 // Update active button
                 filterBtns.forEach(btn => btn.classList.remove('active'));
@@ -1560,6 +1646,9 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 
                 // Update hover interactions based on filter
                 updateHoverInteractions(domain);
+                
+                // Update visited indicator filtering states
+                window.updateAllIndicatorFiltering && window.updateAllIndicatorFiltering();
               }
               
               function updateHoverInteractions(domain) {
@@ -2154,6 +2243,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 
                 // Update global filter state
                 currentFilter = domain;
+                window.currentFilter = domain; // Make available globally
                 
                 // Update active button
                 filterBtns.forEach(btn => btn.classList.remove('active'));
@@ -2263,6 +2353,9 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 
                 // Update hover interactions based on filter
                 updateHoverInteractions(domain);
+                
+                // Update visited indicator filtering states
+                window.updateAllIndicatorFiltering && window.updateAllIndicatorFiltering();
               }
               
               function updateHoverInteractions(domain) {

@@ -486,6 +486,48 @@ export const userTweaks = {
   // Controls the top spacing for the bio page to match project pages
   bioPageLayout: {
     topGapPx: 100        // Top gap in pixels (you can adjust this value)
+  },
+
+  // ✓ VISITED PROJECT INDICATORS (checkmarks)
+  visitedIndicators: {
+    // Visual design
+    size: 10,                        // Indicator radius in pixels (circular design)
+    scale: 0.7,                      // Overall scale multiplier (1.0 = normal, 0.8 = smaller, 1.2 = bigger)
+    strokeWidth: 0.5,                  // Border thickness for refined appearance
+    outline: true,                   // Enable/disable the circular outline border
+    
+    // Colors (will be enhanced with dynamic accent colors)
+    colors: {
+      background: '#ffffff',          // Clean white background
+      border: '#e5e5e5',             // Subtle gray border (light mode)
+      checkmark: '#171717',          // Dark checkmark symbol (light mode)
+      borderDark: '#333333',         // Dark mode border
+      checkmarkDark: '#ffffff'       // Dark mode checkmark symbol
+    },
+    
+    // Positioning relative to electron
+    offset: {
+      x: 0.8,                       // Horizontal offset as fraction of electron radius (0.8 = 80% to right)
+      y: -0.8                       // Vertical offset as fraction of electron radius (-0.8 = 80% upward)
+    },
+    
+    // Emergence animation when checkmark first appears
+    emergence: {
+      enabled: true,                 // Enable emergence animation
+      duration: 0.4,                 // Animation duration in seconds
+      startScale: 0.3,               // Starting scale for emergence
+      easing: 'back.out(1.7)',       // Bouncy emergence effect
+      delay: 0.1                     // Delay after project closes
+    },
+    
+    // Filtering integration (respect dim rules)
+    filtering: {
+      dimOpacity: 0.25,              // Opacity when electron is filtered/dimmed
+      animationDuration: 0.3         // Duration for filter opacity changes
+    },
+    
+    // Simple design - no shadows or hover effects for performance
+    simple: true                     // Keep it lightweight and glued to electrons
   }
 
 };

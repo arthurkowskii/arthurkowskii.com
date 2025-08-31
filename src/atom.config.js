@@ -363,5 +363,36 @@ export default {
     project: {},
     images: {},
     twitter: {}
+  },
+
+  // Visited project indicators configuration
+  visitedIndicators: {
+    size: userTweaks.visitedIndicators?.size ?? 10,
+    scale: userTweaks.visitedIndicators?.scale ?? 1.0,
+    strokeWidth: userTweaks.visitedIndicators?.strokeWidth ?? 2,
+    outline: userTweaks.visitedIndicators?.outline ?? true,
+    colors: {
+      background: userTweaks.visitedIndicators?.colors?.background ?? '#ffffff',
+      border: userTweaks.visitedIndicators?.colors?.border ?? '#e5e5e5',
+      checkmark: userTweaks.visitedIndicators?.colors?.checkmark ?? '#171717',
+      borderDark: userTweaks.visitedIndicators?.colors?.borderDark ?? '#333333',
+      checkmarkDark: userTweaks.visitedIndicators?.colors?.checkmarkDark ?? '#ffffff'
+    },
+    offset: {
+      x: userTweaks.visitedIndicators?.offset?.x ?? 0.8,
+      y: userTweaks.visitedIndicators?.offset?.y ?? -0.8
+    },
+    emergence: {
+      enabled: userTweaks.visitedIndicators?.emergence?.enabled ?? true,
+      duration: userTweaks.visitedIndicators?.emergence?.duration ?? 0.4,
+      startScale: userTweaks.visitedIndicators?.emergence?.startScale ?? 0.3,
+      easing: userTweaks.visitedIndicators?.emergence?.easing ?? 'back.out(1.7)',
+      delay: userTweaks.visitedIndicators?.emergence?.delay ?? 0.1
+    },
+    filtering: {
+      dimOpacity: userTweaks.visitedIndicators?.filtering?.dimOpacity ?? 0.25,
+      animationDuration: userTweaks.visitedIndicators?.filtering?.animationDuration ?? 0.3
+    },
+    simple: userTweaks.visitedIndicators?.simple ?? true
   }
 };
