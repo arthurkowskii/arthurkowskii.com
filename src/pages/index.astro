@@ -1128,12 +1128,20 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
         <!-- Mobile Detection and Message -->
         <script>
           (function(){
-            // Mobile detection
+            // Improved mobile detection - fixes false positives on desktop touchscreen devices
             function isMobile() {
-              return window.innerWidth <= 768 || 
-                     ('ontouchstart' in window) || 
-                     (navigator.maxTouchPoints > 0) ||
-                     /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+              // Primary check: User agent strings for actual mobile devices
+              const mobileUserAgent = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+              
+              // Secondary check: Small screen size AND portrait orientation for mobile-like usage
+              const verySmallScreen = window.innerWidth <= 640;
+              const smallScreenPortrait = window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
+              
+              // Return true only if:
+              // 1. User agent definitively indicates mobile device, OR
+              // 2. Very small screen (phones), OR  
+              // 3. Small screen in portrait mode (tablets held vertically)
+              return mobileUserAgent || verySmallScreen || smallScreenPortrait;
             }
 
             // Check if user is on mobile
