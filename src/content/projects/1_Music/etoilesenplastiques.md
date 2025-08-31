@@ -40,7 +40,7 @@ bento:
     backgroundSize: "cover"
     backgroundScale: 1.2  # Alternative to backgroundSize - use 1.1, 0.9, etc.
     overlayTopOpacity: 0.05   # Controls dark overlay opacity at top (0.0 = transparent, 1.0 = opaque)
-    overlayBottomOpacity: 0.25 # Controls dark overlay opacity at bottom (0.0 = transparent, 1.0 = opaque)
+    overlayBottomOpacity: 0.7 # Controls dark overlay opacity at bottom (0.0 = transparent, 1.0 = opaque)
     showLogo: false
 
   # Optional stats
@@ -108,17 +108,19 @@ bento:
 
   # Optional challenges
   challenges:
-    title: "Key Challenges"
+    title: "Synopsis"
     items:
-      - title: "Réactivité du système de music-switch"
-        description: "Dans ce jeu le joueur peut changer les pistes musicales à volonté grâce au système de switch. Pour une expérience fluide, un système de synchornisation musicale associé a un système de cooldown a permi de rendre cette expérience très satisfaisant pour le joueur."
+      - title: "Synopsis Long"
+        description: "ETOILES EN PLASTIQUES, est un album de rap alternatif dont l'univers sonore mêle instrumentals électroniques a des textes sombres et introspectifs. L'album explore des souffrances amoureuses, un contexte de travail éprouvant et des tensions familiales, créant une explosion émotionnelle comparable à une supernova. Il suit trois personnages : le père, la mère et l'enfant, ce dernier regardant les étoiles en plastique de son plafond pour s'évader des disputes. Celui ci s'inclut comme une préquel au SUPER MEGA SHOW, un album/série audio de 16 titres sans coupures en collaboration avec le comédien de doublage Benoit Grimmiaux (BoJack Horseman, Pokémon, Rick & Morty...)"
 
   # Optional results
   results:
     title: "Results"
     items:
-      - icon: "🚀"
-        text: "Decreased load time by 45%"
+      - icon: "💽"
+        text: "Un album de 8 titres"
+      - icon: "🖍️"
+        text: "Un mini film d'animation disponible sur Youtube; dessiné, animé et monté par Arthur Kowskii"
 ---
 
 # Your Project Title

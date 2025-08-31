@@ -59,8 +59,8 @@ bento:
       text: "📽️ Watch the DEMO"
       url: "https://youtu.be/URPsqY7SwxY?si=orus46GsXuOBT0hj"
     secondary:
-      text: "Original Trailer from Ubisoft"
-      url: "https://youtu.be/IHwRdqbSQdM?si=GAwNMfhBCVJjL63F"
+      text: "⬇️ Download the FMOD source project"
+      url: "https://drive.google.com/file/d/1LKFTjYzZCmCJaRHmEHhbRJbXW8nLqsvQ/view?usp=sharing"
 
   # Video configuration
   video:
@@ -104,39 +104,26 @@ bento:
     items:
       - title: ""
         description: "Nous allons avoir besoin que tu composes de la musique interactive pour notre jeu avec des phases distinctes. Pour ce faire, dans l’application, nous allons appeler un paramètre que tu devras créer qui contiendra donc plusieurs états. Ce paramètre nous l’avons appelé INTERACTIVITY."
-      - title: "État 0 : Mise en contexte narration"
-        description: "Menu d'ouverture du jeu; mise en contexte."
-      - title: "État 01 + 1.5 : Musique de réflexion / Idle"
-        description: "c’est la musique que l’on entendra le plus souvent, celle qui permettra aux joueurs de discuter, réfléchir, lancer les dés etc...). Au bout d'un certain temps une couche de layer supplémentaire (1.5) accentue le sentiment d'urgence."
-      - title : "État 02 : Musique de combat avec transition"
-        description: "Lorsque l’on tombe sur un ennemi. Il faudra que la transition entre la musique de réfléxion et la musique de combat se fasse immédiatement et de façon très musicale"
-      - title: "Victoire et transition : 02 -> Win -> 01"
-        description: "Musique de fin de combat victorieuse : jingle qui clos le combat (on doit pouvoir revenir sur la musique de réflexion après ça)"
-      - title: "Défaite et transition : 02 -> Loose -> 01"
-        description: "Musique de fin de combat défaite suivie d’une loop pour expliquer la fin du jeu : c’est le game over. Attention : on peut également mourir en phase de réflexion, donc il faut que l’on puisse également aller à l’état 3 depuis l’état 1"
+      - title: "[État 0] : Ouverture du jeu : mise en contexte"
+        description: ""
+      - title: "[État 01 + 01.5] : Musique de réflexion / Idle"
+        description: ""
+      - title : "[État 02] : Musique de combat avec transition"
+        description: ""
+      - title: "[Victoire et transition] : 02 -> Win -> 01"
+        description: ""
+      - title: "[Défaite et transition] : 02 -> Loose -> 01"
+        description: ""
   
   # Results and impact
   results:
     title: "Results"
-    subtitle: "Impact and recognition"
+    subtitle: "Résultat à l'issu de ce projet"
     items:
-      - icon: "⭐"
-        text: "5.0/5 star rating with specific praise for innovative audio design"
-      - icon: "🎯"
-        text: "Featured as case study for 3D audio in indie game development"
-      - icon: "🔄"
-        text: "Audio systems reused in team's subsequent projects"
-      - icon: "🎧"
-        text: "Enhanced the \"headphones recommended\" meditative experience"
+      - icon: "⬇️"
+        text: "Un fichier de démonstration FMOD téléchargeable ci-dessus"
 ---
 
-# Kubika: A Cube Story
-
-Mind-bending, gravity-shifting 3D Sokoban puzzle game featuring innovative spatial audio that adapts to gravity changes and immersive 3D positional sound systems.
-
-## Project Overview
-
-Created immersive spatial audio for this award-winning puzzle game, developing custom systems that respond dynamically to the game's unique gravity-shifting mechanics. The audio design maintains spatial relationships regardless of world orientation, creating a truly three-dimensional soundscape.
 
 ## Technical Achievements
 

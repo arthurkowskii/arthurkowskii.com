@@ -102,26 +102,20 @@ bento:
     title: "Key Challenges"
     subtitle: "Technical problems solved during development"
     items:
-      - title: "Détection des différents type de cube"
-        description: "Developed custom 3D audio listener system that maintains spatial relationships regardless of world orientation"
-      - title: "Concevoir un son joué plus d'une cinquantaine de fois par minute et le rendre plaisant"
-        description: "Implemented audio pooling and LOD systems to handle complex 3D audio without performance impact"
-      - title: "Optimisation des performances"
-        description: "Created parametric music system with vertical remixing for seamless emotional transitions"
-  
+      - title: "Composition dans un style \"traditionnel\" "
+        description: "Le principal défi de ce projet était de composer en respectant une orchestration strictement traditionnelle, excluant tout instrument moderne (guitare, synthé…). Bien que ce cadre soit éloigné de mes habitudes de création, davantage tournées vers l’électronique, ce challenge s’est révélé particulièrement stimulant et enrichissant."
+      - title: "De la synthèse... partout."
+        description: "J'ai voulu profiter de ce projet pour explorer la synthèse utilisant Phase Plant (m'étant conseillé par l'entièreté de la planète depuis des mois) pour créer la plupart des sons comme le golem, l'épée, pierre magique, ailes en feu, etc... Ce choix m'a demandé pas mal d'expérimentations, mais il s'est avéré très formateur et a surtout intégré phase plant dans mes habitudes presques quotidiennes. Des démos des sons avec leurs patchs Phase Plant sont disponibles dans la galerie"
+
   # Results and impact
   results:
     title: "Results"
-    subtitle: "Impact and recognition"
+    subtitle: "Résultats obtenus à l'issu de ce projet"
     items:
-      - icon: "⭐"
-        text: "5.0/5 star rating with specific praise for innovative audio design"
-      - icon: "🎯"
-        text: "Featured as case study for 3D audio in indie game development"
-      - icon: "🔄"
-        text: "Audio systems reused in team's subsequent projects"
-      - icon: "🎧"
-        text: "Enhanced the \"headphones recommended\" meditative experience"
+      - icon: "🎬"
+        text: "1m20 de musique dans un style fantastique avec orchestre et voix soprano"
+      - icon: "🔉"
+        text: "Des SFX créé entièrement pour ce projet avec Phase Plant et Reaper"
 ---
 
 # Kubika: A Cube Story

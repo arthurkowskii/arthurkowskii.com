@@ -37,6 +37,7 @@ const projectsCollection = defineCollection({
       
       // Accent color theme
       accentColor: z.string().default('#ff6b00'), // Orange default
+      accentColorDark: z.string().optional(), // Optional dark theme accent color
       
       // Hero card configuration
       hero: z.object({

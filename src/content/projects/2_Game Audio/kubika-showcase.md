@@ -2,7 +2,7 @@
 title: "Kubika: A Cube Story"
 altTitle: "Kubika: A Cube Story"
 description: "Kubika est un jeu de Sokoban en 3D où la gravité devient votre meilleur allié… ou votre pire ennemi ! Actuellement en développement, j'assure le Sound-Design  et l'Intégration Audio du projet"
-tech: ["Unity", "FMOD", "Wwise", "Pro Tools", "C#", "Unity Mixer"]
+tech: ["Unity", "Reaper", "FMOD", "C#",]
 status: "completed"
 link: "https://kubika.itch.io/kubika-a-cube-story"
 date: 2024-03-15
@@ -112,14 +112,12 @@ bento:
     title: "Results"
     subtitle: "Impact and recognition"
     items:
-      - icon: "⭐"
-        text: "5.0/5 star rating with specific praise for innovative audio design"
-      - icon: "🎯"
-        text: "Featured as case study for 3D audio in indie game development"
-      - icon: "🔄"
-        text: "Audio systems reused in team's subsequent projects"
-      - icon: "🎧"
-        text: "Enhanced the \"headphones recommended\" meditative experience"
+      - icon: "🕹️"
+        text: "Une démo du premier monde disponible sur itch.io et une démo steam disponible avant la fin 2025"
+      - icon: "🔉"
+        text: "Un sound design satisfaisant et réactif"
+      - icon: "👨‍💻"
+        text: "Une intégration puissante mais légère, sans latence."
 ---
 
 # Kubika: A Cube Story

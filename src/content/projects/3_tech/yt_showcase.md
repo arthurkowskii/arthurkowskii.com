@@ -105,13 +105,13 @@ bento:
     title: "Features"
     items:
       - icon: "📋"
-        text: "Smart URL detection : Automatically detects YouTube and SoundCloud URLs from clipboard"
+        text: "Smart URL detection: détecte automatiquement les liens YouTube et SoundCloud depuis le presse-papiers"
       - icon: "🎯"
-        text: "Real-time Progress Bar : Live progress window showing download status"
+        text: "Real-time Progress Bar : la fenêtre affichant en direct l’avancement du téléchargement"
       - icon: "🔄"
-        text: "Non-blocking : REAPER remains responsive during download"
+        text: "Non bloquant : REAPER reste réactif pendant le téléchargement"
       - icon: "🧹"
-        text: "Auto-cleanup : Removes temporary files after import"
+        text: "Auto-cleanup : suppression des fichiers temporaires après l’importation"
 ---
 
 # Your Project Title

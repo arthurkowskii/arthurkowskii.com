@@ -114,6 +114,8 @@ const cards = {
   ...bento.cards 
 };
 const accentColor = bento.accentColor || '#ff6b00';
+const accentColorDark = bento.accentColorDark || accentColor; // Fallback to main accent if no dark variant
+const hasCustomDarkAccent = !!(bento.accentColorDark && bento.accentColorDark !== accentColor);
 // Compute lightness to guard against low-contrast accent-on-white text
 function hexToRgb(hex) {
   const h = hex.replace('#', '').slice(0, 6);
@@ -141,6 +143,13 @@ function contrastRatio(l1, l2) {
 const contrastWithWhite = contrastRatio(1, accentLum);
 const contrastWithBlack = contrastRatio(0, accentLum);
 const onAccentColor = contrastWithWhite >= contrastWithBlack ? '#ffffff' : '#000000';
+
+// Compute readable on-accent text color for dark theme accent
+const accentRgbObjDark = hexToRgb(accentColorDark);
+const accentLumDark = relativeLuminance(accentRgbObjDark);
+const contrastWithWhiteDark = contrastRatio(1, accentLumDark);
+const contrastWithBlackDark = contrastRatio(0, accentLumDark);
+const onAccentColorDark = contrastWithWhiteDark >= contrastWithBlackDark ? '#ffffff' : '#000000';
 
 // Music Links availability: only render when exactly 4 links provided
 const hasMusicLinks = !!(cards.musicLinks && bento.musicLinks && Array.isArray(bento.musicLinks.items) && bento.musicLinks.items.length === 4);
@@ -450,9 +459,14 @@ const heroBgStyle = '';
 const cleanHex = accentColor.replace('#', '');
 const hexRgb = cleanHex.length === 8 ? cleanHex.slice(0, 6) : cleanHex; // Remove alpha if present
 const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join(', ') || '255, 107, 0';
+
+// Generate CSS custom properties for dark theme accent color
+const cleanHexDark = accentColorDark.replace('#', '');
+const hexRgbDark = cleanHexDark.length === 8 ? cleanHexDark.slice(0, 6) : cleanHexDark;
+const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join(', ') || '255, 107, 0';
 ---
 
-<style define:vars={{ accentColor, accentColorRgb, heroSubtitleColor, onAccentColor, overlayTopOpacity, overlayBottomOpacity }}>
+<style define:vars={{ accentColor, accentColorRgb, accentColorDark, accentColorRgbDark, heroSubtitleColor, onAccentColor, onAccentColorDark, overlayTopOpacity, overlayBottomOpacity }}>
   .project-bento {
     min-height: 100vh;
     background: #ffffff !important;
@@ -475,6 +489,15 @@ const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join
   html[data-theme="dark"] .project-bento {
     background: #0f0f0f !important;
     color: #e4e4e7;
+    
+    /* Override accent colors with dark theme variants */
+    --accent-color: var(--accentColorDark);
+    --accent-color-rgb: var(--accentColorRgbDark);
+    --on-accent: var(--onAccentColorDark);
+    /* Derived roles automatically update based on new color */
+    --accent-bg-weak: rgba(var(--accentColorRgbDark), 0.10);
+    --accent-bg-weak-hover: rgba(var(--accentColorRgbDark), 0.16);
+    --accent-border: rgba(var(--accentColorRgbDark), 0.28);
   }
 
   /* Dark theme bento cards */
@@ -562,6 +585,11 @@ const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join
     background: rgba(var(--accent-color-rgb), 0.25);
     border-color: rgba(var(--accent-color-rgb), 0.5);
     transform: translateY(-1px) scale(1.02);
+  }
+
+  /* Specific overrides for projects with custom dark accent colors */
+  html[data-theme="dark"] .has-custom-dark-accent .action-btn.secondary {
+    color: var(--accent-color);
   }
 
   /* Dark theme tech pills */
@@ -1691,7 +1719,7 @@ const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join
   @media (prefers-reduced-motion: reduce) { .glb-container, .glb-scrim { transition: none !important; } }
 </style>
 
-<div class="project-bento">
+<div class={`project-bento ${hasCustomDarkAccent ? 'has-custom-dark-accent' : ''}`}>
   <div class="bento-container">
     
     <script type="application/json" class="bento-gallery-config" set:html={JSON.stringify(atomConfig.bentoGallery || {})}></script>

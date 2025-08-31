@@ -1,7 +1,7 @@
 ---
 title: "LE SUPER MEGA SHOW !"
 altTitle: "LE SUPER MEGA SHOW!"
-description: "\"LE SUPER MEGA SHOW!\" est une série audio et un court-métrage conçus, écrits et réalisés par Arthur Kowskii. Talk-show fictif inzpiré des émissions emblématiques des 70s et ruit de la collaboration entre Arthur Kowskii et le comédien belge Benoit Grimmiaux (Bojack Horseman...) qui incarne le présentateur."
+description: "LE SUPER MEGA SHOW ! est une série audio et un court-métrage conçus, écrits et réalisés par Arthur Kowskii. Talk-show fictif inzpiré des émissions emblématiques des 70s et ruit de la collaboration entre Arthur Kowskii et le comédien belge Benoit Grimmiaux (Bojack Horseman...) qui incarne le présentateur."
 tech: ["Ableton", "Reaper", "Davinci Resolve"]
 status: "completed" # or "in-progress" | "planned"
 link: "https://example.com"
@@ -120,11 +120,11 @@ bento:
     subtitle: "Défis principaux rencontrés lors de ce projet"
     items:
       - title: "Un album... et une série audio"
-        description: "LE SUPER MEGA SHOW ! » est un projet hybride, à la fois album et série audio. Il réunit plusieurs titres entrecoupés de courts épisodes narratifs qui ancrent l’histoire au sein de la musique. L’enjeu principal a été de trouver le bon équilibre entre narration et morceaux afin de proposer une expérience fluide et captivante. Pour garantir la continuité entre chaque épisode et chaque chanson, il a été indispensable de travailler sur une tracklist fixe"
+        description: "LE SUPER MEGA SHOW ! est un projet hybride mêlant album et série audio. Plusieurs titres y sont entrecoupés de courts épisodes narratifs qui ancrent l’histoire dans la musique. L’enjeu était de trouver le bon équilibre entre narration et morceaux pour offrir une expérience fluide. Une tracklist fixe a été essentielle pour garantir la continuité entre chaque épisode et chaque chanson."
       - title: "Casting"
-        description: "Le présentateur du « Super Mega Show » a été écrit comme un personnage aussi charismatique qu'étrange. Il était donc primordial de trouver le comédien de doublage idéal pour lui donner vie. Le rôle a finalement été interprété par le comédien de doublage Benoit Grimmiaux (Bojack Horseman, Pokémon, Rick et Morty...). Travailler avec Benoit, d’abord une idole puis un véritable compagnon créatif, a été pour moi un immense honneur et une grande fierté."
+        description: "Le présentateur du « Super Mega Show » a été pensé comme un personnage à la fois charismatique et étrange, nécessitant un comédien de doublage idéal. Ce rôle a été brillamment interprété par Benoit Grimmiaux (Bojack Horseman, Pokémon, Rick et Morty…). Collaborer avec Benoit, d’abord une idole puis un compagnon créatif, a été un immense honneur et une grande fierté pour moi."
       - title: "Un album, une série audio... et puis un film !"
-        description: "Plus nous travaillions avec Benoit, plus nous mettions de cœur dans ce projet et ses fondations. C’est lors de l’enregistrement des épisodes audio qu’a émergé peu à peu l’envie irrésistible de passer à l’image. Pourtant, cela semblait impossible : je n’avais jamais écrit de script professionnel de cette ampleur, jamais storyboardé, monté ou préparé une équipe de tournage, conçu une mise en scène, un plan lumière, un schéma de plateau pour les techniciens, ni même assuré une réalisation sur le plateau. Et pourtant, c’est finalement tout cela que j’ai été amené à accomplir"
+        description: "Plus nous travaillions avec Benoit, plus nous mettions de cœur dans ce projet. L’envie de passer à l’image est née lors de l’enregistrement audio, même si cela paraissait impossible : je n’avais jamais écrit de script, storyboardé, monté une équipe, conçu de mise en scène ou assuré une réalisation. Pourtant, c'est exactement ce que j’ai fini par faire !"
 
   # Optional results
   results:

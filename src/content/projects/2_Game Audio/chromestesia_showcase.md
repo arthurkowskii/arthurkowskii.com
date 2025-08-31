@@ -38,9 +38,9 @@ bento:
     subtitleColor: "#faf525"
     backgroundPosition: "center"
     backgroundSize: "cover"
-    backgroundScale: 1.4  # Alternative to backgroundSize - use 1.1, 0.9, etc.
+    backgroundScale: 1.1  # Alternative to backgroundSize - use 1.1, 0.9, etc.
     overlayTopOpacity: 0.1  # Controls dark overlay opacity at top (0.0 = transparent, 1.0 = opaque)
-    overlayBottomOpacity: 0.8  # Controls dark overlay opacity at bottom (0.0 = transparent, 1.0 = opaque)
+    overlayBottomOpacity: 0.7  # Controls dark overlay opacity at bottom (0.0 = transparent, 1.0 = opaque)
     showLogo: false
 
   # Optional stats
@@ -102,8 +102,10 @@ bento:
   results:
     title: "Results"
     items:
-      - icon: "🚀"
-        text: "Decreased load time by 45%"
+      - icon: "🕹️"
+        text: "Une gold jouable développé en 3 semaines"
+      - icon: "🎵"
+        text: "Une OST de 6 titres disponible sur SoundCloud"
 ---
 
 # Your Project Title
