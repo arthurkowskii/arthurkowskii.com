@@ -393,7 +393,7 @@ export const userTweaks = {
     path: '/welcome',
     storageKey: 'entered',       // sessionStorage key to mark entry
     title: 'Bienvenue !',
-    description: 'Vous êtes sur le portfolio d"Arthur Kowskii. Ce site est encore en construction, et de nouvelles fonctionnalités sont prévues très bientôt !',
+    description: 'Vous êtes sur le portfolio d\'Arthur Kowskii. Ce site est encore en construction, et de nouvelles fonctionnalités sont prévues très bientôt !',
     buttonLabel: 'Enter Portfolio',
     noindex: true,               // add noindex robots meta on welcome page
     audioPrewarm: true,          // try to unlock audio on click
