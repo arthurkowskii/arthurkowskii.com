@@ -4,7 +4,7 @@
 
 Full details: `docs/history/PHASE_LOGS.md`, `docs/history/ERRORS_LESSONS.md`
 
-Last updated: 2025-08-31 (Code spring cleaning + DEVELOPMENT_LOG optimization)
+Last updated: 2025-08-31 (Press card system + mobile detection fix)
 
 ## Project Snapshot
 
@@ -107,6 +107,13 @@ Last updated: 2025-08-31 (Code spring cleaning + DEVELOPMENT_LOG optimization)
 - Token optimization for AI agents (~30-40% reduction)
 - Mobile development message: French informational overlay for mobile users
 
+### Press System Implementation (2025-08-31)
+- **Press Card System**: Complete bio page press section with responsive grid layout
+- **Content Schema**: Extended bio collection to support press articles with mixed URL/local image paths
+- **Press Articles**: Added 4 press articles including Kowskii coverage from major publications
+- **Image Management**: Proper static asset organization in public/images/press/ directory
+- **Critical Bug Fix**: Fixed mobile detection false positives causing desktop Firefox overlay blocking
+
 ## Current Status
 
 ✅ Production ready with enterprise-grade monitoring, security, and performance
@@ -116,6 +123,8 @@ Last updated: 2025-08-31 (Code spring cleaning + DEVELOPMENT_LOG optimization)
 ✅ Advanced project filtering and interactive navigation
 ✅ Professional hover interactions across all components
 ✅ Comprehensive animation system with accessibility support
+✅ Press card system with responsive design and content management
+✅ Mobile detection system with cross-browser compatibility
 
 ## Technical Architecture Notes
 
@@ -132,7 +141,7 @@ Last updated: 2025-08-31 (Code spring cleaning + DEVELOPMENT_LOG optimization)
 - Bento projects: assetsFolder auto-scanning, hero/logo detection, gallery population
 - Music projects: musicLinks card system, SoundCloud/Spotify integration
 - Video support: hero backgrounds, gallery integration, thumbnail fallbacks
-- Bio system: skills with logo mapping, social links, modern card design
+- Bio system: skills with logo mapping, social links, modern card design, press articles with mixed image sources
 
 ## Performance & Optimization
 
