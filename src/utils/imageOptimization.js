@@ -224,7 +224,6 @@ export function trackImagePerformance(imageUrl, startTime) {
     performance.mark(`image-loaded-${Date.now()}`);
   }
   
-  console.debug(`Image loaded in ${loadTime.toFixed(2)}ms: ${imageUrl.substring(0, 50)}...`);
   
   // Track to analytics if available
   if (typeof gtag !== 'undefined') {

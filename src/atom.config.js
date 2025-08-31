@@ -5,8 +5,6 @@
 
 import { userTweaks } from './user-tweaks.js';
 
-// Debug: Check if userTweaks.liquidGlass is loading
-// console.log('🔧 atom.config.js - userTweaks.liquidGlass:', userTweaks.liquidGlass);
 
 export default {
   // Central nucleus (bio/about section)

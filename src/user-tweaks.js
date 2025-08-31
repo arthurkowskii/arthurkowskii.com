@@ -1,194 +1,156 @@
-/**
- * USER TWEAKABLE VALUES
- * 
- * This file contains the main parameters you can safely adjust
- * to customize the atom behavior without breaking anything.
- * 
- * Just change the numbers and refresh the page!
- */
-
+// Core atom configuration - modify these values to customize behavior
 export const userTweaks = {
   
-  // 🌀 ROTATION SPEEDS (degrees per second)
-  // Higher = faster rotation, Lower = slower rotation
+  // Rotation speeds (degrees/second)
   electronSpeeds: {
-    innerShell: 7.0,    // Closest to nucleus (currently fast)
-    middleShell: 9.0,   // Middle ring
-    outerShell: 12.0     // Outermost ring (currently slowest)
+    innerShell: 7.0,
+    middleShell: 9.0,
+    outerShell: 12.0
   },
 
-  // 📏 SIZES
-  electronSize: 18,        // Normal electron radius
-  electronHoverSize: 22,  // Size when you hover over it
-  nucleusSize: 40,        // Center "A" circle size
-  nucleusHoverSize: 52,   // Nucleus size on hover (clickable, not draggable)
+  // Element sizes
+  electronSize: 18,
+  electronHoverSize: 22,
+  nucleusSize: 40,
+  nucleusHoverSize: 52,
 
-  // 🖼️ NUCLEUS LOGO
+  // Nucleus logo positioning
   nucleusLogo: {
-    size: 1.35,             // Logo size as percentage of nucleus radius (1.0 = same as nucleus)
-    offsetX: -1,            // Horizontal offset in pixels (+ = right, - = left)
-    offsetY: -1.1             // Vertical offset in pixels (+ = down, - = up)
+    size: 1.35,
+    offsetX: -1,
+    offsetY: -1.1
   },
 
-  // ⏱️ TIMING
-  hoverAnimationSpeed: 0.15,  // How fast electrons grow/shrink on hover (seconds)
-  baselineResetAnimationSpeed: 0.15, // Duration for resetting to baseline (none state)
+  // Animation timing (seconds)
+  hoverAnimationSpeed: 0.15,
+  baselineResetAnimationSpeed: 0.15,
 
-  // ⚙️ DRAG PHYSICS
-  dragSnapDuration: 0.5,     // How long the snap-back lasts (s)
+  // Drag physics
+  dragSnapDuration: 0.5,
   dragElastic: {
-    amplitude: 0.18,          // Elastic ease amplitude (0.1–1.5 typical)
-    period: 0.2             // Elastic ease period (smaller = faster wobble)
+    amplitude: 0.18,
+    period: 0.2
   },
 
-  // 🎯 SHELL DISTANCES (from center)
+  // Shell layout
   shellDistances: {
-    inner: 120,   // Pixels from nucleus center
+    inner: 120,
     middle: 200,
     outer: 280
   },
+  minElectronDistance: 50,
 
-  // 📐 ELECTRON SPACING
-  minElectronDistance: 50,   // Minimum degrees between electrons on same shell
-
-  // ⭕ SHELL STATES
+  // Shell appearance
   shell: {
-    // Default state (resting)
     default: {
-      thickness: 4,           // Shell ring stroke width
-      opacity: 0.3           // Shell opacity (subtle visibility)
+      thickness: 4,
+      opacity: 0.3
     },
-    // Hover state (focused)
     hover: {
-      thickness: 5,           // Shell thickness on hover (subtle increase)
-      opacity: 0.7,           // Shell opacity on hover (modern transparency)
-      electronOpacity: 0.2    // Electrons opacity when shell hovered
+      thickness: 5,
+      opacity: 0.7,
+      electronOpacity: 0.2
     }
   },
 
-  // 🖼️ VIEWPORT (prevent electron clipping)
-  viewportSize: 900,        // SVG width/height (increase if electrons get cut off)
-  viewportPadding: 80,      // Safe area around edges
+  // Viewport settings
+  viewportSize: 900,
+  viewportPadding: 80,
+  atomScale: 1,
 
-  // 🔍 OVERALL ATOM SCALE
-  atomScale: 1,           // 1.0 = normal, 1.5 = 50% bigger, 0.8 = 20% smaller
-
-  // 🎯 DOMAIN SHELL ASSIGNMENT
-  // Order determines shell assignment: first = inner, second = middle, third = outer
-  // Change this array to reorder domains across shells
+  // Domain configuration
   domainShellOrder: ['music', 'sound-design', 'tech'],
-
-  // 📛 DOMAIN DISPLAY NAMES (for labels)
-  // Map slugs to display names. Defaults to slug uppercased with dashes → spaces.
   domainDisplayNames: {
     music: 'MUSIC',
     'sound-design': 'SOUND DESIGN',
     tech: 'TECH'
   },
 
-  // 🎯 INTERACTION
-  // Shell hover hitbox tolerance (in pixels).
-  // This defines the +/- distance around each shell radius that counts as a hover.
-  // Example: 15 means a 30px wide ring centered on the shell path.
+  // Interaction settings
   shellHitboxTolerance: 30,
 
-  // 🔄 OVERLAY TRANSITION (one-page project overlay)
+  // Overlay transitions
   overlayTransition: {
-    openMs: 1000,   // duration to open overlay (ms)
-    closeMs: 600,  // duration to close overlay (ms)
-    easing: 'power2.inOut' // GSAP ease name
+    openMs: 1000,
+    closeMs: 600,
+    easing: 'power2.inOut'
   },
 
-  // 🌀 NAV TRANSITION (electron → overlay)
-  // Mirrors nucleus timings by default; separate in/out for clarity
+  // Nav transition (electron → overlay)
   navTransition: {
     enabled: true,
-    inMs: 1000,          // open duration (ms)
-    outMs: 600,          // close duration (ms)
+    inMs: 1000,
+    outMs: 600,
     easing: 'power2.inOut',
     respectReducedMotion: true,
-    edgeSoftnessPx: 0,   // no soft edge per request
+    edgeSoftnessPx: 0,
     blockInput: true
   },
 
-  // ✨ MICRO INTERACTIONS
+  // Micro interactions
   micro: {
-    // Hover ring around the electron
     hoverCursorRing: false,
-    hoverRingDelta: 6,          // extra radius in px
+    hoverRingDelta: 6,
     hoverRingOpacity: 0.6,
     hoverRingDurationMs: 160,
-
-    // Ripple on click
     ripple: true,
     rippleDurationMs: 360,
     rippleColor: '#000',
     rippleStrokeWidth: 2.7,
     rippleExpandPx: 56,
-
-    // Shell pulse on click
     shellPulse: true,
-    shellPulseDelta: 1.2,       // add to strokeWidth in px
+    shellPulseDelta: 1.2,
     shellPulseDurationMs: 200
   },
 
-  // 🔤 SHELL LABELS
+  // Shell labels
   labels: {
-    enabled: true,            // master toggle
-    mode: 'ringPattern',      // 'ring' | 'orbiting' | 'ringPattern'
-    fontSize: 14,             // base px before atomScale
-    offsetPx: 18,             // outward from shell stroke (ring mode)
-    idleOpacity: 0.25,        // always-visible baseline
-    hoverOpacity: 0.6,        // optional bump on hover (can be unused)
-    repeat: 12,               // how many times to repeat label with separators
-    // Repeating pattern specifics (full-circle text with per-shell offsets)
+    enabled: true,
+    mode: 'ringPattern',
+    fontSize: 14,
+    offsetPx: 18,
+    idleOpacity: 0.25,
+    hoverOpacity: 0.6,
+    repeat: 12,
     pattern: {
-      offsetsPercentByShell: [0, 3.5, 7], // startOffset percentages per shell (0–100)
-      repeatsByShell: [12, 9, 40],         // per-shell repeat counts (used if present)
-      densityPxPerRepeat: 26,              // auto: px of circumference per repetition
+      offsetsPercentByShell: [0, 3.5, 7],
+      repeatsByShell: [12, 9, 40],
+      densityPxPerRepeat: 26,
       minRepeats: 3,
       maxRepeats: 40,
       separator: ' • '
     },
     rotate: {
       enabled: false,
-      respectReducedMotion: false, // keep labels rotating even if OS reduces (aligns with current electrons)
-      // seconds per revolution for inner/middle/outer; sign from shell.direction
+      respectReducedMotion: false,
       speedsByShell: [90, 110, 130]
     },
-    // Mobile behavior (ring mode)
-    mobileViewportMaxPx: 700,     // below this viewport width, prefer arc variant
-    mobileArcDegrees: 150,        // arc length for small screens (top-centered)
-
-    // Orbiting word mode specifics
+    mobileViewportMaxPx: 700,
+    mobileArcDegrees: 150,
     wordOrbit: {
-      innerOffsetPx: 22,      // inward from shell stroke
-      arcDegrees: 160,        // local arc length to curve the single word
-      centerAngleDeg: -60     // center angle for all shells (-90 = top)
+      innerOffsetPx: 22,
+      arcDegrees: 160,
+      centerAngleDeg: -60
     }
   },
 
-  // 🧮 DYNAMIC SHELLS (compute shells from domain folders)
+  // Dynamic shells
   dynamicShells: {
     enabled: true,
-    baseRadius: 120,    // px, distance of inner-most shell from center
-    baseGap: 80,        // px, nominal spacing between shells
-    minGap: 56,         // px, lower bound when many shells
-    maxGap: 110,        // px, upper bound clamp
-    directionMode: 'alternate', // 'alternate' | 'cw' | 'ccw'
-    speed: { base: 9.0, deltaPerShell: 0.0 } // degrees/sec; 360/speed = seconds per orbit
+    baseRadius: 120,
+    baseGap: 80,
+    minGap: 56,
+    maxGap: 110,
+    directionMode: 'alternate',
+    speed: { base: 9.0, deltaPerShell: 0.0 }
   },
 
-  // 🎵 BENTO CARD ANIMATIONS (Simple Scale + Audio)
+  // Bento animations
   bentoAnimations: {
     enabled: true,
-    
-    // Simple animation parameters
-    staggerDelayMs: 80,           // Delay between each card (ms)
-    animationDurationMs: 400,     // Duration of each card animation (ms)
-    easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)', // Bouncy easing
-    
-    // Individual card controls (set to false to disable specific cards)
+    staggerDelayMs: 80,
+    animationDurationMs: 400,
+    easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
     cardEnabled: {
       hero: true,
       stats: true,
@@ -199,14 +161,10 @@ export const userTweaks = {
       challenges: true,
       results: true
     },
-    
-    // Audio settings
     audio: {
-      enabled: false,     // Enable/disable bento card animation sounds
-      volume: 0,        // Volume level (0-1)
-      syncWithAnimation: true,  // Sync audio with animation start
-      
-      // Card-specific pitches (musical notes)
+      enabled: false,
+      volume: 0,
+      syncWithAnimation: true,
       pitches: {
         hero: 'C3',
         stats: 'E3',
@@ -217,88 +175,68 @@ export const userTweaks = {
         challenges: 'B3', 
         results: 'D4'     
       },
-      
-      // Tone synthesis settings
       synthesis: {
-        attack: 0.01, // Quick bubble pop attack
-        decay: 0.3, // Bubbly decay
-        sustain: 0, // No sustain (pure burst)
-        release: 0.8, // Gentle release
+        attack: 0.01,
+        decay: 0.3,
+        sustain: 0,
+        release: 0.8,
         chorus: {
-          frequency: 4, // Wobble frequency
-          depth: 0.3 // Chorus depth
+          frequency: 4,
+          depth: 0.3
         }
       }
     }
   },
 
-  // 👁️ ELECTRON PREVIEW CARD
+  // Electron preview cards
   electronPreview: {
     enabled: true,
-    width: 250,                    // Preview card width (px)
-    height: 110,                   // Preview card height (px)
-    offsetX: 20,                   // Distance from electron (px)
-    offsetY: -100,                  // Vertical offset from electron (px)
-    borderRadius: 8,               // Preview card corner radius (px)
-    
-    // Hero image (square on the right)
-    heroSize: 88,                  // Hero image width/height (px)
-    heroRadius: 8,                 // Hero image corner radius (px)
-    heroMargin: 10,                // Hero image margin from preview edges (px)
-    
-    // Content styling
-    contentPadding: 16,            // Text content padding (px)
-    titleSize: 16,                 // Title font size (px)
-    subtitleSize: 13,              // Subtitle font size (px)
-    
-    // Animation
-    animationDuration: 0.2,        // Total animation duration (seconds)
-    animationEase: 'back.out(1.7)', // GSAP easing function (legacy, used for settle phase)
-    
-    // Multi-stage animation timing (percentages of total duration)
+    width: 250,
+    height: 110,
+    offsetX: 20,
+    offsetY: -100,
+    borderRadius: 8,
+    heroSize: 88,
+    heroRadius: 8,
+    heroMargin: 10,
+    contentPadding: 16,
+    titleSize: 16,
+    subtitleSize: 13,
+    animationDuration: 0.2,
+    animationEase: 'back.out(1.7)',
     multiStage: {
-      stage1Duration: 0.7,         // Birth phase (0 to this %) - emergence from electron
-      stage2Duration: 0.4,         // Travel phase (stage1 to stage1+stage2 %) - movement to position  
-      stage3Duration: 0.2,         // Expansion phase (remaining %) - final growth with overshoot
-      settleDebounce: 0.1,         // Final settle phase (overshoot correction)
-      
-      // Scale progression
-      birthScale: 0.1,             // Starting scale at electron center
-      travelScale: 0.3,            // Scale at end of stage 1 (beginning travel)
-      preExpandScale: 0.8,         // Scale at end of stage 2 (before final expansion)
-      overshootScale: 1.05,        // Peak scale during overshoot
-      finalScale: 1.0,             // Final settled scale
-      
-      // Opacity progression  
-      birthOpacity: 0.3,           // Starting opacity
-      travelOpacity: 0.7,          // Opacity during travel
-      preExpandOpacity: 0.9,       // Opacity before final expansion
-      finalOpacity: 1.0            // Final opacity
+      stage1Duration: 0.7,
+      stage2Duration: 0.4,
+      stage3Duration: 0.2,
+      settleDebounce: 0.1,
+      birthScale: 0.1,
+      travelScale: 0.3,
+      preExpandScale: 0.8,
+      overshootScale: 1.05,
+      finalScale: 1.0,
+      birthOpacity: 0.3,
+      travelOpacity: 0.7,
+      preExpandOpacity: 0.9,
+      finalOpacity: 1.0
     }
   },
 
-  // 🔊 ATOM INTERFACE SOUNDS (Tone.js Placeholders)
+  // Atom interface sounds
   atomSounds: {
     enabled: false,
-    volume: 0.2,        // Lower than bento sounds for subtlety
-    
-    // Sound events with placeholder Tone.js pitches
+    volume: 0.2,
     events: {
-      electronHover: 'C4',      // Electron mouseenter - mid frequency
-      electronClick: 'C3',      // Electron click - deep impact  
-      shellHover: 'G4',         // Shell hover - higher ambient
-      nucleusHover: 'F2',       // Nucleus hover - deep resonant
-      nucleusClick: 'A2',       // Nucleus click - bio transition
-      ripple: 'E5',             // Micro-interaction ripple
-      shellPulse: 'D4',         // Micro-interaction shell pulse
-      
-      // Creative electron drag sounds (no nucleus drag) - simplified: detach + drop only
-      electronDragStart: 'B4',  // Electron detach - bright grab when starting drag
-      electronDragSnap: 'C5',   // Electron snap back - satisfying return
-      electronDragRelease: 'E4' // Electron gentle release - soft drop without snap
+      electronHover: 'C4',
+      electronClick: 'C3',
+      shellHover: 'G4',
+      nucleusHover: 'F2',
+      nucleusClick: 'A2',
+      ripple: 'E5',
+      shellPulse: 'D4',
+      electronDragStart: 'B4',
+      electronDragSnap: 'C5',
+      electronDragRelease: 'E4'
     },
-    
-    // Tone synthesis settings
     synthesis: {
       attack: 0.02,
       decay: 0.4,
@@ -307,48 +245,41 @@ export const userTweaks = {
     }
   },
 
-  // 🌊 LIQUID GLASS EFFECTS
+  // Liquid glass effects
   liquidGlass: {
     enabled: true,
-    displacementScale: 70,     // Distortion intensity
-    blurAmount: 0.0625,        // Blur intensity
-    elasticity: 0.8            // Bounce elasticity
-  }
+    displacementScale: 70,
+    blurAmount: 0.0625,
+    elasticity: 0.8
+  },
 
-  ,
-  // 🧩 Bio Skills UI (card chips)
-  // Quick controls for the skill boxes (logo + text chips) on the Bio page
+  // Bio skills UI
   bentoSkillsUI: {
-    boxMinHeight: 23,   // px, vertical size of each box
-    padX: 20,           // px, horizontal padding inside each box
-    padY: 12,           // px, vertical padding inside each box
-    fontSize: 14,       // px, text size inside boxes
-    logoSize: 25,       // px, logo/icon size inside boxes
-    gap: 16,            // px, space between boxes
-    borderRadius: 12    // px, corner radius of boxes
+    boxMinHeight: 23,
+    padX: 20,
+    padY: 12,
+    fontSize: 14,
+    logoSize: 25,
+    gap: 16,
+    borderRadius: 12
   },
 
-  // 📝 Bio Text Styling
-  // Controls for the main bio text content in the bio card
+  // Bio text styling
   bioText: {
-    fontSize: 17,       // px, main bio text size
-    lineHeight: 1.6,    // line height for bio text readability
-    alignment: 'top',   // 'top' | 'center' - vertical alignment in bio card
-    justify: true,      // boolean - enable justified text alignment
-    fontWeight: 400     // font weight
+    fontSize: 17,
+    lineHeight: 1.6,
+    alignment: 'top',
+    justify: true,
+    fontWeight: 400
   },
 
-  // 🎨 Modern Design System
-  // Professional UI enhancements based on 2025 design standards
+  // Modern design system
   modernDesign: {
-    // Enhanced shadow system (layered depth)
     shadows: {
       card: '0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04)',
       cardHover: '0 4px 12px rgba(0, 0, 0, 0.1), 0 8px 32px rgba(0, 0, 0, 0.06)',
       subtle: '0 1px 3px rgba(0, 0, 0, 0.08)'
     },
-    
-    // Sophisticated color palette
     colors: {
       surfacePrimary: '#ffffff',
       surfaceSecondary: '#f8fafc', 
@@ -358,75 +289,54 @@ export const userTweaks = {
       textTertiary: '#64748b',
       borderPrimary: '#e2e8f0',
       borderSecondary: '#cbd5e1',
-      borderAccent: '#475569'    // Changed from blue to sophisticated gray
+      borderAccent: '#475569'
     },
-    
-    // Enhanced interaction timing
     transitions: {
       fast: '0.15s cubic-bezier(0.4, 0, 0.2, 1)',
       medium: '0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       slow: '0.5s cubic-bezier(0.4, 0, 0.2, 1)'
     },
-    
-    // Professional skill grid settings
     skillGrid: {
-      minCardWidth: 140,        // px, minimum width for auto-fit grid
-      gap: 16,                  // px, space between skill cards (increased from 12)
-      cardPadding: 16,          // px, internal card padding
-      hoverTransform: 'translateY(-2px) scale(1.02)',  // hover effect transform
-      borderRadius: 12          // px, card corner radius
+      minCardWidth: 140,
+      gap: 16,
+      cardPadding: 16,
+      hoverTransform: 'translateY(-2px) scale(1.02)',
+      borderRadius: 12
     },
-    
-    // Enhanced social link design
     socialLinks: {
-      minTouchTarget: 44,       // px, minimum touch target size
-      iconSize: 20,             // px, icon size
-      padding: 10,              // px, internal padding
-      gap: 12                   // px, space between links
+      minTouchTarget: 44,
+      iconSize: 20,
+      padding: 10,
+      gap: 12
     }
   },
 
-
-  // 🚪 Pre-Page (Welcome)
+  // Welcome page
   prePage: {
     enabled: true,
     path: '/welcome',
-    storageKey: 'entered',       // sessionStorage key to mark entry
+    storageKey: 'entered',
     title: 'Bienvenue !',
     description: 'Vous êtes sur le portfolio d\'Arthur Kowskii. Ce site est encore en construction, et de nouvelles fonctionnalités sont prévues très bientôt !',
     buttonLabel: 'Enter Portfolio',
-    noindex: true,               // add noindex robots meta on welcome page
-    audioPrewarm: true,          // try to unlock audio on click
-    
-    // Animation timing controls
+    noindex: true,
+    audioPrewarm: true,
     animations: {
-      overlayFadeDuration: 0.4,    // seconds - background fade in/out (snappier response)
-      cardAnimationDuration: 0.6,  // seconds - card scale/movement (matches atom interactions) 
-      cardDelay: 0.15,              // seconds - delay before card starts moving (minimal wait)
-      focusDelay: 0.8,             // seconds - delay before focusing card (reduced)
-      
-      // Card starting position - refined for sophistication
-      cardStartScale: 0.85,       // starting scale (subtle 15% growth matching atom proportions)
-      cardStartRotation: 0,       // starting rotation in degrees (geometric precision)
-      cardStartY: 30,             // starting Y offset in pixels (gentle upward drift)
-      
-      // Animation easing - portfolio-aligned sophistication
-      overlayEasing: 'cubic-bezier(0.4, 0, 0.2, 1)',  // CSS easing for overlay fade
-      cardEasing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',  // CSS easing for card (matches bento animations)
-      
-      // Force animations (override reduced motion)
-      forceAnimations: true,     // true = ignore reduced motion preferences, false = respect them
-      debugMode: false           // true = show console debug info for animation states
+      overlayFadeDuration: 0.4,
+      cardAnimationDuration: 0.6,
+      cardDelay: 0.15,
+      focusDelay: 0.8,
+      cardStartScale: 0.85,
+      cardStartRotation: 0,
+      cardStartY: 30,
+      overlayEasing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      cardEasing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+      forceAnimations: true,
+      debugMode: false
     }
   },
 
-  // dY_ Gallery Layout (Bento)
-  // Controls how many thumbnail rows can appear in the gallery card
-  // based on how much taller the card renders above its CSS min-height.
-  // extraRow1DeltaPx => enables 2 rows when cardHeight >= minHeight + this many px
-  // extraRow2DeltaPx => enables 3 rows when cardHeight >= minHeight + this many px
-  // heroMinHeightFallback => JS fallback if computed min-height isn't available
-  // maxRows => global cap
+  // Gallery layout
   bentoGallery: {
     extraRow1DeltaPx: 500,
     extraRow2DeltaPx: 1000,
@@ -434,100 +344,75 @@ export const userTweaks = {
     maxRows: 3
   },
 
-  // 🌐 Social Sharing Meta Tags
-  // Controls Open Graph and Twitter Card metadata for rich link previews
+  // Social sharing
   socialMeta: {
-    // Site-wide defaults
     siteName: 'Portfolio Arthur Kowskii',
-    siteUrl: 'https://arthurkowskii.com', // Update with your actual domain
+    siteUrl: 'https://arthurkowskii.com',
     author: 'Arthur Kowskii',
     defaultDescription: 'Portfolio interactif présentant production musicale, sound design pour jeux vidéo et projets techniques à travers une interface atomique innovante.',
-    
-    // Homepage specific
     home: {
       title: 'Arthur Kowskii — Portfolio Interactif',
       description: 'Explorez mes productions dans une expérience portfolio interactive basée sur un atome.',
-      image: '/src/Assets/link_preview.webp', // 1200x630px
+      image: '/src/Assets/link_preview.webp',
       imageAlt: 'Portfolio Interactif Arthur Kowskii - Visualisation atomique avec projets orbitaux'
     },
-    
-    // Bio page specific  
     bio: {
       title: 'À Propos d\'Arthur Kowskii — Bio Portfolio Créatif',
       description: 'Découvrez mon parcours en production musicale, sound design pour jeux vidéo et développement technique. Compétences, expérience et philosophie créative.',
-      image: '/images/social/og-bio.jpg', // 1200x630px
+      image: '/images/social/og-bio.jpg',
       imageAlt: 'Arthur Kowskii - Producteur Musical, Sound Designer, Développeur'
     },
-    
-    // Project pages (uses dynamic content but these are fallbacks)
     project: {
       title: '{projectTitle} — Portfolio Arthur Kowskii',
       description: '{projectDescription}',
-      image: '/images/social/og-default.jpg', // 1200x630px fallback
+      image: '/images/social/og-default.jpg',
       imageAlt: 'Projet Portfolio Arthur Kowskii - {projectTitle}'
     },
-    
-    // Social images configuration
     images: {
       defaultFallback: '/images/social/og-default.jpg',
       homePage: '/images/social/og-home.jpg', 
-      bioPage: '/images/social/og-bio.jpg',
-      // Projects will try to use their hero images, fallback to default
+      bioPage: '/images/social/og-bio.jpg'
     },
-    
-    // Twitter/X specific settings
     twitter: {
-      handle: '@arthurkowskii', // Update with your actual Twitter handle
+      handle: '@arthurkowskii',
       cardType: 'summary_large_image'
     }
   },
 
-  // 📐 Bio Page Layout
-  // Controls the top spacing for the bio page to match project pages
+  // Bio page layout
   bioPageLayout: {
-    topGapPx: 100        // Top gap in pixels (you can adjust this value)
+    topGapPx: 100
   },
 
-  // ✓ VISITED PROJECT INDICATORS (checkmarks)
+  // Visited indicators
   visitedIndicators: {
-    // Visual design
-    size: 10,                        // Indicator radius in pixels (circular design)
-    scale: 0.7,                      // Overall scale multiplier (1.0 = normal, 0.8 = smaller, 1.2 = bigger)
-    strokeWidth: 0.5,                  // Border thickness for refined appearance
-    outline: true,                   // Enable/disable the circular outline border
-    
-    // Colors (will be enhanced with dynamic accent colors)
+    size: 10,
+    scale: 0.7,
+    strokeWidth: 0.5,
+    outline: true,
     colors: {
-      background: '#ffffff',          // Clean white background
-      border: '#e5e5e5',             // Subtle gray border (light mode)
-      checkmark: '#171717',          // Dark checkmark symbol (light mode)
-      borderDark: '#333333',         // Dark mode border
-      checkmarkDark: '#ffffff'       // Dark mode checkmark symbol
+      background: '#ffffff',
+      border: '#e5e5e5',
+      checkmark: '#171717',
+      borderDark: '#333333',
+      checkmarkDark: '#ffffff'
     },
-    
-    // Positioning relative to electron
     offset: {
-      x: 0.8,                       // Horizontal offset as fraction of electron radius (0.8 = 80% to right)
-      y: -0.8                       // Vertical offset as fraction of electron radius (-0.8 = 80% upward)
+      x: 0.8,
+      y: -0.8
     },
-    
-    // Emergence animation when checkmark first appears
     emergence: {
-      enabled: true,                 // Enable emergence animation
-      duration: 0.4,                 // Animation duration in seconds
-      startScale: 0.3,               // Starting scale for emergence
-      easing: 'back.out(1.7)',       // Bouncy emergence effect
-      delay: 0.1                     // Delay after project closes
+      enabled: true,
+      duration: 0.4,
+      startScale: 0.3,
+      easing: 'back.out(1.7)',
+      delay: 0.1
     },
-    
-    // Filtering integration (respect dim rules)
     filtering: {
-      dimOpacity: 0.25,              // Opacity when electron is filtered/dimmed
-      animationDuration: 0.3         // Duration for filter opacity changes
+      dimOpacity: 0.25,
+      animationDuration: 0.3
     },
-    
-    // Simple design - no shadows or hover effects for performance
-    simple: true                     // Keep it lightweight and glued to electrons
+    simple: true
   }
 
 };

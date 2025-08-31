@@ -1,23 +1,17 @@
 ---
-// Header component with name, project filters, and theme toggle
 ---
 
 <header id="main-header">
   <div class="header-content">
-    <!-- Name (left) -->
     <div class="header-name">
       <h1>Arthur Kowskii</h1>
     </div>
-    
-    <!-- Project filters (center) -->
     <nav class="header-filters">
       <button class="filter-btn active" data-filter="all">All</button>
       <button class="filter-btn" data-filter="music">Music</button>
       <button class="filter-btn" data-filter="game-audio">Game Audio</button>
       <button class="filter-btn" data-filter="tech">Tech</button>
     </nav>
-    
-    <!-- Empty space (right) to maintain filter centering -->
     <div></div>
   </div>
 </header>
@@ -28,7 +22,7 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 9998; /* Below overlay but above everything else */
+    z-index: 9998;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -37,13 +31,11 @@
     transition: transform 0.3s ease, opacity 0.3s ease;
   }
   
-  /* Dark mode header */
   html[data-theme="dark"] #main-header {
     background: rgba(15, 15, 15, 0.95);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
   
-  /* Hide header during overlay */
   #main-header.hidden {
     transform: translateY(-100%);
     opacity: 0;

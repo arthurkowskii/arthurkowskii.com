@@ -1,5 +1,4 @@
-// Lightweight lightbox + slider for gallery focus mode
-// Works in both project pages and overlay. No external deps beyond gsap.
+// Gallery lightbox component
 
 import { gsap } from 'gsap';
 

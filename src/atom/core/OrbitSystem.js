@@ -1,45 +1,23 @@
-/**
- * OrbitSystem - Manages electron orbital motion around static shells
- * Nucleus and shells remain static, only electrons move
- */
-
+// OrbitSystem - Manages electron orbital motion around static shells
 import { gsap } from 'gsap/all';
 
 export class OrbitSystem {
   constructor(config) {
     this.config = config;
     this.electrons = [];
-    this.timelines = new Map(); // Track individual electron timelines
+    this.timelines = new Map();
     this.isRunning = false;
     this.centerX = config.viewport.centerX;
     this.centerY = config.viewport.centerY;
-    
-    // Frame throttling for animation performance
     this.frameThrottled = false;
-    this.pendingUpdates = new Map(); // Track pending updates per electron
-    
-    // Safari-specific optimizations
+    this.pendingUpdates = new Map();
     this.isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     this.safariOptimizations = this.isSafari;
   }
 
-  /**
-   * Initialize the orbit system with electron elements
-   */
   init() {
     try {
-      // Find all electrons in the DOM (exclude nucleus)
       const electronElements = document.querySelectorAll('.electron:not(.nucleus)');
-      
-      // console.log('🔍 DEBUG: Found electron elements:', electronElements.length);
-      // electronElements.forEach((el, i) => {
-      //   console.log(`🔍 DEBUG: Electron ${i}:`, {
-      //     classes: el.className,
-      //     shell: el.dataset.shell,
-      //     shellIndex: el.dataset.shellIndex,
-      //     project: el.dataset.project
-      //   });
-      // });
       
       if (electronElements.length === 0) {
         console.warn('No electron elements found - using static fallback');
@@ -51,16 +29,12 @@ export class OrbitSystem {
         this.initializeElectron(electron);
       });
       
-      console.log(`OrbitSystem initialized with ${this.electrons.length} electrons${this.safariOptimizations ? ' (Safari optimizations enabled)' : ''}`);
     } catch (error) {
       console.error('OrbitSystem initialization failed:', error);
       this.useStaticFallback();
     }
   }
 
-  /**
-   * Initialize a single electron with error handling
-   */
   initializeElectron(electron) {
     try {
       const shellIndex = parseInt(electron.dataset.shellIndex);
@@ -72,7 +46,6 @@ export class OrbitSystem {
         return;
       }
       
-      // Store electron data
       const electronData = {
         element: electron,
         shellIndex: shellIndex,
@@ -225,7 +198,6 @@ export class OrbitSystem {
       
       // Respect reduced motion accessibility preference
       if (prefersReducedMotion && this.config.motion.respectReducedMotion) {
-        console.log('Respecting reduced motion preference - using static fallback');
         this.useStaticFallback();
         return;
       }
@@ -242,7 +214,6 @@ export class OrbitSystem {
       });
       
       this.isRunning = true;
-      console.log('OrbitSystem started');
       
     } catch (error) {
       console.error('OrbitSystem start failed:', error);
@@ -261,7 +232,6 @@ export class OrbitSystem {
     });
     
     this.isRunning = false;
-    console.log('OrbitSystem stopped');
   }
 
   /**
@@ -346,14 +316,12 @@ export class OrbitSystem {
     this.frameThrottled = false;
     this.pendingUpdates.clear();
     
-    console.log('OrbitSystem destroyed with enhanced cleanup');
   }
 
   /**
    * Static fallback when animations fail or are not supported
    */
   useStaticFallback() {
-    console.log('Using static fallback mode - electrons will remain in fixed positions');
     
     // Find all electrons and ensure they're visible but static
     const electronElements = document.querySelectorAll('.electron');
