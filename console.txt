@@ -1,5 +1,24 @@
-🎬 [Welcome Debug] Welcome overlay removed from DOM
-index.astro:2661 🔍 [Preview Debug] Detailed positioning: {electronLeft: 1011.4359741210938, electronRight: 1057.9959716796875, electronTop: 487.6648864746094, electronBottom: 534.2249145507812, atomContainerLeft: 204, …}
-index.astro:2701 🔍 [Preview Debug] Final position: {x: 1077.9959716796875, y: 387.6648864746094}
-index.astro:2661 🔍 [Preview Debug] Detailed positioning: {electronLeft: 1122.815185546875, electronRight: 1169.375244140625, electronTop: 520.3533325195312, electronBottom: 566.913330078125, atomContainerLeft: 204, …}
-index.astro:2701 🔍 [Preview Debug] Final position: {x: 1189.375244140625, y: 420.35333251953125}
+Click detected on electron! index.astro:3384:33
+Electron slug: 1_music/etoilesenplastiques index.astro:3392:33
+openProjectOverlay called with slug: 1_music/etoilesenplastiques index.astro:2392:23
+projectBySlug map: 
+Map(9) { "1_music/etoilesenplastiques" → {…}, "1_music/hr_showcase" → {…}, "2_game-audio/fmod_showcase" → {…}, "2_game-audio/heroes_showcase" → {…}, "2_game-audio/chromestesia_showcase" → {…}, "3_tech/sg_showcase" → {…}, "1_music/lesupermegashow" → {…}, "2_game-audio/kubika-showcase" → {…}, "3_tech/yt_showcase" → {…} }
+index.astro:2393:23
+Looking for project: 
+Object { slug: "1_music/etoilesenplastiques", title: "Étoiles en Plastiques", altTitle: "Étoiles en Plastiques", description: `"ETOILES EN PLASTIQUES" est un album de rap alternatif dont l'univers sonore mêle instrumentales électroniques a des textes sombres et introspectifs. L'album explore des souffrances amoureuses, un contexte de travail éprouvant et des tensions familiales, créant une explosion émotionnelle comparable à une supernova.`, domain: "music", tech: (3) […], link: "https://example.com", github: "https://github.com/you/repo", useBentoLayout: true, preview: {…} }
+index.astro:2394:23
+Uncaught ReferenceError: markProjectAsVisited is not defined
+    openProjectOverlay index.astro:2403
+    onRelease index.astro:3450
+    _dispatchEvent2 gsap_all.js:1657
+    onRelease2 gsap_all.js:2908
+    _addListener2 gsap_all.js:1538
+    onPress2 gsap_all.js:2600
+    _addListener2 gsap_all.js:1538
+    enable gsap_all.js:3160
+    Draggable2 gsap_all.js:3263
+    Draggable gsap_all.js:3273
+    create gsap_all.js:3272
+    <anonymous> index.astro:3337
+    <anonymous> index.astro:3210
+    EventListener.handleEvent* index.astro:1749

@@ -1,0 +1,6 @@
+- [x] The atom is not centered on the home page. Right now it's too low. It should be centered.
+- [x] Have to implement an indication for already visited project pages. Could be a constant dim, or a little symbol + dim.
+- [x] ~~In some project pages there is embeded player for youtube, soundcloud, spotify... those playback should be deactivated when the user leaves the project page.~~ (Removed - caused issues with embedded players)
+- [x] Fix atom responsive resizing with browser window
+- [x] Fix broken project page navigation (scope issue with markProjectAsVisited)
+- [x] Fix checkmark indicators following electron orbital movement

@@ -890,3 +890,33 @@ The overlay system now provides bulletproof circular mask coverage and closing a
 - **Maintainable Configuration**: Centralized social meta settings enable easy updates and customization without code modifications
 
 The portfolio now provides enterprise-grade social sharing capabilities with complete French localization, ensuring professional presentation when shared with French-speaking creative industry contacts and collaborators.
+
+## Recent Changes (2025‑08‑31) - Enhanced Visited Project System & Checkmark Dragging
+
+### Visited Project Behavior Refinement
+- **Memory-Only Tracking**: Modified visited project tracking to reset on page refresh by removing localStorage persistence and using in-memory storage (`window.visitedProjectsMemory` array). This ensures checkmark indicators disappear on every page refresh for a fresh experience.
+- **Delayed Checkmark Display**: Changed checkmark timing to appear after closing project overlays instead of immediately when opening. Implemented `window.currentProjectSlug` tracking during overlay display with `markProjectAsVisited()` call moved to `closeOverlay()` onComplete callback.
+- **Session State Management**: Enhanced visited project system with proper state cleanup - checkmarks now provide visual feedback only for projects viewed in current session, resetting completely on page refresh.
+
+### True Checkmark-Electron Synchronization
+- **Dragging Integration**: Implemented comprehensive checkmark following during electron drag interactions. Checkmarks now remain perfectly synchronized with electrons throughout all drag operations including real-time position updates and snap-back animations.
+- **Real-Time Position Sync**: Enhanced `onDrag` callback in electron dragging system to apply identical GSAP transforms to corresponding checkmarks using `data-project` attribute matching. Checkmarks move in perfect synchronization with electron position during drag operations.
+- **Elastic Snap-Back Animation**: Modified snap-back animation system to include checkmarks in the elastic return animation. When electrons snap back to orbital positions, checkmarks animate with identical duration, easing, and target positions maintaining perfect visual cohesion.
+- **Enhanced User Experience**: Eliminated visual disconnect where checkmarks would remain stationary while electrons were being dragged. All visited project indicators now provide cohesive, glued interaction behavior enhancing the portfolio's tactile feedback.
+
+### Technical Implementation Details
+- **Synchronized Transform System**: Used `gsap.set(checkmark, { x: curX, y: curY })` for real-time drag updates and `gsap.to(checkmark, { x: startX, y: startY, duration, ease })` for snap-back animations ensuring identical motion between electrons and checkmarks.
+- **Performance Optimization**: Implemented efficient DOM querying with `document.querySelector()` using project slug matching (`[data-project="${electronSlug}"]`) and proper null checking to handle cases where checkmarks might not exist.
+- **State Management Integration**: Enhanced visited project system works seamlessly with existing orbital motion, hover states, and filter system while providing immediate visual feedback for project engagement without persistence between sessions.
+
+### Key Files Modified
+- `src/pages/index.astro` - Modified visited project tracking system (lines 1322-1344) to use memory-only storage, added currentProjectSlug tracking in openProjectOverlay, enhanced closeOverlay with visited marking logic (lines 2566-2570), and implemented synchronized checkmark dragging in onDrag/snapBack callbacks (lines 3318-3368)
+- Enhanced dragging system provides professional-grade tactile feedback with checkmarks truly glued to electrons throughout all interaction phases
+
+### Results Achieved
+- **Session-Based Tracking**: Visited project indicators now reset on page refresh providing fresh portfolio experience while maintaining functionality within single sessions
+- **Post-Viewing Feedback**: Checkmarks appear after project exploration rather than immediate opening, providing completion-based visual feedback aligned with user workflow
+- **Perfect Drag Synchronization**: Eliminated visual disconnect during electron dragging with checkmarks maintaining perfect position synchronization throughout drag operations and elastic snap-back animations
+- **Enhanced Interaction Coherence**: All visited project visual feedback now provides cohesive, professional interaction behavior enhancing the portfolio's tactile responsiveness and user engagement
+
+The visited project system now provides sophisticated session-based tracking with perfect visual synchronization, creating a more engaging and coherent interactive atom portfolio experience.

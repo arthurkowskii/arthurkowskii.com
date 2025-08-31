@@ -179,9 +179,12 @@ export class OrbitSystem {
       const x = this.centerX + electronData.shellRadius * Math.cos(radians);
       const y = this.centerY + electronData.shellRadius * Math.sin(radians);
       
+      const originalCx = parseFloat(electronData.element.getAttribute('cx') || 0);
+      const originalCy = parseFloat(electronData.element.getAttribute('cy') || 0);
+      
       const transform = {
-        x: x - parseFloat(electronData.element.getAttribute('cx')),
-        y: y - parseFloat(electronData.element.getAttribute('cy'))
+        x: x - originalCx,
+        y: y - originalCy
       };
       
       // Safari-specific optimizations for smoother animations
@@ -194,6 +197,15 @@ export class OrbitSystem {
       }
       
       gsap.set(electronData.element, transform);
+      
+      // Also update the corresponding checkmark if it exists
+      const electronSlug = electronData.element.dataset.project;
+      if (electronSlug) {
+        const checkmark = document.querySelector(`.visited-indicator[data-project="${electronSlug}"]`);
+        if (checkmark) {
+          gsap.set(checkmark, transform);
+        }
+      }
       
     } catch (updateError) {
       console.error('Electron position update failed:', updateError);

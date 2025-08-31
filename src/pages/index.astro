@@ -390,15 +390,17 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                margin-top: 100px; /* Adjusted for header presence and better centering */
+                margin-top: 28px; /* Subtle offset for visual centering with header */
             }
             
             #atom-svg {
                 cursor: grab;
                 touch-action: none; /* prevent touch scrolling/zoom white borders */
-                /* Use CSS sizing for proper display size */
+                /* Responsive sizing with constraints */
                 width: 100vmin;
                 height: 100vmin;
+                max-width: 100%;
+                max-height: calc(100vh - 56px); /* Account for header height */
             }
 
             /* Professional dark mode overrides for atom visuals */
@@ -420,6 +422,16 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 			
 			.electron {
 				cursor: pointer;
+			}
+			
+			/* Visited electron dimming */
+			.electron.visited {
+				opacity: 0.7;
+			}
+			
+			/* Visited indicator styling */
+			.visited-indicator {
+				transition: opacity 0.3s ease;
 			}
 
             /* One-page overlay for project details (masked by clip-path) */
@@ -1210,26 +1222,53 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                   const y = cfg.viewport.centerY + shell.radius * Math.sin(angleRadians);
 								
 								return (
-									<circle 
-										class="electron"
-										cx={x}
-										cy={y}
-										r={atomConfig.electrons.radius}
-										fill={atomConfig.electrons.color}
-										stroke={atomConfig.electrons.color}
-										stroke-width={atomConfig.electrons.strokeWidth}
-										data-project={project.slug}
-										data-domain={project.data.domain}
-										data-shell={shellIndex}
-										data-shell-index={shellIndex}
-										data-electron-index={electronIndex}
-										data-angle={angleDegrees}
-										role="button"
-										aria-label={`View project: ${project.data.title} - ${project.data.description.slice(0, 60)}...`}
-										tabindex="0"
-									>
-										<title>{project.data.title}</title>
-									</circle>
+									<>
+										<circle 
+											class="electron"
+											cx={x}
+											cy={y}
+											r={atomConfig.electrons.radius}
+											fill={atomConfig.electrons.color}
+											stroke={atomConfig.electrons.color}
+											stroke-width={atomConfig.electrons.strokeWidth}
+											data-project={project.slug}
+											data-domain={project.data.domain}
+											data-shell={shellIndex}
+											data-shell-index={shellIndex}
+											data-electron-index={electronIndex}
+											data-angle={angleDegrees}
+											role="button"
+											aria-label={`View project: ${project.data.title} - ${project.data.description.slice(0, 60)}...`}
+											tabindex="0"
+										>
+											<title>{project.data.title}</title>
+										</circle>
+										{/* Visited indicator checkmark - positioned relative to electron */}
+										<g 
+											class="visited-indicator"
+											data-project={project.slug}
+											data-electron-cx={x}
+											data-electron-cy={y}
+											style="display: none; pointer-events: none;"
+										>
+											<circle
+												cx={x + atomConfig.electrons.radius * 0.7}
+												cy={y - atomConfig.electrons.radius * 0.7}
+												r="8"
+												fill="#10b981"
+												stroke="white"
+												stroke-width="1.5"
+											/>
+											<path
+												d={`M ${x + atomConfig.electrons.radius * 0.7 - 4} ${y - atomConfig.electrons.radius * 0.7} L ${x + atomConfig.electrons.radius * 0.7 - 1} ${y - atomConfig.electrons.radius * 0.7 + 3} L ${x + atomConfig.electrons.radius * 0.7 + 4} ${y - atomConfig.electrons.radius * 0.7 - 3}`}
+												stroke="white"
+												stroke-width="2"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												fill="none"
+											/>
+										</g>
+									</>
 								);
 							})}
 						</g>
@@ -1281,6 +1320,51 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
         <!-- Header functionality: theme toggle and project filters -->
         <script>
           (function(){
+            // Visited projects tracking - make functions globally accessible
+            // Store visited projects in memory only (resets on page refresh)
+            window.visitedProjectsMemory = [];
+            window.currentProjectSlug = null; // Track currently opened project
+            
+            window.getVisitedProjects = function() {
+              try {
+                return window.visitedProjectsMemory || [];
+              } catch {
+                return [];
+              }
+            }
+            
+            window.markProjectAsVisited = function(slug) {
+              try {
+                const visited = window.getVisitedProjects();
+                if (!visited.includes(slug)) {
+                  visited.push(slug);
+                  window.visitedProjectsMemory = visited;
+                }
+                window.updateVisitedIndicators();
+              } catch {}
+            }
+            
+            window.updateVisitedIndicators = function() {
+              const visited = window.getVisitedProjects();
+              
+              // Update all electrons and their indicators
+              document.querySelectorAll('.electron:not(.nucleus)').forEach(electron => {
+                const slug = electron.dataset.project;
+                const indicator = document.querySelector(`.visited-indicator[data-project="${slug}"]`);
+                
+                if (visited.includes(slug)) {
+                  electron.classList.add('visited');
+                  if (indicator) indicator.style.display = 'block';
+                } else {
+                  electron.classList.remove('visited');
+                  if (indicator) indicator.style.display = 'none';
+                }
+              });
+            }
+            
+            // Initialize visited indicators on page load
+            window.updateVisitedIndicators();
+            
             // Theme toggle functionality
             const themeSwitch = document.getElementById('theme-switch');
             const header = document.getElementById('main-header');
@@ -1793,9 +1877,11 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                             orbitSystem.init();
                             if (!window.orbitSystem?.isRunning) {
                               window.orbitSystem?.start();
-                              if (debugMode) {
-                                console.log('🎬 [Welcome Debug] Orbit system initialized and started immediately with atom appearance');
-                              }
+                            }
+                            // Update visited indicators after orbit system is ready
+                            window.updateVisitedIndicators();
+                            if (debugMode) {
+                              console.log('🎬 [Welcome Debug] Orbit system initialized and started immediately with atom appearance');
                             }
                           } catch {}
                           
@@ -1854,7 +1940,9 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                         // No overlay → initialize and start orbits immediately
                         try { 
                           orbitSystem.init();
-                          if (!window.orbitSystem?.isRunning) window.orbitSystem?.start(); 
+                          if (!window.orbitSystem?.isRunning) window.orbitSystem?.start();
+                          // Update visited indicators after orbit system is ready
+                          updateVisitedIndicators();
                         } catch {}
                       }
                     } catch {}
@@ -2299,6 +2387,9 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
               const p = projectBySlug.get(slug);
               if (!p || overlayOpen) return;
               
+              // Track current project (will be marked as visited when closing)
+              window.currentProjectSlug = slug;
+              
               currentOverlayType = 'project';
               overlayOpen = true;
               lastFocused = document.activeElement;
@@ -2446,8 +2537,14 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
             }
 
 
+            function stopAllMediaPlayers() {
+              // Media stopping functionality removed to prevent issues with embedded players
+              // Let browsers handle media cleanup naturally when overlays close
+            }
+            
             function closeOverlay() {
               if (!overlayOpen) return;
+              
               overlayOpen = false;
               const useNav = currentOverlayType === 'project' && !!(atomConfig.navTransition?.enabled);
               const dur = ((useNav ? atomConfig.navTransition?.outMs : atomConfig.overlayTransition?.closeMs) ?? 520) / 1000;
@@ -2465,6 +2562,12 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 onComplete: () => {
                   overlay.style.display = 'none';
                   overlay.setAttribute('aria-hidden', 'true');
+                  
+                  // Mark project as visited after closing
+                  if (window.currentProjectSlug && currentOverlayType === 'project') {
+                    markProjectAsVisited(window.currentProjectSlug);
+                    window.currentProjectSlug = null; // Reset current project
+                  }
                   
                   // Reset all content sections to hidden state
                   projectContent.style.display = 'none';
@@ -3211,6 +3314,18 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 							const dy = curY - startY;
 							const dist = Math.hypot(dx, dy);
 							maxTravel = Math.max(maxTravel, dist);
+							
+							// Update corresponding checkmark position during drag
+							const electronSlug = electron.dataset.project;
+							if (electronSlug) {
+								const checkmark = document.querySelector(`.visited-indicator[data-project="${electronSlug}"]`);
+								if (checkmark) {
+									gsap.set(checkmark, {
+										x: curX,
+										y: curY
+									});
+								}
+							}
 						},
 						onRelease: function () {
 							const releaseTime = performance.now();
@@ -3224,16 +3339,33 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                         const amp = atomConfig.timing.dragElastic?.amplitude ?? 0.8;
                         const per = atomConfig.timing.dragElastic?.period ?? 0.25;
                         const elasticEase = `elastic.out(${amp}, ${per})`;
+                        const duration = atomConfig.timing.dragSnapDuration ?? atomConfig.timing.hoverDuration;
+                        
+                        // Animate electron back to start position
                         gsap.to(electron, {
                             x: startX,
                             y: startY,
-                            duration: atomConfig.timing.dragSnapDuration ?? atomConfig.timing.hoverDuration,
+                            duration: duration,
                             ease: elasticEase,
                             onComplete: () => {
                                 if (window.orbitSystem) window.orbitSystem.resumeElectron(electron);
                                 setTimeout(() => { dragLock = false; }, 80);
                             }
                         });
+                        
+                        // Also animate checkmark back to start position
+                        const electronSlug = electron.dataset.project;
+                        if (electronSlug) {
+                            const checkmark = document.querySelector(`.visited-indicator[data-project="${electronSlug}"]`);
+                            if (checkmark) {
+                                gsap.to(checkmark, {
+                                    x: startX,
+                                    y: startY,
+                                    duration: duration,
+                                    ease: elasticEase
+                                });
+                            }
+                        }
                     };
                     if (isClick) {
                         // PLACEHOLDER: Stop drag sequence - this was a click, not a drag
