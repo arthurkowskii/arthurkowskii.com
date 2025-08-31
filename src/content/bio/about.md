@@ -25,7 +25,7 @@ skills:
     tools:
       - "Prompt Engineering"
       - "RAG"
-      - "Automations/Agents"
+      - "Automations & Agents"
 email: "contact@kowskii.com"
 social:
   - platform: "X"

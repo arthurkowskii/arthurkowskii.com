@@ -1037,6 +1037,73 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 transform: scale(1);
                 pointer-events: auto;
             }
+
+            /* Mobile Development Message Overlay */
+            .mobile-dev-overlay {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background: rgba(0, 0, 0, 0.9);
+              z-index: 10000;
+              display: none; /* Hidden by default */
+              align-items: center;
+              justify-content: center;
+              backdrop-filter: blur(10px);
+              -webkit-backdrop-filter: blur(10px);
+            }
+
+            .mobile-dev-overlay.show {
+              display: flex;
+            }
+
+            .mobile-dev-container {
+              padding: 20px;
+              max-width: 90%;
+              width: 400px;
+            }
+
+            .mobile-dev-card {
+              background: rgba(255, 255, 255, 0.95);
+              backdrop-filter: blur(20px);
+              -webkit-backdrop-filter: blur(20px);
+              border-radius: 20px;
+              padding: 32px;
+              text-align: center;
+              box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .mobile-dev-title {
+              font-size: 24px;
+              font-weight: 700;
+              margin: 0 0 16px 0;
+              color: #171717;
+              font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            }
+
+            .mobile-dev-description {
+              font-size: 16px;
+              line-height: 1.6;
+              color: #525252;
+              margin: 0;
+              font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            }
+
+            /* Dark mode support */
+            html[data-theme="dark"] .mobile-dev-card {
+              background: rgba(15, 15, 15, 0.95);
+              border-color: rgba(255, 255, 255, 0.1);
+            }
+
+            html[data-theme="dark"] .mobile-dev-title {
+              color: #f4f4f5;
+            }
+
+            html[data-theme="dark"] .mobile-dev-description {
+              color: #a1a1aa;
+            }
 		</style>
 
         <!-- Theme init (before paint) -->
@@ -1055,6 +1122,29 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 document.body.classList.add('show-atom');
               }
             } catch {}
+          })();
+        </script>
+
+        <!-- Mobile Detection and Message -->
+        <script>
+          (function(){
+            // Mobile detection
+            function isMobile() {
+              return window.innerWidth <= 768 || 
+                     ('ontouchstart' in window) || 
+                     (navigator.maxTouchPoints > 0) ||
+                     /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+
+            // Check if user is on mobile
+            if (isMobile()) {
+              // Show mobile message overlay
+              const mobileOverlay = document.getElementById('mobile-dev-message');
+              
+              if (mobileOverlay) {
+                mobileOverlay.classList.add('show');
+              }
+            }
           })();
         </script>
 	</head>
@@ -1334,6 +1424,16 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 					<h2 id="enter-title" class="welcome-title">{userTweaks.prePage?.title || 'Enter Portfolio'}</h2>
 					<p id="enter-desc" class="welcome-description">{userTweaks.prePage?.description || 'Press Enter or click the button to access the interactive portfolio experience'}</p>
 					<button id="enter-btn-inline" class="welcome-button" aria-label="Enter Portfolio and enable audio" autofocus>{userTweaks.prePage?.buttonLabel || 'Enter Portfolio'}</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Mobile Development Message -->
+		<div id="mobile-dev-message" class="mobile-dev-overlay" role="dialog" aria-modal="true" aria-labelledby="mobile-title">
+			<div class="mobile-dev-container">
+				<div class="mobile-dev-card">
+					<h2 id="mobile-title" class="mobile-dev-title">Version mobile en développement !</h2>
+					<p class="mobile-dev-description">Ce même lien est parfaitement fonctionnel sur ordinateur.</p>
 				</div>
 			</div>
 		</div>
