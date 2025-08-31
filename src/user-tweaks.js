@@ -387,7 +387,7 @@ export const userTweaks = {
   // Visited indicators
   visitedIndicators: {
     size: 10,
-    scale: 0.7,
+    scale: 0.85,
     strokeWidth: 0.5,
     outline: true,
     colors: {
