@@ -287,7 +287,7 @@ function inferPlatform(text?: string, url?: string): string {
 }
 
 // Build gallery and hero assets automatically from a folder when provided
-type Img = { src: string; alt: string; isVideo?: boolean };
+type Img = { src: string; alt: string; isVideo?: boolean; thumbnail?: string; fullSrc?: string };
 function humanize(name: string): string {
   const base = name.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
   return base.charAt(0).toUpperCase() + base.slice(1);
@@ -354,14 +354,33 @@ function scanAssetsFolder(folder: string | undefined, explicitHeroBg?: string, e
   if (explicitHeroBg) reserved.add((explicitHeroBg.split('/').pop() || '').replace(/\.[^.]+$/, '').toLowerCase());
   if (explicitLogo) reserved.add((explicitLogo.split('/').pop() || '').replace(/\.[^.]+$/, '').toLowerCase());
 
+  // Find thumbnails for each image
+  const thumbnails = new Map<string, string>();
+  parts
+    .filter(p => p.nameLC.includes('thumb') || p.nameLC.endsWith('_thumb') || p.nameLC.startsWith('thumb_'))
+    .forEach(p => {
+      // Extract base name from thumbnail (remove thumb patterns)
+      let baseName = p.nameLC
+        .replace(/^thumb[_-]/, '')
+        .replace(/[_-]thumb$/, '')
+        .replace(/thumb/, '');
+      thumbnails.set(baseName, p.url);
+    });
+
   const images = parts
     .filter(p => !reserved.has(p.nameLC))
+    .filter(p => !(p.nameLC.includes('thumb'))) // Exclude thumbnail files from main gallery
     .sort((a, b) => a.base.localeCompare(b.base, undefined, { numeric: true, sensitivity: 'base' }))
-    .map(p => ({ 
-      src: p.url, 
-      alt: humanize(p.name),
-      isVideo: /\.(mp4|webm|mov)$/i.test(p.base)
-    }));
+    .map(p => {
+      const thumbnail = thumbnails.get(p.nameLC);
+      return { 
+        src: thumbnail || p.url, // Use thumbnail for initial src if available
+        alt: humanize(p.name),
+        isVideo: /\.(mp4|webm|mov)$/i.test(p.base),
+        thumbnail: thumbnail,
+        fullSrc: p.url // Always store full-resolution URL
+      };
+    });
 
   return { heroBg, heroLogo, heroIsVideo, heroThumbnail, images };
 }
@@ -1867,7 +1886,7 @@ const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join
         <h3 class="card-title">{(bento.gallery?.title) || 'Gallery'}</h3>
         <div class="gallery-grid">
           {galleryImages[0] && (
-            <div class="gallery-hero" data-gallery-index="0" tabindex="0" role="button" aria-label="Open image">
+            <div class="gallery-hero" data-gallery-index="0" tabindex="0" role="button" aria-label="Open image" data-full-src={galleryImages[0].fullSrc || galleryImages[0].src}>
               {galleryImages[0].isVideo ? (
                 <video src={galleryImages[0].src} muted loop autoplay playsinline loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"></video>
               ) : (
@@ -1879,7 +1898,7 @@ const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join
           {galleryImages.length > 1 && (
             <div class="gallery-thumbnails">
               {galleryImages.slice(1).map((image, i) => (
-                <div class="gallery-thumb" data-gallery-index={String(i + 1)} tabindex="0" role="button" aria-label="Open image">
+                <div class="gallery-thumb" data-gallery-index={String(i + 1)} tabindex="0" role="button" aria-label="Open image" data-full-src={image.fullSrc || image.src}>
                   {image.isVideo ? (
                     <video src={image.src} muted loop autoplay playsinline loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"></video>
                   ) : (
@@ -2323,10 +2342,33 @@ const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join
       if (card.dataset.glbBound === '1') return;
       card.dataset.glbBound = '1';
       const dataEl = card.querySelector('.gallery-data');
-      let items = [];
-      try { items = JSON.parse(dataEl?.textContent || '[]'); } catch (e) { console.warn('[GLB] JSON parse failed', e); }
+      let fallbackItems = [];
+      try { fallbackItems = JSON.parse(dataEl?.textContent || '[]'); } catch (e) { console.warn('[GLB] JSON parse failed', e); }
+      
       const clickables = card.querySelectorAll('[data-gallery-index]');
-      console.debug('[GLB] card bound. items =', items.length, 'clickables =', clickables.length);
+      console.debug('[GLB] card bound. fallback items =', fallbackItems.length, 'clickables =', clickables.length);
+      
+      // Build full-resolution items from data attributes
+      const fullResItems = Array.from(clickables)
+        .sort((a, b) => {
+          const aIdx = parseInt(a.getAttribute('data-gallery-index') || '0', 10);
+          const bIdx = parseInt(b.getAttribute('data-gallery-index') || '0', 10);
+          return aIdx - bIdx;
+        })
+        .map(el => {
+          const fullSrc = el.getAttribute('data-full-src');
+          const fallbackIdx = parseInt(el.getAttribute('data-gallery-index') || '0', 10);
+          const fallbackItem = fallbackItems[fallbackIdx] || {};
+          
+          return {
+            src: fullSrc || fallbackItem.src,
+            alt: fallbackItem.alt || 'Gallery image',
+            isVideo: fallbackItem.isVideo || false
+          };
+        });
+      
+      const items = fullResItems.length > 0 ? fullResItems : fallbackItems;
+      
       clickables.forEach(el => {
         const idx = parseInt(el.getAttribute('data-gallery-index') || '0', 10) || 0;
         el.addEventListener('click', async (e) => {
@@ -2466,9 +2508,16 @@ const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join
   function setupGalleryObservers() {
     const cards = document.querySelectorAll('.gallery-card');
     let rafId = null;
+    let debounceTimer;
+    
     const schedule = () => {
       if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(layoutAllGalleries);
+      if (debounceTimer) clearTimeout(debounceTimer);
+      
+      // Debounce ResizeObserver cascades during animations
+      debounceTimer = setTimeout(() => {
+        rafId = requestAnimationFrame(layoutAllGalleries);
+      }, 100);
     };
 
     // Observe size changes of the gallery grid and the card itself to recalc rows
@@ -2480,6 +2529,28 @@ const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join
     });
 
     window.addEventListener('resize', schedule);
+  }
+
+  // Wait for critical assets (hero images/videos) to load before animation
+  async function waitForCriticalAssets() {
+    const heroImages = document.querySelectorAll('.hero-bg img, .hero-bg video');
+    const promises = Array.from(heroImages).map(el => {
+      if (el.tagName === 'VIDEO') {
+        return new Promise(resolve => {
+          if (el.readyState >= 3) resolve();
+          else el.addEventListener('canplay', resolve, { once: true });
+        });
+      } else {
+        return new Promise(resolve => {
+          if (el.complete) resolve();
+          else el.addEventListener('load', resolve, { once: true });
+        });
+      }
+    });
+    
+    // Wait max 2 seconds to avoid blocking animation indefinitely
+    const timeout = new Promise(resolve => setTimeout(resolve, 2000));
+    return Promise.race([Promise.all(promises), timeout]);
   }
 
   // Main animation function with perfect audio sync
@@ -2520,11 +2591,14 @@ const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join
     window.animateBentoCards = animateBentoCards;
     window.resetBentoCards = resetBentoCards;
     
-    // Auto-run for direct page loads
+    // Auto-run for direct page loads - wait for assets to load
     document.addEventListener('DOMContentLoaded', () => {
       const bentoContent = document.getElementById('bento-content');
       if (bentoContent && bentoContent.style.display !== 'none') {
-        setTimeout(animateBentoCards, 100);
+        // Wait for critical assets to load before animation
+        waitForCriticalAssets().then(() => {
+          setTimeout(animateBentoCards, 100);
+        });
       }
       // Initial gallery layout + observers
       layoutAllGalleries();
