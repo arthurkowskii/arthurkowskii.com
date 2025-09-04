@@ -1,7 +1,13 @@
 ---
-title: "LE SUPER MEGA SHOW !"
-altTitle: "LE SUPER MEGA SHOW!"
-description: "LE SUPER MEGA SHOW ! est une série audio et un court-métrage conçus, écrits et réalisés par Arthur Kowskii. Talk-show fictif inzpiré des émissions emblématiques des 70s et ruit de la collaboration entre Arthur Kowskii et le comédien belge Benoit Grimmiaux (Bojack Horseman...) qui incarne le présentateur."
+title:
+  fr: "LE SUPER MEGA SHOW !"
+  en: "THE SUPER MEGA SHOW!"
+altTitle:
+  fr: "LE SUPER MEGA SHOW!"
+  en: "THE SUPER MEGA SHOW!"
+description:
+  fr: "LE SUPER MEGA SHOW ! est une série audio et un court-métrage conçus, écrits et réalisés par Arthur Kowskii. Talk-show fictif inspiré des émissions emblématiques des 70s et fruit de la collaboration entre Arthur Kowskii et le comédien belge Benoit Grimmiaux (Bojack Horseman...) qui incarne le présentateur."
+  en: "THE SUPER MEGA SHOW! is an audio series and short film conceived, written and directed by Arthur Kowskii. A fictional talk show inspired by iconic 70s shows and the result of collaboration between Arthur Kowskii and Belgian comedian Benoit Grimmiaux (Bojack Horseman...) who plays the host."
 tech: ["Ableton", "Reaper", "Davinci Resolve"]
 status: "completed" # or "in-progress" | "planned"
 link: "https://example.com"
@@ -34,7 +40,9 @@ bento:
 
   # Hero subtitle only; hero/background/logo auto from assetsFolder
   hero:
-    subtitle: "Court-Métrage et Série-Audio"
+    subtitle:
+      fr: "Court-Métrage et Série-Audio"
+      en: "Short Film and Audio Series"
     subtitleColor: "#faf525"
     backgroundPosition: "top"
     backgroundSize: "cover"
@@ -56,29 +64,45 @@ bento:
 
   # Optional actions
   actions:
-    title: "Experience"
+    title:
+      fr: "Expérience"
+      en: "Experience"
     primary:
-      text: "📽️ Regarder le Court-Métrage"
+      text:
+        fr: "📽️ Regarder le Court-Métrage"
+        en: "📽️ Watch the Short Film"
       url: "https://youtu.be/GtoGUcY1K1Y?si=YQXis7RFPEgLKbPy"
     secondary:
-      text: "💽 Écouter l'Album"
+      text:
+        fr: "💽 Écouter l'Album"
+        en: "💽 Listen to the Album"
       url: "https://open.spotify.com/album/1y7wp1DtYeQpGxxhoC2i3t?si=gVXYTvsqRoC6D18xovDuYg"
 
   # Video configuration
   video:
-    title: "LE SUPER MEGA SHOW (COURT-METRAGE DE L'ALBUM)"
+    title:
+      fr: "LE SUPER MEGA SHOW (COURT-METRAGE DE L'ALBUM)"
+      en: "THE SUPER MEGA SHOW (SHORT FILM FROM THE ALBUM)"
     url: "https://youtu.be/GtoGUcY1K1Y?si=XI7niHdCjUYA1L8s"
-    description: "À SUIVRE dans l'album LE SUPER MEGA SHOW !, disponible sur toutes les plateformes. Vous pouvez soutenir et acheter l'album à PRIX LIBRE sur Bandcamp pour soutenir les prochains projets."
+    description:
+      fr: "À SUIVRE dans l'album LE SUPER MEGA SHOW !, disponible sur toutes les plateformes. Vous pouvez soutenir et acheter l'album à PRIX LIBRE sur Bandcamp pour soutenir les prochains projets."
+      en: "TO BE CONTINUED in THE SUPER MEGA SHOW! album, available on all platforms. You can support and buy the album at FREE PRICE on Bandcamp to support upcoming projects."
 
   # Spotify configuration
   spotify:
-    title: "LE SUPER MEGA SHOW - Album"
+    title:
+      fr: "LE SUPER MEGA SHOW - Album"
+      en: "THE SUPER MEGA SHOW - Album"
     url: "https://open.spotify.com/album/1y7wp1DtYeQpGxxhoC2i3t?si=UTvZ7TS4QWqUKtuilpaMpQ"
-    description: "L'album complet disponible sur Spotify avec tous les morceaux et interludes"
+    description:
+      fr: "L'album complet disponible sur Spotify avec tous les morceaux et interludes"
+      en: "Complete album available on Spotify with all tracks and interludes"
 
   # Music links (exactly 4 items). Enable with cards.musicLinks: true
   musicLinks:
-    title: "Music Links"
+    title:
+      fr: "Liens Musicaux"
+      en: "Music Links"
     items:
       - text: "Spotify"
         url: "https://open.spotify.com/album/1y7wp1DtYeQpGxxhoC2i3t?si=gVXYTvsqRoC6D18xovDuYg"
@@ -91,7 +115,9 @@ bento:
 
   # Optional process
   process:
-    title: "Tracklist"
+    title:
+      fr: "Tracklist"
+      en: "Tracklist"
     steps:
       - "LE SUPER MEGA SHOW !"
       - "PINK CAR RIDE TO YOU (feat. ABAD)"
@@ -112,15 +138,25 @@ bento:
 
   # Gallery images auto from assetsFolder; title optional
   gallery:
-    title: "Gallery"
+    title:
+      fr: "Galerie"
+      en: "Gallery"
 
   # Optional challenges
   challenges:
-    title: "Key Challenges"
-    subtitle: "Défis principaux rencontrés lors de ce projet"
+    title:
+      fr: "Défis Principaux"
+      en: "Key Challenges"
+    subtitle:
+      fr: "Défis principaux rencontrés lors de ce projet"
+      en: "Main challenges encountered during this project"
     items:
-      - title: "Un album... et une série audio"
-        description: "LE SUPER MEGA SHOW ! est un projet hybride mêlant album et série audio. Plusieurs titres y sont entrecoupés de courts épisodes narratifs qui ancrent l’histoire dans la musique. L’enjeu était de trouver le bon équilibre entre narration et morceaux pour offrir une expérience fluide. Une tracklist fixe a été essentielle pour garantir la continuité entre chaque épisode et chaque chanson."
+      - title:
+          fr: "Un album... et une série audio"
+          en: "An album... and an audio series"
+        description:
+          fr: "LE SUPER MEGA SHOW ! est un projet hybride mêlant album et série audio. Plusieurs titres y sont entrecoupés de courts épisodes narratifs qui ancrent l'histoire dans la musique. L'enjeu était de trouver le bon équilibre entre narration et morceaux pour offrir une expérience fluide. Une tracklist fixe a été essentielle pour garantir la continuité entre chaque épisode et chaque chanson."
+          en: "THE SUPER MEGA SHOW! is a hybrid project blending album and audio series. Several tracks are interspersed with short narrative episodes that anchor the story in the music. The challenge was finding the right balance between narration and songs to offer a smooth experience. A fixed tracklist was essential to guarantee continuity between each episode and each song."
       - title: "Casting"
         description: "Le présentateur du « Super Mega Show » a été pensé comme un personnage à la fois charismatique et étrange, nécessitant un comédien de doublage idéal. Ce rôle a été brillamment interprété par Benoit Grimmiaux (Bojack Horseman, Pokémon, Rick et Morty…). Collaborer avec Benoit, d’abord une idole puis un compagnon créatif, a été un immense honneur et une grande fierté pour moi."
       - title: "Un album, une série audio... et puis un film !"
@@ -128,7 +164,9 @@ bento:
 
   # Optional results
   results:
-    title: "Results"
+    title:
+      fr: "Résultats"
+      en: "Results"
     items:
       - icon: "🎬"
         text: "Un court métrage de 12 minutes, écrit et réalisé par Arthur Kowskii"

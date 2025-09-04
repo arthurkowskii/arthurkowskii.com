@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import ProjectBento from '../../components/ProjectBento.astro';
 import atomConfig from '../../atom.config.js';
+import { localizeProject } from '../../utils/content-i18n.js';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -18,12 +19,24 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.params;
 const { fullSlug } = Astro.props;
-const projects = await getCollection('projects');
-const entry = projects.find(p => p.slug === fullSlug);
 
-if (!entry) {
+// Get current locale (server-side detection from URL)
+const url = Astro.url;
+const urlLang = url.searchParams.get('lang');
+const currentLocale = urlLang && ['fr', 'en'].includes(urlLang) ? urlLang : 'fr';
+
+const projects = await getCollection('projects');
+const rawEntry = projects.find(p => p.slug === fullSlug);
+
+if (!rawEntry) {
   throw new Error(`Project not found: ${slug}`);
 }
+
+// Localize project content for current language
+const entry = {
+  ...rawEntry,
+  data: localizeProject(rawEntry.data, currentLocale)
+};
 
 const useBentoLayout = entry.data.useBentoLayout || false;
 
@@ -52,7 +65,7 @@ if (entry.data.useBentoLayout && entry.data.bento?.hero?.backgroundImage) {
 const imageAlt = socialConfig.project.imageAlt.replace('{projectTitle}', entry.data.title);
 ---
 
-<html lang="en">
+<html lang={currentLocale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
@@ -87,7 +100,7 @@ const imageAlt = socialConfig.project.imageAlt.replace('{projectTitle}', entry.d
     <meta property="og:url" content={currentUrl} />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content={socialConfig.siteName} />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content={currentLocale === 'fr' ? 'fr_FR' : 'en_US'} />
     <meta property="article:author" content={socialConfig.author} />
     <meta property="article:section" content="Portfolio" />
     {entry.data.tech && <meta property="article:tag" content={entry.data.tech.join(', ')} />}

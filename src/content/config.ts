@@ -1,13 +1,32 @@
 import { defineCollection, z } from 'astro:content';
 
+// Utility types for bilingual content support
+const BilingualString = z.union([
+  z.string(), // Backward compatible - single language string
+  z.object({
+    fr: z.string(),
+    en: z.string().optional(),
+  }).refine(data => data.fr || data.en, {
+    message: "At least one language (fr or en) must be provided"
+  })
+]);
+
+const BilingualStringOptional = z.union([
+  z.string().optional(),
+  z.object({
+    fr: z.string().optional(),
+    en: z.string().optional(),
+  }).optional()
+]);
+
 // Define the projects collection schema
 const projectsCollection = defineCollection({
   type: 'content',
   schema: z.object({
-    title: z.string(),
-    altTitle: z.string().optional(), // Optional - shorter title for electron preview cards
+    title: BilingualString,
+    altTitle: BilingualStringOptional, // Optional - shorter title for electron preview cards
     domain: z.string().optional(), // Optional - will be computed from folder structure if not provided
-    description: z.string(),
+    description: BilingualString,
     tech: z.array(z.string()),
     status: z.enum(['completed', 'in-progress', 'planned']),
     link: z.string().url().optional(),
@@ -41,7 +60,7 @@ const projectsCollection = defineCollection({
       
       // Hero card configuration
       hero: z.object({
-        subtitle: z.string().optional(),
+        subtitle: BilingualStringOptional,
         subtitleColor: z.string().optional(),
         backgroundImage: z.string().optional(),
         backgroundPosition: z.string().optional(),
@@ -57,12 +76,12 @@ const projectsCollection = defineCollection({
       // Stats configuration
       stats: z.array(z.object({
         value: z.string(),
-        label: z.string(),
+        label: BilingualString,
       })).optional(),
 
       // Music Links configuration
       musicLinks: z.object({
-        title: z.string().default('Music Links'),
+        title: BilingualString.default('Music Links'),
         items: z.array(z.object({
           text: z.string(),
           url: z.string().url(),
@@ -71,49 +90,49 @@ const projectsCollection = defineCollection({
 
       // Video configuration
       video: z.object({
-        title: z.string().optional(),
+        title: BilingualStringOptional,
         url: z.string().url(),
-        description: z.string().optional(),
+        description: BilingualStringOptional,
       }).optional(),
 
       // Spotify configuration
       spotify: z.object({
-        title: z.string().optional(),
+        title: BilingualStringOptional,
         url: z.string().url(),
-        description: z.string().optional(),
+        description: BilingualStringOptional,
       }).optional(),
 
       // SoundCloud configuration
       soundcloud: z.object({
-        title: z.string().optional(),
+        title: BilingualStringOptional,
         url: z.string().url(),
-        description: z.string().optional(),
+        description: BilingualStringOptional,
         large: z.boolean().default(false), // true = gallery position, false = tech position
       }).optional(),
       
       // Actions configuration
       actions: z.object({
-        title: z.string().default('Experience'),
+        title: BilingualString.default('Experience'),
         primary: z.object({
-          text: z.string(),
+          text: BilingualString,
           url: z.string(),
         }).optional(),
         secondary: z.object({
-          text: z.string(),
+          text: BilingualString,
           url: z.string().optional(),
         }).optional(),
       }).optional(),
       
       // Process steps
       process: z.object({
-        title: z.string().default('Process'),
-        subtitle: z.string().optional(),
-        steps: z.array(z.string()),
+        title: BilingualString.default('Process'),
+        subtitle: BilingualStringOptional,
+        steps: z.array(BilingualString),
       }).optional(),
       
       // Gallery images
       gallery: z.object({
-        title: z.string().default('Gallery'),
+        title: BilingualString.default('Gallery'),
         images: z.array(z.object({
           src: z.string(),
           alt: z.string(),
@@ -128,21 +147,21 @@ const projectsCollection = defineCollection({
       
       // Challenges
       challenges: z.object({
-        title: z.string().default('Key Challenges'),
-        subtitle: z.string().optional(),
+        title: BilingualString.default('Key Challenges'),
+        subtitle: BilingualStringOptional,
         items: z.array(z.object({
-          title: z.string(),
-          description: z.string(),
+          title: BilingualString,
+          description: BilingualString,
         })),
       }).optional(),
       
       // Results
       results: z.object({
-        title: z.string().default('Results'),
-        subtitle: z.string().optional(),
+        title: BilingualString.default('Results'),
+        subtitle: BilingualStringOptional,
         items: z.array(z.object({
           icon: z.string(),
-          text: z.string(),
+          text: BilingualString,
         })),
       }).optional(),
     }).optional(),
@@ -153,9 +172,9 @@ const projectsCollection = defineCollection({
 const bioCollection = defineCollection({
   type: 'content',
   schema: z.object({
-    title: z.string(), // Display name
-    subtitle: z.string(),
-    bio: z.string(), // Markdown string
+    title: BilingualString, // Display name
+    subtitle: BilingualString,
+    bio: BilingualString, // Markdown string
     portrait: z.string().optional(),
     email: z.string().email(),
     social: z
@@ -172,8 +191,8 @@ const bioCollection = defineCollection({
     press: z
       .array(
         z.object({
-          title: z.string(),
-          description: z.string(), 
+          title: BilingualString,
+          description: BilingualString, 
           imageUrl: z.string(),
           articleUrl: z.string().url(),
           publishDate: z.string().optional(),

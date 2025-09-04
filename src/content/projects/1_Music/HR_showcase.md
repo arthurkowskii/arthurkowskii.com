@@ -1,7 +1,13 @@
 ---
-title: "Helena Rubinstein - Commission"
-altTitle: "Helena Rubinstein"
-description: "À l’occasion du salon annuel L’Oréal Paris, j’ai eu l’opportunité de collaborer avec Helena Rubinstein pour la présentation exclusive de ses nouveaux produits. J’ai composé quinze minutes de musique, diffusées tout au long de l’événement afin d’accompagner les différentes sessions."
+title:
+  fr: "Helena Rubinstein - Commission"
+  en: "Helena Rubinstein - Commission"
+altTitle:
+  fr: "Helena Rubinstein"
+  en: "Helena Rubinstein"
+description:
+  fr: "À l'occasion du salon annuel L'Oréal Paris, j'ai eu l'opportunité de collaborer avec Helena Rubinstein pour la présentation exclusive de ses nouveaux produits. J'ai composé quinze minutes de musique, diffusées tout au long de l'événement afin d'accompagner les différentes sessions."
+  en: "For the annual L'Oréal Paris salon, I had the opportunity to collaborate with Helena Rubinstein for the exclusive presentation of their new products. I composed fifteen minutes of music, broadcast throughout the event to accompany the various sessions."
 tech: ["Ableton", "FMOD"]
 status: "completed"
 link: "https://kowskii.com"
@@ -34,7 +40,9 @@ bento:
   
   # Hero card configuration
   hero:
-    subtitle: "Commision Musicale Freelance"
+    subtitle:
+      fr: "Commission Musicale Freelance"
+      en: "Freelance Music Commission"
     subtitleColor: "#e50000"
     backgroundPosition: "center"
     backgroundSize: "cover"
@@ -46,13 +54,21 @@ bento:
   # Project stats
   stats:
     - value: "2 Weeks"
-      label: "DURATION"
+      label:
+        fr: "DURÉE"
+        en: "DURATION"
     - value: "10 👨‍👩‍👦‍👦"
-      label: "TEAM SIZE"
+      label:
+        fr: "ÉQUIPE"
+        en: "TEAM SIZE"
     - value : "LIVE"
-      label : "PLATFORM"
+      label:
+        fr: "PLATEFORME"
+        en: "PLATFORM"
     - value : "L'Oréal"
-      label : "EMPLOYEUR"
+      label:
+        fr: "EMPLOYEUR"
+        en: "EMPLOYER"
   
   # Action buttons
   actions:

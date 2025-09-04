@@ -21,12 +21,18 @@ import atomConfig from '../atom.config.js';
 import { userTweaks } from '../user-tweaks.js';
 import { calculateElectronPositions } from '../atom/utils/electronPositioning.js';
 import { sanitizeText } from '../utils/sanitize.js';
+import { localizeProject, localizeBio, getLocalizedContent } from '../utils/content-i18n.js';
 
 // Social meta tag setup
 const socialConfig = atomConfig.socialMeta;
 const siteUrl = import.meta.env.SITE || socialConfig.siteUrl;
 const currentUrl = siteUrl;
 const ogImage = `${siteUrl}${socialConfig.home.image}`;
+
+// Get current locale (server-side detection from URL or default to French)
+const url = Astro.url;
+const urlLang = url.searchParams.get('lang');
+const currentLocale = urlLang && ['fr', 'en'].includes(urlLang) ? urlLang : 'fr';
 
 // Get all projects and compute domains from folder structure (prefix-ordered)
 const projects = await getCollection('projects');
@@ -82,6 +88,7 @@ const electronsByDomain = projectsWithDomains.reduce((acc, project) => {
   return acc;
 }, {});
 
+
 // Asset resolution logic (borrowed from ProjectBento)
 const ALL_ASSET_URLS = import.meta.glob('/src/content/projects/**/*.{jpg,jpeg,png,webp,gif,mp4,webm,mov}', {
   eager: true,
@@ -132,7 +139,9 @@ function scanAssetsFolder(folder: string | undefined, explicitHeroBg?: string, e
 
 // Enhanced project payload with preview data for electron hover
 const projectSummaries = projectsWithDomains.map(p => {
-  const bento = p.data.bento;
+  // Localize the project data for current locale
+  const localizedProjectData = localizeProject(p.data, currentLocale);
+  const bento = localizedProjectData.bento;
   let heroImage = '';
   let subtitle = '';
   
@@ -151,16 +160,20 @@ const projectSummaries = projectsWithDomains.map(p => {
   
   // Fallback subtitle logic
   if (!subtitle) {
-    subtitle = p.data.description.length > 60 
-      ? p.data.description.slice(0, 60) + '...'
-      : p.data.description;
+    // Ensure description is a string (in case localization didn't work)
+    const description = typeof localizedProjectData.description === 'string' 
+      ? localizedProjectData.description 
+      : String(localizedProjectData.description);
+    subtitle = description.length > 60 
+      ? description.slice(0, 60) + '...'
+      : description;
   }
   
   return {
     slug: p.slug,
-    title: p.data.title,
-    altTitle: p.data.altTitle, // Optional shorter title for electron preview
-    description: p.data.description,
+    title: localizedProjectData.title,
+    altTitle: localizedProjectData.altTitle, // Optional shorter title for electron preview
+    description: localizedProjectData.description,
     domain: p.data.domain,
     tech: p.data.tech,
     link: p.data.link,
@@ -174,21 +187,29 @@ const projectSummaries = projectsWithDomains.map(p => {
   };
 });
 
+// Create localized version for UI rendering using projectSummaries
+const localizedElectronsByDomain = projectSummaries.reduce((acc, projectSummary) => {
+  if (!acc[projectSummary.domain]) acc[projectSummary.domain] = [];
+  acc[projectSummary.domain].push(projectSummary);
+  return acc;
+}, {});
+
 // Prepare Bio payload from content collection (bio/about)
 let bioPayload = {};
 let bioEntry = null;
 try {
   bioEntry = await getEntryBySlug('bio', 'about');
   if (bioEntry?.data) {
-    const d = bioEntry.data as any;
+    // Localize bio content for current language
+    const localizedBioData = localizeBio(bioEntry.data, currentLocale);
     bioPayload = {
-      title: sanitizeText(d.title) || '',
-      subtitle: sanitizeText(d.subtitle) || '',
-      bio: d.bio || '',
-      portrait: sanitizeText(d.portrait) || '/images/bio/arthur-portfolio.jpg',
-      email: sanitizeText(d.email) || '',
-      social: d.social || [],
-      skills: d.skills || [],
+      title: sanitizeText(localizedBioData.title) || '',
+      subtitle: sanitizeText(localizedBioData.subtitle) || '',
+      bio: localizedBioData.bio || '',
+      portrait: sanitizeText(bioEntry.data.portrait) || '/images/bio/arthur-portfolio.jpg',
+      email: sanitizeText(bioEntry.data.email) || '',
+      social: bioEntry.data.social || [],
+      skills: bioEntry.data.skills || [],
     };
   }
 } catch (error) {
@@ -1421,7 +1442,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 				<!-- Orbital Shells -->
 				{domains.map((domain, shellIndex) => {
 					const shell = cfg.shells[shellIndex] || cfg.shells[cfg.shells.length - 1];
-					const electronsInShell = electronsByDomain[domain] || [];
+					const electronsInShell = localizedElectronsByDomain[domain] || [];
 					
 					// Random positioning with collision avoidance
 					const minDistance = atomConfig.spacing?.minElectronDistance || 60;
@@ -1580,16 +1601,16 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 											stroke={atomConfig.electrons.color}
 											stroke-width={atomConfig.electrons.strokeWidth}
 											data-project={project.slug}
-											data-domain={project.data.domain}
+											data-domain={project.domain}
 											data-shell={shellIndex}
 											data-shell-index={shellIndex}
 											data-electron-index={electronIndex}
 											data-angle={angleDegrees}
 											role="button"
-											aria-label={`View project: ${project.data.title} - ${project.data.description.slice(0, 60)}...`}
+											aria-label={`View project: ${project.title} - ${typeof project.description === 'string' ? project.description.slice(0, 60) : String(project.description).slice(0, 60)}...`}
 											tabindex="0"
 										>
-											<title>{project.data.title}</title>
+											<title>{project.title}</title>
 										</circle>
 										{/* Sophisticated visited indicator - circular design with dynamic accent colors */}
 										<g 
@@ -2313,16 +2334,23 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
           
           <!-- Bento layout for special projects -->
           <div id="bento-content" style="display:none;">
-            {projectsWithDomains.filter(p => p.data.useBentoLayout).map(project => (
-              <div class="bento-project" data-project-slug={project.slug} style="display:none;">
-                <ProjectBento project={project} />
-              </div>
-            ))}
+            {projectsWithDomains.filter(p => p.data.useBentoLayout).map(project => {
+              // Localize project data for current language before passing to ProjectBento
+              const localizedProject = {
+                ...project,
+                data: localizeProject(project.data, currentLocale)
+              };
+              return (
+                <div class="bento-project" data-project-slug={project.slug} style="display:none;">
+                  <ProjectBento project={localizedProject} />
+                </div>
+              );
+            })}
           </div>
           
           <!-- Bio content template (Bento style, shared component) -->
           <div id="bio-content" role="dialog" aria-modal="true" aria-label="Bio" style="display:none;">
-            <BioBento data={bioEntry?.data || {}} />
+            <BioBento data={bioEntry ? localizeBio(bioEntry.data, currentLocale) : {}} />
           </div>
         </div>
 
