@@ -29,3 +29,7 @@ docs/liquid-glass-react/
 
 # backup folder (original assets before optimization)
 backup/
+
+# Claude-specific files
+.claude/
+CLAUDE.md
