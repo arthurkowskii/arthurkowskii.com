@@ -1,12 +1,22 @@
 # Decap CMS Configuration for Atom Portfolio
-
-# For local development - use proxy server
+# 
+# BACKEND CONFIGURATION OPTIONS:
+# ==============================
+#
+# Option 1: LOCAL DEVELOPMENT (Recommended for development)
+# Uncomment the block below and comment out the git-gateway backend
+# Run: npx @decap/cli@latest proxy to start the proxy server
+# Then visit: http://localhost:4321/admin
+#
 # backend:
 #   name: proxy
 #   proxy_url: http://localhost:8081/api/v1
 #   branch: main
-
-# For production deployment
+#
+# Option 2: PRODUCTION with Git Gateway (Current - Requires Netlify Identity)
+# Requires: Netlify hosting + Netlify Identity service enabled
+# Setup: https://docs.netlify.com/visitor-access/git-gateway/
+#
 backend:
   name: git-gateway
   branch: main
@@ -17,6 +27,16 @@ backend:
     delete: 'Delete {{collection}} "{{slug}}"'
     uploadMedia: 'Upload "{{path}}"'
     deleteMedia: 'Delete "{{path}}"'
+#
+# Option 3: PRODUCTION with GitHub (Alternative to git-gateway)
+# Uncomment below, comment out git-gateway, and set up GitHub OAuth App
+# GitHub OAuth App setup: https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app
+#
+# backend:
+#   name: github
+#   repo: your-username/your-repo-name
+#   branch: main
+#   squash_merges: true
 
 # Disable editorial workflow for production security
 # publish_mode: editorial_workflow

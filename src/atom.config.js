@@ -198,9 +198,15 @@ export default {
   },
 
   // Display names for domains
-  domainDisplayNames: userTweaks.domainDisplayNames || {}
-
-  ,
+  domainDisplayNames: userTweaks.domainDisplayNames || {},
+  
+  // Internationalization configuration
+  i18n: userTweaks.i18n || {
+    defaultLocale: 'fr',
+    locales: ['fr', 'en'],
+    strings: { fr: {}, en: {} },
+    meta: { fr: {}, en: {} }
+  },
   // Dynamic shells generator parameters
   dynamicShells: {
     enabled: userTweaks.dynamicShells?.enabled ?? false,

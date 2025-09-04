@@ -1,21 +1,31 @@
 ---
 import { getEntryBySlug } from 'astro:content';
 import BioBento from '../components/BioBento.astro';
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
 import atomConfig from '../atom.config.js';
+import { getCurrentLocale, getMeta, getPageTitle } from '../utils/i18n.js';
+
+// Get current locale (server-side detection from URL)
+const url = Astro.url;
+const urlLang = url.searchParams.get('lang');
+const currentLocale = urlLang && ['fr', 'en'].includes(urlLang) ? urlLang : 'fr';
 
 const entry = await getEntryBySlug('bio', 'about');
 const data = entry?.data || {};
 
-// Social meta tag setup
-const socialConfig = atomConfig.socialMeta;
-const siteUrl = import.meta.env.SITE || socialConfig.siteUrl;
+// Localized meta tag setup using i18n
+const siteUrl = import.meta.env.SITE || atomConfig.socialMeta.siteUrl;
 const currentUrl = `${siteUrl}/bio`;
-const ogImage = `${siteUrl}${socialConfig.bio.image}`;
-const bioTitle = data.title || socialConfig.bio.title;
-const bioDescription = data.bio ? (data.bio.length > 160 ? data.bio.slice(0, 160) + '...' : data.bio) : socialConfig.bio.description;
+const ogImage = `${siteUrl}${atomConfig.socialMeta.bio.image}`;
+
+// Get localized meta data
+const localizedMeta = atomConfig.i18n?.meta?.[currentLocale] || atomConfig.i18n?.meta?.fr || {};
+const bioTitle = localizedMeta.bio?.title || data.title || atomConfig.socialMeta.bio.title;
+const bioDescription = localizedMeta.bio?.description || (data.bio ? (data.bio.length > 160 ? data.bio.slice(0, 160) + '...' : data.bio) : atomConfig.socialMeta.bio.description);
+const siteName = localizedMeta.siteName || atomConfig.socialMeta.siteName;
 ---
 
-<html lang="en">
+<html lang={currentLocale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
@@ -48,8 +58,8 @@ const bioDescription = data.bio ? (data.bio.length > 160 ? data.bio.slice(0, 160
     <meta property="og:image:alt" content={socialConfig.bio.imageAlt} />
     <meta property="og:url" content={currentUrl} />
     <meta property="og:type" content="profile" />
-    <meta property="og:site_name" content={socialConfig.siteName} />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content={currentLocale === 'fr' ? 'fr_FR' : 'en_US'} />
     <meta property="profile:first_name" content="Arthur" />
     <meta property="profile:last_name" content="Kowskii" />
     
@@ -66,6 +76,31 @@ const bioDescription = data.bio ? (data.bio.length > 160 ? data.bio.slice(0, 160
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow" />
     <link rel="canonical" href={currentUrl} />
+    
+    <!-- Enhanced SEO Meta Tags -->
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="msapplication-navbutton-color" content="#3b82f6" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Structured Data for Person Profile -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": data.title || socialConfig.author,
+      "jobTitle": data.subtitle || 'Composer / Sound Designer / Audio Programmer',
+      "description": bioDescription,
+      "url": currentUrl,
+      "image": ogImage,
+      "sameAs": (data.social || [])
+        .filter(s => s.url && (s.platform.toLowerCase().includes('soundcloud') || 
+                             s.platform.toLowerCase().includes('github') || 
+                             s.platform.toLowerCase().includes('linkedin')))
+        .map(s => s.url),
+      "knowsAbout": (data.skills || []).map(skill => skill.category).join(', ') || 'Music Production, Sound Design, Audio Programming',
+      "email": data.email || ''
+    })}>
+    </script>
     
     <style>
       :root { --bg:#fff; --fg:#000; }
@@ -92,6 +127,13 @@ const bioDescription = data.bio ? (data.bio.length > 160 ? data.bio.slice(0, 160
     </script>
   </head>
   <body>
-    <BioBento data={data} />
+    <LanguageSwitcher />
+    <BioBento data={data} currentLocale={currentLocale} />
+    
+    <script>
+      // Initialize i18n system
+      import { initI18n } from '../utils/i18n.js';
+      initI18n();
+    </script>
   </body>
   </html>

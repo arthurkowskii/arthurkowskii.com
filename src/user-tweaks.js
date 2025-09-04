@@ -289,7 +289,7 @@ export const userTweaks = {
       textTertiary: '#64748b',
       borderPrimary: '#e2e8f0',
       borderSecondary: '#cbd5e1',
-      borderAccent: '#475569'
+      borderAccent: '#3b82f6'
     },
     transitions: {
       fast: '0.15s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -316,9 +316,32 @@ export const userTweaks = {
     enabled: true,
     path: '/welcome',
     storageKey: 'entered',
+    // Bilingual content support
+    content: {
+      fr: {
+        title: 'Bienvenue !',
+        description: 'Vous êtes sur le portfolio d\'Arthur Kowskii. Ce site est encore en construction, et de nouvelles fonctionnalités sont prévues très bientôt !',
+        buttonLabel: 'Entrer dans le Portfolio',
+        languageLabel: 'Choisir la langue'
+      },
+      en: {
+        title: 'Welcome!',
+        description: 'You are on Arthur Kowskii\'s portfolio. This site is still under construction, and new features are coming very soon!',
+        buttonLabel: 'Enter Portfolio',
+        languageLabel: 'Choose Language'
+      }
+    },
+    // Legacy properties for backward compatibility
     title: 'Bienvenue !',
     description: 'Vous êtes sur le portfolio d\'Arthur Kowskii. Ce site est encore en construction, et de nouvelles fonctionnalités sont prévues très bientôt !',
-    buttonLabel: 'Enter Portfolio',
+    buttonLabel: 'Entrer dans le Portfolio',
+    // Language selection settings
+    languageSelection: {
+      enabled: true,
+      showFlags: true,
+      defaultLanguage: 'fr',
+      rememberChoice: true
+    },
     noindex: true,
     audioPrewarm: true,
     animations: {
@@ -419,6 +442,143 @@ export const userTweaks = {
   githubLink: {
     text: 'See this website on github',
     url: 'https://github.com/arthurkowskii/arthurkowskii.com'
+  },
+
+  // Internationalization (i18n) configuration
+  i18n: {
+    defaultLocale: 'fr',
+    locales: ['fr', 'en'],
+    strings: {
+      fr: {
+        // Navigation & General
+        home: 'Accueil',
+        bio: 'Bio',
+        projects: 'Projets',
+        contact: 'Contact',
+        switchToEnglish: 'English',
+        switchToFrench: 'Français',
+        
+        // Bio page specific
+        about: 'À Propos',
+        skills: 'Compétences',
+        experience: 'Expérience',
+        socialLinks: 'Réseaux Sociaux',
+        downloadCV: 'Télécharger CV',
+        contactMe: 'Me Contacter',
+        
+        // Project page specific
+        viewProject: 'Voir le Projet',
+        sourceCode: 'Code Source',
+        liveDemo: 'Démo Live',
+        technologies: 'Technologies',
+        gallery: 'Galerie',
+        description: 'Description',
+        challenges: 'Défis',
+        results: 'Résultats',
+        
+        // Press section
+        press: 'Presse',
+        readArticle: 'Lire l\'Article',
+        publication: 'Publication',
+        publishedOn: 'Publié le',
+        
+        // Audio/Music specific
+        listen: 'Écouter',
+        play: 'Lire',
+        pause: 'Pause',
+        volume: 'Volume',
+        
+        // Status messages
+        loading: 'Chargement...',
+        error: 'Erreur',
+        notFound: 'Non trouvé',
+        comingSoon: 'Bientôt disponible',
+        
+        // Atom interface
+        nucleus: 'Moi',
+        electron: 'Projet',
+        shell: 'Domaine',
+        orbit: 'Orbite'
+      },
+      en: {
+        // Navigation & General
+        home: 'Home',
+        bio: 'Bio',
+        projects: 'Projects',
+        contact: 'Contact',
+        switchToEnglish: 'English',
+        switchToFrench: 'Français',
+        
+        // Bio page specific
+        about: 'About',
+        skills: 'Skills',
+        experience: 'Experience',
+        socialLinks: 'Social Links',
+        downloadCV: 'Download CV',
+        contactMe: 'Contact Me',
+        
+        // Project page specific
+        viewProject: 'View Project',
+        sourceCode: 'Source Code',
+        liveDemo: 'Live Demo',
+        technologies: 'Technologies',
+        gallery: 'Gallery',
+        description: 'Description',
+        challenges: 'Challenges',
+        results: 'Results',
+        
+        // Press section
+        press: 'Press',
+        readArticle: 'Read Article',
+        publication: 'Publication',
+        publishedOn: 'Published on',
+        
+        // Audio/Music specific
+        listen: 'Listen',
+        play: 'Play',
+        pause: 'Pause',
+        volume: 'Volume',
+        
+        // Status messages
+        loading: 'Loading...',
+        error: 'Error',
+        notFound: 'Not Found',
+        comingSoon: 'Coming Soon',
+        
+        // Atom interface
+        nucleus: 'Me',
+        electron: 'Project',
+        shell: 'Domain',
+        orbit: 'Orbit'
+      }
+    },
+    // SEO meta tags by language
+    meta: {
+      fr: {
+        siteName: 'Portfolio Arthur Kowskii',
+        defaultDescription: 'Portfolio interactif présentant production musicale, sound design pour jeux vidéo et projets techniques à travers une interface atomique innovante.',
+        home: {
+          title: 'Arthur Kowskii — Portfolio Interactif',
+          description: 'Explorez mes productions dans une expérience portfolio interactive basée sur un atome.'
+        },
+        bio: {
+          title: 'À Propos d\'Arthur Kowskii — Bio Portfolio Créatif',
+          description: 'Découvrez mon parcours en production musicale, sound design pour jeux vidéo et développement technique.'
+        }
+      },
+      en: {
+        siteName: 'Arthur Kowskii Portfolio',
+        defaultDescription: 'Interactive portfolio showcasing music production, game audio design, and technical projects through an innovative atomic interface.',
+        home: {
+          title: 'Arthur Kowskii — Interactive Portfolio',
+          description: 'Explore my productions through an interactive atom-based portfolio experience.'
+        },
+        bio: {
+          title: 'About Arthur Kowskii — Creative Portfolio Bio',
+          description: 'Discover my journey in music production, game sound design, and technical development.'
+        }
+      }
+    }
   }
 
 };

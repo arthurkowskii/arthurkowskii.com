@@ -925,6 +925,76 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                     0 4px 12px rgba(0, 0, 0, 0.2);
             }
 
+            /* Language Selection Styles */
+            .language-selection {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 8px;
+            }
+
+            .language-label {
+                font-size: 13px;
+                color: #6b7280;
+                font-weight: 500;
+                letter-spacing: 0.025em;
+            }
+
+            .language-buttons {
+                display: flex;
+                gap: 8px;
+                background: rgba(243, 244, 246, 0.8);
+                padding: 4px;
+                border-radius: 12px;
+                border: 1px solid rgba(229, 231, 235, 0.8);
+            }
+
+            .welcome-card .lang-btn {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 12px;
+                border: none;
+                background: transparent;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                font-size: 13px;
+                font-weight: 600;
+                color: #6b7280;
+                min-width: 60px;
+                justify-content: center;
+            }
+
+            .welcome-card .lang-btn:hover {
+                background: rgba(255, 255, 255, 0.8);
+                color: #374151;
+                transform: translateY(-1px);
+            }
+
+            .welcome-card .lang-btn.active {
+                background: #ffffff;
+                color: #171717;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                transform: none;
+            }
+
+            .welcome-card .lang-btn .flag {
+                font-size: 16px;
+                line-height: 1;
+            }
+
+            .welcome-card .lang-btn .lang-text {
+                font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                letter-spacing: 0.025em;
+            }
+
+            .welcome-card .lang-btn:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            }
+
             /* Dark Mode Welcome Overlay */
             html[data-theme="dark"] .welcome-overlay {
                 background: #0a0a0a;
@@ -967,6 +1037,31 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                     0 16px 32px rgba(255, 255, 255, 0.05);
             }
 
+            /* Dark Mode Language Selection */
+            html[data-theme="dark"] .language-label {
+                color: #9ca3af;
+            }
+
+            html[data-theme="dark"] .language-buttons {
+                background: rgba(31, 41, 55, 0.8);
+                border-color: rgba(75, 85, 99, 0.8);
+            }
+
+            html[data-theme="dark"] .welcome-card .lang-btn {
+                color: #9ca3af;
+            }
+
+            html[data-theme="dark"] .welcome-card .lang-btn:hover {
+                background: rgba(55, 65, 81, 0.8);
+                color: #d1d5db;
+            }
+
+            html[data-theme="dark"] .welcome-card .lang-btn.active {
+                background: #374151;
+                color: #ffffff;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            }
+
             /* Mobile Responsive */
             @media (max-width: 640px) {
                 .welcome-container {
@@ -984,6 +1079,30 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 
                 .welcome-button {
                     padding: 10px 20px;
+                    font-size: 14px;
+                }
+
+                .language-selection {
+                    gap: 10px;
+                    margin-bottom: 6px;
+                }
+
+                .language-label {
+                    font-size: 12px;
+                }
+
+                .language-buttons {
+                    gap: 6px;
+                    padding: 3px;
+                }
+
+                .welcome-card .lang-btn {
+                    padding: 6px 10px;
+                    font-size: 12px;
+                    min-width: 50px;
+                }
+
+                .welcome-card .lang-btn .flag {
                     font-size: 14px;
                 }
             }
@@ -1537,9 +1656,25 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 			`}>
 			<div class="welcome-container">
 				<div class="welcome-card" tabindex="-1">
-					<h2 id="enter-title" class="welcome-title">{userTweaks.prePage?.title || 'Enter Portfolio'}</h2>
-					<p id="enter-desc" class="welcome-description">{userTweaks.prePage?.description || 'Press Enter or click the button to access the interactive portfolio experience'}</p>
-					<button id="enter-btn-inline" class="welcome-button" aria-label="Enter Portfolio and enable audio" autofocus>{userTweaks.prePage?.buttonLabel || 'Enter Portfolio'}</button>
+					<!-- Language Selection -->
+					<div class="language-selection" id="welcome-language-selection">
+						<span class="language-label" id="language-label">Choisir la langue</span>
+						<div class="language-buttons">
+							<button class="lang-btn active" data-lang="fr" aria-pressed="true" aria-label="Français">
+								<span class="flag">🇫🇷</span>
+								<span class="lang-text">FR</span>
+							</button>
+							<button class="lang-btn" data-lang="en" aria-pressed="false" aria-label="English">
+								<span class="flag">🇬🇧</span>
+								<span class="lang-text">EN</span>
+							</button>
+						</div>
+					</div>
+					
+					<!-- Welcome Content -->
+					<h2 id="enter-title" class="welcome-title">{userTweaks.prePage?.content?.fr?.title || userTweaks.prePage?.title || 'Bienvenue !'}</h2>
+					<p id="enter-desc" class="welcome-description">{userTweaks.prePage?.content?.fr?.description || userTweaks.prePage?.description || 'Vous êtes sur le portfolio d\'Arthur Kowskii.'}</p>
+					<button id="enter-btn-inline" class="welcome-button" aria-label="Enter Portfolio and enable audio">{userTweaks.prePage?.content?.fr?.buttonLabel || userTweaks.prePage?.buttonLabel || 'Entrer dans le Portfolio'}</button>
 				</div>
 			</div>
 		</div>
@@ -1553,6 +1688,160 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 				</div>
 			</div>
 		</div>
+
+        <!-- Welcome Language Selection Script -->
+        <script type="module">
+          // Welcome Language Selection Logic
+          (function setupWelcomeLanguageSelection() {
+            const overlay = document.getElementById('welcome-overlay');
+            const langBtns = overlay?.querySelectorAll('.lang-btn');
+            const langLabel = document.getElementById('language-label');
+            const welcomeTitle = document.getElementById('enter-title');
+            const welcomeDesc = document.getElementById('enter-desc');
+            const welcomeButton = document.getElementById('enter-btn-inline');
+            
+            if (!langBtns || langBtns.length === 0 || !overlay) return;
+            
+            // Get browser preferred language
+            const getBrowserLang = () => {
+              const browserLang = navigator.language || navigator.languages?.[0];
+              if (!browserLang) return 'fr';
+              const langCode = browserLang.split('-')[0].toLowerCase();
+              return ['fr', 'en'].includes(langCode) ? langCode : 'fr';
+            };
+            
+            // Get content for language from global config
+            const getContent = (lang) => {
+              try {
+                const cfg = JSON.parse(document.getElementById('cfg-data')?.textContent || '{}');
+                const content = cfg?.prePage?.content?.[lang];
+                if (content) return content;
+              } catch (e) {
+                console.warn('Could not load config data:', e);
+              }
+              
+              // Fallback content
+              return lang === 'en' ? {
+                title: 'Welcome!',
+                description: 'You are on Arthur Kowskii\'s portfolio. This site is still under construction, and new features are coming very soon!',
+                buttonLabel: 'Enter Portfolio',
+                languageLabel: 'Choose Language'
+              } : {
+                title: 'Bienvenue !',
+                description: 'Vous êtes sur le portfolio d\'Arthur Kowskii. Ce site est encore en construction, et de nouvelles fonctionnalités sont prévues très bientôt !',
+                buttonLabel: 'Entrer dans le Portfolio',
+                languageLabel: 'Choisir la langue'
+              };
+            };
+            
+            // Update content for selected language with smooth transition
+            const updateContent = (lang) => {
+              const content = getContent(lang);
+              
+              // Add transition class for smooth content changes
+              const card = overlay.querySelector('.welcome-card');
+              if (card) card.style.transition = 'all 0.3s ease';
+              
+              if (langLabel) {
+                langLabel.style.opacity = '0.5';
+                setTimeout(() => {
+                  langLabel.textContent = content.languageLabel;
+                  langLabel.style.opacity = '1';
+                }, 150);
+              }
+              
+              if (welcomeTitle) {
+                welcomeTitle.style.opacity = '0.5';
+                setTimeout(() => {
+                  welcomeTitle.textContent = content.title;
+                  welcomeTitle.style.opacity = '1';
+                }, 150);
+              }
+              
+              if (welcomeDesc) {
+                welcomeDesc.style.opacity = '0.5';
+                setTimeout(() => {
+                  welcomeDesc.textContent = content.description;
+                  welcomeDesc.style.opacity = '1';
+                }, 150);
+              }
+              
+              if (welcomeButton) {
+                welcomeButton.style.opacity = '0.5';
+                setTimeout(() => {
+                  welcomeButton.textContent = content.buttonLabel;
+                  welcomeButton.style.opacity = '1';
+                }, 150);
+              }
+              
+              // Update document language
+              document.documentElement.lang = lang;
+              
+              // Store selection for portfolio
+              try {
+                localStorage.setItem('portfolio-locale', lang);
+              } catch (e) {
+                console.warn('Could not save language preference:', e);
+              }
+            };
+            
+            // Initialize with browser language or saved preference
+            let currentLang = 'fr';
+            try {
+              const savedLang = localStorage.getItem('portfolio-locale');
+              currentLang = savedLang && ['fr', 'en'].includes(savedLang) ? savedLang : getBrowserLang();
+            } catch (e) {
+              currentLang = getBrowserLang();
+            }
+            
+            // Set initial state
+            updateContent(currentLang);
+            
+            // Update button states
+            const updateButtonStates = (activeLang) => {
+              langBtns.forEach(btn => {
+                const isActive = btn.dataset.lang === activeLang;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive.toString());
+              });
+            };
+            
+            updateButtonStates(currentLang);
+            
+            // Add click listeners with smooth animations
+            langBtns.forEach(btn => {
+              btn.addEventListener('click', (e) => {
+                const targetLang = btn.dataset.lang;
+                if (targetLang && targetLang !== currentLang) {
+                  // Add click animation
+                  btn.style.transform = 'scale(0.95)';
+                  setTimeout(() => {
+                    btn.style.transform = '';
+                  }, 100);
+                  
+                  currentLang = targetLang;
+                  updateContent(currentLang);
+                  updateButtonStates(currentLang);
+                }
+              });
+            });
+            
+            // Add keyboard navigation
+            langBtns.forEach((btn, index) => {
+              btn.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                  e.preventDefault();
+                  const nextIndex = e.key === 'ArrowRight' 
+                    ? (index + 1) % langBtns.length 
+                    : (index - 1 + langBtns.length) % langBtns.length;
+                  langBtns[nextIndex].focus();
+                }
+              });
+            });
+            
+            console.log('🌐 Welcome language selection initialized with locale:', currentLang);
+          })();
+        </script>
 
         <!-- Client data payload for overlay -->
         <script type="application/json" id="project-data" set:html={JSON.stringify(projectSummaries)}></script>
