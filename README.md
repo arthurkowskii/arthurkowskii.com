@@ -10,23 +10,23 @@
 
 ## 🔬 Le Concept : Un Atome Interactif
 
-Ce portfolio révolutionne l'expérience de navigation traditionnelle en transformant la présentation de projets en un **système atomique interactif** :
+Voici le répertoire officiel de mon portfolio interactif ! Celui-ci a été créé par Arthur Kowskii et est conçu autour d’une représentation 2D d’un atome. (À noter qu’il n’est pas basé sur un élément précis, n’ayant pas de représentation exacte du nombre de protons, mais le « K » du noyau pourrait évoquer un atome de potassium 🤔)
 
 ### 🎯 Structure Atomique
-- **⚛️ Noyau Central** : Ma page biographique personnelle, cœur de l'identité professionnelle
-- **🛸 Coquilles Orbitales** : Trois domaines d'expertise organisés en orbites concentriques
-  - 🎵 **Coquille 1** : Projets Musicaux & Composition
-  - 🎮 **Coquille 2** : Game Audio & Sound Design  
-  - 💻 **Coquille 3** : Développements Techniques
+- **⚛️ Noyau Central / Bio** : Ma page biographique personnelle, cœur de l'identité professionnelle
+- **🛸 Couches Éléctroniques** : Trois domaines d'expertise organisés en orbites concentriques
+  - 🎵 **1ère couche** : Projets Musicaux & Composition
+  - 🎮 **2ème couche** : Game Audio & Sound Design  
+  - 💻 **3ème couche** : Développements Techniques
 - **⚡ Électrons** : Projets individuels gravitant sur leurs orbites respectives
 
 ### 🎮 Expérience Interactive
 1. **Navigation Orbitale** : Les électrons-projets orbitent naturellement autour du noyau
-2. **Prévisualisation Fluide** : Clic sur un électron → overlay de prévisualisation immersive
-3. **Exploration Approfondie** : Clic sur la prévisualisation → page projet dédiée
-4. **Retour Naturel** : Interface une page pour une expérience fluide et continue
+2. **Prévisualisation Fluide** : Survol d'un électron → prévisualisation du projet
+3. **Exploration Approfondie** : Clic sur l'éléctron → page projet dédiée
+4. **Retour Naturel** : Interface "one-page" pour une expérience fluide et contin ue
 
-Cette approche transforme la consultation d'un portfolio en une **exploration spatiale intuitive**, où chaque projet trouve sa place naturelle dans l'écosystème de compétences.
+Cette approche vise à transformer la consultation du portfolio en une expérience plus **intuitive** et **mémorable**, où chaque projet trouve naturellement sa place dans l’écosystème des compétences
 
 ---
 
@@ -34,14 +34,13 @@ Cette approche transforme la consultation d'un portfolio en une **exploration sp
 
 ### 🎨 Animations & Physique
 - **Système orbital interactif** propulsé par GSAP
-- **Physique des électrons** avec détection de collisions avancée  
+- **Physique des électrons** avec détection de collisions avancée
 - **Animations fluides** optimisées pour 60fps constant
 - **Transitions seamless** entre états et pages
 
-### 🏗️ Architecture Innovante
+### 🏗️ Architecture
 - **Système de rendu dual** : overlays + pages dédiées
 - **Astro Content Collections** pour la gestion dynamique des projets
-- **Responsive design** adapté mobile et desktop
 - **Thème adaptatif** sombre/clair selon les préférences système
 
 ### 🔧 Stack Technique
@@ -72,36 +71,20 @@ Cette méthodologie démontre une adaptation aux outils émergents de l'industri
 ## 🎯 Domaines d'Expertise
 
 ### 🎵 Musique & Composition
-Création d'univers sonores originaux, de la composition instrumentale à la production électronique.
+Création d'univers sonores originaux, de la composition instrumentale au mixage, mastering et l'intégration.
 
 ### 🎮 Game Audio & Sound Design
 Conception sonore immersive pour jeux vidéo, de l'ambiance aux effets interactifs.
 
 ### 💻 Développement Technique  
-Solutions web modernes, optimisation performance et expériences utilisateur innovantes.
+Solutions web modernes, développement de scripts Reaper pour optimisation du travail personnel (bien que disponible au téléchargement)
 
 ---
 
-## 🚀 Démarrage Rapide
-
-### Installation
-```bash
-git clone https://github.com/arthurkowskii/arthurkowskii.com.git
-cd arthurkowskii.com
-npm install
-```
-
-### Développement
-```bash
-npm run dev          # Serveur local (localhost:4321)
-npm run build        # Build de production
-npm run preview      # Prévisualisation du build
-```
-
-### Structure du Projet
+## Structure du Projet
 ```
 src/
-├── atom/               # Système orbital & physique
+├── atom/              # Système orbital & physique
 │   ├── core/          # OrbitSystem, électrons
 │   └── utils/         # Calculs de positionnement
 ├── components/        # Composants Astro
@@ -130,7 +113,7 @@ src/
 
 ## 📄 Licence
 
-Projet personnel © 2024 Arthur Kowskii Croquebois
+Projet personnel © 2025 Arthur Kowskii Croquebois
 
 ---
 
