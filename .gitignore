@@ -33,3 +33,18 @@ backup/
 # Claude-specific files
 .claude/
 CLAUDE.md
+
+# Development/debugging files
+*.log
+TODO.md
+SESSION_CONTEXT.md
+agents.md
+
+# Personal brainstorming and documentation
+*brainstorm*.md
+plan.md
+SOCIAL_SHARING_SETUP.md
+BENTO_TEMPLATE.md
+
+# Personal reference files
+social links
