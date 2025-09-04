@@ -413,6 +413,12 @@ export const userTweaks = {
       animationDuration: 0.3
     },
     simple: true
+  },
+
+  // GitHub repository link
+  githubLink: {
+    text: 'See this website on github',
+    url: 'https://github.com/arthurkowskii/arthurkowskii.com'
   }
 
 };

@@ -1,9 +1,12 @@
 ---
+import AtomCenterLogo from '../Assets/atom_center_logo.png';
 ---
 
 <header id="main-header">
   <div class="header-content">
     <div class="header-name">
+      <img class="header-logo" src={AtomCenterLogo.src} alt="" aria-hidden="true" />
+      <span class="header-divider"></span>
       <h1>Arthur Kowskii</h1>
     </div>
     <nav class="header-filters">
@@ -50,6 +53,35 @@
   }
   
   /* Name styling (left) */
+  .header-name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .header-divider {
+    width: 1px;
+    height: 24px;
+    background: #e2e8f0;
+    transition: background 0.3s ease;
+  }
+
+  html[data-theme="dark"] .header-divider {
+    background: #475569;
+  }
+  
+  .header-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    filter: invert(1);
+    transition: filter 0.3s ease;
+  }
+  
+  html[data-theme="dark"] .header-logo {
+    filter: invert(0);
+  }
+  
   .header-name h1 {
     font-size: 24px;
     font-weight: 700;
@@ -125,6 +157,11 @@
   @media (max-width: 768px) {
     #main-header {
       padding: 12px 16px;
+    }
+    
+    .header-logo {
+      width: 24px;
+      height: 24px;
     }
     
     .header-name h1 {

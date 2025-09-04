@@ -270,6 +270,7 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
     flex-direction: column;
     justify-content: flex-start; /* Keep label aligned with other cards */
     align-items: flex-start;
+    gap: 12px; /* Add spacing between email and CV download button */
   }
 
   .card-label {
@@ -826,6 +827,7 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
       {data?.email ? (
         <a class="contact-email" href={`mailto:${data.email}`}>{data.email}</a>
       ) : null}
+      <a class="contact-email" href="/CV.jpg" download="Arthur_Kowskii_CV.jpg">Télécharger le CV</a>
     </div>
 
     <!-- Social Card -->
