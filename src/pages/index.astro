@@ -1,4 +1,7 @@
 ---
+// Force server-side rendering to handle URL parameters properly
+export const prerender = false;
+
 import { getCollection, getEntryBySlug } from 'astro:content';
 import BioBento from '../components/BioBento.astro';
 import ProjectBento from '../components/ProjectBento.astro';
@@ -33,6 +36,7 @@ const ogImage = `${siteUrl}${socialConfig.home.image}`;
 const url = Astro.url;
 const urlLang = url.searchParams.get('lang');
 const currentLocale = urlLang && ['fr', 'en'].includes(urlLang) ? urlLang : 'fr';
+
 
 // Get all projects and compute domains from folder structure (prefix-ordered)
 const projects = await getCollection('projects');
@@ -141,6 +145,7 @@ function scanAssetsFolder(folder: string | undefined, explicitHeroBg?: string, e
 const projectSummaries = projectsWithDomains.map(p => {
   // Localize the project data for current locale
   const localizedProjectData = localizeProject(p.data, currentLocale);
+  
   const bento = localizedProjectData.bento;
   let heroImage = '';
   let subtitle = '';
@@ -1840,6 +1845,35 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                     btn.style.transform = '';
                   }, 100);
                   
+                  // For non-default language (English), reload page with URL parameter
+                  // French is default, so no reload needed
+                  if (targetLang === 'en') {
+                    // Store selection and reload with URL parameter for server-side localization
+                    try {
+                      localStorage.setItem('portfolio-locale', targetLang);
+                    } catch (e) {
+                      console.warn('Could not save language preference:', e);
+                    }
+                    const url = new URL(window.location);
+                    url.searchParams.set('lang', 'en');
+                    window.location.href = url.toString();
+                    return; // Don't continue with client-side updates
+                  } else if (targetLang === 'fr') {
+                    // For French (default), remove URL parameter if present and reload if needed
+                    try {
+                      localStorage.setItem('portfolio-locale', targetLang);
+                    } catch (e) {
+                      console.warn('Could not save language preference:', e);
+                    }
+                    const url = new URL(window.location);
+                    if (url.searchParams.has('lang')) {
+                      url.searchParams.delete('lang');
+                      window.location.href = url.toString();
+                      return;
+                    }
+                  }
+                  
+                  // For same-page updates (when no reload is needed)
                   currentLang = targetLang;
                   updateContent(currentLang);
                   updateButtonStates(currentLang);
@@ -2340,6 +2374,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 ...project,
                 data: localizeProject(project.data, currentLocale)
               };
+              
               return (
                 <div class="bento-project" data-project-slug={project.slug} style="display:none;">
                   <ProjectBento project={localizedProject} />

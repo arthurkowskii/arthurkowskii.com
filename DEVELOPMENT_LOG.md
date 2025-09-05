@@ -172,7 +172,5 @@ Last updated: 2025-08-31 (Press card system + mobile detection fix)
 
 ## Known Issues & Next Steps
 
-- Gallery slider design needs spacing/caption polish
-- Production Decap backend selection needed for deployment
-- Dynamic shells testing across 1-5 domain configurations
-- Performance monitoring analysis and optimization opportunities
+- Dynamic shells testing across 1-5 domain configurations (low priority)
+- Performance monitoring analysis and optimization opportunities (ongoing)
