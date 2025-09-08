@@ -1,5 +1,12 @@
 ---
 import AtomCenterLogo from '../Assets/atom_center_logo.png';
+import { getFilterTranslations } from '../utils/translations.js';
+
+// Get current locale from props (passed from parent page)
+const { locale = 'fr' } = Astro.props;
+
+// Get localized filter text
+const filterLabels = getFilterTranslations(locale);
 ---
 
 <header id="main-header">
@@ -10,10 +17,10 @@ import AtomCenterLogo from '../Assets/atom_center_logo.png';
       <h1>Arthur Kowskii</h1>
     </div>
     <nav class="header-filters">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="music">Music</button>
-      <button class="filter-btn" data-filter="game-audio">Game Audio</button>
-      <button class="filter-btn" data-filter="tech">Tech</button>
+      <button class="filter-btn active" data-filter="all">{filterLabels.all}</button>
+      <button class="filter-btn" data-filter="music">{filterLabels.music}</button>
+      <button class="filter-btn" data-filter="game-audio">{filterLabels['game-audio']}</button>
+      <button class="filter-btn" data-filter="tech">{filterLabels.tech}</button>
     </nav>
     <div></div>
   </div>

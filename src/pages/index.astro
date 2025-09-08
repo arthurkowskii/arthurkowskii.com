@@ -25,6 +25,7 @@ import { userTweaks } from '../user-tweaks.js';
 import { calculateElectronPositions } from '../atom/utils/electronPositioning.js';
 import { sanitizeText } from '../utils/sanitize.js';
 import { localizeProject, localizeBio, getLocalizedContent } from '../utils/content-i18n.js';
+import { getDomainDisplayName } from '../utils/translations.js';
 
 // Social meta tag setup
 const socialConfig = atomConfig.socialMeta;
@@ -266,6 +267,13 @@ function arcPathD(cx: number, cy: number, r: number, startDeg: number, endDeg: n
 // Prefer dynamic folder display names; fall back to overrides + slug transform
 const DYNAMIC_NAMES: Record<string,string> = Object.fromEntries(domainMetaList.map(d => [d.slug, d.display]));
 function displayNameForDomain(slug: string) {
+  // First try localized translations
+  const localizedName = getDomainDisplayName(slug, currentLocale);
+  if (localizedName && localizedName !== `domains.${slug}`) {
+    return localizedName;
+  }
+  
+  // Fall back to dynamic folder names
   if (slug in DYNAMIC_NAMES) return DYNAMIC_NAMES[slug];
   const map = (atomConfig as any).domainDisplayNames || {};
   if (map && slug in map) return map[slug];
@@ -1411,7 +1419,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 	</head>
 	<body>
 		<!-- Header with name, filters, and theme toggle -->
-		<Header />
+		<Header locale={currentLocale} />
 		
 		<div class="atom-container">
 				<svg 
