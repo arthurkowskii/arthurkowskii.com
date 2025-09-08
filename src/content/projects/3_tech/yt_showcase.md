@@ -1,7 +1,13 @@
 ---
-title: "Youtube_to_Reaper Script"
-altTitle: "Youtube to Reaper Script"
-description: "A lua script for reaper that takes the last Youtube/Soundcloud link from your clipboard"
+title:
+  fr: "Youtube_to_Reaper Script"
+  en: "Youtube_to_Reaper Script"
+altTitle:
+  fr: "Youtube to Reaper Script"
+  en: "Youtube to Reaper Script"
+description:
+  fr: "Un script lua pour Reaper qui prend le dernier lien Youtube/Soundcloud de votre presse-papiers"
+  en: "A lua script for reaper that takes the last Youtube/Soundcloud link from your clipboard"
 tech: ["Lua", "Reascript"]
 status: "completed" # or "in-progress" | "planned"
 link: "https://example.com"

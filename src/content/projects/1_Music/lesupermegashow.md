@@ -157,7 +157,9 @@ bento:
         description:
           fr: "LE SUPER MEGA SHOW ! est un projet hybride mêlant album et série audio. Plusieurs titres y sont entrecoupés de courts épisodes narratifs qui ancrent l'histoire dans la musique. L'enjeu était de trouver le bon équilibre entre narration et morceaux pour offrir une expérience fluide. Une tracklist fixe a été essentielle pour garantir la continuité entre chaque épisode et chaque chanson."
           en: "THE SUPER MEGA SHOW! is a hybrid project blending album and audio series. Several tracks are interspersed with short narrative episodes that anchor the story in the music. The challenge was finding the right balance between narration and songs to offer a smooth experience. A fixed tracklist was essential to guarantee continuity between each episode and each song."
-      - title: "Casting"
+      - title:
+          fr: "Casting"
+          en: "Casting"
         description: "Le présentateur du « Super Mega Show » a été pensé comme un personnage à la fois charismatique et étrange, nécessitant un comédien de doublage idéal. Ce rôle a été brillamment interprété par Benoit Grimmiaux (Bojack Horseman, Pokémon, Rick et Morty…). Collaborer avec Benoit, d’abord une idole puis un compagnon créatif, a été un immense honneur et une grande fierté pour moi."
       - title: "Un album, une série audio... et puis un film !"
         description: "Plus nous travaillions avec Benoit, plus nous mettions de cœur dans ce projet. L’envie de passer à l’image est née lors de l’enregistrement audio, même si cela paraissait impossible : je n’avais jamais écrit de script, storyboardé, monté une équipe, conçu de mise en scène ou assuré une réalisation. Pourtant, c'est exactement ce que j’ai fini par faire !"
@@ -169,13 +171,21 @@ bento:
       en: "Results"
     items:
       - icon: "🎬"
-        text: "Un court métrage de 12 minutes, écrit et réalisé par Arthur Kowskii"
+        text:
+          fr: "Un court métrage de 12 minutes, écrit et réalisé par Arthur Kowskii"
+          en: "A 12-minute short film, written and directed by Arthur Kowskii"
       - icon: "🎙️"
-        text: "2 Clips musicaux : XR 300 (feat. Mai) et ENFANT"
+        text:
+          fr: "2 Clips musicaux : XR 300 (feat. Mai) et ENFANT"
+          en: "2 Music videos: XR 300 (feat. Mai) and ENFANT"
       - icon: "💽"
-        text: "Un album de 16 titres (18 en physique) comprenant 7 épisodes audio et 9 morceaux"
+        text:
+          fr: "Un album de 16 titres (18 en physique) comprenant 7 épisodes audio et 9 morceaux"
+          en: "A 16-track album (18 physical) including 7 audio episodes and 9 songs"
       - icon: "📼"
-        text: "Une sortie physique en cassette, pour suivre la direction artistique de l'album à 50 exemplaires." 
+        text:
+          fr: "Une sortie physique en cassette, pour suivre la direction artistique de l'album à 50 exemplaires."
+          en: "A physical cassette release, following the album's artistic direction in 50 copies." 
       
 ---
 

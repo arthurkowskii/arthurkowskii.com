@@ -15,7 +15,7 @@ export const translations = {
         en: 'Music'
       },
       'game-audio': {
-        fr: 'Audio de Jeu',
+        fr: 'Game Audio',
         en: 'Game Audio'
       },
       tech: {
@@ -30,7 +30,7 @@ export const translations = {
       en: 'MUSIC'
     },
     'game-audio': {
-      fr: 'AUDIO DE JEU',
+      fr: 'GAME AUDIO',
       en: 'GAME AUDIO'
     },
     tech: {

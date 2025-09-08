@@ -1,7 +1,13 @@
 ---
-title: "Starting_Grid_for_Reaper Script"
-altTitle: "Starting Grid for Reaper"
-description: "Starting\_Grid for Reaper est un script qui prend tous vos items sélectionnés (peu importe le type) et qui les place au début de leurs pistes. Le script fonctionne avec tous les types d’items supportés par Reaper et est destiné aux longues sessions de sampling qui résultent souvent en une multitude de samples éparpillés sur une longue durée."
+title:
+  fr: "Starting_Grid_for_Reaper Script"
+  en: "Starting_Grid_for_Reaper Script"
+altTitle:
+  fr: "Starting Grid for Reaper"
+  en: "Starting Grid for Reaper"
+description:
+  fr: "Starting\_Grid for Reaper est un script qui prend tous vos items sélectionnés (peu importe le type) et qui les place au début de leurs pistes. Le script fonctionne avec tous les types d'items supportés par Reaper et est destiné aux longues sessions de sampling qui résultent souvent en une multitude de samples éparpillés sur une longue durée."
+  en: "Starting\_Grid for Reaper is a script that takes all your selected items (regardless of type) and places them at the beginning of their tracks. The script works with all item types supported by Reaper and is intended for long sampling sessions that often result in a multitude of samples scattered over a long duration."
 tech: ["Lua", "Reascript"]
 status: "completed" 
 link: "https://github.com/arthurkowskii/StartingGrid_for_Reaper"
@@ -58,10 +64,14 @@ bento:
   actions:
     title: "Experience"
     primary:
-      text: "🛒 Télécharger à prix libre sur Gumroad"
+      text:
+        fr: "🛒 Télécharger à prix libre sur Gumroad"
+        en: "🛒 Download at free price on Gumroad"
       url: "https://arthurkowskii.gumroad.com/"
     secondary:
-      text: "🗃️ Voir sur le projet sur GitHub"
+      text:
+        fr: "🗃️ Voir le projet sur GitHub"
+        en: "🗃️ View project on GitHub"
       url: "https://github.com/arthurkowskii/StartingGrid_for_Reaper"
 
   # Music links (exactly 4 items). Enable with cards.musicLinks: true

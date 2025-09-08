@@ -103,7 +103,9 @@ bento:
   soundcloud:
     title: "Helena Rubinstein Commission"
     url: "https://soundcloud.com/kforkowskii/sets/kowskii-for-helena-rubinstein-px50-event?si=257dbf8a42f749d4baf427d537d957da&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing"
-    description: "15 minutes de musique pour L'Oréal Paris"
+    description:
+      fr: "15 minutes de musique pour L'Oréal Paris"
+      en: "15 minutes of music for L'Oréal Paris"
     large: true  # large size = gallery position / small = tech position
   
   # Development process
