@@ -6,8 +6,8 @@ altTitle:
   fr: "FMOD Demo"
   en: "FMOD Demo"
 description:
-  fr: "Conception d'un projet FMOD pour un jeu de rôle. Le pitch : un jeu d'horreur situé dans un univers de science-fiction spatial, dans l'esprit de Dead Space.Le jeu comporte quatre phases de gameplay distinctes : exploration, infiltration, combat et survie — toutes contrôlées dynamiquement via le paramètre "INTERACTIVITY"."
-  en: "Design of an FMOD project for a role-playing game. The pitch: a horror game set in a space sci-fi universe, in the spirit of Dead Space. The game features four distinct gameplay phases: exploration, infiltration, combat and survival — all dynamically controlled via the "INTERACTIVITY" parameter."
+  fr: "Conception d'un projet FMOD pour un jeu de rôle. Le pitch : un jeu d'horreur situé dans un univers de science-fiction spatial, dans l'esprit de Dead Space. Le jeu comporte quatre phases de gameplay distinctes : exploration, infiltration, combat et survie — toutes contrôlées dynamiquement via le paramètre INTERACTIVITY."
+  en: "Design of an FMOD project for a role-playing game. The pitch: a horror game set in a space sci-fi universe, in the spirit of Dead Space. The game features four distinct gameplay phases: exploration, infiltration, combat and survival — all dynamically controlled via the INTERACTIVITY parameter."
 tech: ["Reaper", "FMOD"]
 status: "completed"
 link: "https://youtu.be/URPsqY7SwxY?si=orus46GsXuOBT0hj"
@@ -83,8 +83,8 @@ bento:
       en: "INTERACTIVE RPG - SPACE ABYSS"
     url: "https://youtu.be/URPsqY7SwxY?si=orus46GsXuOBT0hj"
     description:
-      fr: "Conception d'un projet FMOD pour un jeu de rôle. Le pitch : un jeu d'horreur situé dans un univers de science-fiction spatial, dans l'esprit de Dead Space. L'ambiance sonore y joue un rôle central, renforçant la tension et l'immersion du joueur à chaque instant. Le jeu comporte quatre phases de gameplay distinctes : exploration, infiltration, combat et survie — toutes contrôlées dynamiquement via le paramètre "INTERACTIVITY"."
-      en: "Design of an FMOD project for a role-playing game. The pitch: a horror game set in a space sci-fi universe, in the spirit of Dead Space. The sound atmosphere plays a central role, reinforcing tension and player immersion at every moment. The game features four distinct gameplay phases: exploration, infiltration, combat and survival — all dynamically controlled via the "INTERACTIVITY" parameter."
+      fr: "Conception d'un projet FMOD pour un jeu de rôle. Le pitch : un jeu d'horreur situé dans un univers de science-fiction spatial, dans l'esprit de Dead Space. L'ambiance sonore y joue un rôle central, renforçant la tension et l'immersion du joueur à chaque instant. Le jeu comporte quatre phases de gameplay distinctes : exploration, infiltration, combat et survie — toutes contrôlées dynamiquement via le paramètre INTERACTIVITY."
+      en: "Design of an FMOD project for a role-playing game. The pitch: a horror game set in a space sci-fi universe, in the spirit of Dead Space. The sound atmosphere plays a central role, reinforcing tension and player immersion at every moment. The game features four distinct gameplay phases: exploration, infiltration, combat and survival — all dynamically controlled via the INTERACTIVITY parameter."
 
   # Music links (exactly 4 items). Enable with cards.musicLinks: true
   musicLinks:
@@ -125,8 +125,8 @@ bento:
       en: ""
     items:
       - title:
-          fr: ""
-          en: ""
+          fr: "Briefing du projet"
+          en: "Project briefing"
         description:
           fr: "Nous allons avoir besoin que tu composes de la musique interactive pour notre jeu avec des phases distinctes. Pour ce faire, dans l'application, nous allons appeler un paramètre que tu devras créer qui contiendra donc plusieurs états. Ce paramètre nous l'avons appelé INTERACTIVITY."
           en: "We will need you to compose interactive music for our game with distinct phases. To do this, in the application, we will call a parameter that you will need to create that will contain multiple states. We have called this parameter INTERACTIVITY."
@@ -134,32 +134,32 @@ bento:
           fr: "[État 0] : Ouverture du jeu : mise en contexte"
           en: "[State 0] : Game opening: context setting"
         description:
-          fr: ""
-          en: ""
+          fr: "Musique d'introduction pour établir l'atmosphère du jeu spatial"
+          en: "Introductory music to establish the spatial game atmosphere"
       - title:
           fr: "[État 01 + 01.5] : Musique de réflexion / Idle"
           en: "[State 01 + 01.5] : Reflection/Idle music"
         description:
-          fr: ""
-          en: ""
+          fr: "Ambiance calme pour les phases d'exploration et de réflexion"
+          en: "Calm ambiance for exploration and reflection phases"
       - title:
           fr: "[État 02] : Musique de combat avec transition"
           en: "[State 02] : Combat music with transition"
         description:
-          fr: ""
-          en: ""
+          fr: "Musique intense et rythmée pour les séquences de combat"
+          en: "Intense and rhythmic music for combat sequences"
       - title:
           fr: "[Victoire et transition] : 02 -> Win -> 01"
           en: "[Victory and transition] : 02 -> Win -> 01"
         description:
-          fr: ""
-          en: ""
+          fr: "Transition musicale positive après une victoire au combat"
+          en: "Positive musical transition after a combat victory"
       - title:
           fr: "[Défaite et transition] : 02 -> Loose -> 01"
           en: "[Defeat and transition] : 02 -> Loose -> 01"
         description:
-          fr: ""
-          en: ""
+          fr: "Transition musicale sombre après une défaite au combat"
+          en: "Dark musical transition after a combat defeat"
   
   # Results and impact
   results:

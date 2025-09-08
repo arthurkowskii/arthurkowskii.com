@@ -1033,6 +1033,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
             }
 
+
             /* Dark Mode Welcome Overlay */
             html[data-theme="dark"] .welcome-overlay {
                 background: #0a0a0a;
@@ -1100,6 +1101,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
             }
 
+
             /* Mobile Responsive */
             @media (max-width: 640px) {
                 .welcome-container {
@@ -1148,6 +1150,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                     object-fit: cover;
                     border-radius: 1px;
                 }
+
             }
 
             /* Accessibility: Faster animations for reduced motion (instead of disabling) */
@@ -1382,7 +1385,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
             try {
               const saved = localStorage.getItem('theme');
               const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-              const theme = saved || (prefersDark ? 'dark' : 'light');
+              const theme = saved || 'dark';
               document.documentElement.setAttribute('data-theme', theme);
               
               // Show atom if user has already entered
@@ -1832,9 +1835,9 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
             let currentLang = 'fr';
             try {
               const savedLang = localStorage.getItem('portfolio-locale');
-              currentLang = savedLang && ['fr', 'en'].includes(savedLang) ? savedLang : getBrowserLang();
+              currentLang = savedLang && ['fr', 'en'].includes(savedLang) ? savedLang : 'fr';
             } catch (e) {
-              currentLang = getBrowserLang();
+              currentLang = 'fr';
             }
             
             // Set initial state
@@ -2043,7 +2046,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
             const savedTheme = (() => {
               try { return localStorage.getItem('theme'); } catch { return null; }
             })();
-            applyTheme(savedTheme || 'light');
+            applyTheme(savedTheme || 'dark');
             
             // Theme toggle event listener
             themeSwitch?.addEventListener('change', () => {
@@ -2324,7 +2327,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 try { return localStorage.getItem('theme'); } catch { return null; }
               })();
               const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-              const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+              const initialTheme = savedTheme || 'dark';
               
               // Apply initial theme
               document.documentElement.setAttribute('data-theme', initialTheme);

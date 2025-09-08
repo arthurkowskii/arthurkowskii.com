@@ -4,7 +4,7 @@
 
 Full details: `docs/history/PHASE_LOGS.md`, `docs/history/ERRORS_LESSONS.md`
 
-Last updated: 2025-09-08 (Comprehensive bilingual translation system)
+Last updated: 2025-09-08 (Theme defaults and UX refinements)
 
 ## Project Snapshot
 
@@ -151,10 +151,27 @@ Last updated: 2025-09-08 (Comprehensive bilingual translation system)
   - Bilingual system fully functional with ?lang=fr and ?lang=en URL parameters
   - Complete coverage: 9 project files updated with comprehensive bilingual support
 
+### Theme and Language Default Updates (2025-09-08 continued)
+- **Critical YAML Fix**: Fixed YAML parsing errors in fmod_showcase.md caused by nested quotes around "INTERACTIVITY" parameter
+- **Content Schema Validation**: Added missing bilingual content for challenge descriptions to resolve schema validation errors
+- **Dark Mode Default**: Changed default theme from light to dark mode across all initialization points
+  - Updated early theme detection script to default to dark
+  - Modified main theme initialization logic 
+  - Updated standalone toggle initial state
+- **Welcome Card UX Refinements**: 
+  - Initially implemented theme toggle (Light/Dark) matching language selection design
+  - Removed theme toggle from welcome card for cleaner, focused UX
+  - Maintained only language selection (FR/EN) for streamlined experience
+- **French Language Enforcement**: Ensured French is always the default language for new visitors
+  - Removed browser language auto-detection override
+  - Fixed fallback logic to always default to French
+  - Preserved user preference persistence for returning users
+- **Development Stability**: Fixed development server startup issues and maintained clean build process
+
 ## Current Status
 
 ✅ Production ready with enterprise-grade monitoring, security, and performance
-✅ Complete UI design system with light/dark modes  
+✅ Complete UI design system with **dark mode as default**
 ✅ Asset optimization complete with 91% size reduction
 ✅ Social sharing system with French localization
 ✅ Advanced project filtering and interactive navigation
@@ -162,8 +179,9 @@ Last updated: 2025-09-08 (Comprehensive bilingual translation system)
 ✅ Comprehensive animation system with accessibility support
 ✅ Press card system with responsive design and content management
 ✅ Mobile detection system with cross-browser compatibility
-✅ Bilingual content system with French/English localization working correctly
+✅ Bilingual content system with **French as guaranteed default language**
 ✅ Complete bilingual translation coverage with professional English content
+✅ Streamlined welcome experience with focused language selection
 
 ## Technical Architecture Notes
 
