@@ -7,7 +7,7 @@ bio:
   fr: |
     <p>Freelance depuis 5 ans et <strong>Étudiant à ISART Digital Paris</strong> (Musique & Sound Design), je vis pour concrétiser des projets qui me passionnent que ce soit en <i>musique, graphisme tech ou science…</i> <br><br><strong>Apprendre</strong> est tout pour moi et sera toujours mon passion principale. </p>
   en: |
-    <p>Freelance for 5 years and <strong>Student at ISART Digital Paris</strong> (Music & Sound Design), I live to bring to life projects that I'm passionate about whether in <i>music, graphics, tech or science...</i> <br><br><strong>Learning</strong> is everything to me and will always be my main passion. </p>
+    <p>Freelance for 5 years and <strong>Student at ISART Digital Paris</strong> (Music & Sound Design), I'm driven to create projects I'm passionate about across <i>music, graphics, tech and science...</i> <br><br><strong>Learning</strong> is everything to me and will always be my main passion. </p>
 
 portrait: "/images/bio/arthur-portfolio.jpg"
 skills:

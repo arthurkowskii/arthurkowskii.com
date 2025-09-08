@@ -66,7 +66,7 @@ bento:
     primary:
       text:
         fr: "🛒 Télécharger à prix libre sur Gumroad"
-        en: "🛒 Download at free price on Gumroad"
+        en: "🛒 Download with pay-what-you-want on Gumroad"
       url: "https://arthurkowskii.gumroad.com/"
     secondary:
       text:
@@ -89,11 +89,16 @@ bento:
 
   # Optional process
   process:
-    title: "Guide d'Utilisation"
+    title:
+      fr: "Guide d'Utilisation"
+      en: "User Guide"
     steps:
-      - "Séléctionner les items, (quel que soit le type)"
-      - "Enclencher le script depuis le menu Actions \"?\" ou par raccourci"
-      - "Les items sont maintenant rangés au début de leurs pistes !"
+      - fr: "Séléctionner les items, (quel que soit le type)"
+        en: "Select the items (of any type)"
+      - fr: "Enclencher le script depuis le menu Actions \"?\" ou par raccourci"
+        en: "Run the script from the Actions \"?\" menu or by shortcut"
+      - fr: "Les items sont maintenant rangés au début de leurs pistes !"
+        en: "The items are now arranged at the beginning of their tracks!"
 
   # Gallery images auto from assetsFolder;
   gallery:
@@ -101,25 +106,45 @@ bento:
 
   # Optional challenges
   challenges:
-    title: "Défis techniques"
+    title:
+      fr: "Défis techniques"
+      en: "Technical Challenges"
     items:
-      - title: "Embouteillages"
-        description: "Anticipation en cas d’item déjà existant au début d’une piste; Dans ce cas, l’item sélectionné se mettra collé à la suite de celui-ci"
-      - title: "Séléction mutliple"
-        description: "En cas de sélection de plusieurs items appartenant à la même piste, ceux-ci vont se positionner de façon séquentielle en respectant l'ordre d’origine."
+      - title:
+          fr: "Embouteillages"
+          en: "Item collisions"
+        description:
+          fr: "Anticipation en cas d'item déjà existant au début d'une piste; Dans ce cas, l'item sélectionné se mettra collé à la suite de celui-ci"
+          en: "Handling cases where an item already exists at the beginning of a track; In this case, the selected item will be placed immediately after it"
+      - title:
+          fr: "Séléction mutliple"
+          en: "Multiple selection"
+        description:
+          fr: "En cas de sélection de plusieurs items appartenant à la même piste, ceux-ci vont se positionner de façon séquentielle en respectant l'ordre d'origine."
+          en: "When selecting multiple items from the same track, they will be positioned sequentially while respecting the original order."
 
   # Optional results
   results:
-    title: "Features"
+    title:
+      fr: "Fonctionnalités"
+      en: "Features"
     items:
       - icon: "✅"
-        text: "Fonctionne avec tous les types d’items supportés par Reaper"
+        text:
+          fr: "Fonctionne avec tous les types d'items supportés par Reaper"
+          en: "Works with all item types supported by Reaper"
       - icon: "⚡"
-        text: "Temps de réponse immédiat"
+        text:
+          fr: "Temps de réponse immédiat"
+          en: "Immediate response time"
       - icon: "🐦"
-        text: "Léger, rapide et efficace"
+        text:
+          fr: "Léger, rapide et efficace"
+          en: "Lightweight, fast and efficient"
       - icon: "💸"
-        text: "Gratuit ! (pas cher)"
+        text:
+          fr: "Gratuit ! (pas cher)"
+          en: "Free! (not expensive)"
 ---
 
 # Your Project Title

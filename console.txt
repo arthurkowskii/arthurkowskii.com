@@ -1,0 +1,16 @@
+🔍 [DEBUG] Available keys: [ 'fr', 'en' ]
+🔍 [DEBUG] Requested locale value: Un album... et une série audio
+🔍 [DEBUG] Using locale fr: Un album... et une série audio
+🔍 [DEBUG] getLocalizedContent called with locale: fr
+🔍 [DEBUG] Content object: {
+  fr: "LE SUPER MEGA SHOW ! est un projet hybride mêlant album et série audio. Plusieurs titres y sont entrecoupés de courts épisodes narratifs qui ancrent l'histoire dans la musique. L'enjeu était de trouver le bon équilibre entre narration et morceaux pour offrir une expérience fluide. Une tracklist fixe a été essentielle pour garantir la continuité entre chaque épisode et chaque chanson.",
+  en: 'THE SUPER MEGA SHOW! is a hybrid project blending album and audio series. Several tracks are interspersed with short narrative episodes that anchor the story in the music. The challenge was finding the right balance between narration and songs to offer a smooth experience. A fixed tracklist was essential to guarantee continuity between each episode and each song.'
+}
+🔍 [DEBUG] Available keys: [ 'fr', 'en' ]
+🔍 [DEBUG] Requested locale value: LE SUPER MEGA SHOW ! est un projet hybride mêlant album et série audio. Plusieurs titres y sont entrecoupés de courts épisodes narratifs qui ancrent l'histoire dans la musique. L'enjeu était de trouver le bon équilibre entre narration et morceaux pour offrir une expérience fluide. Une tracklist fixe a été essentielle pour garantir la continuité entre chaque épisode et chaque chanson.
+🔍 [DEBUG] Using locale fr: LE SUPER MEGA SHOW ! est un projet hybride mêlant album et série audio. Plusieurs titres y sont entrecoupés de courts épisodes narratifs qui ancrent l'histoire dans la musique. L'enjeu était de trouver le bon équilibre entre narration et morceaux pour offrir une expérience fluide. Une tracklist fixe a été essentielle pour garantir la continuité entre chaque épisode et chaque chanson.
+🔍 [DEBUG] getLocalizedContent called with locale: fr
+🔍 [DEBUG] Content object: { fr: 'Résultats', en: 'Results' }
+🔍 [DEBUG] Available keys: [ 'fr', 'en' ]
+🔍 [DEBUG] Requested locale value: Résultats
+🔍 [DEBUG] Using locale fr: Résultats

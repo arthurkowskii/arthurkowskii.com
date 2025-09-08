@@ -85,13 +85,20 @@ bento:
 
   # Optional process
   process:
-    title: "Guide d'Utilisation"
+    title:
+      fr: "Guide d'Utilisation"
+      en: "User Guide"
     steps:
-      - "Lancer l'installateur pour Windows (.exe) ou mac (.dmg)"
-      - "Ajouter le script à votre liste d'action reaper (un raccourci a été crée sur le bureau pour le trouver rapidement)"
-      - "Copier un lien Youtube ou Soundcloud"
-      - "Lancer le script youtube_to_reaper"
-      - "Une nouvelle piste a été créé depuis votre lien !"
+      - fr: "Lancer l'installateur pour Windows (.exe) ou mac (.dmg)"
+        en: "Run the installer for Windows (.exe) or Mac (.dmg)"
+      - fr: "Ajouter le script à votre liste d'action reaper (un raccourci a été crée sur le bureau pour le trouver rapidement)"
+        en: "Add the script to your Reaper action list (a shortcut was created on the desktop to find it quickly)"
+      - fr: "Copier un lien Youtube ou Soundcloud"
+        en: "Copy a Youtube or Soundcloud link"
+      - fr: "Lancer le script youtube_to_reaper"
+        en: "Run the youtube_to_reaper script"
+      - fr: "Une nouvelle piste a été créé depuis votre lien !"
+        en: "A new track has been created from your link!"
 
   # Gallery images auto from assetsFolder; title optional
   gallery:
@@ -99,25 +106,45 @@ bento:
 
   # Optional challenges
   challenges:
-    title: "Défis techniques"
+    title:
+      fr: "Défis techniques"
+      en: "Technical Challenges"
     items:
-      - title: "Accès multi-plateforme au presse-papiers"
-        description: "Implémenter une surveillance fiable du presse-papiers sur différents systèmes d'exploitation tout en préservant la réactivité de Reaper a nécessité une gestion minutieuse du threading et de la sélection d'API."
-      - title: "Validation et parsing des formats d'URL"
-        description: "Supporter les multiples formats d'URL YouTube et SoundCloud (liens courts, URLs de playlists, paramètres de timestamp) tout en assurant une gestion d'erreurs robuste pour les liens invalides."
+      - title:
+          fr: "Accès multi-plateforme au presse-papiers"
+          en: "Cross-platform clipboard access"
+        description:
+          fr: "Implémenter une surveillance fiable du presse-papiers sur différents systèmes d'exploitation tout en préservant la réactivité de Reaper a nécessité une gestion minutieuse du threading et de la sélection d'API."
+          en: "Implementing reliable clipboard monitoring across different operating systems while preserving Reaper's responsiveness required careful threading management and API selection."
+      - title:
+          fr: "Validation et parsing des formats d'URL"
+          en: "URL format validation and parsing"
+        description:
+          fr: "Supporter les multiples formats d'URL YouTube et SoundCloud (liens courts, URLs de playlists, paramètres de timestamp) tout en assurant une gestion d'erreurs robuste pour les liens invalides."
+          en: "Supporting multiple YouTube and SoundCloud URL formats (short links, playlist URLs, timestamp parameters) while ensuring robust error handling for invalid links."
 
   # Optional results
   results:
-    title: "Features"
+    title:
+      fr: "Fonctionnalités"
+      en: "Features"
     items:
       - icon: "📋"
-        text: "Smart URL detection: détecte automatiquement les liens YouTube et SoundCloud depuis le presse-papiers"
+        text:
+          fr: "Smart URL detection: détecte automatiquement les liens YouTube et SoundCloud depuis le presse-papiers"
+          en: "Smart URL detection: automatically detects YouTube and SoundCloud links from clipboard"
       - icon: "🎯"
-        text: "Real-time Progress Bar : la fenêtre affichant en direct l’avancement du téléchargement"
+        text:
+          fr: "Real-time Progress Bar : la fenêtre affichant en direct l'avancement du téléchargement"
+          en: "Real-time Progress Bar: window displaying live download progress"
       - icon: "🔄"
-        text: "Non bloquant : REAPER reste réactif pendant le téléchargement"
+        text:
+          fr: "Non bloquant : REAPER reste réactif pendant le téléchargement"
+          en: "Non-blocking: REAPER remains responsive during download"
       - icon: "🧹"
-        text: "Auto-cleanup : suppression des fichiers temporaires après l’importation"
+        text:
+          fr: "Auto-cleanup : suppression des fichiers temporaires après l'importation"
+          en: "Auto-cleanup: automatic temporary file removal after import"
 ---
 
 # Your Project Title

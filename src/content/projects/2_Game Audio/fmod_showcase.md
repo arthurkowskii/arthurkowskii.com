@@ -1,7 +1,13 @@
 ---
-title: "FMOD Demo : Interactive JDR"
-altTitle: "FMOD Demo"
-description: "Conception d’un projet FMOD pour un jeu de rôle. Le pitch : un jeu d’horreur situé dans un univers de science-fiction spatial, dans l’esprit de Dead Space.Le jeu comporte quatre phases de gameplay distinctes : exploration, infiltration, combat et survie — toutes contrôlées dynamiquement via le paramètre “INTERACTIVITY”."
+title:
+  fr: "FMOD Demo : Interactive JDR"
+  en: "FMOD Demo : Interactive RPG"
+altTitle:
+  fr: "FMOD Demo"
+  en: "FMOD Demo"
+description:
+  fr: "Conception d'un projet FMOD pour un jeu de rôle. Le pitch : un jeu d'horreur situé dans un univers de science-fiction spatial, dans l'esprit de Dead Space.Le jeu comporte quatre phases de gameplay distinctes : exploration, infiltration, combat et survie — toutes contrôlées dynamiquement via le paramètre "INTERACTIVITY"."
+  en: "Design of an FMOD project for a role-playing game. The pitch: a horror game set in a space sci-fi universe, in the spirit of Dead Space. The game features four distinct gameplay phases: exploration, infiltration, combat and survival — all dynamically controlled via the "INTERACTIVITY" parameter."
 tech: ["Reaper", "FMOD"]
 status: "completed"
 link: "https://youtu.be/URPsqY7SwxY?si=orus46GsXuOBT0hj"
@@ -32,7 +38,9 @@ bento:
   
   # Hero card configuration
   hero:
-    subtitle: "Démonstration Musique Dynamique"
+    subtitle:
+      fr: "Démonstration Musique Dynamique"
+      en: "Dynamic Music Demonstration"
     subtitleColor: "#e50000"
     backgroundPosition: "center"
     backgroundSize: "cover"
@@ -54,19 +62,29 @@ bento:
   
   # Action buttons
   actions:
-    title: "Links"
+    title:
+      fr: "Liens"
+      en: "Links"
     primary:
-      text: "📽️ Watch the DEMO"
+      text:
+        fr: "📽️ Regarder la DEMO"
+        en: "📽️ Watch the DEMO"
       url: "https://youtu.be/URPsqY7SwxY?si=orus46GsXuOBT0hj"
     secondary:
-      text: "⬇️ Download the FMOD source project"
+      text:
+        fr: "⬇️ Télécharger le projet source FMOD"
+        en: "⬇️ Download the FMOD source project"
       url: "https://drive.google.com/file/d/1LKFTjYzZCmCJaRHmEHhbRJbXW8nLqsvQ/view?usp=sharing"
 
   # Video configuration
   video:
-    title: "INTERACTIVE JDR - SPACE ABYSS"
+    title:
+      fr: "INTERACTIVE JDR - SPACE ABYSS"
+      en: "INTERACTIVE RPG - SPACE ABYSS"
     url: "https://youtu.be/URPsqY7SwxY?si=orus46GsXuOBT0hj"
-    description: "Conception d’un projet FMOD pour un jeu de rôle. Le pitch : un jeu d’horreur situé dans un univers de science-fiction spatial, dans l’esprit de Dead Space. L’ambiance sonore y joue un rôle central, renforçant la tension et l’immersion du joueur à chaque instant. Le jeu comporte quatre phases de gameplay distinctes : exploration, infiltration, combat et survie — toutes contrôlées dynamiquement via le paramètre “INTERACTIVITY”."
+    description:
+      fr: "Conception d'un projet FMOD pour un jeu de rôle. Le pitch : un jeu d'horreur situé dans un univers de science-fiction spatial, dans l'esprit de Dead Space. L'ambiance sonore y joue un rôle central, renforçant la tension et l'immersion du joueur à chaque instant. Le jeu comporte quatre phases de gameplay distinctes : exploration, infiltration, combat et survie — toutes contrôlées dynamiquement via le paramètre "INTERACTIVITY"."
+      en: "Design of an FMOD project for a role-playing game. The pitch: a horror game set in a space sci-fi universe, in the spirit of Dead Space. The sound atmosphere plays a central role, reinforcing tension and player immersion at every moment. The game features four distinct gameplay phases: exploration, infiltration, combat and survival — all dynamically controlled via the "INTERACTIVITY" parameter."
 
   # Music links (exactly 4 items). Enable with cards.musicLinks: true
   musicLinks:
@@ -99,43 +117,83 @@ bento:
   
   # Technical challenges
   challenges:
-    title: "Pitch"
-    subtitle: ""
+    title:
+      fr: "Pitch"
+      en: "Pitch"
+    subtitle:
+      fr: ""
+      en: ""
     items:
-      - title: ""
-        description: "Nous allons avoir besoin que tu composes de la musique interactive pour notre jeu avec des phases distinctes. Pour ce faire, dans l’application, nous allons appeler un paramètre que tu devras créer qui contiendra donc plusieurs états. Ce paramètre nous l’avons appelé INTERACTIVITY."
-      - title: "[État 0] : Ouverture du jeu : mise en contexte"
-        description: ""
-      - title: "[État 01 + 01.5] : Musique de réflexion / Idle"
-        description: ""
-      - title : "[État 02] : Musique de combat avec transition"
-        description: ""
-      - title: "[Victoire et transition] : 02 -> Win -> 01"
-        description: ""
-      - title: "[Défaite et transition] : 02 -> Loose -> 01"
-        description: ""
+      - title:
+          fr: ""
+          en: ""
+        description:
+          fr: "Nous allons avoir besoin que tu composes de la musique interactive pour notre jeu avec des phases distinctes. Pour ce faire, dans l'application, nous allons appeler un paramètre que tu devras créer qui contiendra donc plusieurs états. Ce paramètre nous l'avons appelé INTERACTIVITY."
+          en: "We will need you to compose interactive music for our game with distinct phases. To do this, in the application, we will call a parameter that you will need to create that will contain multiple states. We have called this parameter INTERACTIVITY."
+      - title:
+          fr: "[État 0] : Ouverture du jeu : mise en contexte"
+          en: "[State 0] : Game opening: context setting"
+        description:
+          fr: ""
+          en: ""
+      - title:
+          fr: "[État 01 + 01.5] : Musique de réflexion / Idle"
+          en: "[State 01 + 01.5] : Reflection/Idle music"
+        description:
+          fr: ""
+          en: ""
+      - title:
+          fr: "[État 02] : Musique de combat avec transition"
+          en: "[State 02] : Combat music with transition"
+        description:
+          fr: ""
+          en: ""
+      - title:
+          fr: "[Victoire et transition] : 02 -> Win -> 01"
+          en: "[Victory and transition] : 02 -> Win -> 01"
+        description:
+          fr: ""
+          en: ""
+      - title:
+          fr: "[Défaite et transition] : 02 -> Loose -> 01"
+          en: "[Defeat and transition] : 02 -> Loose -> 01"
+        description:
+          fr: ""
+          en: ""
   
   # Results and impact
   results:
-    title: "Results"
-    subtitle: "Résultat à l'issu de ce projet"
+    title:
+      fr: "Résultats"
+      en: "Results"
+    subtitle:
+      fr: "Résultat à l'issu de ce projet"
+      en: "Result achieved from this project"
     items:
       - icon: "⬇️"
-        text: "Un fichier de démonstration FMOD téléchargeable ci-dessus"
+        text:
+          fr: "Un fichier de démonstration FMOD téléchargeable ci-dessus"
+          en: "A downloadable FMOD demonstration file above"
 ---
 
+# FMOD Demo: Interactive RPG
+
+Interactive music system demonstration for a space horror RPG featuring dynamic audio states controlled by the INTERACTIVITY parameter, inspired by Dead Space's atmospheric approach.
+
+## Project Overview
+
+This academic project challenged me to design a comprehensive interactive music system using FMOD for a fictional space horror RPG. The system needed to seamlessly transition between four distinct gameplay phases - exploration, infiltration, combat, and survival - while maintaining atmospheric tension throughout.
 
 ## Technical Achievements
 
-- **Gravity-Responsive Audio**: Custom 3D audio listener system
-- **Performance Optimization**: Audio pooling and LOD systems  
-- **Adaptive Music System**: Parametric system with vertical remixing
-- **45+ Sound Effects**: Complete audio library
-- **8 Audio Layers**: Dynamic music composition
+- **Dynamic Music States**: Complete INTERACTIVITY parameter system with 6+ states
+- **Seamless Transitions**: Smooth audio transitions between exploration, combat, victory, and defeat
+- **Atmospheric Design**: Space horror soundscape inspired by Dead Space
+- **FMOD Implementation**: Full project file with detailed parameter setup
+- **Interactive Demo**: Downloadable demonstration showcasing all system states
 
-## Recognition
+## Educational Impact
 
-- 5.0/5 star rating with specific praise for innovative audio design
-- Featured as case study for 3D audio in indie game development
-- Audio systems reused in team's subsequent projects
-- Enhanced the "headphones recommended" meditative experience
+- Comprehensive FMOD project file available for educational use
+- Demonstrated mastery of adaptive music principles
+- Successfully integrated complex state management in dynamic audio systems

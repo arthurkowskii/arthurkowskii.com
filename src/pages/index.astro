@@ -1014,9 +1014,13 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                 transform: none;
             }
 
-            .welcome-card .lang-btn .flag {
-                font-size: 16px;
-                line-height: 1;
+            .welcome-card .lang-btn .flag-icon {
+                display: inline-block;
+                width: 16px;
+                height: 12px;
+                margin-right: 6px;
+                object-fit: cover;
+                border-radius: 2px;
             }
 
             .welcome-card .lang-btn .lang-text {
@@ -1136,8 +1140,13 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                     min-width: 50px;
                 }
 
-                .welcome-card .lang-btn .flag {
-                    font-size: 14px;
+                .welcome-card .lang-btn .flag-icon {
+                    display: inline-block;
+                    width: 14px;
+                    height: 10px;
+                    margin-right: 4px;
+                    object-fit: cover;
+                    border-radius: 1px;
                 }
             }
 
@@ -1695,11 +1704,11 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 						<span class="language-label" id="language-label">Choisir la langue</span>
 						<div class="language-buttons">
 							<button class="lang-btn active" data-lang="fr" aria-pressed="true" aria-label="Français">
-								<span class="flag">🇫🇷</span>
+								<img src="/images/france.png" alt="France" class="flag-icon">
 								<span class="lang-text">FR</span>
 							</button>
 							<button class="lang-btn" data-lang="en" aria-pressed="false" aria-label="English">
-								<span class="flag">🇬🇧</span>
+								<img src="/images/united-kingdom.png" alt="United Kingdom" class="flag-icon">
 								<span class="lang-text">EN</span>
 							</button>
 						</div>

@@ -1,16 +1,16 @@
 ---
 title:
   fr: "Étoiles en Plastiques"
-  en: "Plastic Stars"
+  en: "Étoiles en Plastiques"
 altTitle:
   fr: "Étoiles en Plastiques"
-  en: "Plastic Stars"
+  en: "Étoiles en Plastiques"
 description:
   fr: "\"ETOILES EN PLASTIQUES\" est un album de rap alternatif dont l'univers sonore mêle instrumentales électroniques a des textes sombres et introspectifs. L'album explore des souffrances amoureuses, un contexte de travail éprouvant et des tensions familiales, créant une explosion émotionnelle comparable à une supernova."
   en: "\"PLASTIC STARS\" is an alternative rap album whose sonic universe blends electronic instrumentals with dark and introspective lyrics. The album explores romantic suffering, a grueling work context, and family tensions, creating an emotional explosion comparable to a supernova."
 tech: ["Ableton", "Reaper", "Davinci Resolve"]
 status: "completed" # or "in-progress" | "planned"
-link: "https://example.com"
+link: "https://open.spotify.com/album/4pHpH5Nzl4m9AxuQ3IE43G?si=pX20HINfSfKWbUJ7BKib2g"
 github: "https://github.com/you/repo"
 date: 2024-08-22
 useBentoLayout: true
@@ -71,11 +71,11 @@ bento:
       text:
         fr: "💽 Écouter l'Album"
         en: "💽 Listen to the Album"
-      url: "https://youtu.be/GtoGUcY1K1Y?si=YQXis7RFPEgLKbPy"
+      url: "https://open.spotify.com/album/4pHpH5Nzl4m9AxuQ3IE43G?si=pX20HINfSfKWbUJ7BKib2g"
     secondary:
       text:
         fr: "Soutenir à prix libre sur Bandcamp"
-        en: "Support at free price on Bandcamp"
+        en: "Support with pay-what-you-want on Bandcamp"
       url: "https://kowskii.bandcamp.com/album/toiles-en-plastique-album"
 
   # Video configuration
@@ -83,7 +83,7 @@ bento:
     title:
       fr: "JE NE VOIS LE CIEL QUE DANS LES FLAQUES (Animation)"
       en: "I ONLY SEE THE SKY IN PUDDLES (Animation)"
-    url: "https://youtu.be/5ikfSQ6UHFU?si=BhXFkc4EQc57FntH" # Replace with actual album teaser
+    url: "https://youtu.be/5ikfSQ6UHFU?si=BhXFkc4EQc57FntH"
     description:
       fr: "Animation entièrement réalisé, dessiné et monté par Arthur Kowskii. Process : Photoshop, Davinci Resolve"
       en: "Animation entirely created, drawn and edited by Arthur Kowskii. Process: Photoshop, Davinci Resolve"
