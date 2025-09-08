@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 /**
- * Build validation script
+ * Build validation script for SSR (Server-Side Rendering) builds
  * Validates that the build output is correct and catches common issues
  */
 
-import { readFileSync, existsSync, readdirSync } from 'fs';
+import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -37,103 +37,173 @@ if (!existsSync(distDir)) {
   process.exit(1);
 }
 
-// Check essential files exist
-const essentialFiles = [
-  'index.html',
-  '_astro',
-  'projects',
-  'api/bio.json',
-  'admin/index.html'
+// Check SSR build structure (client/server split)
+const clientDir = join(distDir, 'client');
+const serverDir = join(distDir, 'server');
+
+if (!existsSync(clientDir)) {
+  error('client directory missing in SSR build');
+} else {
+  success('Found client directory');
+}
+
+if (!existsSync(serverDir)) {
+  error('server directory missing in SSR build');
+} else {
+  success('Found server directory');
+}
+
+// Check essential client-side files
+const essentialClientFiles = [
+  'client/_astro',
+  'client/manifest.json',
+  'client/sw.js',
+  'client/favicon.svg',
+  'client/admin',
+  'client/api'
 ];
 
-for (const file of essentialFiles) {
+for (const file of essentialClientFiles) {
   const filePath = join(distDir, file);
   if (!existsSync(filePath)) {
-    error(`Essential file missing: ${file}`);
+    error(`Essential client file missing: ${file}`);
   } else {
     success(`Found ${file}`);
   }
 }
 
-// Validate HTML files for basic structure
-function validateHtmlFile(filePath, fileName) {
-  try {
-    const content = readFileSync(filePath, 'utf8');
-    
-    // Check for basic HTML structure
-    if (!content.includes('<html')) {
-      error(`${fileName}: Missing <html> tag`);
-    }
-    
-    if (!content.includes('<head>')) {
-      error(`${fileName}: Missing <head> tag`);
-    }
-    
-    if (!content.includes('<body') && !content.includes('</body>')) {
-      error(`${fileName}: Missing <body> tag`);
-    }
-    
-    // Check for CSP headers
-    if (!content.includes('Content-Security-Policy')) {
-      warn(`${fileName}: Missing Content Security Policy`);
-    }
-    
-    // Check for common CSS syntax errors in inline styles
-    const styleMatches = content.match(/<style[^>]*>([\s\S]*?)<\/style>/gi);
-    if (styleMatches) {
-      styleMatches.forEach((style, index) => {
-        // Check for unmatched braces
-        const openBraces = (style.match(/\{/g) || []).length;
-        const closeBraces = (style.match(/\}/g) || []).length;
-        
-        if (openBraces !== closeBraces) {
-          error(`${fileName}: Unmatched CSS braces in style block ${index + 1}`);
-        }
-      });
-    }
-    
-    success(`Validated ${fileName}`);
-    
-  } catch (err) {
-    error(`Failed to validate ${fileName}: ${err.message}`);
+// Check essential server-side files
+const essentialServerFiles = [
+  'server/entry.mjs',
+  'server/renderers.mjs',
+  'server/pages',
+  'server/chunks'
+];
+
+for (const file of essentialServerFiles) {
+  const filePath = join(distDir, file);
+  if (!existsSync(filePath)) {
+    error(`Essential server file missing: ${file}`);
+  } else {
+    success(`Found ${file}`);
   }
 }
 
-// Validate main HTML files
-validateHtmlFile(join(distDir, 'index.html'), 'index.html');
-
-if (existsSync(join(distDir, 'bio/index.html'))) {
-  validateHtmlFile(join(distDir, 'bio/index.html'), 'bio/index.html');
-}
-
-// Validate project pages
-const projectsDir = join(distDir, 'projects');
-if (existsSync(projectsDir)) {
-  const projectFolders = readdirSync(projectsDir, { withFileTypes: true })
-    .filter(dirent => dirent.isDirectory())
-    .map(dirent => dirent.name);
-  
-  for (const projectFolder of projectFolders) {
-    const projectHtml = join(projectsDir, projectFolder, 'index.html');
-    if (existsSync(projectHtml)) {
-      validateHtmlFile(projectHtml, `projects/${projectFolder}/index.html`);
-    }
+// Check for manifest file (name includes dynamic hash)
+if (existsSync(serverDir)) {
+  const manifestFiles = readdirSync(serverDir).filter(f => f.startsWith('manifest_') && f.endsWith('.mjs'));
+  if (manifestFiles.length === 0) {
+    error('No server manifest file found (manifest_*.mjs)');
+  } else {
+    success(`Found server manifest: ${manifestFiles[0]}`);
   }
 }
 
-// Check JavaScript bundles
-const astroDir = join(distDir, '_astro');
+// Check JavaScript bundles in client/_astro
+const astroDir = join(distDir, 'client', '_astro');
 if (existsSync(astroDir)) {
   const jsFiles = readdirSync(astroDir).filter(f => f.endsWith('.js'));
   if (jsFiles.length === 0) {
-    warn('No JavaScript bundles found in _astro directory');
+    warn('No JavaScript bundles found in client/_astro directory');
   } else {
-    success(`Found ${jsFiles.length} JavaScript bundles`);
+    success(`Found ${jsFiles.length} JavaScript bundles in client/_astro`);
+  }
+  
+  // Check CSS files
+  const cssFiles = readdirSync(astroDir).filter(f => f.endsWith('.css'));
+  if (cssFiles.length === 0) {
+    warn('No CSS files found in client/_astro directory');
+  } else {
+    success(`Found ${cssFiles.length} CSS files in client/_astro`);
+  }
+}
+
+// Validate server entry point
+const entryPath = join(distDir, 'server', 'entry.mjs');
+if (existsSync(entryPath)) {
+  try {
+    const entryContent = readFileSync(entryPath, 'utf8');
+    
+    // Check for basic server entry structure
+    if (!entryContent.includes('export') && !entryContent.includes('import')) {
+      error('server/entry.mjs: Missing ES module exports/imports');
+    } else {
+      success('Validated server/entry.mjs structure');
+    }
+    
+  } catch (err) {
+    error(`Failed to validate server entry: ${err.message}`);
+  }
+}
+
+// Check server pages directory
+const serverPagesDir = join(distDir, 'server', 'pages');
+if (existsSync(serverPagesDir)) {
+  const pageFiles = readdirSync(serverPagesDir, { recursive: true })
+    .filter(file => typeof file === 'string' && file.endsWith('.mjs'));
+  
+  if (pageFiles.length === 0) {
+    error('No page files found in server/pages directory');
+  } else {
+    success(`Found ${pageFiles.length} server page files`);
+  }
+}
+
+// Check static assets
+const staticAssets = ['client/images', 'client/CV.jpg'];
+for (const asset of staticAssets) {
+  const assetPath = join(distDir, asset);
+  if (existsSync(assetPath)) {
+    success(`Found static asset: ${asset}`);
+  } else {
+    warn(`Static asset missing: ${asset}`);
+  }
+}
+
+// Check file sizes for potential issues
+function checkFileSize(filePath, fileName, maxSizeMB = 10) {
+  if (existsSync(filePath)) {
+    const stats = statSync(filePath);
+    const sizeMB = stats.size / (1024 * 1024);
+    
+    if (sizeMB > maxSizeMB) {
+      warn(`${fileName} is large (${sizeMB.toFixed(2)}MB) - consider optimization`);
+    }
+  }
+}
+
+// Check bundle sizes
+if (existsSync(astroDir)) {
+  const jsFiles = readdirSync(astroDir).filter(f => f.endsWith('.js'));
+  for (const jsFile of jsFiles) {
+    checkFileSize(join(astroDir, jsFile), `client/_astro/${jsFile}`, 5);
+  }
+}
+
+// Validate manifest.json
+const manifestPath = join(distDir, 'client', 'manifest.json');
+if (existsSync(manifestPath)) {
+  try {
+    const manifestContent = readFileSync(manifestPath, 'utf8');
+    const manifest = JSON.parse(manifestContent);
+    
+    if (!manifest.name || !manifest.short_name) {
+      warn('manifest.json: Missing name or short_name');
+    }
+    
+    if (!manifest.icons || manifest.icons.length === 0) {
+      warn('manifest.json: Missing icons');
+    }
+    
+    success('Validated manifest.json');
+    
+  } catch (err) {
+    error(`Failed to validate manifest.json: ${err.message}`);
   }
 }
 
 // Summary
-console.log('\n--- Build Validation Summary ---');
+console.log('\n--- SSR Build Validation Summary ---');
 if (errors > 0) {
   console.error(`❌ ${errors} error(s) found`);
 }
@@ -141,7 +211,10 @@ if (warnings > 0) {
   console.warn(`⚠️  ${warnings} warning(s) found`);
 }
 if (errors === 0 && warnings === 0) {
-  console.log('✅ Build validation passed successfully!');
+  console.log('✅ SSR build validation passed successfully!');
+}
+if (errors === 0 && warnings > 0) {
+  console.log('✅ SSR build is valid (with warnings)');
 }
 
 process.exit(errors > 0 ? 1 : 0);
