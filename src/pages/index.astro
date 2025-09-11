@@ -1,7 +1,5 @@
 ---
-// Force server-side rendering to handle URL parameters properly
-export const prerender = false;
-
+// French version of the home page - static generation
 import { getCollection, getEntryBySlug } from 'astro:content';
 import BioBento from '../components/BioBento.astro';
 import ProjectBento from '../components/ProjectBento.astro';
@@ -33,10 +31,8 @@ const siteUrl = import.meta.env.SITE || socialConfig.siteUrl;
 const currentUrl = siteUrl;
 const ogImage = `${siteUrl}${socialConfig.home.image}`;
 
-// Get current locale (server-side detection from URL or default to French)
-const url = Astro.url;
-const urlLang = url.searchParams.get('lang');
-const currentLocale = urlLang && ['fr', 'en'].includes(urlLang) ? urlLang : 'fr';
+// Force French locale for this page
+const currentLocale = 'fr';
 
 
 // Get all projects and compute domains from folder structure (prefix-ordered)
@@ -1831,13 +1827,14 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
               }
             };
             
-            // Initialize with browser language or saved preference
+            // Always initialize to French (reset to default every time)
             let currentLang = 'fr';
+            
+            // Clear any saved language preference to ensure French default
             try {
-              const savedLang = localStorage.getItem('portfolio-locale');
-              currentLang = savedLang && ['fr', 'en'].includes(savedLang) ? savedLang : 'fr';
+              localStorage.removeItem('portfolio-locale');
             } catch (e) {
-              currentLang = 'fr';
+              // Ignore localStorage errors
             }
             
             // Set initial state
@@ -1865,30 +1862,28 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                     btn.style.transform = '';
                   }, 100);
                   
-                  // For non-default language (English), reload page with URL parameter
-                  // French is default, so no reload needed
+                  // For non-default language (English), navigate to English path
+                  // French is default, so navigate to root path
                   if (targetLang === 'en') {
-                    // Store selection and reload with URL parameter for server-side localization
+                    // Store selection and navigate to English version
                     try {
                       localStorage.setItem('portfolio-locale', targetLang);
                     } catch (e) {
                       console.warn('Could not save language preference:', e);
                     }
-                    const url = new URL(window.location);
-                    url.searchParams.set('lang', 'en');
-                    window.location.href = url.toString();
+                    // Navigate to English version
+                    window.location.pathname = '/en/';
                     return; // Don't continue with client-side updates
                   } else if (targetLang === 'fr') {
-                    // For French (default), remove URL parameter if present and reload if needed
+                    // For French (default), navigate to root if on English path
                     try {
                       localStorage.setItem('portfolio-locale', targetLang);
                     } catch (e) {
                       console.warn('Could not save language preference:', e);
                     }
-                    const url = new URL(window.location);
-                    if (url.searchParams.has('lang')) {
-                      url.searchParams.delete('lang');
-                      window.location.href = url.toString();
+                    // If we're on English path, navigate to French version
+                    if (window.location.pathname.startsWith('/en/')) {
+                      window.location.pathname = '/';
                       return;
                     }
                   }

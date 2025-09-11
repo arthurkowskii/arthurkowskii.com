@@ -1,11 +1,8 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import node from '@astrojs/node';
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'server',
-  adapter: node({
-    mode: 'standalone'
-  })
+  // Static site generation (default)
+  // No adapter needed for static output
 });

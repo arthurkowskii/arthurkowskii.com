@@ -1,13 +1,13 @@
 ---
 import { getEntryBySlug } from 'astro:content';
-import BioBento from '../components/BioBento.astro';
-import LanguageSwitcher from '../components/LanguageSwitcher.astro';
-import atomConfig from '../atom.config.js';
-import { getCurrentLocale, getMeta, getPageTitle } from '../utils/i18n.js';
-import { localizeBio } from '../utils/content-i18n.js';
+import BioBento from '../../components/BioBento.astro';
+import LanguageSwitcher from '../../components/LanguageSwitcher.astro';
+import atomConfig from '../../atom.config.js';
+import { getCurrentLocale, getMeta, getPageTitle } from '../../utils/i18n.js';
+import { localizeBio } from '../../utils/content-i18n.js';
 
-// Force French locale for this page
-const currentLocale = 'fr';
+// Force English locale for this page
+const currentLocale = 'en';
 
 const entry = await getEntryBySlug('bio', 'about');
 const rawData = entry?.data || {};
@@ -18,7 +18,7 @@ const data = localizeBio(rawData, currentLocale);
 // Localized meta tag setup using i18n
 const socialConfig = atomConfig.socialMeta;
 const siteUrl = import.meta.env.SITE || socialConfig.siteUrl;
-const currentUrl = `${siteUrl}/bio`;
+const currentUrl = `${siteUrl}/en/bio`;
 const ogImage = `${siteUrl}${socialConfig.bio.image}`;
 
 // Get localized meta data
@@ -28,7 +28,7 @@ const bioDescription = localizedMeta.bio?.description || (data.bio ? (data.bio.l
 const siteName = localizedMeta.siteName || socialConfig.siteName;
 ---
 
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
@@ -135,7 +135,7 @@ const siteName = localizedMeta.siteName || socialConfig.siteName;
     
     <script>
       // Initialize i18n system
-      import { initI18n } from '../utils/i18n.js';
+      import { initI18n } from '../../utils/i18n.js';
       initI18n();
     </script>
   </body>

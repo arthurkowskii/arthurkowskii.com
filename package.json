@@ -14,7 +14,6 @@
     "security-audit": "npm audit --audit-level=high && node scripts/security-check.js"
   },
   "dependencies": {
-    "@astrojs/node": "^9.4.3",
     "astro": "^5.13.2",
     "dompurify": "^3.2.6",
     "gsap": "^3.13.0",

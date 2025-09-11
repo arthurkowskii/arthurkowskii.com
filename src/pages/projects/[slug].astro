@@ -20,10 +20,8 @@ export async function getStaticPaths() {
 const { slug } = Astro.params;
 const { fullSlug } = Astro.props;
 
-// Get current locale (server-side detection from URL)
-const url = Astro.url;
-const urlLang = url.searchParams.get('lang');
-const currentLocale = urlLang && ['fr', 'en'].includes(urlLang) ? urlLang : 'fr';
+// Force French locale for this page
+const currentLocale = 'fr';
 
 const projects = await getCollection('projects');
 const rawEntry = projects.find(p => p.slug === fullSlug);

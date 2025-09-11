@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Build validation script for SSR (Server-Side Rendering) builds
+ * Build validation script for static site builds
  * Validates that the build output is correct and catches common issues
  */
 
@@ -37,120 +37,99 @@ if (!existsSync(distDir)) {
   process.exit(1);
 }
 
-// Check SSR build structure (client/server split)
-const clientDir = join(distDir, 'client');
-const serverDir = join(distDir, 'server');
-
-if (!existsSync(clientDir)) {
-  error('client directory missing in SSR build');
+// Check for main index.html (root page)
+const indexPath = join(distDir, 'index.html');
+if (!existsSync(indexPath)) {
+  error('Main index.html missing from build');
 } else {
-  success('Found client directory');
+  success('Found main index.html');
 }
 
-if (!existsSync(serverDir)) {
-  error('server directory missing in SSR build');
-} else {
-  success('Found server directory');
-}
-
-// Check essential client-side files
-const essentialClientFiles = [
-  'client/_astro',
-  'client/manifest.json',
-  'client/sw.js',
-  'client/favicon.svg',
-  'client/admin',
-  'client/api'
+// Check essential static files
+const essentialStaticFiles = [
+  '_astro',
+  'manifest.json',
+  'sw.js',
+  'favicon.svg',
+  'admin',
+  'api'
 ];
 
-for (const file of essentialClientFiles) {
+for (const file of essentialStaticFiles) {
   const filePath = join(distDir, file);
   if (!existsSync(filePath)) {
-    error(`Essential client file missing: ${file}`);
+    error(`Essential static file missing: ${file}`);
   } else {
     success(`Found ${file}`);
   }
 }
 
-// Check essential server-side files
-const essentialServerFiles = [
-  'server/entry.mjs',
-  'server/renderers.mjs',
-  'server/pages',
-  'server/chunks'
+// Check for important HTML pages
+const essentialPages = [
+  'bio/index.html',
+  'projects',
+  'en/index.html',
+  'en/bio/index.html'
 ];
 
-for (const file of essentialServerFiles) {
-  const filePath = join(distDir, file);
-  if (!existsSync(filePath)) {
-    error(`Essential server file missing: ${file}`);
+for (const page of essentialPages) {
+  const pagePath = join(distDir, page);
+  if (!existsSync(pagePath)) {
+    error(`Essential page missing: ${page}`);
   } else {
-    success(`Found ${file}`);
+    success(`Found ${page}`);
   }
 }
 
-// Check for manifest file (name includes dynamic hash)
-if (existsSync(serverDir)) {
-  const manifestFiles = readdirSync(serverDir).filter(f => f.startsWith('manifest_') && f.endsWith('.mjs'));
-  if (manifestFiles.length === 0) {
-    error('No server manifest file found (manifest_*.mjs)');
-  } else {
-    success(`Found server manifest: ${manifestFiles[0]}`);
-  }
-}
-
-// Check JavaScript bundles in client/_astro
-const astroDir = join(distDir, 'client', '_astro');
+// Check JavaScript bundles in _astro directory
+const astroDir = join(distDir, '_astro');
 if (existsSync(astroDir)) {
   const jsFiles = readdirSync(astroDir).filter(f => f.endsWith('.js'));
   if (jsFiles.length === 0) {
-    warn('No JavaScript bundles found in client/_astro directory');
+    warn('No JavaScript bundles found in _astro directory');
   } else {
-    success(`Found ${jsFiles.length} JavaScript bundles in client/_astro`);
+    success(`Found ${jsFiles.length} JavaScript bundles in _astro`);
   }
   
   // Check CSS files
   const cssFiles = readdirSync(astroDir).filter(f => f.endsWith('.css'));
   if (cssFiles.length === 0) {
-    warn('No CSS files found in client/_astro directory');
+    warn('No CSS files found in _astro directory');
   } else {
-    success(`Found ${cssFiles.length} CSS files in client/_astro`);
+    success(`Found ${cssFiles.length} CSS files in _astro`);
   }
+} else {
+  error('_astro directory missing - JavaScript bundles not found');
 }
 
-// Validate server entry point
-const entryPath = join(distDir, 'server', 'entry.mjs');
-if (existsSync(entryPath)) {
-  try {
-    const entryContent = readFileSync(entryPath, 'utf8');
-    
-    // Check for basic server entry structure
-    if (!entryContent.includes('export') && !entryContent.includes('import')) {
-      error('server/entry.mjs: Missing ES module exports/imports');
-    } else {
-      success('Validated server/entry.mjs structure');
-    }
-    
-  } catch (err) {
-    error(`Failed to validate server entry: ${err.message}`);
+// Validate project structure for bilingual support
+const projectsDir = join(distDir, 'projects');
+if (existsSync(projectsDir)) {
+  const projectFiles = readdirSync(projectsDir);
+  if (projectFiles.length === 0) {
+    warn('No project pages found in projects directory');
+  } else {
+    success(`Found ${projectFiles.length} project pages`);
   }
+} else {
+  error('Projects directory missing');
 }
 
-// Check server pages directory
-const serverPagesDir = join(distDir, 'server', 'pages');
-if (existsSync(serverPagesDir)) {
-  const pageFiles = readdirSync(serverPagesDir, { recursive: true })
-    .filter(file => typeof file === 'string' && file.endsWith('.mjs'));
-  
-  if (pageFiles.length === 0) {
-    error('No page files found in server/pages directory');
+// Check English version pages
+const enProjectsDir = join(distDir, 'en', 'projects');
+if (existsSync(enProjectsDir)) {
+  const enProjectFiles = readdirSync(enProjectsDir);
+  if (enProjectFiles.length === 0) {
+    warn('No English project pages found');
   } else {
-    success(`Found ${pageFiles.length} server page files`);
+    success(`Found ${enProjectFiles.length} English project pages`);
   }
+} else {
+  error('English projects directory missing');
 }
 
 // Check static assets
-const staticAssets = ['client/images', 'client/CV.jpg'];
+const staticAssets = ['images', 'CV.jpg'];
 for (const asset of staticAssets) {
   const assetPath = join(distDir, asset);
   if (existsSync(assetPath)) {
@@ -176,12 +155,12 @@ function checkFileSize(filePath, fileName, maxSizeMB = 10) {
 if (existsSync(astroDir)) {
   const jsFiles = readdirSync(astroDir).filter(f => f.endsWith('.js'));
   for (const jsFile of jsFiles) {
-    checkFileSize(join(astroDir, jsFile), `client/_astro/${jsFile}`, 5);
+    checkFileSize(join(astroDir, jsFile), `_astro/${jsFile}`, 5);
   }
 }
 
 // Validate manifest.json
-const manifestPath = join(distDir, 'client', 'manifest.json');
+const manifestPath = join(distDir, 'manifest.json');
 if (existsSync(manifestPath)) {
   try {
     const manifestContent = readFileSync(manifestPath, 'utf8');
@@ -203,7 +182,7 @@ if (existsSync(manifestPath)) {
 }
 
 // Summary
-console.log('\n--- SSR Build Validation Summary ---');
+console.log('\n--- Static Build Validation Summary ---');
 if (errors > 0) {
   console.error(`❌ ${errors} error(s) found`);
 }
@@ -211,10 +190,10 @@ if (warnings > 0) {
   console.warn(`⚠️  ${warnings} warning(s) found`);
 }
 if (errors === 0 && warnings === 0) {
-  console.log('✅ SSR build validation passed successfully!');
+  console.log('✅ Static build validation passed successfully!');
 }
 if (errors === 0 && warnings > 0) {
-  console.log('✅ SSR build is valid (with warnings)');
+  console.log('✅ Static build is valid (with warnings)');
 }
 
 process.exit(errors > 0 ? 1 : 0);

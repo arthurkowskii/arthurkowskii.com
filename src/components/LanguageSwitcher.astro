@@ -1,13 +1,17 @@
 ---
 // Language Switcher Component
 // Provides toggle between French and English
+
+// Get current locale from props or detect from URL
+const { currentLocale = 'fr' } = Astro.props;
+const isEnglish = currentLocale === 'en';
 ---
 
 <div class="language-switcher" id="language-switcher">
-  <button class="lang-btn active" data-lang="fr" title="Français">
+  <button class={`lang-btn ${!isEnglish ? 'active' : ''}`} data-lang="fr" title="Français">
     FR
   </button>
-  <button class="lang-btn" data-lang="en" title="English">
+  <button class={`lang-btn ${isEnglish ? 'active' : ''}`} data-lang="en" title="English">
     EN
   </button>
 </div>
@@ -105,6 +109,11 @@
 
   class LanguageSwitcher {
     constructor() {
+      // Clear any stored language preferences to ensure consistent behavior
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('portfolio-locale');
+      }
+      
       this.currentLocale = getCurrentLocale();
       this.switcher = document.getElementById('language-switcher');
       this.buttons = this.switcher?.querySelectorAll('.lang-btn');
@@ -115,8 +124,8 @@
     init() {
       if (!this.switcher) return;
 
-      // Update active button based on current locale
-      this.updateActiveButton();
+      // Don't update button state on init - trust the server-side rendering
+      // The HTML already has the correct active state set
 
       // Add click listeners
       this.buttons?.forEach(btn => {
@@ -154,17 +163,13 @@
         // Add switching animation
         this.switcher?.classList.add('changing');
 
-        // Set new locale
-        setLocale(locale);
-        this.currentLocale = locale;
-
         // Update button states
         this.updateActiveButton();
 
-        // Reload page to apply new language
-        // In a more advanced implementation, this could be done without reload
+        // Set new locale and navigate to appropriate path
+        // setLocale will handle the navigation
         setTimeout(() => {
-          window.location.reload();
+          setLocale(locale);
         }, 200);
 
       } catch (error) {

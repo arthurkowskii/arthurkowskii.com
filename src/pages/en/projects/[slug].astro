@@ -1,0 +1,303 @@
+---
+import { getCollection } from 'astro:content';
+import ProjectBento from '../../../components/ProjectBento.astro';
+import atomConfig from '../../../atom.config.js';
+import { localizeProject } from '../../../utils/content-i18n.js';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((p) => {
+    // Convert full slug path (e.g., "1_Music/lesupermegashow") to simple filename
+    const slugParts = p.slug.split('/');
+    const filename = slugParts[slugParts.length - 1];
+    return { 
+      params: { slug: filename },
+      props: { fullSlug: p.slug }
+    };
+  });
+}
+
+const { slug } = Astro.params;
+const { fullSlug } = Astro.props;
+
+// Force English locale for this page
+const currentLocale = 'en';
+
+const projects = await getCollection('projects');
+const rawEntry = projects.find(p => p.slug === fullSlug);
+
+if (!rawEntry) {
+  throw new Error(`Project not found: ${slug}`);
+}
+
+// Localize project content for current language
+const entry = {
+  ...rawEntry,
+  data: localizeProject(rawEntry.data, currentLocale)
+};
+
+const useBentoLayout = entry.data.useBentoLayout || false;
+
+// Extract only the bentoAnimations config for client-side use
+const bentoAnimationsConfig = atomConfig.bentoAnimations || {};
+
+// Social meta tag setup for project pages
+const socialConfig = atomConfig.socialMeta;
+const siteUrl = import.meta.env.SITE || socialConfig.siteUrl;
+const currentUrl = `${siteUrl}/projects/${slug}`;
+
+// Generate dynamic social meta content
+const projectTitle = `${entry.data.title} — ${socialConfig.siteName}`;
+const projectDescription = entry.data.description;
+
+// Try to use project hero image for social preview, fallback to default
+let ogImage = `${siteUrl}${socialConfig.images.defaultFallback}`;
+if (entry.data.useBentoLayout && entry.data.bento?.hero?.backgroundImage) {
+  // For bento layout projects, try to use the hero image
+  ogImage = `${siteUrl}${entry.data.bento.hero.backgroundImage}`;
+} else if (entry.data.image) {
+  // For atomic layout projects, use the image field
+  ogImage = `${siteUrl}${entry.data.image}`;
+}
+
+const imageAlt = socialConfig.project.imageAlt.replace('{projectTitle}', entry.data.title);
+---
+
+<html lang={currentLocale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    
+    <!-- Enhanced Content Security Policy with YouTube and SoundCloud support -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.youtube.com https://*.soundcloud.com;
+      style-src 'self' 'unsafe-inline' https://*.youtube.com https://*.soundcloud.com;
+      img-src 'self' data: https: blob: https://*.arthurkowskii.com https://*.youtube.com https://*.ytimg.com https://*.googlevideo.com https://*.soundcloud.com https://*.sndcdn.com;
+      media-src 'self' data: blob: https://*.arthurkowskii.com https://*.youtube.com https://*.googlevideo.com https://*.soundcloud.com https://*.sndcdn.com;
+      font-src 'self' data: https://fonts.gstatic.com;
+      connect-src 'self' https://*.youtube.com https://*.googlevideo.com https://*.soundcloud.com;
+      worker-src 'self' blob:;
+      child-src 'none';
+      frame-src 'self' https://www.youtube.com/embed https://www.youtube-nocookie.com/embed https://player.vimeo.com https://open.spotify.com https://w.soundcloud.com;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'none';
+      upgrade-insecure-requests;
+    ">
+    
+    <title>{projectTitle}</title>
+    <meta name="description" content={projectDescription} />
+    <meta name="author" content={socialConfig.author} />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content={projectTitle} />
+    <meta property="og:description" content={projectDescription} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta property="og:url" content={currentUrl} />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content={socialConfig.siteName} />
+    <meta property="og:locale" content={currentLocale === 'fr' ? 'fr_FR' : 'en_US'} />
+    <meta property="article:author" content={socialConfig.author} />
+    <meta property="article:section" content="Portfolio" />
+    {entry.data.tech && <meta property="article:tag" content={entry.data.tech.join(', ')} />}
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content={socialConfig.twitter.cardType} />
+    <meta name="twitter:site" content={socialConfig.twitter.handle} />
+    <meta name="twitter:creator" content={socialConfig.twitter.handle} />
+    <meta name="twitter:title" content={projectTitle} />
+    <meta name="twitter:description" content={projectDescription} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <link rel="canonical" href={currentUrl} />
+    
+    <style>
+      /* View Transition radial mask (progressive enhancement) */
+      :root { view-transition-name: root; }
+      @keyframes vt-reveal { from { clip-path: circle(0 at var(--vt-x,50%) var(--vt-y,50%)); } to { clip-path: circle(150vmax at var(--vt-x,50%) var(--vt-y,50%)); } }
+      @keyframes vt-conceal { from { clip-path: circle(150vmax at var(--vt-x,50%) var(--vt-y,50%)); } to { clip-path: circle(0 at var(--vt-x,50%) var(--vt-y,50%)); } }
+      ::view-transition-new(root) {
+        animation: vt-reveal var(--vt-dur-in, 600ms) var(--vt-ease, ease-in-out) both;
+        filter: blur(var(--vt-soft, 0px));
+      }
+      html[data-vt-dir="back"]::view-transition-old(root) {
+        animation: vt-conceal var(--vt-dur-out, 520ms) var(--vt-ease, ease-in-out) both;
+        filter: blur(var(--vt-soft, 0px));
+      }
+      :root { color-scheme: light; }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, sans-serif;
+        color: #000;
+        background: #fff;
+        line-height: 1.6;
+      }
+      /* Professional dark mode on project pages */
+      html[data-theme="dark"] body { 
+        background: #0f0f0f; 
+        color: #e4e4e7; 
+      }
+
+      /* Dark mode for back link and text elements */
+      html[data-theme="dark"] .back {
+        color: #a1a1aa;
+        border-bottom-color: #3a3a3a;
+      }
+
+      html[data-theme="dark"] .back:hover {
+        color: #f4f4f5;
+        border-bottom-color: #5a5a5a;
+      }
+
+      html[data-theme="dark"] h1,
+      html[data-theme="dark"] h2,
+      html[data-theme="dark"] h3,
+      html[data-theme="dark"] h4,
+      html[data-theme="dark"] h5,
+      html[data-theme="dark"] h6 {
+        color: #f4f4f5;
+      }
+
+      html[data-theme="dark"] p {
+        color: #d4d4d8;
+      }
+
+      html[data-theme="dark"] a {
+        color: #a1a1aa;
+      }
+
+      html[data-theme="dark"] a:hover {
+        color: #f4f4f5;
+      }
+
+      html[data-theme="dark"] code {
+        background: #1a1a1a;
+        color: #f4f4f5;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      html[data-theme="dark"] blockquote {
+        border-left: 4px solid #3a3a3a;
+        background: #1a1a1a;
+        color: #d4d4d8;
+      }
+      .wrap {
+        max-width: 840px;
+        margin: 0 auto;
+        padding: 48px 24px;
+      }
+      a { color: inherit; }
+      .back {
+        display: inline-block;
+        margin-bottom: 24px;
+        text-decoration: none;
+        border-bottom: 1px solid #000;
+        cursor: pointer;
+      }
+      h1 { margin: 0 0 16px; font-size: 28px; }
+      .meta { margin: 0 0 16px; opacity: 0.7; font-size: 14px; }
+      .chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 16px; }
+      .chip { border: 1px solid #000; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+      .actions { display: flex; gap: 12px; margin: 16px 0 24px; }
+      .actions a { border-bottom: 1px solid #000; text-decoration: none; }
+      .content :where(h2, h3) { margin-top: 20px; }
+    </style>
+    <!-- Theme init (before paint) -->
+    <script>
+      (function(){
+        try {
+          const saved = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = saved || (prefersDark ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch {}
+      })();
+    </script>
+  </head>
+  <body>
+    {useBentoLayout ? (
+      <!-- Bento Layout -->
+      <ProjectBento project={entry} />
+    ) : (
+      <!-- Traditional Layout -->
+      <main class="wrap">
+        <a class="back" id="back-link" href="/">← Back to Atom</a>
+        <h1 id="project-title">{entry.data.title}</h1>
+        <p class="meta">
+          <strong>Domain:</strong> {entry.data.domain} ·
+          <strong>Status:</strong> {entry.data.status} ·
+          <strong>Date:</strong> {entry.data.date.toLocaleDateString()}
+        </p>
+        {entry.data.tech?.length ? (
+          <div class="chips">
+            {entry.data.tech.map((t) => <span class="chip">{t}</span>)}
+          </div>
+        ) : null}
+        <div class="actions">
+          {entry.data.link ? <a href={entry.data.link} target="_blank" rel="noreferrer noopener">Live</a> : null}
+          {entry.data.github ? <a href={entry.data.github} target="_blank" rel="noreferrer noopener">GitHub</a> : null}
+        </div>
+        <article class="content">
+          <p>{entry.data.description}</p>
+          <slot />
+        </article>
+      </main>
+    )}
+
+    <script>
+      // Progressive enhancement: native View Transitions if available
+      const supportsVT = 'startViewTransition' in document;
+      const back = document.getElementById('back-link');
+      back?.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Use stored source point if available; fallback to viewport center
+        let x = window.innerWidth / 2;
+        let y = window.innerHeight / 2;
+        try {
+          const raw = sessionStorage.getItem('radialLastSource');
+          if (raw) {
+            const src = JSON.parse(raw);
+            if (typeof src?.x === 'number' && typeof src?.y === 'number') { x = src.x; y = src.y; }
+          }
+        } catch {}
+
+        const url = back.getAttribute('href') || '/';
+        if (supportsVT) {
+          // Set CSS vars and mark back direction, then start VT
+          document.documentElement.style.setProperty('--vt-x', `${x}px`);
+          document.documentElement.style.setProperty('--vt-y', `${y}px`);
+          document.documentElement.style.setProperty('--vt-dur-out', '520ms');
+          document.documentElement.style.setProperty('--vt-ease', 'ease-in-out');
+          document.documentElement.style.setProperty('--vt-soft', '24px');
+          document.documentElement.setAttribute('data-vt-dir', 'back');
+          document.startViewTransition(() => window.location.assign(url));
+        } else {
+          // Fallback: stash reverse payload for JS overlay on home
+          try {
+            const payload = {
+              x, y,
+              durationOut:  520,
+              overlayColor: '#000',
+              edgeSoftnessPx: 24,
+            };
+            sessionStorage.setItem('radialBack', JSON.stringify(payload));
+          } catch {}
+          window.location.assign(url);
+        }
+      });
+    </script>
+    
+    <!-- Set global atomConfig for ProjectBento component -->
+    <script define:vars={{ bentoAnimationsConfig }}>
+      window.atomConfig = { bentoAnimations: bentoAnimationsConfig };
+    </script>
+  </body>
+  </html>

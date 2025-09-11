@@ -14,31 +14,28 @@ const i18nConfig = userTweaks.i18n || {
 };
 
 /**
- * Get current locale from URL or localStorage
- * Falls back to default locale if not found
+ * Get current locale from URL path only
+ * Returns the locale based on the current page path
  */
 export function getCurrentLocale() {
-  // Check URL parameter first (?lang=en)
+  // Check URL path to determine current locale
   if (typeof window !== 'undefined') {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlLang = urlParams.get('lang');
-    if (urlLang && i18nConfig.locales.includes(urlLang)) {
-      localStorage.setItem('portfolio-locale', urlLang);
-      return urlLang;
+    const pathname = window.location.pathname;
+    
+    // Check if path starts with /en/ (English pages)
+    if (pathname.startsWith('/en/') || pathname === '/en') {
+      return 'en';
     }
     
-    // Check localStorage
-    const savedLang = localStorage.getItem('portfolio-locale');
-    if (savedLang && i18nConfig.locales.includes(savedLang)) {
-      return savedLang;
-    }
+    // All other paths are French (default)
+    return 'fr';
   }
   
   return i18nConfig.defaultLocale;
 }
 
 /**
- * Set current locale and persist to localStorage
+ * Set current locale and navigate to appropriate path
  */
 export function setLocale(locale) {
   if (!i18nConfig.locales.includes(locale)) {
@@ -47,15 +44,35 @@ export function setLocale(locale) {
   }
   
   if (typeof window !== 'undefined') {
-    localStorage.setItem('portfolio-locale', locale);
+    // Navigate to the appropriate language path
+    const currentPath = window.location.pathname;
+    let newPath;
     
-    // Update URL parameter without page reload
-    const url = new URL(window.location);
-    url.searchParams.set('lang', locale);
-    window.history.replaceState({}, '', url);
+    if (locale === 'en') {
+      // Switch to English version
+      if (currentPath.startsWith('/en/')) {
+        // Already on English path
+        newPath = currentPath;
+      } else {
+        // Add /en prefix
+        newPath = '/en' + currentPath;
+      }
+    } else {
+      // Switch to French version (default)
+      if (currentPath.startsWith('/en/')) {
+        // Remove /en prefix and keep the rest
+        newPath = currentPath.substring(3) || '/';
+      } else if (currentPath === '/en') {
+        // Handle exact /en path
+        newPath = '/';
+      } else {
+        // Already on French path
+        newPath = currentPath;
+      }
+    }
     
-    // Trigger locale change event
-    window.dispatchEvent(new CustomEvent('locale-changed', { detail: { locale } }));
+    // Navigate to new path
+    window.location.pathname = newPath;
   }
 }
 
