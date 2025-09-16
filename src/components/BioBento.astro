@@ -311,6 +311,49 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
     transform: var(--skill-hover-transform);
   }
 
+  /* CV Download Glow Effect */
+  .cv-download-glow {
+    animation: cv-glow-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes cv-glow-pulse {
+    0%, 100% {
+      box-shadow:
+        0 0 3px rgba(59, 130, 246, 0.2),
+        0 0 6px rgba(59, 130, 246, 0.2),
+        0 0 10px rgba(59, 130, 246, 0.1),
+        0 0 15px rgba(59, 130, 246, 0.05);
+    }
+    25% {
+      box-shadow:
+        0 0 3px rgba(168, 85, 247, 0.2),
+        0 0 6px rgba(168, 85, 247, 0.2),
+        0 0 10px rgba(168, 85, 247, 0.1),
+        0 0 15px rgba(168, 85, 247, 0.05);
+    }
+    50% {
+      box-shadow:
+        0 0 5px rgba(236, 72, 153, 0.3),
+        0 0 10px rgba(236, 72, 153, 0.3),
+        0 0 15px rgba(236, 72, 153, 0.2),
+        0 0 20px rgba(236, 72, 153, 0.1);
+    }
+    75% {
+      box-shadow:
+        0 0 3px rgba(34, 197, 94, 0.2),
+        0 0 6px rgba(34, 197, 94, 0.2),
+        0 0 10px rgba(34, 197, 94, 0.1),
+        0 0 15px rgba(34, 197, 94, 0.05);
+    }
+  }
+
+  /* Enhanced hover state for CV download */
+  .cv-download-glow:hover {
+    animation-duration: 1s;
+    border-color: #3b82f6;
+    transform: var(--skill-hover-transform);
+  }
+
   /* Social Card */
   .social-card {
     display: flex;
@@ -749,6 +792,49 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
     background: #222222;
   }
 
+  /* CV Download Glow in Dark Mode */
+  html[data-theme="dark"] .cv-download-glow {
+    animation: cv-glow-pulse-dark 2s ease-in-out infinite;
+  }
+
+  @keyframes cv-glow-pulse-dark {
+    0%, 100% {
+      box-shadow:
+        0 0 3px rgba(147, 197, 253, 0.3),
+        0 0 6px rgba(147, 197, 253, 0.25),
+        0 0 10px rgba(147, 197, 253, 0.15),
+        0 0 15px rgba(96, 165, 250, 0.1);
+    }
+    25% {
+      box-shadow:
+        0 0 3px rgba(196, 181, 253, 0.3),
+        0 0 6px rgba(196, 181, 253, 0.25),
+        0 0 10px rgba(196, 181, 253, 0.15),
+        0 0 15px rgba(196, 181, 253, 0.1);
+    }
+    50% {
+      box-shadow:
+        0 0 5px rgba(251, 113, 133, 0.4),
+        0 0 10px rgba(251, 113, 133, 0.35),
+        0 0 15px rgba(251, 113, 133, 0.25),
+        0 0 20px rgba(251, 113, 133, 0.15);
+    }
+    75% {
+      box-shadow:
+        0 0 3px rgba(52, 211, 153, 0.3),
+        0 0 6px rgba(52, 211, 153, 0.25),
+        0 0 10px rgba(52, 211, 153, 0.15),
+        0 0 15px rgba(52, 211, 153, 0.1);
+    }
+  }
+
+  html[data-theme="dark"] .cv-download-glow:hover {
+    animation-duration: 1s;
+    border-color: #93c5fd;
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+    color: #ffffff;
+  }
+
   /* Dark mode modern design system overrides */
   html[data-theme="dark"] {
     --surface-primary: #1a1a1a;
@@ -829,7 +915,7 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
       {data?.email ? (
         <a class="contact-email" href={`mailto:${data.email}`}>{data.email}</a>
       ) : null}
-      <a class="contact-email" href="/CV_ArthurCroqueboisKowskii.pdf" download="CV_ArthurCroqueboisKowskii.pdf">Télécharger le CV</a>
+      <a class="contact-email cv-download-glow" href="/CV_ArthurCroqueboisKowskii.pdf" download="CV_ArthurCroqueboisKowskii.pdf">Télécharger le CV</a>
     </div>
 
     <!-- Social Card -->
