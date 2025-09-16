@@ -407,6 +407,38 @@ export const userTweaks = {
     topGapPx: 100
   },
 
+  // Favourite Games configuration for bio page
+  favoriteGames: {
+    enabled: true,
+    title: 'Favourite Games',
+    games: [
+      { name: '♥️', image: '/images/games/persona5.jpg' },  // Persona 5
+      { name: '♥️', image: '/images/games/totk.jpg' },  // Zelda Totk
+      { name: '♥️', image: '/images/games/33.jpg' }, // Clair Obscur
+      { name: 'Music Fav 01', image: '/images/games/jetsetradio.jpg' }, // Jet Set Radio
+      { name: 'Music Fav 02', image: '/images/games/hyperlightdrifter.png' }, // Hyper Light Drifter
+      { name: 'Childhood Fav', image: '/images/games/IX.jpg' }, // Dragon Quest IX
+      { name: 'Figthing', image: '/images/games/smashbros.jpg' }, // smash bros ultimate
+      { name: 'Racing', image: '/images/games/mostwanted.webp' }, // Need for Speed Carbon
+      { name: 'Indie', image: '/images/games/hades.jpg' }, // Hades
+      { name: 'RPG', image: '/images/games/metaphor.avif' }, // Metaphor Refantazio
+      { name: 'Platform', image: '/images/games/pupeteer.jpg' }, // Pupeteer
+      { name: 'Graphism', image: '/images/games/gris.jpg' } // Gris
+    ],
+    // Visual settings
+    columns: 6,  // Number of columns in desktop view
+    rows: 2,     // Number of rows in desktop view
+    imageStyle: 'cover', // 'cover' to fill square, 'contain' to fit entire image
+    placeholderIcon: '🎮', // Default icon when no image provided
+    showPlaceholderIfNoImage: true,
+    // Style customization
+    squareBorderRadius: 12, // Border radius in pixels
+    squareGap: 16, // Gap between squares in pixels
+    labelFontSize: 12, // Font size for game names
+    hoverScale: 1.05, // Scale on hover (1.05 = 5% bigger)
+    hoverLift: 4 // Pixels to lift on hover
+  },
+
   // Visited indicators
   visitedIndicators: {
     size: 10,

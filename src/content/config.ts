@@ -192,11 +192,20 @@ const bioCollection = defineCollection({
       .array(
         z.object({
           title: BilingualString,
-          description: BilingualString, 
+          description: BilingualString,
           imageUrl: z.string(),
           articleUrl: z.string().url(),
           publishDate: z.string().optional(),
           publication: z.string().optional(),
+        })
+      )
+      .optional(),
+    favoriteGames: z
+      .array(
+        z.object({
+          title: BilingualString,
+          description: BilingualStringOptional,
+          imageUrl: z.string().optional(),
         })
       )
       .optional(),

@@ -325,6 +325,12 @@ export default {
     topGapPx: 80
   },
 
+  // Favourite Games configuration
+  favoriteGames: userTweaks.favoriteGames || {
+    enabled: true,
+    games: []
+  },
+
   // Bento animations configuration
   bentoAnimations: userTweaks.bentoAnimations || {
     enabled: false,

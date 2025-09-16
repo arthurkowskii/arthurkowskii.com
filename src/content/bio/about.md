@@ -68,6 +68,7 @@ press:
     articleUrl: "https://www.kiblind.com/articles/decryptage-nos-clips-animes-preferes-de-novembre/"
     publishDate: "9 décembre 2021"
     publication: "Kiblind"
+favoriteGames: []
 ---
 
 # About Arthur Kowskii

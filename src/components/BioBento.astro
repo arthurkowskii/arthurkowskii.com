@@ -90,7 +90,8 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
       "hero hero status"
       "bio portrait skills"
       "contact social skills"
-      "press press press";
+      "press press press"
+      "games games .";
   }
 
   /* Accentuate bio and contact height difference */
@@ -155,6 +156,7 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
   .social-card { grid-area: social; }
   .unified-skills-card { grid-area: skills; }
   .press-card { grid-area: press; }
+  .favourite-games-card { grid-area: games; }
 
   /* Hero Card */
   .hero-card {
@@ -490,6 +492,108 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
     justify-content: flex-start;
   }
 
+  /* Favourite Games Card */
+  .favourite-games-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: auto; /* Let content determine height */
+  }
+
+  .games-container {
+    display: grid;
+    grid-template-columns: repeat(var(--games-columns, 6), minmax(0, 1fr));
+    grid-auto-rows: 1fr; /* Auto rows with equal height */
+    gap: var(--games-gap, 16px);
+    padding: 8px;
+  }
+
+  .game-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-width: 0; /* Prevent text from expanding container */
+  }
+
+  .game-square {
+    width: 100%;
+    padding-bottom: 100%; /* 1:1 aspect ratio */
+    background: linear-gradient(135deg, var(--surface-primary) 0%, var(--surface-secondary) 100%);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--games-border-radius, 12px);
+    transition: all var(--transition-medium);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .game-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: var(--games-image-style, cover);
+    object-position: center;
+    transition: transform 0.3s ease;
+  }
+
+  .game-placeholder-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    opacity: 0.3;
+  }
+
+  .game-square::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .game-square:hover {
+    transform: translateY(calc(var(--games-hover-lift, 4) * -1px)) scale(var(--games-hover-scale, 1.05));
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .game-square:hover .game-image {
+    transform: scale(1.1);
+  }
+
+  .game-square:hover::before {
+    opacity: 1;
+  }
+
+
+  .game-title {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: var(--games-label-size, 12px);
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.2;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Allow up to 2 lines */
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+    min-height: calc(var(--games-label-size, 12px) * 1.2 * 1.5); /* Slightly less height reservation */
+  }
+
   .press-articles {
     display: flex;
     flex-direction: column;
@@ -619,7 +723,13 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
         "bio portrait"
         "contact social"
         "skills skills"
-        "press press";
+        "press press"
+        "games games";
+
+    .games-container {
+      grid-template-columns: repeat(4, minmax(0, 1fr)); /* Adjust to 4 columns on medium screens */
+      grid-template-rows: repeat(3, minmax(0, 1fr)); /* 3 rows to fit 12 items */
+    }
     }
   }
 
@@ -634,7 +744,17 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
         "contact"
         "social"
         "skills"
-        "press";
+        "press"
+        "games";
+
+    .games-container {
+      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columns on mobile */
+      grid-template-rows: repeat(4, minmax(0, 1fr)); /* 4 rows to fit 12 items */
+    }
+
+    .favourite-games-card {
+      min-height: auto; /* Auto height for mobile */
+    }
     }
 
     .hero-name {
@@ -789,6 +909,25 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
 
   html[data-theme="dark"] .press-image-container {
     background: #222222;
+  }
+
+  /* Dark mode for games */
+  html[data-theme="dark"] .game-square {
+    background: linear-gradient(135deg, #1a1a1a 0%, #222222 100%);
+    border-color: #333333;
+  }
+
+  html[data-theme="dark"] .game-square:hover {
+    border-color: #ffffff;
+    background: #2a2a2a;
+  }
+
+  html[data-theme="dark"] .game-title {
+    color: #cccccc;
+  }
+
+  html[data-theme="dark"] .game-placeholder-icon {
+    opacity: 0.2;
   }
 
   /* CV Download Glow in Dark Mode */
@@ -1033,6 +1172,41 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
                 </a>
               </div>
             </article>
+          ))}
+        </div>
+      </div>
+    ) : null}
+
+    <!-- Favourite Games Card -->
+    {atomConfig.favoriteGames?.enabled !== false ? (
+      <div class="bento-card favourite-games-card" data-animation-delay="800" style={`
+        --games-columns: ${atomConfig.favoriteGames?.columns || 6};
+        --games-rows: ${atomConfig.favoriteGames?.rows || 2};
+        --games-gap: ${atomConfig.favoriteGames?.squareGap || 16}px;
+        --games-border-radius: ${atomConfig.favoriteGames?.squareBorderRadius || 12}px;
+        --games-label-size: ${atomConfig.favoriteGames?.labelFontSize || 12}px;
+        --games-hover-scale: ${atomConfig.favoriteGames?.hoverScale || 1.05};
+        --games-hover-lift: ${atomConfig.favoriteGames?.hoverLift || 4};
+        --games-image-style: ${atomConfig.favoriteGames?.imageStyle || 'cover'};
+      `}>
+        <div class="card-label">{atomConfig.favoriteGames?.title || 'Favourite Games'}</div>
+        <div class="games-container">
+          {(atomConfig.favoriteGames?.games || []).map((game: any) => (
+            <div class="game-item">
+              <div class="game-square">
+                {game.image ? (
+                  <img
+                    class="game-image"
+                    src={game.image}
+                    alt={game.name}
+                    loading="lazy"
+                  />
+                ) : atomConfig.favoriteGames?.showPlaceholderIfNoImage !== false ? (
+                  <span class="game-placeholder-icon">{atomConfig.favoriteGames?.placeholderIcon || '🎮'}</span>
+                ) : null}
+              </div>
+              <span class="game-title">{game.name || 'Game'}</span>
+            </div>
           ))}
         </div>
       </div>
