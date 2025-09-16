@@ -289,7 +289,7 @@ export const userTweaks = {
       textTertiary: '#64748b',
       borderPrimary: '#e2e8f0',
       borderSecondary: '#cbd5e1',
-      borderAccent: '#3b82f6'
+      borderAccent: '#171717'
     },
     transitions: {
       fast: '0.15s cubic-bezier(0.4, 0, 0.2, 1)',
