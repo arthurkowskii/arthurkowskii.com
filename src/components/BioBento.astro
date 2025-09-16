@@ -350,7 +350,6 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
   /* Enhanced hover state for CV download */
   .cv-download-glow:hover {
     animation-duration: 1s;
-    border-color: #3b82f6;
     transform: var(--skill-hover-transform);
   }
 
@@ -830,9 +829,6 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
 
   html[data-theme="dark"] .cv-download-glow:hover {
     animation-duration: 1s;
-    border-color: #93c5fd;
-    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
-    color: #ffffff;
   }
 
   /* Dark mode modern design system overrides */

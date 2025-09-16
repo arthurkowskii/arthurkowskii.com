@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash",
-      "WebFetch(domain:localhost)"
+      "WebFetch(domain:localhost)",
+      "Read(//c/Users/arthu/Pictures/Screenshots/**)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []
