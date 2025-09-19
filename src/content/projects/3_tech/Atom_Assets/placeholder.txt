@@ -1,0 +1,8 @@
+Placeholder file for Atom Portfolio assets folder.
+
+Add the following files here:
+- hero.jpg (or .png, .webp) - Main hero background image
+- logo.png (optional) - Project logo
+- Any additional images for the gallery
+
+The system will automatically detect and use these files.
