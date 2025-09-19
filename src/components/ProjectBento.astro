@@ -2304,7 +2304,9 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     const closeBtn = document.createElement('button');
     closeBtn.className = 'glb-close';
     closeBtn.setAttribute('aria-label', 'Close');
-    closeBtn.textContent = 'Ã—';
+    closeBtn.innerHTML = `<svg width="24" height="24" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="M195.2 195.2a64 64 0 0190.496 0L512 421.504 738.304 195.2a64 64 0 0190.496 90.496L602.496 512 828.8 738.304a64 64 0 01-90.496 90.496L512 602.496 285.696 828.8a64 64 0 01-90.496-90.496L421.504 512 195.2 285.696a64 64 0 010-90.496z"/>
+    </svg>`;
     closeBtn.addEventListener('click', () => closeBasicLightbox());
 
     const viewport = document.createElement('div');
@@ -2317,13 +2319,17 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     const btnPrev = document.createElement('button');
     btnPrev.className = 'glb-nav glb-prev';
     btnPrev.setAttribute('aria-label', 'Previous');
-    btnPrev.textContent = 'â€¹';
+    btnPrev.innerHTML = `<svg width="24" height="24" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="M685.248 104.704a64 64 0 010 90.496L368.448 512l316.8 316.8a64 64 0 01-90.496 90.496L232.704 557.248a64 64 0 010-90.496l362.048-362.048a64 64 0 0190.496 0z"/>
+    </svg>`;
     btnPrev.addEventListener('click', () => basicPrev());
 
     const btnNext = document.createElement('button');
     btnNext.className = 'glb-nav glb-next';
     btnNext.setAttribute('aria-label', 'Next');
-    btnNext.textContent = 'â€º';
+    btnNext.innerHTML = `<svg width="24" height="24" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="M338.752 104.704a64 64 0 0190.496 0l362.048 362.048a64 64 0 010 90.496L429.248 919.296a64 64 0 01-90.496-90.496L655.552 512 338.752 195.2a64 64 0 010-90.496z"/>
+    </svg>`;
     btnNext.addEventListener('click', () => basicNext());
 
     container.appendChild(closeBtn);
