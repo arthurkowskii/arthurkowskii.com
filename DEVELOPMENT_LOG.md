@@ -4,7 +4,7 @@
 
 Full details: `docs/history/PHASE_LOGS.md`, `docs/history/ERRORS_LESSONS.md`
 
-Last updated: 2025-09-08 (Theme defaults and UX refinements)
+Last updated: 2025-09-19 (Firefox compatibility and portfolio self-documentation)
 
 ## Project Snapshot
 
@@ -168,6 +168,26 @@ Last updated: 2025-09-08 (Theme defaults and UX refinements)
   - Preserved user preference persistence for returning users
 - **Development Stability**: Fixed development server startup issues and maintained clean build process
 
+### Firefox Compatibility Fixes (2025-09-19)
+- **Critical Script Loading Issues**: Resolved multiple variable declaration errors in Firefox caused by inline scripts
+- **Root Cause**: ProjectBento script executed multiple times (once per bento project), causing redeclaration errors
+- **Solutions Implemented**:
+  - Added `is:inline` directive to ProjectBento script for global scope execution
+  - Wrapped all variables (`__GLB`, `__audioUnlocked`, etc.) in window scope with existence checks
+  - Converted ES module imports to dynamic imports for inline script compatibility
+  - Implemented comprehensive initialization guards to prevent multiple declarations
+- **ServiceWorker Video Fix**: Added bypass logic for video files to prevent streaming issues in Firefox
+- **Results**: Full compatibility achieved across Firefox and Chrome browsers
+
+### Portfolio Self-Documentation (2025-09-19)
+- **Meta Project Page**: Created atom_portfolio.md showcasing the portfolio itself as a technical achievement
+- **Personal Narrative**: Crafted bilingual content emphasizing personal journey and technical innovations
+- **Key Highlights**:
+  - Documented three major early-stage challenges: drag & drop physics, dynamic shell generation, circular overlay system
+  - Created comprehensive project cards: stats, process, challenges, results
+  - Established Atom_Assets folder structure for future hero and gallery images
+- **Content Focus**: Emphasized design decisions (bento inspiration, minimalist electrons, accessibility features)
+
 ## Current Status
 
 ✅ Production ready with enterprise-grade monitoring, security, and performance
@@ -182,6 +202,8 @@ Last updated: 2025-09-08 (Theme defaults and UX refinements)
 ✅ Bilingual content system with **French as guaranteed default language**
 ✅ Complete bilingual translation coverage with professional English content
 ✅ Streamlined welcome experience with focused language selection
+✅ **Full Firefox compatibility** with proper script handling and video streaming
+✅ **Portfolio self-documentation** with meta project page showcasing technical achievements
 
 ## Technical Architecture Notes
 
