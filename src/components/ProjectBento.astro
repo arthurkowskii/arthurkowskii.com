@@ -1698,25 +1698,142 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   /* Gallery Lightbox (global) */
   html.glb-scroll-lock, html.glb-scroll-lock body { overflow: hidden !important; }
   .glb-root { position: fixed; inset: 0; display: none; z-index: 10002; }
-  .glb-scrim { position: absolute; inset: 0; background: rgba(0,0,0,0.7); }
-  .glb-container { 
-    position: absolute; inset: 0; margin: auto; 
+  .glb-scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .glb-container {
+    position: absolute; inset: 0; margin: auto;
     width: min(90vw, 1100px); height: min(90vh, 750px);
-    background: #0b0c0f; border: 1px solid rgba(255,255,255,0.12);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5); border-radius: 14px;
+    background: rgba(11, 12, 15, 0.65);
+    backdrop-filter: blur(12px) saturate(1.2);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.6),
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
     display: grid; grid-template-columns: 56px 1fr 56px; grid-template-rows: 1fr 40px;
     z-index: 10003; color: #fff;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   /* Keep media in center column so nav buttons never overlay it */
   .glb-viewport { grid-column: 2; grid-row: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 18px 18px 8px; }
   .glb-counter { grid-column: 2; grid-row: 2; display: flex; align-items: center; justify-content: center; opacity: 0.9; font-size: 0.9rem; }
-  .glb-close { position: absolute; top: 8px; right: 8px; z-index: 10004; border: 0; background: rgba(0,0,0,0.45); color: #fff; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 22px; line-height: 1; }
-  .glb-close:hover { background: rgba(0,0,0,0.6); }
-  .glb-nav { border: 0; background: transparent; color: #fff; cursor: pointer; font-size: 34px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+  .glb-close {
+    position: absolute; top: 12px; right: 12px; z-index: 10004;
+    border: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #fff;
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .glb-close:hover {
+    background: rgba(0, 0, 0, 0.6);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .glb-nav {
+    border: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    font-size: 32px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 8px;
+    transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
   .glb-prev { grid-column: 1; grid-row: 1; }
   .glb-next { grid-column: 3; grid-row: 1; }
-  .glb-nav:hover { color: #ddd; }
-  @media (prefers-reduced-motion: reduce) { .glb-container, .glb-scrim { transition: none !important; } }
+  .glb-nav:hover {
+    color: #fff;
+  }
+  /* Cross-browser fallbacks for backdrop-filter */
+  @supports not (backdrop-filter: blur(1px)) {
+    .glb-scrim {
+      background: rgba(0, 0, 0, 0.8);
+    }
+    .glb-container {
+      background: rgba(11, 12, 15, 0.95);
+    }
+    .glb-close {
+      background: rgba(0, 0, 0, 0.7);
+    }
+    .glb-nav {
+      background: transparent;
+    }
+  }
+
+  /* Light theme adjustments */
+  html[data-theme="light"] .glb-scrim {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  html[data-theme="light"] .glb-container {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.2),
+      0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    color: #1a1a1a;
+  }
+
+  html[data-theme="light"] .glb-close {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #1a1a1a;
+  }
+
+  html[data-theme="light"] .glb-close:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+
+  html[data-theme="light"] .glb-nav {
+    background: transparent;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  html[data-theme="light"] .glb-nav:hover {
+    color: #1a1a1a;
+  }
+
+  /* Light theme fallbacks */
+  @supports not (backdrop-filter: blur(1px)) {
+    html[data-theme="light"] .glb-scrim {
+      background: rgba(255, 255, 255, 0.9);
+    }
+    html[data-theme="light"] .glb-container {
+      background: rgba(255, 255, 255, 0.98);
+    }
+    html[data-theme="light"] .glb-close {
+      background: rgba(255, 255, 255, 0.9);
+    }
+    html[data-theme="light"] .glb-nav {
+      background: transparent;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glb-container, .glb-scrim, .glb-close, .glb-nav {
+      transition: none !important;
+    }
+  }
 </style>
 
 <div class={`project-bento ${hasCustomDarkAccent ? 'has-custom-dark-accent' : ''}`}>
