@@ -1990,46 +1990,66 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   </div>
 </div>
 
-<script>
+<script is:inline>
   // PLACEHOLDER: Tone.js is temporary - will be replaced with custom OGG audio files
   // See docs/history/PHASE_LOGS.md Phase 3C for audio architecture plan
-  import { Synth, Chorus, start, now, gainToDb, context } from 'tone';
-  // Gallery lightbox: lazy-loaded on first click for reliability across contexts
-  let __GLB = null;
-  async function ensureLightbox() {
-    if (!__GLB) {
-      try {
-        const mod = await import('../atom/ui/GalleryLightbox.js');
-        __GLB = mod?.default || mod;
-      } catch (err) {
-        console.warn('Failed to load GalleryLightbox module:', err);
-      }
-    }
-    return __GLB;
+  // Note: Using is:inline to ensure single global scope for all ProjectBento instances
+
+  // Guard against multiple initializations
+  if (typeof window.__bentoInitialized === 'undefined') {
+    window.__bentoInitialized = false;
   }
+
+  // Gallery lightbox: lazy-loaded on first click for reliability across contexts
+  // Use window to ensure single instance across all script executions
+  if (typeof window.__GLB === 'undefined') {
+    window.__GLB = null;
+  }
+
+  if (typeof window.ensureLightbox === 'undefined') {
+    window.ensureLightbox = async function() {
+      if (!window.__GLB) {
+        try {
+          const mod = await import('../atom/ui/GalleryLightbox.js');
+          window.__GLB = mod?.default || mod;
+        } catch (err) {
+          console.warn('Failed to load GalleryLightbox module:', err);
+        }
+      }
+      return window.__GLB;
+    }
+  }
+  const ensureLightbox = window.ensureLightbox;
 
   // Simple Bento Animation System with Synced Audio
   // Audio is strictly gated behind a real user gesture to avoid
   // "AudioContext was not allowed to start" errors in browsers.
-  let __audioUnlocked = false;
-  function __markAudioUnlockedOnce() {
-    if (__audioUnlocked) return;
-    __audioUnlocked = true;
+  if (typeof window.__audioUnlocked === 'undefined') {
+    window.__audioUnlocked = false;
+  }
+  if (typeof window.__markAudioUnlockedOnce === 'undefined') {
+    window.__markAudioUnlockedOnce = function() {
+      if (window.__audioUnlocked) return;
+      window.__audioUnlocked = true;
     try {
       // Kick audio init lazily once unlocked
       if (typeof bentoAnimationSystem !== 'undefined' && bentoAnimationSystem) {
-        bentoAnimationSystem.ensureAudioReady?.().catch(() => {});
+        window.bentoAnimationSystem?.ensureAudioReady?.().catch(() => {});
       }
     } catch {}
-    window.removeEventListener('pointerdown', __markAudioUnlockedOnce, true);
-    window.removeEventListener('keydown', __markAudioUnlockedOnce, true);
+    window.removeEventListener('pointerdown', window.__markAudioUnlockedOnce, true);
+    window.removeEventListener('keydown', window.__markAudioUnlockedOnce, true);
+    }
   }
-  // Attach unlock listeners early
-  if (typeof window !== 'undefined') {
-    window.addEventListener('pointerdown', __markAudioUnlockedOnce, true);
-    window.addEventListener('keydown', __markAudioUnlockedOnce, true);
+  // Attach unlock listeners early (only if not already attached)
+  if (typeof window !== 'undefined' && !window.__audioListenersAttached) {
+    window.addEventListener('pointerdown', window.__markAudioUnlockedOnce, true);
+    window.addEventListener('keydown', window.__markAudioUnlockedOnce, true);
+    window.__audioListenersAttached = true;
   }
-  class BentoAnimationSystem {
+  // Define BentoAnimationSystem class only once
+  if (typeof window.BentoAnimationSystem === 'undefined') {
+    window.BentoAnimationSystem = class BentoAnimationSystem {
     constructor() {
       this.isInitialized = false;
       this.synth = null;
@@ -2080,19 +2100,22 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
 
     async initAudio() {
       if (this.synth) return; // Already initialized
-      
+
       try {
         console.log('ðŸŽµ Initializing audio after user interaction...');
-        
+
+        // Dynamically import Tone.js
+        const Tone = await import('tone');
+
         // PLACEHOLDER: Tone.js synthesis - replace with OGG file loading
         // Create bubbly sine wave synth
-        this.chorus = new Chorus(
+        this.chorus = new Tone.Chorus(
           this.config.audio.synthesis.chorus.frequency,
           this.config.audio.synthesis.chorus.depth,
           0.5
         ).toDestination();
 
-        this.synth = new Synth({
+        this.synth = new Tone.Synth({
           oscillator: { type: 'sine' },
           envelope: {
             attack: this.config.audio.synthesis.attack,
@@ -2102,8 +2125,8 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
           }
         }).connect(this.chorus);
 
-        this.synth.volume.value = gainToDb(this.config.audio.volume);
-        
+        this.synth.volume.value = Tone.gainToDb(this.config.audio.volume);
+
         console.log('ðŸŽµ Audio components created successfully');
       } catch (error) {
         console.warn('Failed to initialize audio:', error);
@@ -2128,7 +2151,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       if (!this.isInitialized) await this.init();
       if (!this.config?.audio?.enabled) return;
       // Hard gate: only proceed once real user gesture occurred
-      if (!__audioUnlocked) return;
+      if (!window.__audioUnlocked) return;
       
       // Initialize audio lazily
       if (!this.synth) {
@@ -2136,10 +2159,13 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       }
       
       // Start Tone context after unlock only
-      if (this.synth && context.state !== 'running') {
+      if (this.synth) {
         try {
-          console.log('ðŸŽµ Starting Tone.js context after user gesture...');
-          await start();
+          const Tone = await import('tone');
+          if (Tone.context.state !== 'running') {
+            console.log('ðŸŽµ Starting Tone.js context after user gesture...');
+            await Tone.start();
+          }
         } catch (err) {
           console.warn('Tone context start failed:', err);
         }
@@ -2172,9 +2198,9 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
           
           try {
             // PLACEHOLDER: Replace with Web Audio API buffer source playback
-            // Use Tone.now() + small offset to prevent timing conflicts
-            const when = now() + 0.01; // 10ms offset to ensure proper scheduling
             // TEMPORARILY DISABLED: Commenting out sound playing
+            // const Tone = await import('tone');
+            // const when = Tone.now() + 0.01; // 10ms offset to ensure proper scheduling
             // this.synth.triggerAttackRelease(pitch, '8n', when);
           } catch (error) {
             console.warn(`Audio error for ${cardType}:`, error);
@@ -2231,13 +2257,19 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       this.isPlaying = false;
     }
   }
+  } // Close the BentoAnimationSystem class definition wrapper
 
-  // Global instance
-  let bentoAnimationSystem = null;
+  // Global instance - use window to ensure single instance across all components
+  if (typeof window !== 'undefined' && typeof window.bentoAnimationSystem === 'undefined') {
+    window.bentoAnimationSystem = null;
+  }
 
   // ==========================
   // Minimal Lightbox (Step 1): Single-media viewer
   // ==========================
+
+  // Wrap all remaining functions to prevent redeclaration in Firefox
+  if (!window.__bentoFunctionsInitialized) {
   let __basicGlb = null;
   let __basicGlbOpen = false;
   let __basicLastFocus = null;
@@ -2593,57 +2625,66 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
 
   // Main animation function with perfect audio sync
   async function animateBentoCards() {
-    console.log('ðŸŽµ animateBentoCards() called', { 
-      hasSystem: !!bentoAnimationSystem, 
-      isPlaying: bentoAnimationSystem?.isPlaying,
-      stack: new Error().stack 
+    console.log('ðŸŽµ animateBentoCards() called', {
+      hasSystem: !!window.bentoAnimationSystem,
+      isPlaying: window.bentoAnimationSystem?.isPlaying,
+      stack: new Error().stack
     });
     
     // Ensure gallery rows and click handlers are ready before animating cards
     layoutAllGalleries();
     setupGalleryClickHandlers();
 
-    if (!bentoAnimationSystem) {
-      bentoAnimationSystem = new BentoAnimationSystem();
+    if (!window.bentoAnimationSystem) {
+      window.bentoAnimationSystem = new window.BentoAnimationSystem();
     }
     
     // Extra safety: prevent multiple calls
-    if (bentoAnimationSystem.isPlaying) {
+    if (window.bentoAnimationSystem.isPlaying) {
       console.log('ðŸŽµ Animation already playing, skipping...');
       return;
     }
     
-    await bentoAnimationSystem.startAnimation();
+    await window.bentoAnimationSystem.startAnimation();
   }
 
   // Reset function for overlay close
   function resetBentoCards() {
     console.log('ðŸŽµ resetBentoCards() called globally');
     if (bentoAnimationSystem) {
-      bentoAnimationSystem.reset();
+      window.bentoAnimationSystem.reset();
     }
   }
 
-  // Export functions globally
+  // Export functions globally (only once)
   if (typeof window !== 'undefined') {
-    window.animateBentoCards = animateBentoCards;
-    window.resetBentoCards = resetBentoCards;
-    
-    // Auto-run for direct page loads - wait for assets to load
-    document.addEventListener('DOMContentLoaded', () => {
-      const bentoContent = document.getElementById('bento-content');
-      if (bentoContent && bentoContent.style.display !== 'none') {
-        // Wait for critical assets to load before animation
-        waitForCriticalAssets().then(() => {
-          setTimeout(animateBentoCards, 100);
-        });
-      }
-      // Initial gallery layout + observers
-      layoutAllGalleries();
-      setupGalleryObservers();
-      setupGalleryClickHandlers();
-    });
+    if (!window.__bentoInitialized) {
+      window.animateBentoCards = animateBentoCards;
+      window.resetBentoCards = resetBentoCards;
+
+      // Auto-run for direct page loads - wait for assets to load
+      document.addEventListener('DOMContentLoaded', () => {
+        const bentoContent = document.getElementById('bento-content');
+        if (bentoContent && bentoContent.style.display !== 'none') {
+          // Wait for critical assets to load before animation
+          waitForCriticalAssets().then(() => {
+            setTimeout(animateBentoCards, 100);
+          });
+        }
+        // Initial gallery layout + observers
+        layoutAllGalleries();
+        setupGalleryObservers();
+        setupGalleryClickHandlers();
+      });
+
+      // Mark as initialized
+      window.__bentoInitialized = true;
+    }
   }
 
-  // No shimmer animation â€” simplified glass for clarity
+    // Mark functions as initialized
+    window.__bentoFunctionsInitialized = true;
+  } // Close the functions wrapper
+
+  // No shimmer animation â€" simplified glass for clarity
 </script>

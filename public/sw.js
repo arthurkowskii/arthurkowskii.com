@@ -89,7 +89,13 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(handleHealthCheck(request));
     return;
   }
-  
+
+  // Skip service worker for video files - let browser handle them directly
+  // This prevents issues with range requests and video streaming
+  if (url.pathname.match(/\.(mp4|webm|mov|avi|mkv)$/i)) {
+    return; // Don't intercept, let browser handle normally
+  }
+
   // Network-first strategy for dynamic content
   if (NETWORK_FIRST_PATTERNS.some(pattern => pattern.test(url.pathname))) {
     event.respondWith(networkFirst(request));
