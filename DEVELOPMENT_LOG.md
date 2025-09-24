@@ -4,7 +4,7 @@
 
 Full details: `docs/history/PHASE_LOGS.md`, `docs/history/ERRORS_LESSONS.md`
 
-Last updated: 2025-09-19 (Firefox compatibility and portfolio self-documentation)
+Last updated: 2025-09-24 (Asset optimization and bilingual support fixes)
 
 ## Project Snapshot
 
@@ -188,6 +188,24 @@ Last updated: 2025-09-19 (Firefox compatibility and portfolio self-documentation
   - Established Atom_Assets folder structure for future hero and gallery images
 - **Content Focus**: Emphasized design decisions (bento inspiration, minimalist electrons, accessibility features)
 
+### Asset Optimization and Bilingual Support (2025-09-24)
+- **Critical Bug Fixes**:
+  - Fixed `ensureLightbox` redeclaration error causing startup failure by wrapping in typeof check
+  - Resolved Git push error caused by Windows reserved filename `nul`
+- **Bilingual System Enhancements**:
+  - Fixed French translations: "Technology" → "Technologie", "Stats Projet" → "Infos Projet"
+  - Added complete bilingual support for all bento card titles (actions, process, challenges)
+  - Updated HR_showcase.md with missing French translations for Links, Process, Key Challenges sections
+  - Extended bilingual support to sg_showcase.md and yt_showcase.md projects
+- **Asset Optimization Campaign**:
+  - **Images**: Converted PNG screenshots to WebP format with 85.8% size reduction (2.4MB → 340KB)
+  - **Hero Video**: Optimized hero.mp4 with 94.2% reduction (5.4MB → 318KB) using H.264 CRF 23
+  - **Thumbnail Generation**: Created thumbnail.jpg from hero.mp4 first frame for electron preview compatibility
+  - **Web Optimization**: Applied faststart flag to videos for progressive download
+- **Project Updates**:
+  - Updated atom_portfolio.md stats: changed "91%" to "Astro / JS" for language stat
+  - Maintained 10 projects count reflecting current portfolio state
+
 ## Current Status
 
 ✅ Production ready with enterprise-grade monitoring, security, and performance
@@ -204,6 +222,8 @@ Last updated: 2025-09-19 (Firefox compatibility and portfolio self-documentation
 ✅ Streamlined welcome experience with focused language selection
 ✅ **Full Firefox compatibility** with proper script handling and video streaming
 ✅ **Portfolio self-documentation** with meta project page showcasing technical achievements
+✅ **Comprehensive asset optimization** with 85-94% size reductions across images and videos
+✅ **Complete bilingual support** for all bento cards with proper French translations
 
 ## Technical Architecture Notes
 
@@ -224,7 +244,8 @@ Last updated: 2025-09-19 (Firefox compatibility and portfolio self-documentation
 
 ## Performance & Optimization
 
-- 91% asset optimization: videos (H.264, CRF 23-28), images (WebP 75% quality)  
+- **Latest optimization results**: hero.mp4 94.2% reduction, screenshots 85.8% reduction (WebP conversion)
+- 91% overall asset optimization: videos (H.264, CRF 23-28), images (WebP 75-88% quality)
 - GSAP animations optimized for 60fps with Safari-specific enhancements
 - Memory management: comprehensive cleanup, frame throttling
 - Cross-browser compatibility: Chrome, Firefox, Safari tested
