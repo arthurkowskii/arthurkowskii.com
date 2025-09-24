@@ -63,14 +63,14 @@ bento:
       label:
         fr: "DÉVELOPPEMENT"
         en: "DEVELOPMENT"
-    - value: "9 Projets"
+    - value: "10 Projets"
       label:
         fr: "PRÉSENTÉS"
         en: "SHOWCASED"
-    - value: "91%"
+    - value: "Astro / JS"
       label:
-        fr: "OPTIMISATION"
-        en: "OPTIMIZATION"
+        fr: "LANGUAGE"
+        en: "LANGUAGE"
     - value: "2 Langues"
       label:
         fr: "FR/EN"
