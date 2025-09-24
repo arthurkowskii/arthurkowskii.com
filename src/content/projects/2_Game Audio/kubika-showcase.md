@@ -35,10 +35,18 @@ bento:
     gallery: true
     challenges: true
     results: true
+
+  # Tech section configuration
+  tech:
+    title:
+      fr: "Technologie"
+      en: "Technology"
   
   # Hero card configuration
   hero:
-    subtitle: "Technical Sound Design"
+    subtitle:
+      fr: "Sound Design Technique"
+      en: "Technical Sound Design"
     subtitleColor: "#ff6b00"
     backgroundPosition: "center"
     backgroundSize: "cover"
@@ -89,41 +97,76 @@ bento:
   
   # Development process
   process:
-    title: "Process"
-    subtitle: "From concept to shipping"
+    title:
+      fr: "Processus"
+      en: "Process"
+    subtitle:
+      fr: "Du concept à la livraison"
+      en: "From concept to shipping"
     steps:
-      - "Enregistrement et conception de l'intégralité des SFX présents dans le jeu"
-      - "Conception d'une banque unique et propre au jeu et réutilisable pour le studio KubiTeam"
-      - "Intégration des sons avec FMOD et UNITY"
+      - fr: "Enregistrement et conception de l'intégralité des SFX présents dans le jeu"
+        en: "Recording and designing all SFX present in the game"
+      - fr: "Conception d'une banque unique et propre au jeu et réutilisable pour le studio KubiTeam"
+        en: "Creating a unique game-specific sound bank reusable for KubiTeam studio"
+      - fr: "Intégration des sons avec FMOD et UNITY"
+        en: "Sound integration with FMOD and Unity"
   
   # Gallery images
   # Gallery now auto-populates from assetsFolder (excluding hero/logo files)
   gallery:
-    title: "Gallery"
+    title:
+      fr: "Galerie"
+      en: "Gallery"
   
   # Technical challenges
   challenges:
-    title: "Key Challenges"
-    subtitle: "Technical problems solved during development"
+    title:
+      fr: "Défis Clés"
+      en: "Key Challenges"
+    subtitle:
+      fr: "Problèmes techniques résolus pendant le développement"
+      en: "Technical problems solved during development"
     items:
-      - title: "Détection des différents type de cube"
-        description: "Developed custom 3D audio listener system that maintains spatial relationships regardless of world orientation"
-      - title: "Concevoir un son joué plus d'une cinquantaine de fois par minute et le rendre plaisant"
-        description: "Implemented audio pooling and LOD systems to handle complex 3D audio without performance impact"
-      - title: "Optimisation des performances"
-        description: "Created parametric music system with vertical remixing for seamless emotional transitions"
+      - title:
+          fr: "Détection des différents types de cubes"
+          en: "Detecting different cube types"
+        description:
+          fr: "Développement d'un système d'écoute audio 3D personnalisé qui maintient les relations spatiales indépendamment de l'orientation du monde"
+          en: "Developed custom 3D audio listener system that maintains spatial relationships regardless of world orientation"
+      - title:
+          fr: "Concevoir un son joué plus d'une cinquantaine de fois par minute et le rendre plaisant"
+          en: "Designing a sound played over fifty times per minute and making it pleasant"
+        description:
+          fr: "Implémentation de systèmes de pooling audio et LOD pour gérer l'audio 3D complexe sans impact sur les performances"
+          en: "Implemented audio pooling and LOD systems to handle complex 3D audio without performance impact"
+      - title:
+          fr: "Optimisation des performances"
+          en: "Performance optimization"
+        description:
+          fr: "Création d'un système de musique paramétrique avec remixage vertical pour des transitions émotionnelles fluides"
+          en: "Created parametric music system with vertical remixing for seamless emotional transitions"
   
   # Results and impact
   results:
-    title: "Results"
-    subtitle: "Impact and recognition"
+    title:
+      fr: "Résultats"
+      en: "Results"
+    subtitle:
+      fr: "Impact et reconnaissance"
+      en: "Impact and recognition"
     items:
       - icon: "🕹️"
-        text: "Une démo du premier monde disponible sur itch.io et une démo steam disponible avant la fin 2025"
+        text:
+          fr: "Une démo du premier monde disponible sur itch.io et une démo Steam disponible avant la fin 2025"
+          en: "First world demo available on itch.io and a Steam demo coming before the end of 2025"
       - icon: "🔉"
-        text: "Un sound design satisfaisant et réactif"
+        text:
+          fr: "Un sound design satisfaisant et réactif"
+          en: "Satisfying and responsive sound design"
       - icon: "👨‍💻"
-        text: "Une intégration puissante mais légère, sans latence."
+        text:
+          fr: "Une intégration puissante mais légère, sans latence"
+          en: "Powerful yet lightweight integration with no latency"
 ---
 
 # Kubika: A Cube Story

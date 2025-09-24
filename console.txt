@@ -1,0 +1,28 @@
+Uncaught SyntaxError: redeclaration of const ensureLightbox
+    <anonymous> http://localhost:4321/:1776
+localhost:4321:1776:37332
+Uncaught SyntaxError: redeclaration of const ensureLightbox
+    <anonymous> http://localhost:4321/:2479
+localhost:4321:2479:44755
+    <anonymous> http://localhost:4321/:2479
+Uncaught SyntaxError: redeclaration of const ensureLightbox
+    <anonymous> http://localhost:4321/:3183
+localhost:4321:3183:25521
+Uncaught SyntaxError: redeclaration of const ensureLightbox
+    <anonymous> http://localhost:4321/:3886
+localhost:4321:3886:44164
+Uncaught SyntaxError: redeclaration of const ensureLightbox
+    <anonymous> http://localhost:4321/:4589
+localhost:4321:4589:49689
+Uncaught SyntaxError: redeclaration of const ensureLightbox
+    <anonymous> http://localhost:4321/:5292
+localhost:4321:5292:44893
+Uncaught SyntaxError: redeclaration of const ensureLightbox
+    <anonymous> http://localhost:4321/:5995
+localhost:4321:5995:38768
+Uncaught SyntaxError: redeclaration of const ensureLightbox
+    <anonymous> http://localhost:4321/:6698
+localhost:4321:6698:44768
+Loading module from “http://localhost:4321/node_modules/.vite/deps/tone.js?v=05b7cc8a” was blocked because of a disallowed MIME type (“”).
+localhost:4321
+Loading module from “http://localhost:4321/node_modules/.vite/deps/gsap_all.js?v=e625b1c1” was blocked because of a disallowed MIME type (“”).

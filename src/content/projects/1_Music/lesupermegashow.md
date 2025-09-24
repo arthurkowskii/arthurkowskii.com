@@ -65,8 +65,8 @@ bento:
   # Optional actions
   actions:
     title:
-      fr: "Expérience"
-      en: "Experience"
+      fr: "Liens"
+      en: "Links"
     primary:
       text:
         fr: "📽️ Regarder le Court-Métrage"

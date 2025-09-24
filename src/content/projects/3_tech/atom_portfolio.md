@@ -35,9 +35,15 @@ bento:
     actions: true
     tech: true
     process: true
-    gallery: false
+    gallery: true
     challenges: true
     results: true
+
+  # Tech section configuration
+  tech:
+    title:
+      fr: "Technologie"
+      en: "Technology"
 
   # Hero card configuration
   hero:

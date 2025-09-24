@@ -35,6 +35,12 @@ bento:
     gallery: true
     challenges: true
     results: true
+
+  # Tech section configuration
+  tech:
+    title:
+      fr: "Technologie"
+      en: "Technology"
   
   # Hero card configuration
   hero:
@@ -113,7 +119,9 @@ bento:
   # Gallery images
   # Gallery now auto-populates from assetsFolder (excluding hero/logo files)
   gallery:
-    title: "Gallery"
+    title:
+      fr: "Galerie"
+      en: "Gallery"
   
   # Technical challenges
   challenges:

@@ -35,6 +35,12 @@ bento:
     gallery: true
     challenges: true
     results: true
+
+  # Tech section configuration
+  tech:
+    title:
+      fr: "Technologie"
+      en: "Technology"
   
   # Hero card configuration
   hero:
@@ -118,7 +124,9 @@ bento:
   # Gallery images
   # Gallery now auto-populates from assetsFolder (excluding hero/logo files)
   gallery:
-    title: "Gallery"
+    title:
+      fr: "Galerie"
+      en: "Gallery"
   
   # Technical challenges
   challenges:
@@ -139,8 +147,8 @@ bento:
           fr: "De la synthèse... partout."
           en: "Synthesis... everywhere."
         description:
-          fr: "J'ai voulu profiter de ce projet pour explorer la synthèse utilisant Phase Plant (m'étant conseillé par l'entièreté de la planète depuis des mois) pour créer la plupart des sons comme le golem, l'épée, pierre magique, ailes en feu, etc... Ce choix m'a demandé pas mal d'expérimentations, mais il s'est avéré très formateur et a surtout intégré phase plant dans mes habitudes presques quotidiennes. Des démos des sons avec leurs patchs Phase Plant sont disponibles dans la galerie"
-          en: "I wanted to take advantage of this project to explore synthesis using Phase Plant (which the entire planet has been recommending to me for months) to create most of the sounds like the golem, sword, magic stone, fire wings, etc... This choice required quite a bit of experimentation, but it proved very educational and above all integrated Phase Plant into my almost daily habits. Sound demos with their Phase Plant patches are available in the gallery"
+          fr: "J'ai voulu profiter de ce projet pour explorer la synthèse utilisant Phase Plant pour créer la plupart des sons comme le golem, l'épée, pierre magique, ailes en feu, etc... Ce choix m'a demandé pas mal d'expérimentations, mais il s'est avéré très formateur et a surtout intégré phase plant dans mes habitudes presques quotidiennes. Des démos des sons avec leurs patchs Phase Plant sont disponibles dans la galerie"
+          en: "I wanted to take advantage of this project to explore synthesis using Phase Plant to create most of the sounds like the golem, sword, magic stone, fire wings, etc... This choice required quite a bit of experimentation, but it proved very educational and above all integrated Phase Plant into my almost daily habits. Sound demos with their Phase Plant patches are available in the gallery"
 
   # Results and impact
   results:
@@ -157,7 +165,7 @@ bento:
           en: "1m20 of fantasy-style music with orchestra and soprano voice"
       - icon: "🔉"
         text:
-          fr: "Des SFX créé entièrement pour ce projet avec Phase Plant et Reaper"
+          fr: "Des SFX créés entièrement pour ce projet avec Phase Plant et Reaper"
           en: "SFX created entirely for this project with Phase Plant and Reaper"
 ---
 

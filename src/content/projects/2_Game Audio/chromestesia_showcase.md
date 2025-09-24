@@ -38,6 +38,12 @@ bento:
     challenges: true
     results: true
 
+  # Tech section configuration
+  tech:
+    title:
+      fr: "Technologie"
+      en: "Technology"
+
   # Hero subtitle only; hero/background/logo auto from assetsFolder
   hero:
     subtitle:
@@ -65,8 +71,8 @@ bento:
   # Optional actions
   actions:
     title:
-      fr: "Expérience"
-      en: "Experience"
+      fr: "Liens"
+      en: "Links"
     primary:
       text:
         fr: "📽️ Regarder le trailer"
@@ -105,12 +111,14 @@ bento:
         en: "Integration of music, SFX and mixing in FMOD"
       - fr: "Spatialisation et intégration dans UNITY"
         en: "Spatialization and integration in Unity"
-      - fr: "Extra : Création de graphitis, Conception de la cinématique d'introduction, animation du personnage jouable"
+      - fr: "Extra : Création de graffitis, Conception de la cinématique d'introduction, animation du personnage jouable"
         en: "Extra: Graffiti creation, intro cinematic design, playable character animation"
 
   # Gallery images auto from assetsFolder; title optional
   gallery:
-    title: "Gallery"
+    title:
+      fr: "Galerie"
+      en: "Gallery"
 
   # Optional challenges
   challenges:
