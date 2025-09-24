@@ -48,8 +48,11 @@ export interface Props {
           steps: string[];
         };
         gallery?: {
-          title?: string;
+          title?: string | { fr: string; en: string };
           images: Array<{ src: string; alt: string; }>;
+        };
+        tech?: {
+          title?: string | { fr: string; en: string };
         };
         challenges?: {
           title?: string;
@@ -192,16 +195,16 @@ function getVideoEmbedUrl(url) {
   return null;
 }
 
-function generateVideoTitle(url) {
+function generateVideoTitle(url, locale = 'fr') {
   const videoInfo = extractVideoId(url);
-  if (!videoInfo) return 'Video';
-  
+  if (!videoInfo) return locale === 'en' ? 'Video' : 'Vidéo';
+
   if (videoInfo.platform === 'youtube') {
-    return 'Watch on YouTube';
+    return locale === 'en' ? 'Watch on YouTube' : 'Voir sur YouTube';
   }
-  
+
   if (videoInfo.platform === 'vimeo') {
-    return 'Watch on Vimeo';
+    return locale === 'en' ? 'Watch on Vimeo' : 'Voir sur Vimeo';
   }
   
   return 'Video';
@@ -1876,7 +1879,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     <!-- Music Links (takes first slot; hides Stats when enabled) -->
     {hasMusicLinks && (
       <div class="bento-card music-links-card">
-        <h3 class="card-title">{bento.musicLinks.title || 'Music Links'}</h3>
+        <h3 class="card-title">{(typeof bento.musicLinks?.title === 'object' ? (bento.musicLinks.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.musicLinks.title.fr || (Astro.url.searchParams.get('lang') === 'en' ? 'Music Links' : 'Liens Musicaux')) : (bento.musicLinks?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Music Links' : 'Liens Musicaux')))}</h3>
         <div class="music-links-grid">
           {bento.musicLinks.items.map(link => {
             const key = inferPlatform(link.text, link.url);
@@ -1899,7 +1902,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     <!-- Quick Stats -->
     {!hasMusicLinks && cards.stats && bento.stats && (
       <div class="bento-card stats-card">
-        <h3 class="card-title">Project Stats</h3>
+        <h3 class="card-title">{(typeof bento.stats?.title === 'object' ? (bento.stats.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.stats.title.fr || (Astro.url.searchParams.get('lang') === 'en' ? 'Project Stats' : 'Infos Projet')) : (bento.stats?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Project Stats' : 'Infos Projet')))}</h3>
         <div class="stats-grid">
           {bento.stats.map(stat => (
             <div class="stat-item">
@@ -1914,15 +1917,15 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     <!-- Action Buttons -->
     {cards.actions && bento.actions && (
       <div class="bento-card actions-card">
-        <h3 class="card-title">{bento.actions.title || 'Experience'}</h3>
+        <h3 class="card-title">{(typeof bento.actions?.title === 'object' ? (bento.actions.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.actions.title.fr || (Astro.url.searchParams.get('lang') === 'en' ? 'Experience' : 'Expérience')) : (bento.actions?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Experience' : 'Expérience')))}</h3>
         {bento.actions.primary && (
           <a href={bento.actions.primary.url} target="_blank" class="action-btn primary">
-            {bento.actions.primary.text}
+            {(typeof bento.actions.primary.text === 'object' ? (bento.actions.primary.text[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.actions.primary.text.fr) : bento.actions.primary.text)}
           </a>
         )}
         {bento.actions.secondary && (
           <button class="action-btn secondary" onclick={bento.actions.secondary.url ? `window.open('${bento.actions.secondary.url}', '_blank')` : undefined}>
-            {bento.actions.secondary.text}
+            {(typeof bento.actions.secondary.text === 'object' ? (bento.actions.secondary.text[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.actions.secondary.text.fr) : bento.actions.secondary.text)}
           </button>
         )}
       </div>
@@ -1931,8 +1934,8 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     <!-- Technology Stack -->
     {cards.tech && (
       <div class={`bento-card ${cards.video && bento.video && cards.process && bento.process ? 'tech-card-shifted' : 'tech-card'}`}>
-        <h3 class="card-title">Technology</h3>
-        <p class="card-subtitle">Tools and technologies used</p>
+        <h3 class="card-title">{(typeof bento.tech?.title === 'object' ? (bento.tech.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.tech.title.en || (Astro.url.searchParams.get('lang') === 'en' ? 'Technology' : 'Technologie')) : (bento.tech?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Technology' : 'Technologie')))}</h3>
+        <p class="card-subtitle">{Astro.url.searchParams.get('lang') === 'en' ? 'Tools and technologies used' : 'Outils et technologies utilisés'}</p>
         <div class="tech-grid">
           {data.tech.map(tech => (
             <span class="tech-pill">{tech}</span>
@@ -1992,15 +1995,15 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     <!-- Development Process -->
     {cards.process && bento.process && (
       <div class="bento-card process-card">
-        <h3 class="card-title">{bento.process.title || 'Process'}</h3>
+        <h3 class="card-title">{(typeof bento.process?.title === 'object' ? (bento.process.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.process.title.fr || (Astro.url.searchParams.get('lang') === 'en' ? 'Process' : 'Processus')) : (bento.process?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Process' : 'Processus')))}</h3>
         {bento.process.subtitle && (
-          <p class="card-subtitle">{bento.process.subtitle}</p>
+          <p class="card-subtitle">{(typeof bento.process.subtitle === 'object' ? (bento.process.subtitle[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.process.subtitle.fr) : bento.process.subtitle)}</p>
         )}
         <ul class="process-list">
           {bento.process.steps.map((step, index) => (
             <li class="process-item">
               <span class="process-number">{index + 1}</span>
-              <span class="process-text">{step}</span>
+              <span class="process-text">{(typeof step === 'object' ? (step[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || step.fr) : step)}</span>
             </li>
           ))}
         </ul>
@@ -2014,7 +2017,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
           <iframe 
             class="video-embed"
             src={getVideoEmbedUrl(bento.video.url)}
-            title={bento.video.title || generateVideoTitle(bento.video.url)}
+            title={bento.video.title || generateVideoTitle(bento.video.url, Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr')}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerpolicy="strict-origin-when-cross-origin"
             sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
@@ -2026,7 +2029,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
             <span>Unsupported video URL</span>
           </div>
         )}
-        <h3 class="card-title">{bento.video.title || generateVideoTitle(bento.video.url)}</h3>
+        <h3 class="card-title">{(typeof bento.video?.title === 'object' ? (bento.video.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.video.title.fr || generateVideoTitle(bento.video.url, Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr')) : (bento.video?.title || generateVideoTitle(bento.video.url, Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr')))}</h3>
         {bento.video.description && (
           <p class="video-description">{bento.video.description}</p>
         )}
@@ -2036,7 +2039,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     <!-- Gallery -->
     {cards.gallery && (galleryImages && galleryImages.length > 0) && (
       <div class="bento-card gallery-card">
-        <h3 class="card-title">{(bento.gallery?.title) || 'Gallery'}</h3>
+        <h3 class="card-title">{(typeof bento.gallery?.title === 'object' ? (bento.gallery.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.gallery.title.en || (Astro.url.searchParams.get('lang') === 'en' ? 'Gallery' : 'Galerie')) : (bento.gallery?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Gallery' : 'Galerie')))}</h3>
         <div class="gallery-grid">
           {galleryImages[0] && (
             <div class="gallery-hero" data-gallery-index="0" tabindex="0" role="button" aria-label="Open image" data-full-src={galleryImages[0].fullSrc || galleryImages[0].src}>
@@ -2069,16 +2072,16 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     <!-- Technical Challenges -->
     {cards.challenges && bento.challenges && (
       <div class="bento-card challenges-card">
-        <h3 class="card-title">{bento.challenges.title || 'Key Challenges'}</h3>
+        <h3 class="card-title">{(typeof bento.challenges?.title === 'object' ? (bento.challenges.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.challenges.title.fr || (Astro.url.searchParams.get('lang') === 'en' ? 'Key Challenges' : 'Défis Clés')) : (bento.challenges?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Key Challenges' : 'Défis Clés')))}</h3>
         {bento.challenges.subtitle && (
-          <p class="card-subtitle">{bento.challenges.subtitle}</p>
+          <p class="card-subtitle">{(typeof bento.challenges.subtitle === 'object' ? (bento.challenges.subtitle[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.challenges.subtitle.fr) : bento.challenges.subtitle)}</p>
         )}
         
         <ul class="challenges-list">
           {bento.challenges.items.map(challenge => (
             <li class="challenge-item">
-              <div class="challenge-title">{challenge.title}</div>
-              <div class="challenge-text">{challenge.description}</div>
+              <div class="challenge-title">{(typeof challenge.title === 'object' ? (challenge.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || challenge.title.fr) : challenge.title)}</div>
+              <div class="challenge-text">{(typeof challenge.description === 'object' ? (challenge.description[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || challenge.description.fr) : challenge.description)}</div>
             </li>
           ))}
         </ul>
@@ -2088,7 +2091,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     <!-- Results & Impact -->
     {cards.results && bento.results && (
       <div class="bento-card results-card">
-        <h3 class="card-title">{bento.results.title || 'Results'}</h3>
+        <h3 class="card-title">{(typeof bento.results?.title === 'object' ? (bento.results.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.results.title.fr || (Astro.url.searchParams.get('lang') === 'en' ? 'Results' : 'Résultats')) : (bento.results?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Results' : 'Résultats')))}</h3>
         {bento.results.subtitle && (
           <p class="card-subtitle">{bento.results.subtitle}</p>
         )}
@@ -2136,7 +2139,11 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       return window.__GLB;
     }
   }
-  const ensureLightbox = window.ensureLightbox;
+
+  // Avoid redeclaration errors when multiple bento components are rendered
+  if (typeof ensureLightbox === 'undefined') {
+    var ensureLightbox = window.ensureLightbox;
+  }
 
   // Simple Bento Animation System with Synced Audio
   // Audio is strictly gated behind a real user gesture to avoid

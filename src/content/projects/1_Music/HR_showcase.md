@@ -37,6 +37,12 @@ bento:
     gallery: false
     challenges: true
     results: false
+
+  # Tech section configuration
+  tech:
+    title:
+      fr: "Technologie"
+      en: "Technology"
   
   # Hero card configuration
   hero:
@@ -72,12 +78,18 @@ bento:
   
   # Action buttons
   actions:
-    title: "Links"
+    title:
+      fr: "Liens"
+      en: "Links"
     primary:
-      text: "🎧 Listen to Kowskii and HR 2024 collaboration"
+      text:
+        fr: "🎧 Écouter la collaboration Kowskii et HR 2024"
+        en: "🎧 Listen to Kowskii and HR 2024 collaboration"
       url: "https://on.soundcloud.com/7WWxaXFKQd7jxrLKm9"
     secondary:
-      text: "See ealier collaboration with HR (2021, 2022)"
+      text:
+        fr: "Voir les collaborations précédentes avec HR (2021, 2022)"
+        en: "See earlier collaboration with HR (2021, 2022)"
       url: "https://vimeo.com/1112967801?share=copy"
 
   # Video configuration
@@ -110,26 +122,44 @@ bento:
   
   # Development process
   process:
-    title: "Process"
-    subtitle: "From concept to shipping"
+    title:
+      fr: "Processus"
+      en: "Process"
+    subtitle:
+      fr: "Du concept à la livraison"
+      en: "From concept to shipping"
     steps:
-      - "Helena Rubinstein (L’Oréal) me contacte pour composer 15 minutes de musique pour leur événement annuel de 2024. Le pitch : accompagner leur présentation d’un événement musical évoquant l’innovation, le luxe et l’histoire de la marque"
-      - "Conception d'une première musique témoin (3m) pour valider la direction artistique"
-      - "Composition des 12 minutes supplémentaires, en 3 parties et sur les thèmes de la marque : AVANT-GARDE, SCIENCE OF BEAUTY, BIOTECH"
-      - "Intégration de la musique sur FMOD pour une diffusion sur l'ensemble des deux journées de présentation"
+      - fr: "Helena Rubinstein (L'Oréal) me contacte pour composer 15 minutes de musique pour leur événement annuel de 2024. Le pitch : accompagner leur présentation d'un événement musical évoquant l'innovation, le luxe et l'histoire de la marque"
+        en: "Helena Rubinstein (L'Oréal) contacted me to compose 15 minutes of music for their 2024 annual event. The pitch: accompany their presentation with a musical event evoking innovation, luxury and the brand's history"
+      - fr: "Conception d'une première musique témoin (3m) pour valider la direction artistique"
+        en: "Creation of a first demo track (3m) to validate the artistic direction"
+      - fr: "Composition des 12 minutes supplémentaires, en 3 parties et sur les thèmes de la marque : AVANT-GARDE, SCIENCE OF BEAUTY, BIOTECH"
+        en: "Composition of 12 additional minutes, in 3 parts based on brand themes: AVANT-GARDE, SCIENCE OF BEAUTY, BIOTECH"
+      - fr: "Intégration de la musique sur FMOD pour une diffusion sur l'ensemble des deux journées de présentation"
+        en: "Music integration with FMOD for broadcast throughout the two-day presentation event"
   
   # Gallery images
   # Gallery now auto-populates from assetsFolder (excluding hero/logo files)
   gallery:
-    title: "Gallery"
+    title:
+      fr: "Galerie"
+      en: "Gallery"
   
   # Technical challenges
   challenges:
-    title: "Key Challenges"
-    subtitle: "Défis principaux rencontrés lors de ce projet"
+    title:
+      fr: "Défis Clés"
+      en: "Key Challenges"
+    subtitle:
+      fr: "Défis principaux rencontrés lors de ce projet"
+      en: "Main challenges encountered during this project"
     items:
-      - title: "Temps imparti"
-        description: "Le délai imparti pour ce projet était particulièrement court au regard du travail demandé, ce qui reste habituel pour ce type de productions, souvent communiquées aux équipes à la toute dernière étape avant la sortie. Quinze minutes de musique ont ainsi été commandées, à livrer et présenter en direct seulement deux semaines plus tard. Malgré cette contrainte, un brief clair, des ressources de qualité et une direction artistique solide ont permis de travailler dans une ambiance à la fois agréable et créativement stimulante"
+      - title:
+          fr: "Temps imparti"
+          en: "Time constraints"
+        description:
+          fr: "Le délai imparti pour ce projet était particulièrement court au regard du travail demandé, ce qui reste habituel pour ce type de productions, souvent communiquées aux équipes à la toute dernière étape avant la sortie. Quinze minutes de musique ont ainsi été commandées, à livrer et présenter en direct seulement deux semaines plus tard. Malgré cette contrainte, un brief clair, des ressources de qualité et une direction artistique solide ont permis de travailler dans une ambiance à la fois agréable et créativement stimulante"
+          en: "The timeframe for this project was particularly short considering the work required, which is typical for this type of production, often communicated to teams at the very last stage before release. Fifteen minutes of music were commissioned, to be delivered and presented live just two weeks later. Despite this constraint, a clear brief, quality resources and solid artistic direction made it possible to work in both a pleasant and creatively stimulating atmosphere"
   
   # Results and impact
   results:

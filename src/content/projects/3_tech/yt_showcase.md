@@ -38,6 +38,12 @@ bento:
     challenges: true
     results: true
 
+  # Tech section configuration
+  tech:
+    title:
+      fr: "Technologie"
+      en: "Technology"
+
   # Hero subtitle only; hero/background/logo auto from assetsFolder
   hero:
     subtitle: "Lua script for Reaper"
@@ -62,7 +68,9 @@ bento:
 
   # Optional actions
   actions:
-    title: "Experience"
+    title:
+      fr : "Liens"
+      en : "Links"
     primary:
       text: "🛒 Bientôt disponible (actuellement en beta)"
       url: "https://arthurkowskii.gumroad.com/"
@@ -91,7 +99,7 @@ bento:
     steps:
       - fr: "Lancer l'installateur pour Windows (.exe) ou mac (.dmg)"
         en: "Run the installer for Windows (.exe) or Mac (.dmg)"
-      - fr: "Ajouter le script à votre liste d'action reaper (un raccourci a été crée sur le bureau pour le trouver rapidement)"
+      - fr: "Ajouter le script à votre liste d'action reaper (un raccourci a été créé sur le bureau pour le trouver rapidement)"
         en: "Add the script to your Reaper action list (a shortcut was created on the desktop to find it quickly)"
       - fr: "Copier un lien Youtube ou Soundcloud"
         en: "Copy a Youtube or Soundcloud link"
@@ -102,7 +110,9 @@ bento:
 
   # Gallery images auto from assetsFolder; title optional
   gallery:
-    title: "Gallery"
+    title:
+      fr: "Galerie"
+      en: "Gallery"
 
   # Optional challenges
   challenges:

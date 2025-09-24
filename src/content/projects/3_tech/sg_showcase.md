@@ -38,6 +38,12 @@ bento:
     challenges: true
     results: true
 
+  # Tech section configuration
+  tech:
+    title:
+      fr: "Technologie"
+      en: "Technology"
+
   # Hero subtitle only; hero/background/logo auto from assetsFolder
   hero:
     subtitle: "Lua script for Reaper"
@@ -62,7 +68,9 @@ bento:
 
   # Optional actions
   actions:
-    title: "Experience"
+    title:
+      fr: "Expérience"
+      en: "Experience"
     primary:
       text:
         fr: "🛒 Télécharger à prix libre sur Gumroad"
@@ -102,7 +110,9 @@ bento:
 
   # Gallery images auto from assetsFolder;
   gallery:
-    title: "Gallery"
+    title:
+      fr: "Galerie"
+      en: "Gallery"
 
   # Optional challenges
   challenges:
