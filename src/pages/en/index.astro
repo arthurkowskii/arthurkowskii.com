@@ -2469,12 +2469,9 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
         </div>
 
 		<script>
-			// PLACEHOLDER: Tone.js is temporary - will be replaced with custom OGG audio files
-			// See docs/history/PHASE_LOGS.md Phase 3C for audio architecture plan
-			import { Synth, start, now, gainToDb, context } from 'tone';
-			import { gsap, Draggable } from 'gsap/all';
-			import { OrbitSystem } from '../../atom/core/OrbitSystem.js';
-			import atomConfig from '../../atom.config.js';
+import { gsap, Draggable } from 'gsap/all';
+import { OrbitSystem } from '../../atom/core/OrbitSystem.js';
+import atomConfig from '../../atom.config.js';
 			
 			// Initialize orbit system when DOM is ready
 			document.addEventListener('DOMContentLoaded', () => {
@@ -2684,108 +2681,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                     } catch {}
                   })();
 
-                  // PLACEHOLDER: Atom Sound System - replace with OGG file system
-				class AtomSoundSystem {
-					constructor(config) {
-						this.config = config?.atomSounds || { enabled: false };
-						this.synth = null;
-						this.isInitialized = false;
-						this.lastSoundState = null; // Track last sound played to prevent repetition
-					}
-
-					async init() {
-						if (!this.config.enabled || this.isInitialized) return;
-						
-						try {
-							// PLACEHOLDER: Replace with Web Audio API and OGG file loading
-							this.synth = new Synth({
-								oscillator: { type: 'sine' },
-								envelope: {
-									attack: this.config.synthesis?.attack || 0.02,
-									decay: this.config.synthesis?.decay || 0.4,
-									sustain: this.config.synthesis?.sustain || 0,
-									release: this.config.synthesis?.release || 1.2
-								}
-							}).toDestination();
-
-							this.synth.volume.value = gainToDb(this.config.volume || 0.2);
-							this.isInitialized = true;
-							// console.log('🔊 Atom Sound System initialized (Tone.js placeholder)');
-						} catch (error) {
-							// console.warn('Failed to initialize atom sounds:', error);
-						}
-					}
-
-					async playSound(eventType, stateKey = null) {
-						if (!this.config.enabled || !this.isInitialized) return;
-						
-						// Prevent repetition for state-based sounds (like hover)
-						if (stateKey && this.lastSoundState === stateKey) {
-							return; // Already played this state, skip
-						}
-						
-						const pitch = this.config.events?.[eventType];
-						if (!pitch) return;
-
-						try {
-							// Only play if audio context is already unlocked by a user gesture
-							if (context.state !== 'running') {
-								return;
-							}
-
-							// PLACEHOLDER: Replace with Web Audio API buffer source playback
-							// Play the sound with slight timing offset to prevent conflicts
-							const when = now() + 0.005;
-							this.synth.triggerAttackRelease(pitch, '8n', when);
-							
-							// Track this state to prevent repetition
-							if (stateKey) {
-								this.lastSoundState = stateKey;
-							}
-							
-							// console.log(`🔊 Playing ${eventType}: ${pitch} (state: ${stateKey || 'none'})`);
-						} catch (error) {
-							// console.warn(`Atom sound error for ${eventType}:`, error);
-						}
-					}
-
-					// Simplified drag sounds: detach + drop only
-					startDragSequence(electronId) {
-						// PLACEHOLDER: Play detach sound when starting to drag - replace with OGG file playback
-						this.playSound('electronDragStart', `drag-start-${electronId}`);
-						// console.log(`🎵 Electron detached (${electronId})`);
-					}
-
-					stopDragSequence(snapBack = false) {
-						// PLACEHOLDER: Play drop sound when releasing - replace with OGG file playback
-						if (snapBack) {
-							this.playSound('electronDragSnap'); // Satisfying snap back
-						} else {
-							this.playSound('electronDragRelease'); // Gentle release
-						}
-						
-						// console.log(`🎵 Electron dropped (snapBack: ${snapBack})`);
-					}
-				}
-
-				// Initialize atom sound system
-				const atomSounds = new AtomSoundSystem(cfg);
-				atomSounds.init(); // Initialize on page load for zero latency
-
-				// Unlock audio context on first actual user gesture (click/tap/keydown)
-				(function setupAudioUnlock(){
-				  const unlock = async () => {
-				    try { await start(); } catch {}
-				    window.removeEventListener('pointerdown', unlock, true);
-				    window.removeEventListener('click', unlock, true);
-				    window.removeEventListener('keydown', unlock, true);
-				    window.removeEventListener('touchend', unlock, true);
-				  };
-				  window.addEventListener('pointerdown', unlock, true);
-				  window.addEventListener('click', unlock, true);
-				  window.addEventListener('keydown', unlock, true);
-				  window.addEventListener('touchend', unlock, true);
-				})();
+				// Atom sound system disabled (stubbed out for future reimplementation)
 
             // Labels rotation setup
 				const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -3940,9 +3836,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                     }
                     
                     // PLACEHOLDER: Play electron hover sound - replace with OGG file playback
-                    // Use state key to prevent repetition during same hover
-                    atomSounds.playSound('electronHover', `electron-${shellIndex}-${electronIndex}-hover`);
-                    // Micro: hover ring
+                    // Use state key to prevent repetition during same hover                    // Micro: hover ring
                     try {
                       if (micro.hoverCursorRing) {
                         const parent = electron.parentNode;
@@ -3985,9 +3879,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                         window.orbitSystem.resumeElectron(electron);
                     }
                     
-                    // Reset sound state when leaving electron
-                    atomSounds.lastSoundState = null;
-                    
+                    // Reset sound state when leaving electron                    
                     if (isFilterVisible) {
                         // When leaving an electron from the active filtered shell, go back to shell hover instead of none
                         if (currentFilter !== 'all') {
@@ -4044,9 +3936,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 							if (window.orbitSystem) window.orbitSystem.pauseElectron(electron);
 							
 							// PLACEHOLDER: Start creative drag sequence - replace with OGG files
-							const electronId = `${shellIndex}-${electronIndex}`;
-							atomSounds.startDragSequence(electronId);
-						},
+							const electronId = `${shellIndex}-${electronIndex}`;						},
 						onDrag: function () {
 							const curX = parseFloat(gsap.getProperty(electron, 'x')) || 0;
 							const curY = parseFloat(gsap.getProperty(electron, 'y')) || 0;
@@ -4073,9 +3963,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 							const clickThresholdMs = 180;
 							const isClick = maxTravel < clickThresholdPx && (releaseTime - pressTime) < clickThresholdMs;
                     const snapBack = () => {
-                        // PLACEHOLDER: Stop drag sequence with snap back sound - replace with OGG file playback
-                        atomSounds.stopDragSequence(true); // Snap back
-                        
+                        // PLACEHOLDER: Stop drag sequence with snap back sound - replace with OGG file playback                        
                         const amp = atomConfig.timing.dragElastic?.amplitude ?? 0.8;
                         const per = atomConfig.timing.dragElastic?.period ?? 0.25;
                         const elasticEase = `elastic.out(${amp}, ${per})`;
@@ -4108,9 +3996,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                         }
                     };
                     if (isClick) {
-                        // PLACEHOLDER: Stop drag sequence - this was a click, not a drag
-                        atomSounds.stopDragSequence(false); // No snap back for click
-                        
+                        // PLACEHOLDER: Stop drag sequence - this was a click, not a drag                        
                         const rect = electron.getBoundingClientRect();
                         const cx = rect.left + rect.width / 2;
                         const cy = rect.top + rect.height / 2;
@@ -4118,9 +4004,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                         // Micro: ripple and shell pulse
                         try {
                           if (micro.ripple) {
-                            // PLACEHOLDER: Play ripple sound - replace with OGG file playback
-                            atomSounds.playSound('ripple');
-                            const parent = electron.parentNode;
+                            // PLACEHOLDER: Play ripple sound - replace with OGG file playback                            const parent = electron.parentNode;
                             const baseR = parseFloat(electron.getAttribute('r')) || 0;
                             const cxAttr = parseFloat(electron.getAttribute('cx'));
                             const cyAttr = parseFloat(electron.getAttribute('cy'));
@@ -4145,9 +4029,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                             });
                           }
                           if (micro.shellPulse) {
-                            // PLACEHOLDER: Play shell pulse sound - replace with OGG file playback
-                            atomSounds.playSound('shellPulse');
-                            const shell = shells[shellIndex];
+                            // PLACEHOLDER: Play shell pulse sound - replace with OGG file playback                            const shell = shells[shellIndex];
                             if (shell) {
                               const curW = parseFloat(shell.getAttribute('stroke-width')) || 0;
                               const target = curW + (micro.shellPulseDelta ?? 1.2);
@@ -4170,9 +4052,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
                         // Scale down preview before opening overlay to prevent overlap
                         hoverStateManager.scaleDownPreview();
                         
-                        // PLACEHOLDER: Play electron click sound - replace with OGG file playback
-                        atomSounds.playSound('electronClick');
-                        openProjectOverlay(slug, cx, cy, electron);
+                        // PLACEHOLDER: Play electron click sound - replace with OGG file playback                        openProjectOverlay(slug, cx, cy, electron);
                         setTimeout(() => { dragLock = false; }, 80);
                     } else {
                         // Drag release: snap back
@@ -4192,9 +4072,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 							
 							const slug = electron.getAttribute('data-project');
 							if (slug) {
-								hoverStateManager.scaleDownPreview();
-								atomSounds.playSound('electronClick');
-								openProjectOverlay(slug, cx, cy, electron);
+								hoverStateManager.scaleDownPreview();								openProjectOverlay(slug, cx, cy, electron);
 							}
 						}
 					});
@@ -4228,9 +4106,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 						if (dragLock) return;
 						
 						// PLACEHOLDER: Play nucleus hover sound - replace with OGG file playback
-						// Use state key to prevent repetition during same hover
-						atomSounds.playSound('nucleusHover', 'nucleus-hover');
-						gsap.to(nucleus, {
+						// Use state key to prevent repetition during same hover						gsap.to(nucleus, {
 							attr: { r: atomConfig.nucleus.hoverRadius },
 							duration: atomConfig.timing.hoverDuration,
 							ease: 'power2.out',
@@ -4246,9 +4122,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 						});
 					});
 					nucleus.addEventListener('mouseleave', () => {
-						// Reset sound state when leaving nucleus
-						atomSounds.lastSoundState = null;
-						gsap.to(nucleus, {
+						// Reset sound state when leaving nucleus						gsap.to(nucleus, {
 							attr: { r: atomConfig.nucleus.radius },
 							duration: atomConfig.timing.hoverDuration,
 							ease: 'power2.out',
@@ -4259,9 +4133,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 						});
 					});
               nucleus.addEventListener('click', () => {
-                // PLACEHOLDER: Play nucleus click sound - replace with OGG file playback
-                atomSounds.playSound('nucleusClick');
-                
+                // PLACEHOLDER: Play nucleus click sound - replace with OGG file playback                
                 // Micro: ripple effect similar to electrons
                 try {
                   if (micro.ripple) {
@@ -4389,16 +4261,12 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 							hoverStateManager.setState(`shell-${hoveredShellIndex}`);
 							
 							// PLACEHOLDER: Play shell hover sound - replace with OGG file playback
-							// Use state key to prevent repetition during same hover
-							atomSounds.playSound('shellHover', `shell-${hoveredShellIndex}-hover`);
-						}
+							// Use state key to prevent repetition during same hover						}
 					} else {
 						// Not hovering any shell - go to none state (but respect recent electron events)
 						if (!shouldDeferToElectronEvent) {
 							hoverStateManager.setState('none');
-							// Reset sound state when leaving all shells
-							atomSounds.lastSoundState = null;
-						}
+							// Reset sound state when leaving all shells						}
 					}
 					
 					// Clear for next frame

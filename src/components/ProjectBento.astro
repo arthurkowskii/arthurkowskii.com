@@ -2149,29 +2149,10 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   // Audio is strictly gated behind a real user gesture to avoid
   // "AudioContext was not allowed to start" errors in browsers.
   if (typeof window.__audioUnlocked === 'undefined') {
-    window.__audioUnlocked = false;
+    window.__audioUnlocked = true;
   }
-  if (typeof window.__markAudioUnlockedOnce === 'undefined') {
-    window.__markAudioUnlockedOnce = function() {
-      if (window.__audioUnlocked) return;
-      window.__audioUnlocked = true;
-    try {
-      // Kick audio init lazily once unlocked
-      if (typeof bentoAnimationSystem !== 'undefined' && bentoAnimationSystem) {
-        window.bentoAnimationSystem?.ensureAudioReady?.().catch(() => {});
-      }
-    } catch {}
-    window.removeEventListener('pointerdown', window.__markAudioUnlockedOnce, true);
-    window.removeEventListener('keydown', window.__markAudioUnlockedOnce, true);
-    }
-  }
-  // Attach unlock listeners early (only if not already attached)
-  if (typeof window !== 'undefined' && !window.__audioListenersAttached) {
-    window.addEventListener('pointerdown', window.__markAudioUnlockedOnce, true);
-    window.addEventListener('keydown', window.__markAudioUnlockedOnce, true);
-    window.__audioListenersAttached = true;
-  }
-  // Define BentoAnimationSystem class only once
+
+// Define BentoAnimationSystem class only once
   if (typeof window.BentoAnimationSystem === 'undefined') {
     window.BentoAnimationSystem = class BentoAnimationSystem {
     constructor() {
@@ -2194,7 +2175,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
           easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
           cardEnabled: { hero: true, stats: true, actions: true, tech: true, gallery: true, process: true, challenges: true, results: true },
           audio: {
-            enabled: true,
+            enabled: false,
             volume: 0.4,
             syncWithAnimation: true,
             pitches: { hero: 'C3', stats: 'E3', actions: 'G3', tech: 'C4', gallery: 'E4', process: 'G4', challenges: 'B3', results: 'D4' },
@@ -2205,6 +2186,13 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
         // Override with global config if available
         if (window.atomConfig?.bentoAnimations) {
           this.config = { ...this.config, ...window.atomConfig.bentoAnimations };
+        }
+
+        // Hard-disable audio placeholder until Tone.js migration completes
+        if (this.config.audio) {
+          this.config.audio.enabled = false;
+        } else {
+          this.config.audio = { enabled: false };
         }
 
         if (!this.config.audio?.enabled) {
@@ -2223,38 +2211,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     }
 
     async initAudio() {
-      if (this.synth) return; // Already initialized
-
-      try {
-        console.log('ðŸŽµ Initializing audio after user interaction...');
-
-        // Dynamically import Tone.js
-        const Tone = await import('tone');
-
-        // PLACEHOLDER: Tone.js synthesis - replace with OGG file loading
-        // Create bubbly sine wave synth
-        this.chorus = new Tone.Chorus(
-          this.config.audio.synthesis.chorus.frequency,
-          this.config.audio.synthesis.chorus.depth,
-          0.5
-        ).toDestination();
-
-        this.synth = new Tone.Synth({
-          oscillator: { type: 'sine' },
-          envelope: {
-            attack: this.config.audio.synthesis.attack,
-            decay: this.config.audio.synthesis.decay,
-            sustain: this.config.audio.synthesis.sustain,
-            release: this.config.audio.synthesis.release
-          }
-        }).connect(this.chorus);
-
-        this.synth.volume.value = Tone.gainToDb(this.config.audio.volume);
-
-        console.log('ðŸŽµ Audio components created successfully');
-      } catch (error) {
-        console.warn('Failed to initialize audio:', error);
-      }
+      return;
     }
 
     getCardType(card) {
@@ -2272,28 +2229,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     }
 
     async ensureAudioReady() {
-      if (!this.isInitialized) await this.init();
-      if (!this.config?.audio?.enabled) return;
-      // Hard gate: only proceed once real user gesture occurred
-      if (!window.__audioUnlocked) return;
-      
-      // Initialize audio lazily
-      if (!this.synth) {
-        await this.initAudio();
-      }
-      
-      // Start Tone context after unlock only
-      if (this.synth) {
-        try {
-          const Tone = await import('tone');
-          if (Tone.context.state !== 'running') {
-            console.log('ðŸŽµ Starting Tone.js context after user gesture...');
-            await Tone.start();
-          }
-        } catch (err) {
-          console.warn('Tone context start failed:', err);
-        }
-      }
+      return;
     }
 
     animateCard(card, cardType, index) {
@@ -2312,24 +2248,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       const delay = index * this.config.staggerDelayMs;
       
       setTimeout(() => {
-        // Start animation
         card.classList.add('animate-in');
-        
-        // Play ONE note ONLY when animation starts
-        if (this.config.audio?.enabled && this.isInitialized && this.synth) {
-          const pitch = this.config.audio.pitches?.[cardType] || 'C4';
-          console.log(`ðŸŽµ Playing ${pitch} for ${cardType} card ${index}`);
-          
-          try {
-            // PLACEHOLDER: Replace with Web Audio API buffer source playback
-            // TEMPORARILY DISABLED: Commenting out sound playing
-            // const Tone = await import('tone');
-            // const when = Tone.now() + 0.01; // 10ms offset to ensure proper scheduling
-            // this.synth.triggerAttackRelease(pitch, '8n', when);
-          } catch (error) {
-            console.warn(`Audio error for ${cardType}:`, error);
-          }
-        }
       }, delay);
     }
 

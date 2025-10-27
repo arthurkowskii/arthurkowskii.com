@@ -223,7 +223,7 @@ export const userTweaks = {
 
   // Atom interface sounds
   atomSounds: {
-    enabled: false,
+    enabled: true,
     volume: 0.2,
     events: {
       electronHover: 'C4',
