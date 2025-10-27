@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import ProjectBento from '../../components/ProjectBento.astro';
 import atomConfig from '../../atom.config.js';
 import { localizeProject } from '../../utils/content-i18n.js';
+import { buildProjectStructuredData } from '../../utils/structured-data.js';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -43,8 +44,10 @@ const bentoAnimationsConfig = atomConfig.bentoAnimations || {};
 
 // Social meta tag setup for project pages
 const socialConfig = atomConfig.socialMeta;
-const siteUrl = import.meta.env.SITE || socialConfig.siteUrl;
+const rawSiteUrl = import.meta.env.SITE || socialConfig.siteUrl;
+const siteUrl = typeof rawSiteUrl === 'string' ? rawSiteUrl.replace(/\/+$/, '') : 'https://arthurkowskii.com';
 const currentUrl = `${siteUrl}/projects/${slug}`;
+const englishUrl = `${siteUrl}/en/projects/${slug}`;
 
 // Generate dynamic social meta content
 const projectTitle = `${entry.data.title} — ${socialConfig.siteName}`;
@@ -61,6 +64,24 @@ if (entry.data.useBentoLayout && entry.data.bento?.hero?.backgroundImage) {
 }
 
 const imageAlt = socialConfig.project.imageAlt.replace('{projectTitle}', entry.data.title);
+const ogLocale = currentLocale === 'fr' ? 'fr_FR' : 'en_US';
+const alternateOgLocale = currentLocale === 'fr' ? 'en_US' : 'fr_FR';
+
+const schemaProject = {
+  ...entry.data,
+  slug,
+  date: entry.data.date || rawEntry.data?.date,
+  image: entry.data.image,
+  thumbnail: entry.data.bento?.hero?.backgroundImage || entry.data.image
+};
+
+const structuredDataNodes = [buildProjectStructuredData({
+  project: schemaProject,
+  locale: currentLocale,
+  siteUrl,
+  currentUrl,
+  image: ogImage
+})].filter(node => Object.keys(node).length > 0);
 ---
 
 <html lang={currentLocale}>
@@ -98,7 +119,8 @@ const imageAlt = socialConfig.project.imageAlt.replace('{projectTitle}', entry.d
     <meta property="og:url" content={currentUrl} />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content={socialConfig.siteName} />
-    <meta property="og:locale" content={currentLocale === 'fr' ? 'fr_FR' : 'en_US'} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale:alternate" content={alternateOgLocale} />
     <meta property="article:author" content={socialConfig.author} />
     <meta property="article:section" content="Portfolio" />
     {entry.data.tech && <meta property="article:tag" content={entry.data.tech.join(', ')} />}
@@ -116,6 +138,13 @@ const imageAlt = socialConfig.project.imageAlt.replace('{projectTitle}', entry.d
     <meta name="robots" content="index, follow" />
     <meta name="googlebot" content="index, follow" />
     <link rel="canonical" href={currentUrl} />
+    <link rel="alternate" href={currentUrl} hreflang="fr" />
+    <link rel="alternate" href={englishUrl} hreflang="en" />
+    <link rel="alternate" href={currentUrl} hreflang="x-default" />
+    
+    {structuredDataNodes.length > 0 && (
+      <script type="application/ld+json" set:html={JSON.stringify(structuredDataNodes)}></script>
+    )}
     
     <style>
       /* View Transition radial mask (progressive enhancement) */

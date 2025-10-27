@@ -5,6 +5,7 @@ import LanguageSwitcher from '../../components/LanguageSwitcher.astro';
 import atomConfig from '../../atom.config.js';
 import { getCurrentLocale, getMeta, getPageTitle } from '../../utils/i18n.js';
 import { localizeBio } from '../../utils/content-i18n.js';
+import { buildPersonStructuredData } from '../../utils/structured-data.js';
 
 // Force English locale for this page
 const currentLocale = 'en';
@@ -17,8 +18,10 @@ const data = localizeBio(rawData, currentLocale);
 
 // Localized meta tag setup using i18n
 const socialConfig = atomConfig.socialMeta;
-const siteUrl = import.meta.env.SITE || socialConfig.siteUrl;
+const rawSiteUrl = import.meta.env.SITE || socialConfig.siteUrl;
+const siteUrl = typeof rawSiteUrl === 'string' ? rawSiteUrl.replace(/\/+$/, '') : 'https://arthurkowskii.com';
 const currentUrl = `${siteUrl}/en/bio`;
+const frenchUrl = `${siteUrl}/bio`;
 const ogImage = `${siteUrl}${socialConfig.bio.image}`;
 
 // Get localized meta data
@@ -26,9 +29,29 @@ const localizedMeta = atomConfig.i18n?.meta?.[currentLocale] || atomConfig.i18n?
 const bioTitle = localizedMeta.bio?.title || data.title || socialConfig.bio.title;
 const bioDescription = localizedMeta.bio?.description || (data.bio ? (data.bio.length > 160 ? data.bio.slice(0, 160) + '...' : data.bio) : socialConfig.bio.description);
 const siteName = localizedMeta.siteName || socialConfig.siteName;
+const ogLocale = currentLocale === 'fr' ? 'fr_FR' : 'en_US';
+const alternateOgLocale = currentLocale === 'fr' ? 'en_US' : 'fr_FR';
+
+const schemaBio = {
+  title: data.title,
+  subtitle: data.subtitle,
+  bio: data.bio,
+  email: rawData.email,
+  social: rawData.social || [],
+  skills: rawData.skills || [],
+  portrait: rawData.portrait
+};
+
+const structuredDataNodes = [buildPersonStructuredData({
+  bio: schemaBio,
+  locale: currentLocale,
+  siteUrl,
+  currentUrl,
+  image: ogImage
+})].filter(node => Object.keys(node).length > 0);
 ---
 
-<html lang="en">
+<html lang={currentLocale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
@@ -62,7 +85,8 @@ const siteName = localizedMeta.siteName || socialConfig.siteName;
     <meta property="og:url" content={currentUrl} />
     <meta property="og:type" content="profile" />
     <meta property="og:site_name" content={siteName} />
-    <meta property="og:locale" content={currentLocale === 'fr' ? 'fr_FR' : 'en_US'} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale:alternate" content={alternateOgLocale} />
     <meta property="profile:first_name" content="Arthur" />
     <meta property="profile:last_name" content="Kowskii" />
     
@@ -76,9 +100,12 @@ const siteName = localizedMeta.siteName || socialConfig.siteName;
     <meta name="twitter:image:alt" content={socialConfig.bio.imageAlt} />
     
     <!-- Additional SEO Meta Tags -->
-    <meta name="robots" content="index, follow" />
-    <meta name="googlebot" content="index, follow" />
-    <link rel="canonical" href={currentUrl} />
+   <meta name="robots" content="index, follow" />
+   <meta name="googlebot" content="index, follow" />
+   <link rel="canonical" href={currentUrl} />
+    <link rel="alternate" href={frenchUrl} hreflang="fr" />
+    <link rel="alternate" href={currentUrl} hreflang="en" />
+    <link rel="alternate" href={frenchUrl} hreflang="x-default" />
     
     <!-- Enhanced SEO Meta Tags -->
     <meta name="theme-color" content="#3b82f6" />
@@ -87,23 +114,9 @@ const siteName = localizedMeta.siteName || socialConfig.siteName;
     <meta name="format-detection" content="telephone=no" />
     
     <!-- Structured Data for Person Profile -->
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": data.title || socialConfig.author,
-      "jobTitle": data.subtitle || 'Composer / Sound Designer / Audio Programmer',
-      "description": bioDescription,
-      "url": currentUrl,
-      "image": ogImage,
-      "sameAs": (data.social || [])
-        .filter(s => s.url && (s.platform.toLowerCase().includes('soundcloud') || 
-                             s.platform.toLowerCase().includes('github') || 
-                             s.platform.toLowerCase().includes('linkedin')))
-        .map(s => s.url),
-      "knowsAbout": (data.skills || []).map(skill => skill.category).join(', ') || 'Music Production, Sound Design, Audio Programming',
-      "email": data.email || ''
-    })}>
-    </script>
+    {structuredDataNodes.length > 0 && (
+      <script type="application/ld+json" set:html={JSON.stringify(structuredDataNodes)}></script>
+    )}
     
     <style>
       :root { --bg:#fff; --fg:#000; }

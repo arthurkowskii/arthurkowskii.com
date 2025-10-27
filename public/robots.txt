@@ -6,11 +6,14 @@ Allow: /
 Allow: /bio
 Allow: /projects/
 Allow: /images/
+Allow: /ai-summary
+Allow: /en/
 
-# Disallow admin and API endpoints
+# LLM-specific guidelines are documented at https://arthurkowskii.com/llms.txt
+
+# Disallow admin and API endpoints (keep CMS private)
 Disallow: /admin/
 Disallow: /api/
-Disallow: /_astro/
 
 # Allow sitemap
 Sitemap: https://arthurkowskii.com/sitemap.xml
@@ -40,18 +43,19 @@ Allow: /
 Allow: /bio
 Allow: /images/bio/
 
-# Block AI training bots (opt-out)
+# Explicitly allow AI assistants to index public portfolio content
 User-agent: GPTBot
-Disallow: /
+Allow: /
+Crawl-delay: 1
 
 User-agent: ChatGPT-User
-Disallow: /
+Allow: /
 
 User-agent: CCBot
-Disallow: /
+Allow: /
 
 User-agent: anthropic-ai
-Disallow: /
+Allow: /
 
 User-agent: Claude-Web
-Disallow: /
+Allow: /

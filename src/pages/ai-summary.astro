@@ -1,0 +1,254 @@
+---
+import atomConfig from '../atom.config.js';
+import { buildPersonStructuredData, buildProjectItemListStructuredData, buildWebsiteStructuredData } from '../utils/structured-data.js';
+import { loadSiteProfile } from '../utils/site-profile.js';
+
+const currentLocale = 'fr';
+const profile = await loadSiteProfile(currentLocale);
+const socialConfig = atomConfig.socialMeta;
+
+const siteUrl = profile.siteUrl;
+const currentUrl = `${siteUrl}/ai-summary`;
+const englishUrl = `${siteUrl}/en/ai-summary`;
+const ogLocale = 'fr_FR';
+const alternateOgLocale = 'en_US';
+
+const summaryDescription = profile.person.summary || socialConfig.home?.description || socialConfig.defaultDescription;
+
+const schemaBio = {
+  title: profile.person.name,
+  subtitle: profile.person.headline,
+  bio: profile.person.summary,
+  email: profile.person.email,
+  social: profile.person.social,
+  skills: profile.person.skills,
+  portrait: profile.person.portrait
+};
+
+const personStructuredData = buildPersonStructuredData({
+  bio: schemaBio,
+  locale: currentLocale,
+  siteUrl,
+  currentUrl,
+  image: profile.person.portrait || `${siteUrl}${socialConfig.bio.image}`
+});
+
+const websiteStructuredData = buildWebsiteStructuredData({
+  siteUrl,
+  locale: currentLocale,
+  name: socialConfig.siteName,
+  description: summaryDescription
+});
+
+const projectItemListStructuredData = buildProjectItemListStructuredData(
+  profile.projects.slice(0, 12).map((project) => ({
+    slug: project.slug,
+    title: project.title,
+    description: project.description,
+    url: `${siteUrl}/projects/${project.slug}`
+  })),
+  currentLocale,
+  siteUrl
+);
+
+const structuredDataNodes = [websiteStructuredData, personStructuredData].filter((node) => Object.keys(node).length > 0);
+if (projectItemListStructuredData && Object.keys(projectItemListStructuredData).length > 0) {
+  structuredDataNodes.push(projectItemListStructuredData);
+}
+
+const metaTitle = 'Résumé IA — Arthur Kowskii';
+const metaDescription = 'Profil condensé en français pour assistants IA : expertises, domaines clés, projets récents et points de contact.';
+---
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{metaTitle}</title>
+    <meta name="description" content={metaDescription} />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={currentUrl} />
+    <link rel="alternate" href={currentUrl} hreflang="fr" />
+    <link rel="alternate" href={englishUrl} hreflang="en" />
+    <link rel="alternate" href={currentUrl} hreflang="x-default" />
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:title" content={metaTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:url" content={currentUrl} />
+    <meta property="og:site_name" content={socialConfig.siteName} />
+    <meta property="og:image" content={`${siteUrl}${socialConfig.bio.image}`} />
+    <meta property="og:image:alt" content="Portrait et informations professionnelles d'Arthur Kowskii" />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale:alternate" content={alternateOgLocale} />
+
+    <meta name="twitter:card" content={socialConfig.twitter.cardType} />
+    <meta name="twitter:site" content={socialConfig.twitter.handle} />
+    <meta name="twitter:title" content={metaTitle} />
+    <meta name="twitter:description" content={metaDescription} />
+    <meta name="twitter:image" content={`${siteUrl}${socialConfig.bio.image}`} />
+
+    {structuredDataNodes.length > 0 && (
+      <script type="application/ld+json" set:html={JSON.stringify(structuredDataNodes)}></script>
+    )}
+
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 32px;
+        background: #0f172a;
+        color: #f8fafc;
+        font-size: 16px;
+        line-height: 1.6;
+        max-width: 80ch;
+      }
+
+      main {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+      }
+
+      h1, h2, h3 {
+        margin: 0 0 16px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 0 0 12px;
+      }
+
+      section {
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+      }
+
+      ul, ol {
+        margin: 0 0 16px 18px;
+        padding: 0;
+      }
+
+      li {
+        margin-bottom: 6px;
+      }
+
+      .tag-list {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        list-style: none;
+        margin: 8px 0 0;
+        padding: 0;
+      }
+
+      .tag {
+        background: rgba(59, 130, 246, 0.15);
+        color: #93c5fd;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 13px;
+      }
+
+      .project-card {
+        margin-bottom: 12px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+      }
+
+      .project-card strong {
+        display: block;
+        font-size: 15px;
+        margin-bottom: 4px;
+      }
+
+      .meta {
+        font-size: 13px;
+        color: #cbd5f5;
+      }
+
+      .contact {
+        display: grid;
+        gap: 6px;
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Résumé IA — Arthur Kowskii</h1>
+        <p>{summaryDescription}</p>
+        <p class="meta">Dernière mise à jour: {new Date(profile.generatedAt).toISOString()}</p>
+      </header>
+
+      <section>
+        <h2>Points clés</h2>
+        <ul>
+          <li>Domaine principal: composition musicale, sound design pour jeux vidéo et développement audio interactif.</li>
+          <li>Approche hybride alliant <strong>GSAP / Astro</strong> pour l'interface et <strong>middleware audio (FMOD, Wwise)</strong> pour la spatialisation.</li>
+          <li>Expérience live et studio, avec un accent sur les pipelines optimisés et l'intégration technique dans Unity.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Compétences & outils</h2>
+        <ul class="tag-list">
+          {profile.person.skills
+            .flatMap((skill) => [skill.category, ...(skill.tools || [])])
+            .filter(Boolean)
+            .slice(0, 24)
+            .map((skill) => <li class="tag">{skill}</li>)}
+        </ul>
+      </section>
+
+      <section>
+        <h2>Projets récents</h2>
+        {profile.projects.slice(0, 8).map((project) => (
+          <article class="project-card">
+            <strong>{project.title}</strong>
+            <p>{project.description}</p>
+            <p class="meta">
+              Domaine : {project.domain} · Statut : {project.status} · Date : {project.date || 'n/a'}
+            </p>
+            {project.tech.length > 0 && (
+              <p class="meta">Technologies : {project.tech.join(', ')}</p>
+            )}
+            {project.results.length > 0 && (
+              <ul>
+                {project.results.slice(0, 2).map((result) => (
+                  <li>{result.title ? `${result.title}: ${result.text}` : result.text}</li>
+                ))}
+              </ul>
+            )}
+            <p class="meta">
+              URL : {project.link ? <a href={project.link}>{project.link}</a> : 'sur demande'} · GitHub : {project.github ? <a href={project.github}>{project.github}</a> : 'n/a'}
+            </p>
+          </article>
+        ))}
+      </section>
+
+      <section>
+        <h2>Contact</h2>
+        <div class="contact">
+          <span>Email : {profile.person.email}</span>
+          <span>Site : <a href={siteUrl}>{siteUrl}</a></span>
+          {profile.person.social.length > 0 && (
+            <span>Réseaux : {profile.person.social.map((item) => item?.url).filter(Boolean).join(' · ')}</span>
+          )}
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

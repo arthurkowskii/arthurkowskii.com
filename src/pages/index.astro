@@ -24,15 +24,20 @@ import { calculateElectronPositions } from '../atom/utils/electronPositioning.js
 import { sanitizeText } from '../utils/sanitize.js';
 import { localizeProject, localizeBio, getLocalizedContent } from '../utils/content-i18n.js';
 import { getDomainDisplayName } from '../utils/translations.js';
+import { buildPersonStructuredData, buildWebsiteStructuredData, buildProjectItemListStructuredData } from '../utils/structured-data.js';
 
 // Social meta tag setup
 const socialConfig = atomConfig.socialMeta;
-const siteUrl = import.meta.env.SITE || socialConfig.siteUrl;
+const rawSiteUrl = import.meta.env.SITE || socialConfig.siteUrl;
+const siteUrl = typeof rawSiteUrl === 'string' ? rawSiteUrl.replace(/\/+$/, '') : 'https://arthurkowskii.com';
 const currentUrl = siteUrl;
+const englishUrl = `${siteUrl}/en`;
 const ogImage = `${siteUrl}${socialConfig.home.image}`;
 
 // Force French locale for this page
 const currentLocale = 'fr';
+const ogLocale = currentLocale === 'fr' ? 'fr_FR' : 'en_US';
+const alternateOgLocale = currentLocale === 'fr' ? 'en_US' : 'fr_FR';
 
 
 // Get all projects and compute domains from folder structure (prefix-ordered)
@@ -199,11 +204,12 @@ const localizedElectronsByDomain = projectSummaries.reduce((acc, projectSummary)
 // Prepare Bio payload from content collection (bio/about)
 let bioPayload = {};
 let bioEntry = null;
+let localizedBioData = null;
 try {
   bioEntry = await getEntryBySlug('bio', 'about');
   if (bioEntry?.data) {
     // Localize bio content for current language
-    const localizedBioData = localizeBio(bioEntry.data, currentLocale);
+    localizedBioData = localizeBio(bioEntry.data, currentLocale);
     bioPayload = {
       title: sanitizeText(localizedBioData.title) || '',
       subtitle: sanitizeText(localizedBioData.subtitle) || '',
@@ -219,6 +225,55 @@ try {
 }
 
 // Bio payload successfully loaded
+const schemaBio = {
+  title: localizedBioData?.title || bioPayload.title,
+  subtitle: localizedBioData?.subtitle || bioPayload.subtitle,
+  bio: localizedBioData?.bio,
+  email: bioEntry?.data?.email,
+  social: bioEntry?.data?.social || [],
+  skills: bioEntry?.data?.skills || [],
+  portrait: bioEntry?.data?.portrait
+};
+
+const personStructuredData = buildPersonStructuredData({
+  bio: schemaBio,
+  locale: currentLocale,
+  siteUrl,
+  currentUrl,
+  image: ogImage
+});
+
+const websiteStructuredData = buildWebsiteStructuredData({
+  siteUrl,
+  locale: currentLocale,
+  name: socialConfig.siteName,
+  description: socialConfig.home.description
+});
+
+const projectItemListStructuredData = buildProjectItemListStructuredData(
+  projectSummaries.slice(0, 10).map(project => {
+    const slugParts = project.slug.split('/');
+    const simpleSlug = slugParts[slugParts.length - 1] || project.slug;
+    const description =
+      typeof project.description === 'string'
+        ? project.description
+        : getLocalizedContent(project.description, currentLocale);
+
+    return {
+      slug: simpleSlug,
+      title: project.title,
+      description,
+      url: `${siteUrl}/projects/${simpleSlug}`
+    };
+  }),
+  currentLocale,
+  siteUrl
+);
+
+const structuredDataNodes = [websiteStructuredData, personStructuredData].filter(node => Object.keys(node).length > 0);
+if (projectItemListStructuredData && Object.keys(projectItemListStructuredData).length > 0) {
+  structuredDataNodes.push(projectItemListStructuredData);
+}
 
 // Map of tool name -> logo URL for overlay rendering
 const logosMap = {
@@ -320,7 +375,7 @@ const { shells: dynamicShells, viewport: dynamicViewport } = computeShellsAndVie
 const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicViewport, domains, prePage: (userTweaks as any).prePage } as any;
 ---
 
-<html lang="en">
+<html lang={currentLocale}>
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -381,7 +436,8 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 		<meta property="og:url" content={currentUrl} />
 		<meta property="og:type" content="website" />
 		<meta property="og:site_name" content={socialConfig.siteName} />
-		<meta property="og:locale" content="en_US" />
+		<meta property="og:locale" content={ogLocale} />
+		<meta property="og:locale:alternate" content={alternateOgLocale} />
 		
 		<!-- Twitter Card Meta Tags -->
 		<meta name="twitter:card" content={socialConfig.twitter.cardType} />
@@ -396,6 +452,13 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 		<meta name="robots" content="index, follow" />
 		<meta name="googlebot" content="index, follow" />
 		<link rel="canonical" href={currentUrl} />
+		<link rel="alternate" href={siteUrl} hreflang="fr" />
+		<link rel="alternate" href={englishUrl} hreflang="en" />
+		<link rel="alternate" href={siteUrl} hreflang="x-default" />
+		
+		{structuredDataNodes.length > 0 && (
+			<script type="application/ld+json" set:html={JSON.stringify(structuredDataNodes)}></script>
+		)}
 		
 		<!-- Visited Indicators CSS Custom Properties -->
 		<style define:vars={{
