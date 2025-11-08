@@ -2447,12 +2447,17 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
           <!-- Bento layout for special projects -->
           <div id="bento-content" style="display:none;">
             {projectsWithDomains.filter(p => p.data.useBentoLayout).map(project => {
+              // Extract just the filename from the full slug path for AudioCard
+              const slugParts = project.slug.split('/');
+              const filename = slugParts[slugParts.length - 1];
+
               // Localize project data for current language before passing to ProjectBento
               const localizedProject = {
                 ...project,
+                slug: filename, // Pass just filename, not full path
                 data: localizeProject(project.data, currentLocale)
               };
-              
+
               return (
                 <div class="bento-project" data-project-slug={project.slug} style="display:none;">
                   <ProjectBento project={localizedProject} />

@@ -31,6 +31,7 @@ bento:
     musicLinks: true
     video: true
     spotify: true
+    audio: true
     actions: true
     tech: false
     process: false
@@ -185,8 +186,33 @@ bento:
       - icon: "📼"
         text:
           fr: "Une sortie physique en cassette, pour suivre la direction artistique de l'album à 50 exemplaires."
-          en: "A physical cassette release, following the album's artistic direction in 50 copies." 
-      
+          en: "A physical cassette release, following the album's artistic direction in 50 copies."
+
+  # Audio Player Configuration
+  audio:
+    title:
+      fr: "Écouter l'Album"
+      en: "Listen to the Album"
+    tracks:
+      - title:
+          fr: "XR 300 (feat. Mai)"
+          en: "XR 300 (feat. Mai)"
+        artist: "Arthur Kowskii"
+        filename: "xr300"
+        duration: "3:42"
+      - title:
+          fr: "ENFANT"
+          en: "ENFANT"
+        artist: "Arthur Kowskii"
+        filename: "enfant"
+        duration: "4:15"
+      - title:
+          fr: "Épisode 1 - Introduction"
+          en: "Episode 1 - Introduction"
+        artist: "Benoit Grimmiaux"
+        filename: "episode1"
+        duration: "2:30"
+
 ---
 
 # Your Project Title

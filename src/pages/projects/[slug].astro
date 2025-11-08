@@ -254,7 +254,7 @@ const structuredDataNodes = [buildProjectStructuredData({
   <body>
     {useBentoLayout ? (
       <!-- Bento Layout -->
-      <ProjectBento project={entry} />
+      <ProjectBento project={{ ...entry, slug: slug }} />
     ) : (
       <!-- Traditional Layout -->
       <main class="wrap">

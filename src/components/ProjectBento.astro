@@ -2,6 +2,7 @@
 // Bento Grid project template - modern, content-focused layout
 export interface Props {
   project: {
+    slug: string; // Add slug property for audio card and other components
     data: {
       title: string;
       description: string;
@@ -15,6 +16,7 @@ export interface Props {
           musicLinks?: boolean;
           video?: boolean;
           spotify?: boolean;
+          audio?: boolean;
           actions?: boolean;
           tech?: boolean;
           process?: boolean;
@@ -78,12 +80,22 @@ export interface Props {
           url: string;
           description?: string;
         };
+        audio?: {
+          title?: string | { fr: string; en: string };
+          tracks: Array<{
+            title: string | { fr: string; en: string };
+            artist?: string;
+            filename: string;
+            duration?: string;
+          }>;
+        };
       };
     };
   };
 }
 
 import atomConfig from '../atom.config.js';
+import AudioCard from './AudioCard.astro';
 // Music links icons (static imports). Folder name contains a space; keep as-is.
 import spotifyIcon from '../Assets/music_links assets/spotify.png?url';
 import appleMusicIcon from '../Assets/music_links assets/apple_music.png?url';
@@ -1066,6 +1078,12 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     padding: 0;
   }
 
+  /* Audio card positioning - at the very end */
+  .audio-card {
+    grid-column: 1 / 13;
+    grid-row: 5;
+  }
+
   .tech-grid {
     display: flex;
     flex-wrap: wrap;
@@ -1417,7 +1435,11 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       grid-row: 3;
       padding: 0;
     }
-    .gallery-card { 
+    .audio-card {
+      grid-column: 1 / 11;
+      grid-row: 6;
+    }
+    .gallery-card {
       grid-column: 8 / 11; 
       grid-row: 3 / 5;
       min-height: 320px;
@@ -1506,7 +1528,11 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       grid-row: 3;
       padding: 0;
     }
-    .gallery-card { 
+    .audio-card {
+      grid-column: 1 / 9;
+      grid-row: 6;
+    }
+    .gallery-card {
       grid-column: 1 / 5; 
       grid-row: 4;
       min-height: 280px;
@@ -1608,7 +1634,11 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       grid-row: 4;
       padding: 0;
     }
-    .gallery-card { 
+    .audio-card {
+      grid-column: 1 / 7;
+      grid-row: 8;
+    }
+    .gallery-card {
       grid-column: 1 / 7; 
       grid-row: 5;
       min-height: 200px;
@@ -2105,6 +2135,15 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
           ))}
         </ul>
       </div>
+    )}
+
+    <!-- Audio Player Card - At the very end -->
+    {cards.audio && bento.audio && (
+      <AudioCard
+        title={bento.audio.title}
+        tracks={bento.audio.tracks}
+        projectSlug={project.slug}
+      />
     )}
 
   </div>

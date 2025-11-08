@@ -31,6 +31,7 @@ bento:
     musicLinks: false
     video: false
     spotify: false
+    audio: true
     actions: true
     tech: true
     process: true
@@ -132,6 +133,37 @@ bento:
         description:
           fr: "Dans ce jeu le joueur peut changer les pistes musicales à volonté grâce au système de switch. Pour une expérience fluide, un système de synchornisation musicale associé a un système de cooldown a permi de rendre cette expérience très satisfaisant pour le joueur."
           en: "In this game, players can switch musical tracks at will thanks to the switch system. For a smooth experience, a musical synchronization system combined with a cooldown system made this experience very satisfying for the player."
+
+  # Audio Player Configuration
+  audio:
+    title:
+      fr: "Bande Sonore"
+      en: "Soundtrack"
+    tracks:
+      - title:
+          fr: "Ouverture - Punk Energy"
+          en: "Opening - Punk Energy"
+        artist: "Arthur Kowskii"
+        filename: "OPENING"
+        duration: "2:34"
+      - title:
+          fr: "Bring Up The Color (Version Branchée)"
+          en: "Bring Up The Color (Plugged Version)"
+        artist: "Arthur Kowskii"
+        filename: "BRING UP THE COLOR (Plugged Version)"
+        duration: "3:18"
+      - title:
+          fr: "Bring Up The Color (Version Acoustique)"
+          en: "Bring Up The Color (Unplugged Version)"
+        artist: "Arthur Kowskii"
+        filename: "BRING UP THE COLOR (Unplugged Version)"
+        duration: "3:18"
+      - title:
+          fr: "Plug The Color In (Version Branchée)"
+          en: "Plug The Color In (Plugged Version)"
+        artist: "Arthur Kowskii"
+        filename: "PLUG THE COLOR IN (Plugged Version)"
+        duration: "3:45"
 
   # Optional results
   results:

@@ -48,3 +48,12 @@ BENTO_TEMPLATE.md
 
 # Personal reference files
 social links
+
+# Audio files (hosted on server, not in repo)
+*.ogg
+*.mp3
+*.wav
+*.m4a
+*.flac
+/audio/
+/public/audio/

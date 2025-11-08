@@ -46,6 +46,7 @@ const projectsCollection = defineCollection({
         video: z.boolean().default(false),
         spotify: z.boolean().default(false),
         soundcloud: z.boolean().default(false),
+        audio: z.boolean().default(false),
         actions: z.boolean().default(true),
         tech: z.boolean().default(true),
         process: z.boolean().default(true),
@@ -109,7 +110,18 @@ const projectsCollection = defineCollection({
         description: BilingualStringOptional,
         large: z.boolean().default(false), // true = gallery position, false = tech position
       }).optional(),
-      
+
+      // Audio Player configuration
+      audio: z.object({
+        title: BilingualString.default('Listen'),
+        tracks: z.array(z.object({
+          title: BilingualString,
+          artist: z.string().optional(),
+          filename: z.string(), // filename without extension (e.g., "track1" for track1.webm/mp3)
+          duration: z.string().optional(), // e.g., "3:45"
+        })),
+      }).optional(),
+
       // Actions configuration
       actions: z.object({
         title: BilingualString.default('Experience'),

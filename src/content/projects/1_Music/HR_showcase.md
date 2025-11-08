@@ -31,6 +31,7 @@ bento:
     video: false
     spotify: false
     soundcloud: true
+    audio: false
     actions: true
     tech: true
     process: true
