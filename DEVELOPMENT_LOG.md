@@ -4,7 +4,7 @@
 
 Full details: `docs/history/PHASE_LOGS.md`, `docs/history/ERRORS_LESSONS.md`
 
-Last updated: 2025-09-24 (Asset optimization and bilingual support fixes)
+Last updated: 2025-11-08 (Audio player card glassmorphic premium redesign)
 
 ## Project Snapshot
 
@@ -206,6 +206,46 @@ Last updated: 2025-09-24 (Asset optimization and bilingual support fixes)
   - Updated atom_portfolio.md stats: changed "91%" to "Astro / JS" for language stat
   - Maintained 10 projects count reflecting current portfolio state
 
+### Audio Player Card System (2025-11-08)
+- **Feature Implementation**: Complete custom audio player card for bento project pages
+- **Library Integration**: Howler.js (7KB) for cross-browser audio playback with OGG/MP3/WAV format support
+- **Content Schema Extension**:
+  - Added `audio` object to bento cards schema in config.ts
+  - Support for bilingual titles, track lists with metadata (title, artist, filename, duration)
+  - Card toggle system: `cards.audio` boolean in project frontmatter
+- **Component Architecture Evolution**:
+  - **Initial Implementation**: Separate AudioCard.astro component with full playlist UI
+  - **Complete Redesign**: Rebuilt inline in ProjectBento.astro following bento card patterns
+  - **Design Direction**: Glassmorphic Premium - aligns with liquid glass aesthetic throughout portfolio
+  - **Player Features**: Simplified controls (play/pause, prev/next), real-time progress bar, track display, bilingual UI
+  - Location: [ProjectBento.astro:2421-2460](src/components/ProjectBento.astro#L2421-L2460) (HTML), [1086-1364](src/components/ProjectBento.astro#L1086-L1364) (CSS), [3093-3266](src/components/ProjectBento.astro#L3093-L3266) (JavaScript)
+- **Design System**:
+  - **Visual Hierarchy**: 72px play button (hero element), 48px skip buttons, gradient fills
+  - **Micro-Interactions**: Glow effects on hover, pulsing ring animation when playing, progress bar expansion on hover (8px → 10px)
+  - **Typography**: Uppercase heading with wide letter-spacing, Inter font stack, tabular nums for time display
+  - **Color Strategy**: Accent color tints at 8-20% opacity, gradient progress fills, dual-layer shadows
+  - **Accessibility**: `prefers-reduced-motion` support, ARIA labels, high contrast in both themes
+- **Critical Slug Path Fix**:
+  - Fixed slug propagation from content collections (full path `2_Game Audio/chromestesia_showcase`) to filename-only (`chromestesia_showcase`)
+  - Updated [src/pages/projects/[slug].astro:257](src/pages/projects/[slug].astro#L257) to pass filename slug to ProjectBento
+  - Updated [src/pages/index.astro:2450-2458](src/pages/index.astro#L2450-L2458) overlay system to extract filename from full path
+- **Audio File Management**:
+  - Local workflow: Audio files stored in `/public/audio/<ProjectFolder>/` (e.g., `/public/audio/Chromestesia/`)
+  - Folder mapping system: `folderMap` object in JavaScript translates slugs to folder names
+  - Git exclusions: `*.ogg`, `*.mp3`, `*.wav`, `/public/audio/` added to .gitignore
+  - Browser handles URL encoding automatically for filenames with spaces
+- **Configuration System**:
+  - All 10 project files updated with `audio: false` default toggle
+  - Chromestesia project configured as first implementation with 5 soundtrack files (.ogg format)
+  - Bilingual track titles supporting French/English localization via `data-tracks` attribute
+- **Known Patterns & Gotchas**:
+  - Audio files NOT committed to git (too large, stored locally for dev, remote on production server)
+  - ProjectSlug must be filename-only for folder mapping to work correctly
+  - Overlay system and direct project URLs both require proper slug handling
+  - **Content Collection Caching**: Astro caches content collections - manual track order/config changes require dev server restart
+  - Song titles should NOT be translated - use original names in both FR/EN versions
+  - **Session Cleanup Required**: Dev server must be killed and restarted at end of work sessions for cache clearing (see CLAUDE.md SESSION CLEANUP PROTOCOL)
+
 ## Current Status
 
 ✅ Production ready with enterprise-grade monitoring, security, and performance
@@ -224,6 +264,7 @@ Last updated: 2025-09-24 (Asset optimization and bilingual support fixes)
 ✅ **Portfolio self-documentation** with meta project page showcasing technical achievements
 ✅ **Comprehensive asset optimization** with 85-94% size reductions across images and videos
 ✅ **Complete bilingual support** for all bento cards with proper French translations
+✅ **Audio player card system** with Howler.js integration, playlist support, and bilingual UI
 
 ## Technical Architecture Notes
 

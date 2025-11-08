@@ -95,7 +95,6 @@ export interface Props {
 }
 
 import atomConfig from '../atom.config.js';
-import AudioCard from './AudioCard.astro';
 // Music links icons (static imports). Folder name contains a space; keep as-is.
 import spotifyIcon from '../Assets/music_links assets/spotify.png?url';
 import appleMusicIcon from '../Assets/music_links assets/apple_music.png?url';
@@ -1078,10 +1077,290 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     padding: 0;
   }
 
-  /* Audio card positioning - at the very end */
+  /* Audio card positioning - matches hero card width */
   .audio-card {
-    grid-column: 1 / 13;
+    grid-column: 5 / 13;
     grid-row: 5;
+  }
+
+  /* Audio Card - Glassmorphic Premium Design */
+
+  /* Heading */
+  .audio-heading {
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #71717a;
+    margin: 0 0 2rem 0;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+
+  html[data-theme="dark"] .audio-heading {
+    color: #a1a1aa;
+  }
+
+  /* Control Container */
+  .audio-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  /* Skip Buttons */
+  .audio-skip-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--accent-color-rgb), 0.08);
+    border: 1.5px solid rgba(var(--accent-color-rgb), 0.2);
+    color: var(--accent-color);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  html[data-theme="dark"] .audio-skip-btn {
+    background: rgba(var(--accent-color-rgb), 0.12);
+    border-color: rgba(var(--accent-color-rgb), 0.25);
+  }
+
+  /* Skip button hover states */
+  .audio-skip-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(var(--accent-color-rgb), 0.15) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .audio-skip-btn:hover::before {
+    opacity: 1;
+  }
+
+  .audio-skip-btn:hover {
+    background: rgba(var(--accent-color-rgb), 0.15);
+    border-color: rgba(var(--accent-color-rgb), 0.4);
+    transform: translateY(-2px);
+  }
+
+  .audio-skip-btn:active {
+    transform: translateY(0);
+  }
+
+  /* Play Button - Hero Element */
+  .audio-play-btn {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-color);
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    box-shadow:
+      0 4px 16px rgba(var(--accent-color-rgb), 0.3),
+      0 2px 8px rgba(var(--accent-color-rgb), 0.2);
+  }
+
+  /* Play button glow effect */
+  .audio-play-btn::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center,
+      rgba(var(--accent-color-rgb), 0.4) 0%,
+      transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+    filter: blur(8px);
+  }
+
+  .audio-play-btn:hover::before {
+    opacity: 1;
+  }
+
+  .audio-play-btn:hover {
+    transform: translateY(-3px) scale(1.08);
+    box-shadow:
+      0 8px 24px rgba(var(--accent-color-rgb), 0.45),
+      0 4px 12px rgba(var(--accent-color-rgb), 0.3);
+  }
+
+  .audio-play-btn:active {
+    transform: translateY(-1px) scale(1.04);
+  }
+
+  /* Playing state animation */
+  .audio-play-btn.playing::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid rgba(var(--accent-color-rgb), 0.4);
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(0.95);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(0.95);
+      opacity: 1;
+    }
+  }
+
+  /* Track Name */
+  .track-name {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #18181b;
+    margin: 0 0 1.75rem 0;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+  }
+
+  html[data-theme="dark"] .track-name {
+    color: #fafafa;
+  }
+
+  /* Progress Section */
+  .audio-progress-section {
+    margin-bottom: 1rem;
+    padding: 0 0.25rem;
+  }
+
+  /* Progress Bar Container */
+  .audio-progress-bar {
+    height: 8px;
+    background: linear-gradient(to right,
+      rgba(var(--accent-color-rgb), 0.12) 0%,
+      rgba(var(--accent-color-rgb), 0.08) 100%);
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+    overflow: visible;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  html[data-theme="dark"] .audio-progress-bar {
+    background: linear-gradient(to right,
+      rgba(var(--accent-color-rgb), 0.18) 0%,
+      rgba(var(--accent-color-rgb), 0.12) 100%);
+  }
+
+  /* Progress bar hover expansion */
+  .audio-progress-bar:hover {
+    height: 10px;
+    border-radius: 5px;
+  }
+
+  /* Progress Fill */
+  .audio-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg,
+      var(--accent-color) 0%,
+      color-mix(in srgb, var(--accent-color) 85%, white) 100%);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.1s linear;
+    position: relative;
+    box-shadow: 0 0 12px rgba(var(--accent-color-rgb), 0.4);
+  }
+
+  /* Progress fill glow effect on hover */
+  .audio-progress-bar:hover .audio-progress-fill {
+    box-shadow:
+      0 0 16px rgba(var(--accent-color-rgb), 0.6),
+      0 2px 8px rgba(var(--accent-color-rgb), 0.3);
+  }
+
+  /* Progress indicator dot */
+  .audio-progress-fill::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    background: #ffffff;
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.15),
+      0 0 0 4px rgba(var(--accent-color-rgb), 0.2);
+  }
+
+  .audio-progress-bar:hover .audio-progress-fill::after {
+    opacity: 1;
+  }
+
+  html[data-theme="dark"] .audio-progress-fill::after {
+    background: var(--accent-color);
+    border-color: #ffffff;
+  }
+
+  /* Time Display */
+  .audio-times {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #71717a;
+    font-variant-numeric: tabular-nums;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    letter-spacing: 0.02em;
+    padding: 0 0.25rem;
+  }
+
+  html[data-theme="dark"] .audio-times {
+    color: #a1a1aa;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .audio-skip-btn,
+    .audio-play-btn,
+    .audio-progress-bar,
+    .audio-progress-fill {
+      transition: none;
+    }
+
+    .audio-play-btn.playing::after {
+      animation: none;
+    }
+
+    .audio-skip-btn:hover,
+    .audio-play-btn:hover {
+      transform: none;
+    }
   }
 
   .tech-grid {
@@ -1436,7 +1715,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       padding: 0;
     }
     .audio-card {
-      grid-column: 1 / 11;
+      grid-column: 5 / 11;
       grid-row: 6;
     }
     .gallery-card {
@@ -1529,7 +1808,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       padding: 0;
     }
     .audio-card {
-      grid-column: 1 / 9;
+      grid-column: 4 / 9;
       grid-row: 6;
     }
     .gallery-card {
@@ -2137,13 +2416,47 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       </div>
     )}
 
-    <!-- Audio Player Card - At the very end -->
+    <!-- Audio Player Card - New Design -->
     {cards.audio && bento.audio && (
-      <AudioCard
-        title={bento.audio.title}
-        tracks={bento.audio.tracks}
-        projectSlug={project.slug}
-      />
+      <div class="bento-card audio-card" data-project-slug={project.slug} data-tracks={JSON.stringify(bento.audio.tracks)}>
+        <p class="audio-heading">{Astro.url.searchParams.get('lang') === 'en' ? 'Play a random track from this project' : 'Jouer une piste aléatoire de ce projet'}</p>
+
+        <div class="audio-controls">
+          <button class="audio-skip-btn prev-btn" aria-label="Previous track">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+            </svg>
+          </button>
+
+          <button class="audio-play-btn" aria-label="Play">
+            <svg class="play-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            <svg class="pause-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor" style="display:none">
+              <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+            </svg>
+          </button>
+
+          <button class="audio-skip-btn next-btn" aria-label="Next track">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M16 18h2V6h-2zm-11-6l8.5-6v12z"/>
+            </svg>
+          </button>
+        </div>
+
+        <p class="track-name">...</p>
+
+        <div class="audio-progress-section">
+          <div class="audio-progress-bar">
+            <div class="audio-progress-fill"></div>
+          </div>
+        </div>
+
+        <div class="audio-times">
+          <span class="time-current">0:00</span>
+          <span class="time-total">0:00</span>
+        </div>
+      </div>
     )}
 
   </div>
@@ -2776,3 +3089,179 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
 
   // No shimmer animation â€" simplified glass for clarity
 </script>
+
+<script>
+  import { Howl } from 'howler';
+
+  // Audio Player functionality
+  function initAudioPlayers() {
+    const audioCards = document.querySelectorAll('.audio-card');
+
+    audioCards.forEach((card) => {
+      const playBtn = card.querySelector('.audio-play-btn');
+      const playIcon = card.querySelector('.play-icon');
+      const pauseIcon = card.querySelector('.pause-icon');
+      const prevBtn = card.querySelector('.prev-btn');
+      const nextBtn = card.querySelector('.next-btn');
+      const trackName = card.querySelector('.track-name');
+      const progressBar = card.querySelector('.audio-progress-bar');
+      const progressFill = card.querySelector('.audio-progress-fill');
+      const timeCurrent = card.querySelector('.time-current');
+      const timeTotal = card.querySelector('.time-total');
+
+      const projectSlug = card.getAttribute('data-project-slug') || '';
+      const tracksData = card.getAttribute('data-tracks');
+
+      if (!tracksData) return;
+
+      const tracks = JSON.parse(tracksData);
+      const currentLang = document.documentElement.lang || 'fr';
+
+      let currentTrackIndex = 0;
+      let sound = null;
+      let isPlaying = false;
+
+      // Map project slugs to audio folders
+      const folderMap = {
+        'chromestesia_showcase': 'Chromestesia'
+      };
+      const audioFolder = folderMap[projectSlug] || projectSlug;
+
+      // Format time helper
+      function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+      }
+
+      // Load track
+      function loadTrack(index) {
+        if (sound) {
+          sound.unload();
+        }
+
+        currentTrackIndex = index;
+        const track = tracks[index];
+
+        // Update UI
+        trackName.textContent = track.title[currentLang] || track.title.en;
+        timeCurrent.textContent = '0:00';
+        timeTotal.textContent = track.duration || '0:00';
+        progressFill.style.width = '0%';
+
+        // Create Howl instance
+        const audioSources = [
+          `/audio/${audioFolder}/${track.filename}.ogg`,
+          `/audio/${audioFolder}/${track.filename}.mp3`,
+          `/audio/${audioFolder}/${track.filename}.wav`
+        ];
+
+        sound = new Howl({
+          src: audioSources,
+          html5: true,
+          preload: 'metadata',
+          volume: 0.7,
+          onplay: () => {
+            isPlaying = true;
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+            playBtn.classList.add('playing');
+            requestAnimationFrame(updateProgress);
+          },
+          onpause: () => {
+            isPlaying = false;
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+            playBtn.classList.remove('playing');
+          },
+          onend: () => {
+            isPlaying = false;
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+            playBtn.classList.remove('playing');
+
+            // Auto-play next track
+            if (currentTrackIndex < tracks.length - 1) {
+              loadTrack(currentTrackIndex + 1);
+              sound?.play();
+            }
+          },
+          onload: () => {
+            const duration = sound?.duration() || 0;
+            timeTotal.textContent = formatTime(duration);
+          }
+        });
+      }
+
+      // Update progress
+      function updateProgress() {
+        if (!sound || !isPlaying) return;
+
+        const seek = sound.seek();
+        const duration = sound.duration();
+        const progress = (seek / duration) * 100;
+
+        progressFill.style.width = `${progress}%`;
+        timeCurrent.textContent = formatTime(seek);
+
+        if (isPlaying) {
+          requestAnimationFrame(updateProgress);
+        }
+      }
+
+      // Play/pause button
+      playBtn?.addEventListener('click', () => {
+        if (!sound) {
+          loadTrack(0);
+        }
+
+        if (isPlaying) {
+          sound?.pause();
+        } else {
+          sound?.play();
+        }
+      });
+
+      // Previous button
+      prevBtn?.addEventListener('click', () => {
+        const newIndex = currentTrackIndex > 0 ? currentTrackIndex - 1 : tracks.length - 1;
+        loadTrack(newIndex);
+        sound?.play();
+      });
+
+      // Next button
+      nextBtn?.addEventListener('click', () => {
+        const newIndex = currentTrackIndex < tracks.length - 1 ? currentTrackIndex + 1 : 0;
+        loadTrack(newIndex);
+        sound?.play();
+      });
+
+      // Progress bar click
+      progressBar?.addEventListener('click', (e) => {
+        if (!sound) return;
+        const rect = progressBar.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        const seek = percent * sound.duration();
+        sound.seek(seek);
+        progressFill.style.width = `${percent * 100}%`;
+        timeCurrent.textContent = formatTime(seek);
+      });
+
+      // Initialize first track
+      if (tracks.length > 0) {
+        loadTrack(0);
+      }
+    });
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAudioPlayers);
+  } else {
+    initAudioPlayers();
+  }
+
+  // Also initialize on Astro page transitions
+  document.addEventListener('astro:page-load', initAudioPlayers);
+</script>
+

@@ -141,29 +141,35 @@ bento:
       en: "Soundtrack"
     tracks:
       - title:
-          fr: "Ouverture - Punk Energy"
-          en: "Opening - Punk Energy"
+          fr: "OPENING"
+          en: "OPENING"
         artist: "Arthur Kowskii"
         filename: "OPENING"
         duration: "2:34"
       - title:
-          fr: "Bring Up The Color (Version Branchée)"
-          en: "Bring Up The Color (Plugged Version)"
+          fr: "PLUG THE COLOR IN (Plugged Version)"
+          en: "PLUG THE COLOR IN (Plugged Version)"
+        artist: "Arthur Kowskii"
+        filename: "PLUG THE COLOR IN (Plugged Version)"
+        duration: "3:45"
+      - title:
+          fr: "PLUG THE COLOR IN (Unplugged Version)"
+          en: "PLUG THE COLOR IN (Unplugged Version)"
+        artist: "Arthur Kowskii"
+        filename: "PLUG THE COLOR IN (Unplugged Version)"
+        duration: "3:45"
+      - title:
+          fr: "BRING UP THE COLOR (Plugged Version)"
+          en: "BRING UP THE COLOR (Plugged Version)"
         artist: "Arthur Kowskii"
         filename: "BRING UP THE COLOR (Plugged Version)"
         duration: "3:18"
       - title:
-          fr: "Bring Up The Color (Version Acoustique)"
-          en: "Bring Up The Color (Unplugged Version)"
+          fr: "BRING UP THE COLOR (Unplugged Version)"
+          en: "BRING UP THE COLOR (Unplugged Version)"
         artist: "Arthur Kowskii"
         filename: "BRING UP THE COLOR (Unplugged Version)"
         duration: "3:18"
-      - title:
-          fr: "Plug The Color In (Version Branchée)"
-          en: "Plug The Color In (Plugged Version)"
-        artist: "Arthur Kowskii"
-        filename: "PLUG THE COLOR IN (Plugged Version)"
-        duration: "3:45"
 
   # Optional results
   results:
