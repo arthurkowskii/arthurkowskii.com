@@ -265,6 +265,11 @@ Last updated: 2025-11-08 (Audio player card glassmorphic premium redesign)
 ✅ **Comprehensive asset optimization** with 85-94% size reductions across images and videos
 ✅ **Complete bilingual support** for all bento cards with proper French translations
 ✅ **Audio player card system** with Howler.js integration, playlist support, and bilingual UI
+✅ 2025-11-09: Audio engine refinements
+  - Added configurable Howler/low-pass settings to `user-tweaks.js` + `atom.config.js` (volume, fade speed, low-pass frequency/Q, independent LPF fade duration)
+  - Refactored audio card JS into dedicated `audioPlayerClient.js` module (shared by overlays + project pages; no inline imports)
+  - Implemented graceful fade/low-pass on overlay close, navigation, and page unload via global `bento:audio:shutdown`
+  - Ensured dev workflow restarts `npm run dev` each request to drop Astro caches + keep user previews accurate
 
 ## Technical Architecture Notes
 
