@@ -340,6 +340,24 @@ export default {
     audio: { enabled: false, volume: 0.3 }
   },
 
+  audioPlayer: {
+    enabled: userTweaks.audioPlayer?.enabled ?? true,
+    defaultVolume: userTweaks.audioPlayer?.defaultVolume ?? 0.7,
+    fade: {
+      durationMs: userTweaks.audioPlayer?.fade?.durationMs ?? 650,
+      forceDurationMs: userTweaks.audioPlayer?.fade?.forceDurationMs ?? 220,
+      applyLowPass: userTweaks.audioPlayer?.fade?.applyLowPass ?? true,
+      applyLowPassOnForce: userTweaks.audioPlayer?.fade?.applyLowPassOnForce ?? true
+    },
+    lowPass: {
+      enabled: userTweaks.audioPlayer?.lowPass?.enabled ?? true,
+      startFrequencyHz: userTweaks.audioPlayer?.lowPass?.startFrequencyHz ?? 14000,
+      targetFrequencyHz: userTweaks.audioPlayer?.lowPass?.targetFrequencyHz ?? 320,
+      resonanceQ: userTweaks.audioPlayer?.lowPass?.resonanceQ ?? 0.85,
+      fadeDurationMs: userTweaks.audioPlayer?.lowPass?.fadeDurationMs ?? userTweaks.audioPlayer?.fade?.durationMs ?? 650
+    }
+  },
+
   // Bento hero liquid glass configuration
   bentoGlass: userTweaks.bentoGlass || {
     enabled: true,

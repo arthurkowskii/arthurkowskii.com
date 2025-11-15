@@ -95,6 +95,7 @@ export interface Props {
 }
 
 import atomConfig from '../atom.config.js';
+import audioPlayerClientScript from './audioPlayerClient.js?url';
 // Music links icons (static imports). Folder name contains a space; keep as-is.
 import spotifyIcon from '../Assets/music_links assets/spotify.png?url';
 import appleMusicIcon from '../Assets/music_links assets/apple_music.png?url';
@@ -147,6 +148,7 @@ const accentLum = relativeLuminance(accentRgbObj);
 const isLightAccent = accentLum > 0.7; // high-luminance accents (e.g., neon yellows)
 // Subtitle text color: prefer black when accent is too light to ensure readability
 const heroSubtitleColor = isLightAccent ? '#000000' : (bento.hero?.subtitleColor || accentColor);
+const audioPlayerConfig = atomConfig.audioPlayer || {};
 
 // Compute readable on-accent text color (white or black) based on contrast
 function contrastRatio(l1, l2) {
@@ -3275,178 +3277,5 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   // No shimmer animation â€" simplified glass for clarity
 </script>
 
-<script>
-  import { Howl } from 'howler';
-
-  // Audio Player functionality
-  function initAudioPlayers() {
-    const audioCards = document.querySelectorAll('.audio-card');
-
-    audioCards.forEach((card) => {
-      const playBtn = card.querySelector('.audio-play-btn');
-      const playIcon = card.querySelector('.play-icon');
-      const pauseIcon = card.querySelector('.pause-icon');
-      const prevBtn = card.querySelector('.prev-btn');
-      const nextBtn = card.querySelector('.next-btn');
-      const trackName = card.querySelector('.track-name');
-      const progressBar = card.querySelector('.audio-progress-bar');
-      const progressFill = card.querySelector('.audio-progress-fill');
-      const timeCurrent = card.querySelector('.time-current');
-      const timeTotal = card.querySelector('.time-total');
-
-      const projectSlug = card.getAttribute('data-project-slug') || '';
-      const tracksData = card.getAttribute('data-tracks');
-
-      if (!tracksData) return;
-
-      const tracks = JSON.parse(tracksData);
-      const currentLang = document.documentElement.lang || 'fr';
-
-      let currentTrackIndex = 0;
-      let sound = null;
-      let isPlaying = false;
-
-      // Map project slugs to audio folders
-      const folderMap = {
-        'chromestesia_showcase': 'Chromestesia'
-      };
-      const audioFolder = folderMap[projectSlug] || projectSlug;
-
-      // Format time helper
-      function formatTime(seconds) {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-      }
-
-      // Load track
-      function loadTrack(index) {
-        if (sound) {
-          sound.unload();
-        }
-
-        currentTrackIndex = index;
-        const track = tracks[index];
-
-        // Update UI
-        trackName.textContent = track.title[currentLang] || track.title.en;
-        timeCurrent.textContent = '0:00';
-        timeTotal.textContent = track.duration || '0:00';
-        progressFill.style.width = '0%';
-
-        // Create Howl instance
-        const audioSources = [
-          `/audio/${audioFolder}/${track.filename}.ogg`,
-          `/audio/${audioFolder}/${track.filename}.mp3`,
-          `/audio/${audioFolder}/${track.filename}.wav`
-        ];
-
-        sound = new Howl({
-          src: audioSources,
-          html5: true,
-          preload: 'metadata',
-          volume: 0.7,
-          onplay: () => {
-            isPlaying = true;
-            playIcon.style.display = 'none';
-            pauseIcon.style.display = 'block';
-            playBtn.classList.add('playing');
-            requestAnimationFrame(updateProgress);
-          },
-          onpause: () => {
-            isPlaying = false;
-            playIcon.style.display = 'block';
-            pauseIcon.style.display = 'none';
-            playBtn.classList.remove('playing');
-          },
-          onend: () => {
-            isPlaying = false;
-            playIcon.style.display = 'block';
-            pauseIcon.style.display = 'none';
-            playBtn.classList.remove('playing');
-
-            // Auto-play next track
-            if (currentTrackIndex < tracks.length - 1) {
-              loadTrack(currentTrackIndex + 1);
-              sound?.play();
-            }
-          },
-          onload: () => {
-            const duration = sound?.duration() || 0;
-            timeTotal.textContent = formatTime(duration);
-          }
-        });
-      }
-
-      // Update progress
-      function updateProgress() {
-        if (!sound || !isPlaying) return;
-
-        const seek = sound.seek();
-        const duration = sound.duration();
-        const progress = (seek / duration) * 100;
-
-        progressFill.style.width = `${progress}%`;
-        timeCurrent.textContent = formatTime(seek);
-
-        if (isPlaying) {
-          requestAnimationFrame(updateProgress);
-        }
-      }
-
-      // Play/pause button
-      playBtn?.addEventListener('click', () => {
-        if (!sound) {
-          loadTrack(0);
-        }
-
-        if (isPlaying) {
-          sound?.pause();
-        } else {
-          sound?.play();
-        }
-      });
-
-      // Previous button
-      prevBtn?.addEventListener('click', () => {
-        const newIndex = currentTrackIndex > 0 ? currentTrackIndex - 1 : tracks.length - 1;
-        loadTrack(newIndex);
-        sound?.play();
-      });
-
-      // Next button
-      nextBtn?.addEventListener('click', () => {
-        const newIndex = currentTrackIndex < tracks.length - 1 ? currentTrackIndex + 1 : 0;
-        loadTrack(newIndex);
-        sound?.play();
-      });
-
-      // Progress bar click
-      progressBar?.addEventListener('click', (e) => {
-        if (!sound) return;
-        const rect = progressBar.getBoundingClientRect();
-        const percent = (e.clientX - rect.left) / rect.width;
-        const seek = percent * sound.duration();
-        sound.seek(seek);
-        progressFill.style.width = `${percent * 100}%`;
-        timeCurrent.textContent = formatTime(seek);
-      });
-
-      // Initialize first track
-      if (tracks.length > 0) {
-        loadTrack(0);
-      }
-    });
-  }
-
-  // Initialize on page load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAudioPlayers);
-  } else {
-    initAudioPlayers();
-  }
-
-  // Also initialize on Astro page transitions
-  document.addEventListener('astro:page-load', initAudioPlayers);
-</script>
-
+<script is:inline set:html={`window.__bentoAudioPlayerConfig = ${JSON.stringify(audioPlayerConfig)};`}></script>
+<script type="module" src={audioPlayerClientScript}></script>

@@ -188,6 +188,24 @@ export const userTweaks = {
     }
   },
 
+  audioPlayer: {
+    enabled: true,
+    defaultVolume: 0.7,
+    fade: {
+      durationMs: 700,
+      forceDurationMs: 220,
+      applyLowPass: true,
+      applyLowPassOnForce: true
+    },
+    lowPass: {
+      enabled: true,
+      startFrequencyHz: 15000,
+      targetFrequencyHz: 0,
+      resonanceQ: 1.0,
+      fadeDurationMs: 600
+    }
+  },
+
   // Electron preview cards
   electronPreview: {
     enabled: true,

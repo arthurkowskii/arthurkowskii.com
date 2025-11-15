@@ -41,6 +41,7 @@ const useBentoLayout = entry.data.useBentoLayout || false;
 
 // Extract only the bentoAnimations config for client-side use
 const bentoAnimationsConfig = atomConfig.bentoAnimations || {};
+const audioPlayerConfig = atomConfig.audioPlayer || {};
 
 // Social meta tag setup for project pages
 const socialConfig = atomConfig.socialMeta;
@@ -325,8 +326,8 @@ const structuredDataNodes = [buildProjectStructuredData({
     </script>
     
     <!-- Set global atomConfig for ProjectBento component -->
-    <script define:vars={{ bentoAnimationsConfig }}>
-      window.atomConfig = { bentoAnimations: bentoAnimationsConfig };
+    <script define:vars={{ bentoAnimationsConfig, audioPlayerConfig }}>
+      window.atomConfig = { bentoAnimations: bentoAnimationsConfig, audioPlayer: audioPlayerConfig };
     </script>
   </body>
   </html>

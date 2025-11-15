@@ -3177,12 +3177,21 @@ import atomConfig from '../atom.config.js';
             }
 
 
-            function stopAllMediaPlayers() {
-              // Media stopping functionality removed to prevent issues with embedded players
-              // Let browsers handle media cleanup naturally when overlays close
+            function stopAllMediaPlayers(force = false) {
+              try {
+                window.dispatchEvent(new CustomEvent('bento:audio:shutdown', {
+                  detail: { force }
+                }));
+              } catch (err) {
+                console.warn('Audio shutdown dispatch failed:', err);
+              }
             }
+
+            window.addEventListener('beforeunload', () => stopAllMediaPlayers(true));
+            window.addEventListener('pagehide', () => stopAllMediaPlayers(true));
             
             function closeOverlay() {
+              stopAllMediaPlayers();
               if (!overlayOpen) return;
               
               overlayOpen = false;
