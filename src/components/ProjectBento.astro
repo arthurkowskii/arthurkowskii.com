@@ -1081,34 +1081,143 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   .audio-card {
     grid-column: 1 / 9;
     grid-row: 5;
+    padding: 2.25rem;
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background: linear-gradient(
+      135deg,
+      rgba(var(--accent-color-rgb), 0.08),
+      rgba(255, 255, 255, 0.9)
+    );
+    border: 1px solid rgba(15, 23, 42, 0.04);
+    box-shadow:
+      0 25px 60px rgba(2, 6, 23, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    isolation: isolate;
   }
 
-  /* Audio Card - Glassmorphic Premium Design */
+  .audio-card::before,
+  .audio-card::after {
+    content: '';
+    position: absolute;
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .audio-card::before {
+    width: 320px;
+    height: 320px;
+    inset: -35% auto auto -10%;
+    background: radial-gradient(
+      circle,
+      rgba(var(--accent-color-rgb), 0.35),
+      transparent 65%
+    );
+    opacity: 0.4;
+    filter: blur(20px);
+  }
+
+  .audio-card::after {
+    width: 200px;
+    height: 200px;
+    inset: auto 25% -40% auto;
+    background: radial-gradient(
+      circle,
+      rgba(var(--accent-color-rgb), 0.22),
+      transparent 70%
+    );
+    opacity: 0.18;
+    filter: blur(40px);
+  }
+
+  html[data-theme="dark"] .audio-card {
+    background: radial-gradient(
+        circle at 20% 20%,
+        rgba(var(--accent-color-rgb), 0.35),
+        rgba(13, 13, 17, 0.95)
+      ),
+      linear-gradient(160deg, rgba(7, 7, 10, 0.8), rgba(15, 15, 19, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow:
+      0 35px 80px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  html[data-theme="dark"] .audio-card::before {
+    opacity: 0.7;
+    filter: blur(30px);
+  }
+
+  html[data-theme="dark"] .audio-card::after {
+    opacity: 0.35;
+    inset: auto 30% -35% auto;
+    filter: blur(55px);
+  }
+
+  .audio-card-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+  }
+
+  .audio-badge {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-color);
+    background: rgba(var(--accent-color-rgb), 0.12);
+    border: 1px solid rgba(var(--accent-color-rgb), 0.3);
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+
+  html[data-theme="dark"] .audio-badge {
+    color: #ffffff;
+    background: rgba(var(--accent-color-rgb), 0.18);
+    border-color: rgba(var(--accent-color-rgb), 0.5);
+  }
 
   /* Heading */
   .audio-heading {
-    text-align: center;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    letter-spacing: 0.05em;
+    flex: 1;
+    text-align: right;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
     text-transform: uppercase;
-    color: #71717a;
-    margin: 0 0 2rem 0;
+    color: rgba(15, 23, 42, 0.6);
+    margin: 0;
     font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   }
 
   html[data-theme="dark"] .audio-heading {
-    color: #a1a1aa;
+    color: rgba(244, 244, 245, 0.8);
+  }
+
+  .audio-main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
   }
 
   /* Control Container */
   .audio-controls {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    justify-content: flex-start;
+    gap: 1.25rem;
     position: relative;
+    flex-shrink: 0;
   }
 
   /* Skip Buttons */
@@ -1232,13 +1341,34 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     }
   }
 
+  .track-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1;
+    min-width: 220px;
+  }
+
+  .track-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(15, 23, 42, 0.6);
+    font-weight: 600;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+
+  html[data-theme="dark"] .track-label {
+    color: rgba(228, 228, 231, 0.85);
+  }
+
   /* Track Name */
   .track-name {
-    text-align: center;
-    font-size: 1rem;
+    text-align: left;
+    font-size: 1.35rem;
     font-weight: 600;
-    color: #18181b;
-    margin: 0 0 1.75rem 0;
+    color: #0f172a;
+    margin: 0;
     font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     letter-spacing: -0.01em;
     line-height: 1.4;
@@ -1248,9 +1378,15 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     color: #fafafa;
   }
 
+  .audio-progress-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
   /* Progress Section */
   .audio-progress-section {
-    margin-bottom: 1rem;
+    margin: 0;
     padding: 0 0.25rem;
   }
 
@@ -1332,16 +1468,55 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     display: flex;
     justify-content: space-between;
     font-size: 0.8125rem;
-    font-weight: 500;
-    color: #71717a;
+    font-weight: 600;
+    color: rgba(15, 23, 42, 0.6);
     font-variant-numeric: tabular-nums;
     font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.08em;
     padding: 0 0.25rem;
   }
 
   html[data-theme="dark"] .audio-times {
-    color: #a1a1aa;
+    color: rgba(228, 228, 231, 0.85);
+  }
+
+  @media (max-width: 1023px) {
+    .audio-card {
+      padding: 2rem;
+    }
+
+    .audio-heading {
+      text-align: left;
+    }
+
+    .audio-main {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .audio-controls {
+      justify-content: flex-start;
+    }
+  }
+
+  @media (max-width: 699px) {
+    .audio-card {
+      padding: 1.75rem;
+    }
+
+    .audio-card-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .audio-controls {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .track-meta {
+      width: 100%;
+    }
   }
 
   /* Reduced motion support */
@@ -2419,42 +2594,52 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     <!-- Audio Player Card - New Design -->
     {cards.audio && bento.audio && (
       <div class="bento-card audio-card" data-project-slug={project.slug} data-tracks={JSON.stringify(bento.audio.tracks)}>
-        <p class="audio-heading">{Astro.url.searchParams.get('lang') === 'en' ? 'Play a random track from this project' : 'Jouer une piste aléatoire de ce projet'}</p>
-
-        <div class="audio-controls">
-          <button class="audio-skip-btn prev-btn" aria-label="Previous track">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
-            </svg>
-          </button>
-
-          <button class="audio-play-btn" aria-label="Play">
-            <svg class="play-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-            <svg class="pause-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor" style="display:none">
-              <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-            </svg>
-          </button>
-
-          <button class="audio-skip-btn next-btn" aria-label="Next track">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M16 18h2V6h-2zm-11-6l8.5-6v12z"/>
-            </svg>
-          </button>
+        <div class="audio-card-header">
+          <span class="audio-badge">{Astro.url.searchParams.get('lang') === 'en' ? 'Audio Capsule' : 'Capsule Audio'}</span>
+          <p class="audio-heading">{Astro.url.searchParams.get('lang') === 'en' ? 'Play a random track from this project' : 'Jouer une piste aléatoire de ce projet'}</p>
         </div>
 
-        <p class="track-name">...</p>
+        <div class="audio-main">
+          <div class="audio-controls">
+            <button class="audio-skip-btn prev-btn" aria-label="Previous track">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+              </svg>
+            </button>
 
-        <div class="audio-progress-section">
-          <div class="audio-progress-bar">
-            <div class="audio-progress-fill"></div>
+            <button class="audio-play-btn" aria-label="Play">
+              <svg class="play-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <svg class="pause-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor" style="display:none">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+              </svg>
+            </button>
+
+            <button class="audio-skip-btn next-btn" aria-label="Next track">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M16 18h2V6h-2zm-11-6l8.5-6v12z"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="track-meta">
+            <span class="track-label">{Astro.url.searchParams.get('lang') === 'en' ? 'Now playing' : 'Lecture en cours'}</span>
+            <p class="track-name">...</p>
           </div>
         </div>
 
-        <div class="audio-times">
-          <span class="time-current">0:00</span>
-          <span class="time-total">0:00</span>
+        <div class="audio-progress-group">
+          <div class="audio-progress-section">
+            <div class="audio-progress-bar">
+              <div class="audio-progress-fill"></div>
+            </div>
+          </div>
+
+          <div class="audio-times">
+            <span class="time-current">0:00</span>
+            <span class="time-total">0:00</span>
+          </div>
         </div>
       </div>
     )}
