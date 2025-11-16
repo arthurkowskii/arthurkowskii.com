@@ -129,6 +129,18 @@ function fadeOutAllControllers(options = {}) {
       }
     }
   });
+
+  const samplerCards = document.querySelectorAll('.sampler-card');
+  samplerCards.forEach((card) => {
+    const controller = card?.__samplerController;
+    if (controller && typeof controller.stopAll === 'function') {
+      try {
+        controller.stopAll(!!options.force);
+      } catch (err) {
+        console.warn('Sampler controller stop failed:', err);
+      }
+    }
+  });
 }
 
 function initAudioPlayers() {
@@ -333,8 +345,140 @@ function initAudioPlayers() {
   });
 }
 
+function initSamplerCards() {
+  const samplerCards = document.querySelectorAll('.sampler-card');
+
+  samplerCards.forEach((card) => {
+    if (card.dataset.samplerReady === 'true') return;
+    card.dataset.samplerReady = 'true';
+
+    const folder = (card.dataset.folder || '').replace(/\/$/, '');
+
+    let samplePool = [];
+    try {
+      samplePool = JSON.parse(card.dataset.samples || '[]');
+    } catch {
+      samplePool = [];
+    }
+
+    const pads = Array.from(card.querySelectorAll('.sampler-pad'));
+    const regenerateBtn = card.querySelector('.sampler-regenerate-btn');
+    const activeSounds = new Map();
+    const baseConfig = resolveConfig();
+
+    function setPadIcon(pad, isPlaying) {
+      const icon = pad.querySelector('.sampler-pad-icon');
+      if (icon) {
+        icon.textContent = isPlaying ? '▶' : '▌▌';
+      }
+    }
+
+    function assignPads() {
+      if (!samplePool.length) {
+        pads.forEach((pad, idx) => {
+          pad.dataset.sample = '';
+          pad.disabled = true;
+          pad.classList.remove('sampler-pad--active');
+          setPadIcon(pad, false);
+        });
+        regenerateBtn?.setAttribute('disabled', '');
+        return;
+      }
+      regenerateBtn?.removeAttribute('disabled');
+      const available = [...samplePool];
+      pads.forEach((pad, idx) => {
+        if (!available.length) {
+          available.push(...samplePool);
+        }
+        const choiceIndex = Math.floor(Math.random() * available.length);
+        const sample = available.splice(choiceIndex, 1)[0];
+        pad.dataset.sample = sample || '';
+        pad.disabled = !sample;
+        pad.classList.remove('sampler-pad--active');
+        setPadIcon(pad, false);
+      });
+    }
+
+    function stopPadSound(pad, force = false) {
+      const sound = activeSounds.get(pad);
+      if (sound) {
+        try {
+          sound.stop();
+        } catch {}
+        activeSounds.delete(pad);
+      }
+      if (!force) {
+        pad.classList.remove('sampler-pad--active');
+        setPadIcon(pad, false);
+      }
+    }
+
+    function stopAll(force = false) {
+      pads.forEach((pad) => stopPadSound(pad, force));
+    }
+
+    function playSample(pad) {
+      const sample = pad.dataset.sample;
+      if (!sample) return;
+      stopPadSound(pad);
+      const url = encodeURI(`${folder}/${sample}`);
+      try {
+        const sound = new Howl({
+          src: [url],
+          volume: baseConfig.defaultVolume,
+          html5: false
+        });
+        activeSounds.set(pad, sound);
+        pad.classList.add('sampler-pad--active');
+        setPadIcon(pad, true);
+        sound.play();
+        sound.on('end', () => {
+          stopPadSound(pad);
+          setPadIcon(pad, false);
+        });
+        sound.on('stop', () => {
+          stopPadSound(pad);
+          setPadIcon(pad, false);
+        });
+      } catch (err) {
+        console.warn('Failed to play sample', sample, err);
+      }
+    }
+
+    pads.forEach((pad) => {
+      pad.addEventListener('click', () => playSample(pad));
+    });
+
+    function flashPads() {
+      pads.forEach((pad) => {
+        pad.classList.add('sampler-pad--loading');
+        setTimeout(() => pad.classList.remove('sampler-pad--loading'), 520);
+      });
+    }
+
+    regenerateBtn?.addEventListener('click', () => {
+      stopAll();
+      assignPads();
+      flashPads();
+      try {
+        regenerateBtn.classList.add('rotating');
+        setTimeout(() => regenerateBtn.classList.remove('rotating'), 620);
+      } catch {}
+    });
+
+    assignPads();
+
+    card.__samplerController = {
+      stopAll
+    };
+  });
+}
+
 function bootstrapAudioPlayer() {
-  const initialize = () => initAudioPlayers();
+  const initialize = () => {
+    initAudioPlayers();
+    initSamplerCards();
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initialize, { once: true });
@@ -345,6 +489,7 @@ function bootstrapAudioPlayer() {
   document.addEventListener('astro:page-load', () => {
     fadeOutAllControllers({ force: true });
     initAudioPlayers();
+    initSamplerCards();
   });
 
   if (!window.__bentoAudioShutdownHooked) {

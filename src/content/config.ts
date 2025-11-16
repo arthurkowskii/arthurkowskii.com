@@ -45,6 +45,7 @@ const projectsCollection = defineCollection({
         musicLinks: z.boolean().default(false),
         video: z.boolean().default(false),
         spotify: z.boolean().default(false),
+        sampler: z.boolean().default(false),
         soundcloud: z.boolean().default(false),
         audio: z.boolean().default(false),
         actions: z.boolean().default(true),
@@ -120,6 +121,13 @@ const projectsCollection = defineCollection({
           filename: z.string(), // filename without extension (e.g., "track1" for track1.webm/mp3)
           duration: z.string().optional(), // e.g., "3:45"
         })),
+      }).optional(),
+
+      sampler: z.object({
+        title: BilingualString.default('Sampler'),
+        description: BilingualStringOptional,
+        folder: z.string(),
+        samplePool: z.array(z.string()).min(1),
       }).optional(),
 
       // Actions configuration

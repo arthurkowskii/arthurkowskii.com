@@ -89,6 +89,12 @@ export interface Props {
             duration?: string;
           }>;
         };
+        sampler?: {
+          title?: string | { fr: string; en: string };
+          description?: string | { fr: string; en: string };
+          folder: string;
+          samplePool: string[];
+        };
       };
     };
   };
@@ -120,6 +126,8 @@ const cards = {
   musicLinks: false,
   video: false,
   spotify: false,
+  audio: true,
+  sampler: false,
   actions: true, 
   tech: true, 
   process: true, 
@@ -1102,6 +1110,249 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     isolation: isolate;
   }
 
+  /* Sampler Card */
+  .sampler-card {
+    grid-column: 9 / 13;
+    grid-row: 5;
+    padding: 2.25rem;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.08), transparent 60%), rgba(12, 12, 15, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+      0 25px 60px rgba(2, 6, 23, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .sampler-card::before {
+    content: '';
+    position: absolute;
+    inset: -25% auto auto -10%;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--accent-color-rgb), 0.25), transparent 70%);
+    filter: blur(40px);
+    opacity: 0.5;
+    z-index: 0;
+  }
+
+  .sampler-card::after {
+    content: '';
+    position: absolute;
+    inset: auto -25% -20% auto;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--accent-color-rgb), 0.2), transparent 70%);
+    filter: blur(30px);
+    opacity: 0.35;
+    z-index: 0;
+  }
+
+  html[data-theme="light"] .sampler-card {
+    background: radial-gradient(circle at 15% 15%, rgba(var(--accent-color-rgb), 0.15), transparent 65%), rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 18px 50px rgba(15, 23, 42, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  .sampler-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .sampler-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(244, 244, 245, 0.8);
+  }
+
+  html[data-theme="light"] .sampler-title {
+    color: rgba(15, 23, 42, 0.7);
+  }
+
+  .sampler-content {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.25rem;
+    align-items: center;
+  }
+
+  .sampler-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .sampler-pad-row {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .sampler-pad {
+    border: none;
+    border-radius: 20px;
+    width: 110px;
+    height: 110px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fafafa;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.55rem;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 18px 35px rgba(2, 6, 23, 0.35);
+  }
+
+  .sampler-pad::before {
+    content: '';
+    position: absolute;
+    inset: -20% -30%;
+    background: radial-gradient(circle, rgba(var(--accent-color-rgb), 0.38), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .sampler-pad::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+  }
+
+  .sampler-pad:hover::before,
+  .sampler-pad.sampler-pad--active::before {
+    opacity: 1;
+  }
+
+  .sampler-pad:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 30px 35px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .sampler-pad:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  html[data-theme="light"] .sampler-pad {
+    background: rgba(15, 15, 20, 0.82);
+    color: #f8fafc;
+    box-shadow: 0 12px 25px rgba(15, 23, 42, 0.25);
+  }
+
+  .sampler-pad-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.25em;
+  }
+
+  .sampler-pad-icon {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    height: 1em;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .sampler-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .sampler-regenerate-btn {
+    border: none;
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.12);
+    color: #f8fafc;
+    transition: all 0.25s ease;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 18px 35px rgba(2, 6, 23, 0.35);
+    position: relative;
+  }
+
+  .sampler-regenerate-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+  }
+
+  .sampler-regenerate-btn svg {
+    pointer-events: none;
+    transform-origin: center;
+  }
+
+  .sampler-regenerate-btn.rotating svg {
+    animation: sampler-regen-spin 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes sampler-regen-spin {
+    0% { transform: rotate(0deg); }
+    65% { transform: rotate(320deg); }
+    100% { transform: rotate(0deg); }
+  }
+
+  .sampler-pad--loading {
+    animation: sampler-pad-refresh 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes sampler-pad-refresh {
+    0% { transform: scale(0.92); opacity: 0.7; }
+    60% { transform: scale(1.03); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  html[data-theme="light"] .sampler-regenerate-btn {
+    background: rgba(15, 15, 20, 0.85);
+    color: #f8fafc;
+  }
+
+  .sampler-regenerate-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
   .audio-card::before,
   .audio-card::after {
     content: '';
@@ -1895,6 +2146,10 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       grid-column: 1 / 7;
       grid-row: 6;
     }
+    .sampler-card {
+      grid-column: 7 / 11;
+      grid-row: 6;
+    }
     .gallery-card {
       grid-column: 8 / 11; 
       grid-row: 3 / 5;
@@ -1986,6 +2241,10 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     }
     .audio-card {
       grid-column: 1 / 6;
+      grid-row: 6;
+    }
+    .sampler-card {
+      grid-column: 6 / 9;
       grid-row: 6;
     }
     .gallery-card {
@@ -2093,6 +2352,10 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     .audio-card {
       grid-column: 1 / 7;
       grid-row: 8;
+    }
+    .sampler-card {
+      grid-column: 1 / 7;
+      grid-row: 9;
     }
     .gallery-card {
       grid-column: 1 / 7; 
@@ -2618,12 +2881,12 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
               </svg>
             </button>
 
-            <button class="audio-skip-btn next-btn" aria-label="Next track">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                <path d="M16 18h2V6h-2zm-11-6l8.5-6v12z"/>
-              </svg>
-            </button>
-          </div>
+        <button class="audio-skip-btn next-btn" aria-label="Next track">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M16.5 12l-8.5-6v12l8.5-6zm1 6h2V6h-2v12z"/>
+          </svg>
+        </button>
+      </div>
 
           <div class="track-meta">
             <span class="track-label">{Astro.url.searchParams.get('lang') === 'en' ? 'Now playing' : 'Lecture en cours'}</span>
@@ -2641,6 +2904,52 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
           <div class="audio-times">
             <span class="time-current">0:00</span>
             <span class="time-total">0:00</span>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Sample Player Card */}
+    {cards.sampler && bento.sampler && (
+      <div
+        class="bento-card sampler-card"
+        data-folder={bento.sampler.folder}
+        data-samples={JSON.stringify(bento.sampler.samplePool || [])}
+      >
+        <div class="sampler-header">
+          <div class="sampler-title">
+            {(typeof bento.sampler.title === 'object'
+              ? bento.sampler.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.sampler.title.fr
+              : bento.sampler.title) || (Astro.url.searchParams.get('lang') === 'en' ? 'Sample Player' : 'Lecteur de Samples')}
+          </div>
+        </div>
+
+        <div class="sampler-content">
+          <div class="sampler-grid">
+            <div class="sampler-pad-row">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <button class="sampler-pad" data-pad-index={index} disabled>
+                  <span class="sampler-pad-icon" aria-hidden="true">▌▌</span>
+                  <span class="sampler-pad-name">{String(index + 1).padStart(2, '0')}</span>
+                </button>
+              ))}
+            </div>
+            <div class="sampler-pad-row">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <button class="sampler-pad" data-pad-index={index + 2} disabled>
+                  <span class="sampler-pad-icon" aria-hidden="true">▌▌</span>
+                  <span class="sampler-pad-name">{String(index + 3).padStart(2, '0')}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div class="sampler-controls">
+            <button class="sampler-regenerate-btn" type="button" aria-label={Astro.url.searchParams.get('lang') === 'en' ? 'Regenerate samples' : 'Régénérer les samples'}>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+                <path d="M17.65 6.35A7.95 7.95 0 0012 4a8 8 0 100 16 8 8 0 007.45-5.07 1 1 0 00-1.88-.66A6 6 0 1112 6a5.96 5.96 0 014.24 1.76l-1.99 1.99H21V4.75l-3.35 3.35z"/>
+              </svg>
+            </button>
           </div>
         </div>
       </div>

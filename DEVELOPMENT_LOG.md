@@ -265,6 +265,12 @@ Last updated: 2025-11-08 (Audio player card glassmorphic premium redesign)
 ✅ **Comprehensive asset optimization** with 85-94% size reductions across images and videos
 ✅ **Complete bilingual support** for all bento cards with proper French translations
 ✅ **Audio player card system** with Howler.js integration, playlist support, and bilingual UI
+✅ 2025-11-10: Sample Pad Card (MPC-inspired SFX sampler)
+  - Added `cards.sampler` toggle + `sampler` config block (folder + samplePool) to `content/config.ts`
+  - Introduced reusable sampler card in `ProjectBento.astro` with four fixed pads + regenerate control
+  - Extended `audioPlayerClient.js` to manage sampler Howler instances, global stop hooks, random pad assignments, and click-to-refresh animation
+  - First implementation wired to Chromestesia with `/audio/Chromestesia/SFX`; other projects can enable by specifying their sample folders
+  - UI parity with audio player: glassmorphic styling, numbered pads, refresh button with spin animation + pad pulse feedback
 ✅ 2025-11-09: Audio engine refinements
   - Added configurable Howler/low-pass settings to `user-tweaks.js` + `atom.config.js` (volume, fade speed, low-pass frequency/Q, independent LPF fade duration)
   - Refactored audio card JS into dedicated `audioPlayerClient.js` module (shared by overlays + project pages; no inline imports)

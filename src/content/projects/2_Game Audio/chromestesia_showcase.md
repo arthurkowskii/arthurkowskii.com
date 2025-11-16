@@ -32,6 +32,7 @@ bento:
     video: false
     spotify: false
     audio: true
+    sampler: true
     actions: true
     tech: true
     process: true
@@ -170,6 +171,28 @@ bento:
         artist: "Arthur Kowskii"
         filename: "BRING UP THE COLOR (Unplugged Version)"
         duration: "3:18"
+
+  sampler:
+    title:
+      fr: "Jouez avec les sons du jeu ⬇️"
+      en: "PLay sounds from this game ⬇️"
+    description:
+      fr: "Déclenchez quatre SFX emblématiques du jeu et régénérez une nouvelle configuration aléatoire."
+      en: "Trigger four iconic SFX from the game and regenerate a fresh random layout."
+    folder: "/audio/Chromestesia/SFX"
+    samplePool:
+      - "Core_Die.wav"
+      - "Core_Idle.wav"
+      - "Core_LoseLife_01.wav"
+      - "Events_SFX_Ennemies_Mage_MagicWand.wav"
+      - "GUITAR_PowerSlide_02.wav"
+      - "GUITAR_Select_01.wav"
+      - "Hit_Core_Vulnerable-006.wav"
+      - "PLUGGED_WIN_JINGLE.wav"
+      - "Shield_Down.wav"
+      - "Slash_01.wav"
+      - "Slash_02.wav"
+      - "THEME_02_JINGLE_WIN.wav"
 
   # Optional results
   results:
