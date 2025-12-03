@@ -50,10 +50,10 @@ BENTO_TEMPLATE.md
 social links
 
 # Audio files (hosted on server, not in repo)
-*.ogg
-*.mp3
-*.wav
-*.m4a
-*.flac
-/audio/
-/public/audio/
+# *.ogg
+# *.mp3
+# *.wav
+# *.m4a
+# *.flac
+# /audio/
+# /public/audio/
