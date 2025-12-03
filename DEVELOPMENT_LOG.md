@@ -1,15 +1,3 @@
-# Atom Portfolio — Development Log (Concise)
-
-**🤖 For Agents**: Start with `CLAUDE.md` for startup protocol, then `SESSION_CONTEXT.md` for current status.
-
-Full details: `docs/history/PHASE_LOGS.md`, `docs/history/ERRORS_LESSONS.md`
-
-Last updated: 2025-11-08 (Audio player card glassmorphic premium redesign)
-
-## Project Snapshot
-
-- Purpose: Interactive "atom" portfolio. Nucleus + concentric shells. Electrons represent projects grouped by domain. Smooth orbital motion, rich hover states, and an in-page project overlay.
-- Stack: Astro + GSAP (client only), Astro Content Collections (projects, bio), Decap CMS (admin; local proxy), SVG.
 - Status: Phase 4 complete. Stable motion/hover system; overlay and micro-interactions shipped; config-driven.
 - CMS: Decap admin is local-only for now; choose production backend (git-gateway/GitHub) during deploy.
 
@@ -265,6 +253,11 @@ Last updated: 2025-11-08 (Audio player card glassmorphic premium redesign)
 ✅ **Comprehensive asset optimization** with 85-94% size reductions across images and videos
 ✅ **Complete bilingual support** for all bento cards with proper French translations
 ✅ **Audio player card system** with Howler.js integration, playlist support, and bilingual UI
+✅ 2025-12-03: Sample Pad UI & Global Availability
+  - **UI Refresh**: Replaced play/pause icon with a cleaner "instrument-style" design featuring LED indicators and larger typography
+  - **Loading Animation**: Added visual pulse animation and 0.5s delay during sample regeneration for better feedback
+  - **Global Fallback**: Implemented `DEFAULT_SAMPLER_CONFIG` in `ProjectBento.astro`
+  - **Simplified Config**: Projects can now enable the sampler just by setting `sampler: true` in frontmatter; it automatically falls back to default samples (Chromestesia SFX) if no specific data is provided
 ✅ 2025-11-10: Sample Pad Card (MPC-inspired SFX sampler)
   - Added `cards.sampler` toggle + `sampler` config block (folder + samplePool) to `content/config.ts`
   - Introduced reusable sampler card in `ProjectBento.astro` with four fixed pads + regenerate control
@@ -307,3 +300,4 @@ Last updated: 2025-11-08 (Audio player card glassmorphic premium redesign)
 
 - Dynamic shells testing across 1-5 domain configurations (low priority)
 - Performance monitoring analysis and optimization opportunities (ongoing)
+- **Next Session**: UI Sound Design implementation (using Howler.js for clicks, hovers, etc.)

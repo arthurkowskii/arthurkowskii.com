@@ -78,7 +78,7 @@ function ensureLowPassFilter(config) {
     console.warn('Failed to initialize low-pass filter:', err);
     try {
       Howler.masterGain.connect(Howler.ctx.destination);
-    } catch {}
+    } catch { }
     globalLowPassFilter = null;
     return null;
   }
@@ -91,7 +91,7 @@ function resetLowPassFilter(config) {
   try {
     globalLowPassFilter.frequency.cancelScheduledValues(now);
     globalLowPassFilter.frequency.setValueAtTime(config.lowPass.startFrequencyHz, now);
-  } catch {}
+  } catch { }
 }
 
 function animateLowPassFilter(volumeFadeMs, config) {
@@ -221,16 +221,16 @@ function initAudioPlayers() {
         console.warn('Audio fade error:', err);
         try {
           targetSound.stop();
-        } catch {}
+        } catch { }
       }
 
       setTimeout(() => {
         try {
           targetSound.stop();
-        } catch {}
+        } catch { }
         try {
           targetSound.unload?.();
-        } catch {}
+        } catch { }
         isFadingOut = false;
       }, fadeMs + 80);
     }
@@ -367,9 +367,10 @@ function initSamplerCards() {
     const baseConfig = resolveConfig();
 
     function setPadIcon(pad, isPlaying) {
-      const icon = pad.querySelector('.sampler-pad-icon');
-      if (icon) {
-        icon.textContent = isPlaying ? '▶' : '▌▌';
+      if (isPlaying) {
+        pad.classList.add('is-playing');
+      } else {
+        pad.classList.remove('is-playing');
       }
     }
 
@@ -404,7 +405,7 @@ function initSamplerCards() {
       if (sound) {
         try {
           sound.stop();
-        } catch {}
+        } catch { }
         activeSounds.delete(pad);
       }
       if (!force) {
@@ -458,12 +459,24 @@ function initSamplerCards() {
 
     regenerateBtn?.addEventListener('click', () => {
       stopAll();
-      assignPads();
+      // Clear pads immediately to show "loading" state
+      pads.forEach((pad) => {
+        pad.dataset.sample = '';
+        pad.disabled = true;
+        setPadIcon(pad, false);
+      });
+
       flashPads();
+
       try {
         regenerateBtn.classList.add('rotating');
         setTimeout(() => regenerateBtn.classList.remove('rotating'), 620);
-      } catch {}
+      } catch { }
+
+      // Delay assignment to match animation
+      setTimeout(() => {
+        assignPads();
+      }, 500);
     });
 
     assignPads();

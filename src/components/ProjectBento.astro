@@ -38,11 +38,11 @@ export interface Props {
           logo?: string;
           showLogo?: boolean;
         };
-        stats?: Array<{ value: string; label: string; }>;
+        stats?: Array<{ value: string; label: string }>;
         actions?: {
           title?: string;
-          primary?: { text: string; url: string; };
-          secondary?: { text: string; url?: string; };
+          primary?: { text: string; url: string };
+          secondary?: { text: string; url?: string };
         };
         process?: {
           title?: string;
@@ -51,7 +51,7 @@ export interface Props {
         };
         gallery?: {
           title?: string | { fr: string; en: string };
-          images: Array<{ src: string; alt: string; }>;
+          images: Array<{ src: string; alt: string }>;
         };
         tech?: {
           title?: string | { fr: string; en: string };
@@ -59,16 +59,16 @@ export interface Props {
         challenges?: {
           title?: string;
           subtitle?: string;
-          items: Array<{ title: string; description: string; }>;
+          items: Array<{ title: string; description: string }>;
         };
         results?: {
           title?: string;
           subtitle?: string;
-          items: Array<{ icon: string; text: string; }>;
+          items: Array<{ icon: string; text: string }>;
         };
         musicLinks?: {
           title?: string;
-          items: Array<{ text: string; url: string; }>;
+          items: Array<{ text: string; url: string }>;
         };
         video?: {
           title?: string;
@@ -100,62 +100,92 @@ export interface Props {
   };
 }
 
-import atomConfig from '../atom.config.js';
-import audioPlayerClientScript from './audioPlayerClient.js?url';
+import atomConfig from "../atom.config.js";
+import audioPlayerClientScript from "./audioPlayerClient.js?url";
 // Music links icons (static imports). Folder name contains a space; keep as-is.
-import spotifyIcon from '../Assets/music_links assets/spotify.png?url';
-import appleMusicIcon from '../Assets/music_links assets/apple_music.png?url';
-import bandcampIcon from '../Assets/music_links assets/bandcamp-logo.png?url';
-import youtubeIcon from '../Assets/music_links assets/youtube.png?url';
-import soundcloudIcon from '../Assets/music_links assets/soundcloud.png?url';
+import spotifyIcon from "../Assets/music_links assets/spotify.png?url";
+import appleMusicIcon from "../Assets/music_links assets/apple_music.png?url";
+import youtubeIcon from "../Assets/music_links assets/youtube.png?url";
+import soundcloudIcon from "../Assets/music_links assets/soundcloud.png?url";
+import bandcampIcon from "../Assets/music_links assets/bandcamp-logo.png?url";
 
 const { project } = Astro.props;
 
 // Handle case where no project is passed (for preview pages)
 if (!project || !project.data) {
-  throw new Error('ProjectBento component requires a project prop with data');
+  throw new Error("ProjectBento component requires a project prop with data");
 }
 
 const { data } = project;
 
+// Default Sampler Configuration (Global Fallback)
+const DEFAULT_SAMPLER_CONFIG = {
+  folder: "Chromestesia",
+  samplePool: ["kick.ogg", "snare.ogg", "hihat.ogg", "perc.ogg"],
+  title: {
+    fr: "Sampler",
+    en: "Sampler",
+  },
+};
+
 // Bento configuration with defaults
 const bento = data.bento || {};
-const cards = { 
-  hero: true, 
-  stats: true, 
+const cards = {
+  hero: true,
+  stats: true,
   musicLinks: false,
   video: false,
   spotify: false,
   audio: true,
   sampler: false,
-  actions: true, 
-  tech: true, 
-  process: true, 
-  gallery: true, 
-  challenges: true, 
+  actions: true,
+  tech: true,
+  process: true,
+  gallery: true,
+  challenges: true,
   results: true,
-  ...bento.cards 
+  ...bento.cards,
 };
-const accentColor = bento.accentColor || '#ff6b00';
+
+// Merge sampler config with defaults if enabled
+if (cards.sampler) {
+  bento.sampler = {
+    ...DEFAULT_SAMPLER_CONFIG,
+    ...(bento.sampler || {}),
+  };
+}
+
+const accentColor = bento.accentColor || "#ff6b00";
 const accentColorDark = bento.accentColorDark || accentColor; // Fallback to main accent if no dark variant
-const hasCustomDarkAccent = !!(bento.accentColorDark && bento.accentColorDark !== accentColor);
+const hasCustomDarkAccent = !!(
+  bento.accentColorDark && bento.accentColorDark !== accentColor
+);
+
 // Compute lightness to guard against low-contrast accent-on-white text
 function hexToRgb(hex) {
-  const h = hex.replace('#', '').slice(0, 6);
+  const h = hex.replace("#", "").slice(0, 6);
   const m = h.match(/.{2}/g);
   if (!m) return { r: 0, g: 0, b: 0 };
-  return { r: parseInt(m[0], 16), g: parseInt(m[1], 16), b: parseInt(m[2], 16) };
+  return {
+    r: parseInt(m[0], 16),
+    g: parseInt(m[1], 16),
+    b: parseInt(m[2], 16),
+  };
 }
 function relativeLuminance({ r, g, b }) {
-  const srgb = [r, g, b].map(v => v / 255);
-  const lin = srgb.map(v => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+  const srgb = [r, g, b].map((v) => v / 255);
+  const lin = srgb.map((v) =>
+    v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4),
+  );
   return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
 }
 const accentRgbObj = hexToRgb(accentColor);
 const accentLum = relativeLuminance(accentRgbObj);
 const isLightAccent = accentLum > 0.7; // high-luminance accents (e.g., neon yellows)
 // Subtitle text color: prefer black when accent is too light to ensure readability
-const heroSubtitleColor = isLightAccent ? '#000000' : (bento.hero?.subtitleColor || accentColor);
+const heroSubtitleColor = isLightAccent
+  ? "#000000"
+  : bento.hero?.subtitleColor || accentColor;
 const audioPlayerConfig = atomConfig.audioPlayer || {};
 
 // Compute readable on-accent text color (white or black) based on contrast
@@ -166,69 +196,79 @@ function contrastRatio(l1, l2) {
 }
 const contrastWithWhite = contrastRatio(1, accentLum);
 const contrastWithBlack = contrastRatio(0, accentLum);
-const onAccentColor = contrastWithWhite >= contrastWithBlack ? '#ffffff' : '#000000';
+const onAccentColor =
+  contrastWithWhite >= contrastWithBlack ? "#ffffff" : "#000000";
 
 // Compute readable on-accent text color for dark theme accent
 const accentRgbObjDark = hexToRgb(accentColorDark);
 const accentLumDark = relativeLuminance(accentRgbObjDark);
 const contrastWithWhiteDark = contrastRatio(1, accentLumDark);
 const contrastWithBlackDark = contrastRatio(0, accentLumDark);
-const onAccentColorDark = contrastWithWhiteDark >= contrastWithBlackDark ? '#ffffff' : '#000000';
+const onAccentColorDark =
+  contrastWithWhiteDark >= contrastWithBlackDark ? "#ffffff" : "#000000";
 
 // Music Links availability: only render when exactly 4 links provided
-const hasMusicLinks = !!(cards.musicLinks && bento.musicLinks && Array.isArray(bento.musicLinks.items) && bento.musicLinks.items.length === 4);
+const hasMusicLinks = !!(
+  cards.musicLinks &&
+  bento.musicLinks &&
+  Array.isArray(bento.musicLinks.items) &&
+  bento.musicLinks.items.length === 4
+);
 if (cards.musicLinks && !hasMusicLinks) {
-  console.warn('[ProjectBento] musicLinks card enabled but missing 4 items; falling back to Stats card.');
+  console.warn(
+    "[ProjectBento] musicLinks card enabled but missing 4 items; falling back to Stats card.",
+  );
 }
 
 // Video utilities
 function extractVideoId(url) {
   // YouTube patterns
-  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+  const youtubeRegex =
+    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
   const youtubeMatch = url.match(youtubeRegex);
   if (youtubeMatch) {
-    return { platform: 'youtube', id: youtubeMatch[1] };
+    return { platform: "youtube", id: youtubeMatch[1] };
   }
-  
+
   // Vimeo patterns
   const vimeoRegex = /vimeo\.com\/(?:video\/)?(\d+)/;
   const vimeoMatch = url.match(vimeoRegex);
   if (vimeoMatch) {
-    return { platform: 'vimeo', id: vimeoMatch[1] };
+    return { platform: "vimeo", id: vimeoMatch[1] };
   }
-  
+
   return null;
 }
 
 function getVideoEmbedUrl(url) {
   const videoInfo = extractVideoId(url);
   if (!videoInfo) return null;
-  
-  if (videoInfo.platform === 'youtube') {
+
+  if (videoInfo.platform === "youtube") {
     // Use privacy-enhanced mode to reduce third-party requests/noise
     return `https://www.youtube-nocookie.com/embed/${videoInfo.id}`;
   }
-  
-  if (videoInfo.platform === 'vimeo') {
+
+  if (videoInfo.platform === "vimeo") {
     return `https://player.vimeo.com/video/${videoInfo.id}`;
   }
-  
+
   return null;
 }
 
-function generateVideoTitle(url, locale = 'fr') {
+function generateVideoTitle(url, locale = "fr") {
   const videoInfo = extractVideoId(url);
-  if (!videoInfo) return locale === 'en' ? 'Video' : 'Vidéo';
+  if (!videoInfo) return locale === "en" ? "Video" : "Vidéo";
 
-  if (videoInfo.platform === 'youtube') {
-    return locale === 'en' ? 'Watch on YouTube' : 'Voir sur YouTube';
+  if (videoInfo.platform === "youtube") {
+    return locale === "en" ? "Watch on YouTube" : "Voir sur YouTube";
   }
 
-  if (videoInfo.platform === 'vimeo') {
-    return locale === 'en' ? 'Watch on Vimeo' : 'Voir sur Vimeo';
+  if (videoInfo.platform === "vimeo") {
+    return locale === "en" ? "Watch on Vimeo" : "Voir sur Vimeo";
   }
-  
-  return 'Video';
+
+  return "Video";
 }
 
 // Spotify utilities
@@ -237,7 +277,7 @@ function extractSpotifyId(url) {
   const spotifyRegex = /spotify\.com\/(album|track|playlist)\/([a-zA-Z0-9]+)/;
   const match = url.match(spotifyRegex);
   if (match) {
-    return { platform: 'spotify', type: match[1], id: match[2] };
+    return { platform: "spotify", type: match[1], id: match[2] };
   }
   return null;
 }
@@ -245,34 +285,40 @@ function extractSpotifyId(url) {
 function getSpotifyEmbedUrl(url) {
   const spotifyInfo = extractSpotifyId(url);
   if (!spotifyInfo) return null;
-  
+
   // Spotify embed URL format
   return `https://open.spotify.com/embed/${spotifyInfo.type}/${spotifyInfo.id}?utm_source=generator`;
 }
 
 function generateSpotifyTitle(url) {
   const spotifyInfo = extractSpotifyId(url);
-  if (!spotifyInfo) return 'Music';
-  
-  if (spotifyInfo.type === 'album') {
-    return 'Listen on Spotify (Album)';
-  } else if (spotifyInfo.type === 'playlist') {
-    return 'Listen on Spotify (Playlist)';
-  } else if (spotifyInfo.type === 'track') {
-    return 'Listen on Spotify (Track)';
+  if (!spotifyInfo) return "Music";
+
+  if (spotifyInfo.type === "album") {
+    return "Listen on Spotify (Album)";
+  } else if (spotifyInfo.type === "playlist") {
+    return "Listen on Spotify (Playlist)";
+  } else if (spotifyInfo.type === "track") {
+    return "Listen on Spotify (Track)";
   }
-  
-  return 'Listen on Spotify';
+
+  return "Listen on Spotify";
 }
 
 // SoundCloud utilities
 function extractSoundCloudId(url) {
   // SoundCloud patterns for tracks and playlists/sets
-  const soundcloudRegex = /soundcloud\.com\/([a-zA-Z0-9\-_]+)\/(?:sets\/)?([a-zA-Z0-9\-_]+)/;
+  const soundcloudRegex =
+    /soundcloud\.com\/([a-zA-Z0-9\-_]+)\/(?:sets\/)?([a-zA-Z0-9\-_]+)/;
   const match = url.match(soundcloudRegex);
   if (match) {
-    const isSet = url.includes('/sets/');
-    return { platform: 'soundcloud', type: isSet ? 'set' : 'track', user: match[1], id: match[2] };
+    const isSet = url.includes("/sets/");
+    return {
+      platform: "soundcloud",
+      type: isSet ? "set" : "track",
+      user: match[1],
+      id: match[2],
+    };
   }
   return null;
 }
@@ -284,13 +330,13 @@ function getSoundCloudEmbedUrl(url) {
 
 function generateSoundCloudTitle(url) {
   const soundcloudInfo = extractSoundCloudId(url);
-  if (!soundcloudInfo) return 'Audio';
-  
-  if (soundcloudInfo.type === 'set') {
-    return 'Listen on SoundCloud (Playlist)';
+  if (!soundcloudInfo) return "Audio";
+
+  if (soundcloudInfo.type === "set") {
+    return "Listen on SoundCloud (Playlist)";
   }
-  
-  return 'Listen on SoundCloud';
+
+  return "Listen on SoundCloud";
 }
 
 // Icon mapping and platform inference for Music Links
@@ -304,114 +350,150 @@ const MUSIC_ICONS: Record<string, any> = {
 };
 
 function normalizeKey(s?: string): string {
-  return (s || '').toLowerCase().replace(/[^a-z]/g, '');
+  return (s || "").toLowerCase().replace(/[^a-z]/g, "");
 }
 
 function inferPlatform(text?: string, url?: string): string {
   const t = normalizeKey(text);
   if (t && MUSIC_ICONS[t]) return t;
-  const u = (url || '').toLowerCase();
-  if (u.includes('spotify')) return 'spotify';
-  if (u.includes('apple') || u.includes('music.apple')) return 'applemusic';
-  if (u.includes('bandcamp')) return 'bandcamp';
-  if (u.includes('youtube') || u.includes('youtu.be')) return 'youtube';
-  if (u.includes('soundcloud')) return 'soundcloud';
-  return '';
+  const u = (url || "").toLowerCase();
+  if (u.includes("spotify")) return "spotify";
+  if (u.includes("apple") || u.includes("music.apple")) return "applemusic";
+  if (u.includes("bandcamp")) return "bandcamp";
+  if (u.includes("youtube") || u.includes("youtu.be")) return "youtube";
+  if (u.includes("soundcloud")) return "soundcloud";
+  return "";
 }
 
 // Build gallery and hero assets automatically from a folder when provided
-type Img = { src: string; alt: string; isVideo?: boolean; thumbnail?: string; fullSrc?: string };
+type Img = {
+  src: string;
+  alt: string;
+  isVideo?: boolean;
+  thumbnail?: string;
+  fullSrc?: string;
+};
 function humanize(name: string): string {
-  const base = name.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const base = name.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
   return base.charAt(0).toUpperCase() + base.slice(1);
 }
 
 // Eagerly glob project images and videos and get resolved asset URLs (works in dev/build)
 // Note: use query '?url' + import 'default' (Vite deprecation of `as: 'url'`)
-const ALL_ASSET_URLS = import.meta.glob('/src/content/projects/**/*.{jpg,jpeg,png,webp,gif,mp4,webm,mov}', {
-  eager: true,
-  query: '?url',
-  import: 'default'
-}) as Record<string,string>;
+const ALL_ASSET_URLS = import.meta.glob(
+  "/src/content/projects/**/*.{jpg,jpeg,png,webp,gif,mp4,webm,mov}",
+  {
+    eager: true,
+    query: "?url",
+    import: "default",
+  },
+) as Record<string, string>;
 
 function resolveAssetUrl(raw?: string): string | undefined {
   if (!raw) return undefined;
-  let key = raw.replace(/\\/g, '/');
-  if (!key.startsWith('/')) key = '/' + key;
+  let key = raw.replace(/\\/g, "/");
+  if (!key.startsWith("/")) key = "/" + key;
   if (ALL_ASSET_URLS[key]) return ALL_ASSET_URLS[key];
   const noLead = key.slice(1);
   if (ALL_ASSET_URLS[noLead]) return ALL_ASSET_URLS[noLead];
   return undefined;
 }
 
-function scanAssetsFolder(folder: string | undefined, explicitHeroBg?: string, explicitLogo?: string): {
-  heroBg?: string,
-  heroLogo?: string,
-  heroIsVideo?: boolean,
-  heroThumbnail?: string,
-  images: Img[]
+function scanAssetsFolder(
+  folder: string | undefined,
+  explicitHeroBg?: string,
+  explicitLogo?: string,
+): {
+  heroBg?: string;
+  heroLogo?: string;
+  heroIsVideo?: boolean;
+  heroThumbnail?: string;
+  images: Img[];
 } {
   if (!folder) return { images: [] };
   // Normalize folder to POSIX-style with leading slash and no trailing slash
-  let norm = folder.replace(/\\/g, '/');
-  if (!norm.startsWith('/')) norm = '/' + norm;
-  if (norm.endsWith('/')) norm = norm.slice(0, -1);
+  let norm = folder.replace(/\\/g, "/");
+  if (!norm.startsWith("/")) norm = "/" + norm;
+  if (norm.endsWith("/")) norm = norm.slice(0, -1);
 
   // Collect all files under the folder from the glob map
   const entries = Object.entries(ALL_ASSET_URLS)
-    .filter(([p]) => p.startsWith(norm + '/'))
+    .filter(([p]) => p.startsWith(norm + "/"))
     .map(([p, url]) => ({ path: p, url }));
 
   // Separate hero/logo and gallery
   const parts = entries.map(({ path, url }) => {
-    const base = path.split('/').pop() || '';
-    const name = base.replace(/\.[^.]+$/, '');
+    const base = path.split("/").pop() || "";
+    const name = base.replace(/\.[^.]+$/, "");
     const nameLC = name.toLowerCase();
     return { base, name, nameLC, url };
   });
 
-  const heroFile = parts.find(p => p.nameLC === 'hero');
-  const logoFile = parts.find(p => p.nameLC === 'logo');
-  const thumbnailFile = parts.find(p => p.nameLC === 'thumbnail');
+  const heroFile = parts.find((p) => p.nameLC === "hero");
+  const logoFile = parts.find((p) => p.nameLC === "logo");
+  const thumbnailFile = parts.find((p) => p.nameLC === "thumbnail");
   const heroBg = resolveAssetUrl(explicitHeroBg) || heroFile?.url;
   const heroLogo = resolveAssetUrl(explicitLogo) || logoFile?.url;
-  
+
   // Check if hero is a video file
-  const heroIsVideo = heroFile?.base ? /\.(mp4|webm|mov)$/i.test(heroFile.base) : false;
-  
+  const heroIsVideo = heroFile?.base
+    ? /\.(mp4|webm|mov)$/i.test(heroFile.base)
+    : false;
+
   // Get thumbnail for video hero (only when hero is a video and thumbnail exists)
-  const heroThumbnail = (heroIsVideo && thumbnailFile) ? thumbnailFile.url : undefined;
+  const heroThumbnail =
+    heroIsVideo && thumbnailFile ? thumbnailFile.url : undefined;
 
   // Reserved names to exclude from gallery
-  const reserved = new Set<string>(['hero', 'logo', 'thumbnail']);
-  if (explicitHeroBg) reserved.add((explicitHeroBg.split('/').pop() || '').replace(/\.[^.]+$/, '').toLowerCase());
-  if (explicitLogo) reserved.add((explicitLogo.split('/').pop() || '').replace(/\.[^.]+$/, '').toLowerCase());
+  const reserved = new Set<string>(["hero", "logo", "thumbnail"]);
+  if (explicitHeroBg)
+    reserved.add(
+      (explicitHeroBg.split("/").pop() || "")
+        .replace(/\.[^.]+$/, "")
+        .toLowerCase(),
+    );
+  if (explicitLogo)
+    reserved.add(
+      (explicitLogo.split("/").pop() || "")
+        .replace(/\.[^.]+$/, "")
+        .toLowerCase(),
+    );
 
   // Find thumbnails for each image
   const thumbnails = new Map<string, string>();
   parts
-    .filter(p => p.nameLC.includes('thumb') || p.nameLC.endsWith('_thumb') || p.nameLC.startsWith('thumb_'))
-    .forEach(p => {
+    .filter(
+      (p) =>
+        p.nameLC.includes("thumb") ||
+        p.nameLC.endsWith("_thumb") ||
+        p.nameLC.startsWith("thumb_"),
+    )
+    .forEach((p) => {
       // Extract base name from thumbnail (remove thumb patterns)
       let baseName = p.nameLC
-        .replace(/^thumb[_-]/, '')
-        .replace(/[_-]thumb$/, '')
-        .replace(/thumb/, '');
+        .replace(/^thumb[_-]/, "")
+        .replace(/[_-]thumb$/, "")
+        .replace(/thumb/, "");
       thumbnails.set(baseName, p.url);
     });
 
   const images = parts
-    .filter(p => !reserved.has(p.nameLC))
-    .filter(p => !(p.nameLC.includes('thumb'))) // Exclude thumbnail files from main gallery
-    .sort((a, b) => a.base.localeCompare(b.base, undefined, { numeric: true, sensitivity: 'base' }))
-    .map(p => {
+    .filter((p) => !reserved.has(p.nameLC))
+    .filter((p) => !p.nameLC.includes("thumb")) // Exclude thumbnail files from main gallery
+    .sort((a, b) =>
+      a.base.localeCompare(b.base, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      }),
+    )
+    .map((p) => {
       const thumbnail = thumbnails.get(p.nameLC);
-      return { 
+      return {
         src: thumbnail || p.url, // Use thumbnail for initial src if available
         alt: humanize(p.name),
         isVideo: /\.(mp4|webm|mov)$/i.test(p.base),
         thumbnail: thumbnail,
-        fullSrc: p.url // Always store full-resolution URL
+        fullSrc: p.url, // Always store full-resolution URL
       };
     });
 
@@ -420,7 +502,11 @@ function scanAssetsFolder(folder: string | undefined, explicitHeroBg?: string, e
 
 const explicitHeroBg = bento.hero?.backgroundImage;
 const explicitLogo = bento.hero?.logo;
-const assets = scanAssetsFolder(bento.assetsFolder, explicitHeroBg, explicitLogo);
+const assets = scanAssetsFolder(
+  bento.assetsFolder,
+  explicitHeroBg,
+  explicitLogo,
+);
 
 // Final hero URLs prefer explicit values; fall back to auto-detected files
 const heroBackgroundUrl = explicitHeroBg || assets.heroBg;
@@ -428,31 +514,35 @@ const heroLogoUrl = explicitLogo || assets.heroLogo;
 
 // Final gallery prefers explicit config when present; otherwise auto
 const configuredImages: Img[] | undefined = bento.gallery?.images as any;
-const galleryImages: Img[] = (configuredImages && configuredImages.length > 0)
-  ? configuredImages.map(img => ({ 
-      src: resolveAssetUrl(img.src) || img.src, 
-      alt: img.alt,
-      isVideo: /\.(mp4|webm|mov)$/i.test(img.src)
-    }))
-  : assets.images;
+const galleryImages: Img[] =
+  configuredImages && configuredImages.length > 0
+    ? configuredImages.map((img) => ({
+        src: resolveAssetUrl(img.src) || img.src,
+        alt: img.alt,
+        isVideo: /\.(mp4|webm|mov)$/i.test(img.src),
+      }))
+    : assets.images;
 
 // Fallback: if no explicit or auto hero image, use first gallery image
-const finalHeroUrl = heroBackgroundUrl || (galleryImages[0]?.src);
+const finalHeroUrl = heroBackgroundUrl || galleryImages[0]?.src;
 
 // For video heroes, also provide thumbnail fallback for static contexts
 const heroThumbnailUrl = assets.heroThumbnail;
 
 // Hero background styling with customizable positioning and sizing
-const heroBackgroundPosition = bento.hero?.backgroundPosition || 'center';
+const heroBackgroundPosition = bento.hero?.backgroundPosition || "center";
 const heroBackgroundScale = bento.hero?.backgroundScale;
-const heroBackgroundSize = heroBackgroundScale ? 
-  `${heroBackgroundScale * 100}%` : 
-  (bento.hero?.backgroundSize || 'cover');
+const heroBackgroundSize = heroBackgroundScale
+  ? `${heroBackgroundScale * 100}%`
+  : bento.hero?.backgroundSize || "cover";
 
 // Configurable overlay opacity - support both new individual parameters and legacy single parameter
 let overlayTopOpacity, overlayBottomOpacity;
 
-if (bento.hero?.overlayTopOpacity !== undefined || bento.hero?.overlayBottomOpacity !== undefined) {
+if (
+  bento.hero?.overlayTopOpacity !== undefined ||
+  bento.hero?.overlayBottomOpacity !== undefined
+) {
   // Use individual parameters when provided
   overlayTopOpacity = bento.hero?.overlayTopOpacity ?? 0.1; // Default top: light
   overlayBottomOpacity = bento.hero?.overlayBottomOpacity ?? 0.35; // Default bottom: moderate
@@ -464,46 +554,73 @@ if (bento.hero?.overlayTopOpacity !== undefined || bento.hero?.overlayBottomOpac
 }
 
 // Debug: log the values for troubleshooting
-// console.log('Overlay Debug:', { 
+// console.log('Overlay Debug:', {
 //   projectTitle: data.title,
-//   overlayOpacity, 
-//   overlayTopOpacity, 
-//   overlayBottomOpacity 
+//   overlayOpacity,
+//   overlayTopOpacity,
+//   overlayBottomOpacity
 // });
 
 // Use a dedicated .hero-bg layer for the image so hover scale is visible.
 // Keep hero card background empty to avoid a second static image behind it.
-const heroStyle = '';
+const heroStyle = "";
 
 // heroBgStyle is no longer used - overlay is controlled by .hero-overlay CSS class
-const heroBgStyle = '';
+const heroBgStyle = "";
 
 // Generate CSS custom properties for the accent color
 // Handle both 6-char (#ff6b00) and 8-char (#dfdb00ff) hex colors
-const cleanHex = accentColor.replace('#', '');
+const cleanHex = accentColor.replace("#", "");
 const hexRgb = cleanHex.length === 8 ? cleanHex.slice(0, 6) : cleanHex; // Remove alpha if present
-const accentColorRgb = hexRgb.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join(', ') || '255, 107, 0';
+const accentColorRgb =
+  hexRgb
+    .match(/.{2}/g)
+    ?.map((hex) => parseInt(hex, 16))
+    .join(", ") || "255, 107, 0";
 
 // Generate CSS custom properties for dark theme accent color
-const cleanHexDark = accentColorDark.replace('#', '');
-const hexRgbDark = cleanHexDark.length === 8 ? cleanHexDark.slice(0, 6) : cleanHexDark;
-const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 16)).join(', ') || '255, 107, 0';
+const cleanHexDark = accentColorDark.replace("#", "");
+const hexRgbDark =
+  cleanHexDark.length === 8 ? cleanHexDark.slice(0, 6) : cleanHexDark;
+const accentColorRgbDark =
+  hexRgbDark
+    .match(/.{2}/g)
+    ?.map((hex) => parseInt(hex, 16))
+    .join(", ") || "255, 107, 0";
 ---
 
-<style define:vars={{ accentColor, accentColorRgb, accentColorDark, accentColorRgbDark, heroSubtitleColor, onAccentColor, onAccentColorDark, overlayTopOpacity, overlayBottomOpacity }}>
+<style
+  define:vars={{
+    accentColor,
+    accentColorRgb,
+    accentColorDark,
+    accentColorRgbDark,
+    heroSubtitleColor,
+    onAccentColor,
+    onAccentColorDark,
+    overlayTopOpacity,
+    overlayBottomOpacity,
+  }}
+>
   .project-bento {
     min-height: 100vh;
     background: #ffffff !important;
     color: #000000;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
     padding-top: 4rem; /* Space for close button */
     padding-bottom: 2rem; /* Ensure space for scrolling */
-    
+
     /* CSS custom properties for accent color theming */
     --accent-color: var(--accentColor);
     --accent-color-rgb: var(--accentColorRgb);
     /* Derived roles */
-    --accent-bg-weak: rgba(var(--accent-color-rgb), 0.10);
+    --accent-bg-weak: rgba(var(--accent-color-rgb), 0.1);
     --accent-bg-weak-hover: rgba(var(--accent-color-rgb), 0.16);
     --accent-border: rgba(var(--accent-color-rgb), 0.28);
     --on-accent: var(--onAccentColor);
@@ -513,13 +630,13 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   html[data-theme="dark"] .project-bento {
     background: #0f0f0f !important;
     color: #e4e4e7;
-    
+
     /* Override accent colors with dark theme variants */
     --accent-color: var(--accentColorDark);
     --accent-color-rgb: var(--accentColorRgbDark);
     --on-accent: var(--onAccentColorDark);
     /* Derived roles automatically update based on new color */
-    --accent-bg-weak: rgba(var(--accentColorRgbDark), 0.10);
+    --accent-bg-weak: rgba(var(--accentColorRgbDark), 0.1);
     --accent-bg-weak-hover: rgba(var(--accentColorRgbDark), 0.16);
     --accent-border: rgba(var(--accentColorRgbDark), 0.28);
   }
@@ -528,14 +645,18 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   html[data-theme="dark"] .bento-card {
     background: #1a1a1a;
     border: 1px solid #333333;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.06),
+      0 4px 12px rgba(0, 0, 0, 0.04);
     color: #e4e4e7;
   }
 
   html[data-theme="dark"] .bento-card:hover,
   html[data-theme="dark"] .bento-card:focus {
     border-color: rgba(var(--accent-color-rgb), 0.6);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 8px 32px rgba(0, 0, 0, 0.2);
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.4),
+      0 8px 32px rgba(0, 0, 0, 0.2);
     transform: translateY(-2px) scale(1.02);
   }
 
@@ -550,7 +671,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
 
   html[data-theme="dark"] .hero-title {
     color: #ffffff;
-    text-shadow: 0 2px 15px rgba(0,0,0,0.9);
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.9);
   }
 
   html[data-theme="dark"] .hero-description {
@@ -594,9 +715,13 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
 
   /* Dark theme action buttons */
   html[data-theme="dark"] .action-btn.primary {
-    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-color) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--accent-color) 0%,
+      var(--accent-color) 100%
+    );
     color: var(--on-accent);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   html[data-theme="dark"] .action-btn.secondary {
@@ -692,7 +817,6 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     color: var(--accent-color);
   }
 
-
   .bento-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -709,29 +833,35 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     border-radius: 16px;
     padding: 1.5rem;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.06),
+      0 4px 12px rgba(0, 0, 0, 0.04);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
     position: relative;
-    
+
     /* Initial state for scale animation */
     transform: scale(0);
     opacity: 0;
     transform-origin: center;
   }
-  
+
   /* Simple scale animation when cards become visible */
   .bento-card.animate-in {
     transform: scale(1);
     opacity: 1;
-    transition: transform var(--duration, 400ms) var(--easing, cubic-bezier(0.34, 1.56, 0.64, 1)), 
-                opacity var(--duration, 400ms) ease;
+    transition:
+      transform var(--duration, 400ms)
+        var(--easing, cubic-bezier(0.34, 1.56, 0.64, 1)),
+      opacity var(--duration, 400ms) ease;
   }
 
   .bento-card:hover,
   .bento-card:focus {
     border-color: var(--accent-color) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 8px 32px rgba(0, 0, 0, 0.06);
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.1),
+      0 8px 32px rgba(0, 0, 0, 0.06);
     transform: translateY(-2px) scale(1.02);
     outline: none; /* Remove any browser default outline */
   }
@@ -750,7 +880,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   }
 
   .bento-card::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -791,7 +921,8 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     pointer-events: none; /* ensure clicks pass to content */
   }
 
-  .hero-bg-img, .hero-bg-video {
+  .hero-bg-img,
+  .hero-bg-video {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -801,7 +932,11 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,var(--overlayTopOpacity)), rgba(0,0,0,var(--overlayBottomOpacity)));
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, var(--overlayTopOpacity)),
+      rgba(0, 0, 0, var(--overlayBottomOpacity))
+    );
   }
 
   .hero-card:hover .hero-bg {
@@ -809,8 +944,12 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-card .hero-bg { transition: transform 160ms ease-out; }
-    .hero-card:hover .hero-bg { transform: scale(1.02); }
+    .hero-card .hero-bg {
+      transition: transform 160ms ease-out;
+    }
+    .hero-card:hover .hero-bg {
+      transform: scale(1.02);
+    }
   }
 
   .hero-content {
@@ -828,9 +967,8 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: #ffffff;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
   }
-
 
   .hero-description {
     font-size: 1.1rem;
@@ -988,14 +1126,26 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     font-size: 1.8rem;
     font-weight: 700;
     color: #171717; /* readable across accents */
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
     display: block;
   }
 
   .stat-label {
     font-size: 0.85rem;
     color: #525252;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
     margin-top: 0.3rem;
   }
 
@@ -1014,7 +1164,13 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     text-decoration: none;
     text-align: center;
     font-weight: 600;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
@@ -1022,9 +1178,13 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   }
 
   .action-btn.primary {
-    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-color) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--accent-color) 0%,
+      var(--accent-color) 100%
+    );
     color: var(--on-accent);
-    border: 1px solid rgba(0,0,0,0.12);
+    border: 1px solid rgba(0, 0, 0, 0.12);
   }
 
   .action-btn.primary:hover {
@@ -1117,7 +1277,12 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     padding: 2.25rem;
     position: relative;
     overflow: hidden;
-    background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.08), transparent 60%), rgba(12, 12, 15, 0.95);
+    background: radial-gradient(
+        circle at 20% 20%,
+        rgba(255, 255, 255, 0.08),
+        transparent 60%
+      ),
+      rgba(12, 12, 15, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.06);
     box-shadow:
       0 25px 60px rgba(2, 6, 23, 0.18),
@@ -1129,33 +1294,46 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   }
 
   .sampler-card::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: -25% auto auto -10%;
     width: 250px;
     height: 250px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(var(--accent-color-rgb), 0.25), transparent 70%);
+    background: radial-gradient(
+      circle,
+      rgba(var(--accent-color-rgb), 0.25),
+      transparent 70%
+    );
     filter: blur(40px);
     opacity: 0.5;
     z-index: 0;
   }
 
   .sampler-card::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: auto -25% -20% auto;
     width: 220px;
     height: 220px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(var(--accent-color-rgb), 0.2), transparent 70%);
+    background: radial-gradient(
+      circle,
+      rgba(var(--accent-color-rgb), 0.2),
+      transparent 70%
+    );
     filter: blur(30px);
     opacity: 0.35;
     z-index: 0;
   }
 
   html[data-theme="light"] .sampler-card {
-    background: radial-gradient(circle at 15% 15%, rgba(var(--accent-color-rgb), 0.15), transparent 65%), rgba(255, 255, 255, 0.92);
+    background: radial-gradient(
+        circle at 15% 15%,
+        rgba(var(--accent-color-rgb), 0.15),
+        transparent 65%
+      ),
+      rgba(255, 255, 255, 0.92);
     border: 1px solid rgba(0, 0, 0, 0.04);
     box-shadow:
       0 18px 50px rgba(15, 23, 42, 0.08),
@@ -1226,16 +1404,20 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   }
 
   .sampler-pad::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: -20% -30%;
-    background: radial-gradient(circle, rgba(var(--accent-color-rgb), 0.38), transparent 70%);
+    background: radial-gradient(
+      circle,
+      rgba(var(--accent-color-rgb), 0.38),
+      transparent 70%
+    );
     opacity: 0;
     transition: opacity 0.35s ease;
   }
 
   .sampler-pad::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     border-radius: 22px;
@@ -1269,21 +1451,36 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   }
 
   .sampler-pad-name {
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 1.5rem;
+    font-weight: 700;
     line-height: 1;
-    color: rgba(255, 255, 255, 0.9);
-    letter-spacing: 0.25em;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.05em;
+    transition: color 0.2s ease;
   }
 
-  .sampler-pad-icon {
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    color: rgba(255, 255, 255, 0.6);
-    text-transform: uppercase;
-    height: 1em;
-    display: inline-flex;
-    align-items: center;
+  .sampler-pad.is-playing .sampler-pad-name {
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 0 0 15px rgba(var(--accent-color-rgb), 0.5);
+  }
+
+  .sampler-pad-led {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+    transition: all 0.1s ease;
+  }
+
+  .sampler-pad.is-playing .sampler-pad-led {
+    background: var(--accent-color);
+    box-shadow:
+      0 0 6px var(--accent-color),
+      0 0 10px var(--accent-color);
   }
 
   .sampler-controls {
@@ -1326,19 +1523,35 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   }
 
   @keyframes sampler-regen-spin {
-    0% { transform: rotate(0deg); }
-    65% { transform: rotate(320deg); }
-    100% { transform: rotate(0deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    65% {
+      transform: rotate(320deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
   }
 
   .sampler-pad--loading {
-    animation: sampler-pad-refresh 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: sampler-pad-loading-pulse 0.5s ease-in-out;
+    pointer-events: none;
   }
 
-  @keyframes sampler-pad-refresh {
-    0% { transform: scale(0.92); opacity: 0.7; }
-    60% { transform: scale(1.03); opacity: 1; }
-    100% { transform: scale(1); opacity: 1; }
+  @keyframes sampler-pad-loading-pulse {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.3;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 
   html[data-theme="light"] .sampler-regenerate-btn {
@@ -1355,7 +1568,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
 
   .audio-card::before,
   .audio-card::after {
-    content: '';
+    content: "";
     position: absolute;
     border-radius: 999px;
     pointer-events: none;
@@ -1430,7 +1643,13 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     padding: 0.45rem 1rem;
     border-radius: 999px;
     font-weight: 600;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
   }
 
   html[data-theme="dark"] .audio-badge {
@@ -1449,7 +1668,13 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     text-transform: uppercase;
     color: rgba(15, 23, 42, 0.6);
     margin: 0;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
   }
 
   html[data-theme="dark"] .audio-heading {
@@ -1497,11 +1722,15 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
 
   /* Skip button hover states */
   .audio-skip-btn::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    background: radial-gradient(circle at center, rgba(var(--accent-color-rgb), 0.15) 0%, transparent 70%);
+    background: radial-gradient(
+      circle at center,
+      rgba(var(--accent-color-rgb), 0.15) 0%,
+      transparent 70%
+    );
     opacity: 0;
     transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -1541,13 +1770,15 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
 
   /* Play button glow effect */
   .audio-play-btn::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: -3px;
     border-radius: 50%;
-    background: radial-gradient(circle at center,
+    background: radial-gradient(
+      circle at center,
       rgba(var(--accent-color-rgb), 0.4) 0%,
-      transparent 70%);
+      transparent 70%
+    );
     opacity: 0;
     transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: -1;
@@ -1571,7 +1802,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
 
   /* Playing state animation */
   .audio-play-btn.playing::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: -6px;
     border-radius: 50%;
@@ -1608,7 +1839,13 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     text-transform: uppercase;
     color: rgba(15, 23, 42, 0.6);
     font-weight: 600;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
   }
 
   html[data-theme="dark"] .track-label {
@@ -1622,7 +1859,13 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     font-weight: 600;
     color: #0f172a;
     margin: 0;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
     letter-spacing: -0.01em;
     line-height: 1.4;
   }
@@ -1646,9 +1889,11 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   /* Progress Bar Container */
   .audio-progress-bar {
     height: 8px;
-    background: linear-gradient(to right,
+    background: linear-gradient(
+      to right,
       rgba(var(--accent-color-rgb), 0.12) 0%,
-      rgba(var(--accent-color-rgb), 0.08) 100%);
+      rgba(var(--accent-color-rgb), 0.08) 100%
+    );
     border-radius: 4px;
     position: relative;
     cursor: pointer;
@@ -1657,9 +1902,11 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   }
 
   html[data-theme="dark"] .audio-progress-bar {
-    background: linear-gradient(to right,
+    background: linear-gradient(
+      to right,
       rgba(var(--accent-color-rgb), 0.18) 0%,
-      rgba(var(--accent-color-rgb), 0.12) 100%);
+      rgba(var(--accent-color-rgb), 0.12) 100%
+    );
   }
 
   /* Progress bar hover expansion */
@@ -1671,9 +1918,11 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   /* Progress Fill */
   .audio-progress-fill {
     height: 100%;
-    background: linear-gradient(90deg,
+    background: linear-gradient(
+      90deg,
       var(--accent-color) 0%,
-      color-mix(in srgb, var(--accent-color) 85%, white) 100%);
+      color-mix(in srgb, var(--accent-color) 85%, white) 100%
+    );
     border-radius: 4px;
     width: 0%;
     transition: width 0.1s linear;
@@ -1690,7 +1939,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
 
   /* Progress indicator dot */
   .audio-progress-fill::after {
-    content: '';
+    content: "";
     position: absolute;
     right: -2px;
     top: 50%;
@@ -1724,7 +1973,13 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     font-weight: 600;
     color: rgba(15, 23, 42, 0.6);
     font-variant-numeric: tabular-nums;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
     letter-spacing: 0.08em;
     padding: 0 0.25rem;
   }
@@ -1806,7 +2061,13 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     border: 1px solid var(--accent-border);
     font-size: 0.9rem;
     font-weight: 500;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
     transition: all 0.3s ease;
   }
 
@@ -1964,7 +2225,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   }
 
   /* CSS-only fallback: if JS didn't set data-rows yet, show only first row of 3 */
-  .gallery-thumbnails:not([data-rows]) .gallery-thumb:nth-child(n+4) {
+  .gallery-thumbnails:not([data-rows]) .gallery-thumb:nth-child(n + 4) {
     display: none;
   }
 
@@ -2053,18 +2314,30 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     color: #171717;
     margin-bottom: 0.5rem;
     font-weight: 600;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
   }
 
   .card-subtitle {
     color: #525252;
     font-size: 0.9rem;
     margin-bottom: 1rem;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family:
+      Inter,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      system-ui,
+      sans-serif;
   }
 
   /* Responsive Design - Mobile First Approach */
-  
+
   /* Large Tablets & Small Desktops (1200px - 1399px) */
   @media (max-width: 1399px) {
     .bento-container {
@@ -2080,34 +2353,34 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       gap: 1.2rem;
       padding: 1.2rem;
     }
-    
-    .hero-card { 
-      grid-column: 5 / 11; 
-      grid-row: 1 / 3; 
+
+    .hero-card {
+      grid-column: 5 / 11;
+      grid-row: 1 / 3;
     }
-    .stats-card { 
-      grid-column: 1 / 5; 
-      grid-row: 1; 
+    .stats-card {
+      grid-column: 1 / 5;
+      grid-row: 1;
     }
     .music-links-card {
       grid-column: 1 / 5;
       grid-row: 1;
     }
-    .actions-card { 
-      grid-column: 1 / 5; 
-      grid-row: 2; 
+    .actions-card {
+      grid-column: 1 / 5;
+      grid-row: 2;
     }
-    .tech-card { 
-      grid-column: 1 / 5; 
-      grid-row: 3; 
+    .tech-card {
+      grid-column: 1 / 5;
+      grid-row: 3;
     }
-    .tech-card-shifted { 
-      grid-column: 1 / 5; 
-      grid-row: 4; 
+    .tech-card-shifted {
+      grid-column: 1 / 5;
+      grid-row: 4;
     }
-    .process-card { 
-      grid-column: 5 / 8; 
-      grid-row: 3; 
+    .process-card {
+      grid-column: 5 / 8;
+      grid-row: 3;
     }
     .video-card-replaces-process {
       grid-column: 5 / 8;
@@ -2151,21 +2424,21 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       grid-row: 6;
     }
     .gallery-card {
-      grid-column: 8 / 11; 
+      grid-column: 8 / 11;
       grid-row: 3 / 5;
       min-height: 320px;
       display: flex;
       flex-direction: column;
     }
-    
+
     /* Medium tablet gallery - keep hero + thumbnails */
-    .challenges-card { 
-      grid-column: 1 / 8; 
-      grid-row: 4; 
+    .challenges-card {
+      grid-column: 1 / 8;
+      grid-row: 4;
     }
-    .results-card { 
-      grid-column: 1 / 8; 
-      grid-row: 5; 
+    .results-card {
+      grid-column: 1 / 8;
+      grid-row: 5;
     }
   }
 
@@ -2176,35 +2449,35 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       gap: 1rem;
       padding: 1rem;
     }
-    
-    .hero-card { 
-      grid-column: 4 / 9; 
+
+    .hero-card {
+      grid-column: 4 / 9;
       grid-row: 1 / 3;
       min-height: 300px;
     }
-    .stats-card { 
-      grid-column: 1 / 4; 
-      grid-row: 1; 
+    .stats-card {
+      grid-column: 1 / 4;
+      grid-row: 1;
     }
     .music-links-card {
       grid-column: 1 / 4;
       grid-row: 1;
     }
-    .actions-card { 
-      grid-column: 1 / 4; 
-      grid-row: 2; 
+    .actions-card {
+      grid-column: 1 / 4;
+      grid-row: 2;
     }
-    .tech-card { 
-      grid-column: 1 / 5; 
-      grid-row: 3; 
+    .tech-card {
+      grid-column: 1 / 5;
+      grid-row: 3;
     }
-    .tech-card-shifted { 
-      grid-column: 1 / 5; 
-      grid-row: 4; 
+    .tech-card-shifted {
+      grid-column: 1 / 5;
+      grid-row: 4;
     }
-    .process-card { 
-      grid-column: 5 / 9; 
-      grid-row: 3; 
+    .process-card {
+      grid-column: 5 / 9;
+      grid-row: 3;
     }
     .video-card-replaces-process {
       grid-column: 5 / 9;
@@ -2248,28 +2521,28 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       grid-row: 6;
     }
     .gallery-card {
-      grid-column: 1 / 5; 
+      grid-column: 1 / 5;
       grid-row: 4;
       min-height: 280px;
     }
-    
+
     /* Small tablet - keep thumbnails grid */
     .gallery-card .gallery-thumbnails {
       min-height: 50px;
     }
-    .challenges-card { 
-      grid-column: 5 / 9; 
-      grid-row: 4; 
+    .challenges-card {
+      grid-column: 5 / 9;
+      grid-row: 4;
     }
-    .results-card { 
-      grid-column: 1 / 9; 
-      grid-row: 5; 
+    .results-card {
+      grid-column: 1 / 9;
+      grid-row: 5;
     }
 
     .hero-title {
       font-size: 2.2rem;
     }
-    
+
     .stats-grid {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -2286,35 +2559,35 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       gap: 0.8rem;
       padding: 0.8rem;
     }
-    
-    .hero-card { 
-      grid-column: 1 / 7; 
+
+    .hero-card {
+      grid-column: 1 / 7;
       grid-row: 1;
       min-height: 250px;
     }
-    .stats-card { 
-      grid-column: 1 / 4; 
-      grid-row: 2; 
+    .stats-card {
+      grid-column: 1 / 4;
+      grid-row: 2;
     }
     .music-links-card {
       grid-column: 1 / 4;
       grid-row: 2;
     }
-    .actions-card { 
-      grid-column: 4 / 7; 
-      grid-row: 2; 
+    .actions-card {
+      grid-column: 4 / 7;
+      grid-row: 2;
     }
-    .tech-card { 
-      grid-column: 1 / 7; 
-      grid-row: 3; 
+    .tech-card {
+      grid-column: 1 / 7;
+      grid-row: 3;
     }
-    .tech-card-shifted { 
-      grid-column: 1 / 7; 
-      grid-row: 4; 
+    .tech-card-shifted {
+      grid-column: 1 / 7;
+      grid-row: 4;
     }
-    .process-card { 
-      grid-column: 1 / 7; 
-      grid-row: 4; 
+    .process-card {
+      grid-column: 1 / 7;
+      grid-row: 4;
     }
     .video-card-replaces-process {
       grid-column: 1 / 7;
@@ -2358,30 +2631,30 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       grid-row: 9;
     }
     .gallery-card {
-      grid-column: 1 / 7; 
+      grid-column: 1 / 7;
       grid-row: 5;
       min-height: 200px;
     }
-    
+
     /* Mobile landscape - use 2 columns for readability */
     .gallery-card .gallery-thumbnails {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       min-height: 80px;
     }
-    .challenges-card { 
-      grid-column: 1 / 7; 
-      grid-row: 6; 
+    .challenges-card {
+      grid-column: 1 / 7;
+      grid-row: 6;
     }
-    .results-card { 
-      grid-column: 1 / 7; 
-      grid-row: 7; 
+    .results-card {
+      grid-column: 1 / 7;
+      grid-row: 7;
     }
 
     .hero-title {
       font-size: 1.8rem;
     }
-    
+
     .card-title {
       font-size: 1.2rem;
     }
@@ -2414,7 +2687,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     .hero-title {
       font-size: 1.6rem;
     }
-    
+
     .hero-description {
       font-size: 1rem;
     }
@@ -2435,7 +2708,7 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     .gallery-card .gallery-thumbnails {
       display: none;
     }
-    
+
     .gallery-card .gallery-hero {
       min-height: 120px;
     }
@@ -2448,8 +2721,16 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
 
 <style is:global>
   /* Gallery Lightbox (global) */
-  html.glb-scroll-lock, html.glb-scroll-lock body { overflow: hidden !important; }
-  .glb-root { position: fixed; inset: 0; display: none; z-index: 10002; }
+  html.glb-scroll-lock,
+  html.glb-scroll-lock body {
+    overflow: hidden !important;
+  }
+  .glb-root {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 10002;
+  }
   .glb-scrim {
     position: absolute;
     inset: 0;
@@ -2459,8 +2740,11 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .glb-container {
-    position: absolute; inset: 0; margin: auto;
-    width: min(90vw, 1100px); height: min(90vh, 750px);
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: min(90vw, 1100px);
+    height: min(90vh, 750px);
     background: rgba(11, 12, 15, 0.65);
     backdrop-filter: blur(12px) saturate(1.2);
     -webkit-backdrop-filter: blur(12px) saturate(1.2);
@@ -2470,21 +2754,44 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
       0 8px 32px rgba(0, 0, 0, 0.4),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
     border-radius: 16px;
-    display: grid; grid-template-columns: 56px 1fr 56px; grid-template-rows: 1fr 40px;
-    z-index: 10003; color: #fff;
+    display: grid;
+    grid-template-columns: 56px 1fr 56px;
+    grid-template-rows: 1fr 40px;
+    z-index: 10003;
+    color: #fff;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   /* Keep media in center column so nav buttons never overlay it */
-  .glb-viewport { grid-column: 2; grid-row: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 18px 18px 8px; }
-  .glb-counter { grid-column: 2; grid-row: 2; display: flex; align-items: center; justify-content: center; opacity: 0.9; font-size: 0.9rem; }
+  .glb-viewport {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 18px 18px 8px;
+  }
+  .glb-counter {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.9;
+    font-size: 0.9rem;
+  }
   .glb-close {
-    position: absolute; top: 12px; right: 12px; z-index: 10004;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10004;
     border: 0;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     color: #fff;
-    width: 40px; height: 40px;
+    width: 40px;
+    height: 40px;
     border-radius: 10px;
     cursor: pointer;
     font-size: 20px;
@@ -2509,8 +2816,14 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
     padding: 16px 8px;
     transition: color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .glb-prev { grid-column: 1; grid-row: 1; }
-  .glb-next { grid-column: 3; grid-row: 1; }
+  .glb-prev {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .glb-next {
+    grid-column: 3;
+    grid-row: 1;
+  }
   .glb-nav:hover {
     color: #fff;
   }
@@ -2582,379 +2895,757 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .glb-container, .glb-scrim, .glb-close, .glb-nav {
+    .glb-container,
+    .glb-scrim,
+    .glb-close,
+    .glb-nav {
       transition: none !important;
     }
   }
 </style>
 
-<div class={`project-bento ${hasCustomDarkAccent ? 'has-custom-dark-accent' : ''}`}>
+<div
+  class={`project-bento ${hasCustomDarkAccent ? "has-custom-dark-accent" : ""}`}
+>
   <div class="bento-container">
-    
-    <script type="application/json" class="bento-gallery-config" set:html={JSON.stringify(atomConfig.bentoGallery || {})}></script>
+    <script
+      type="application/json"
+      class="bento-gallery-config"
+      set:html={JSON.stringify(atomConfig.bentoGallery || {})}
+    />
     <!-- Hero Card - Main banner with project info -->
-    {cards.hero && (
-      <div class="bento-card hero-card" style={heroStyle}>
-        <div class="hero-bg">
-          {assets.heroIsVideo ? (
-            <video 
-              class="hero-bg-video" 
-              src={finalHeroUrl} 
-              poster={assets.heroThumbnail}
-              autoplay 
-              muted 
-              loop 
-              playsinline 
-              aria-hidden="true"
-              style={`object-position: ${heroBackgroundPosition}; transform: scale(${heroBackgroundScale || 1});`}>
-            </video>
-          ) : (
-            <img class="hero-bg-img" src={finalHeroUrl} alt="" aria-hidden="true" style={`object-position: ${heroBackgroundPosition}; transform: scale(${heroBackgroundScale || 1});`} />
-          )}
-          <div class="hero-overlay"></div>
+    {
+      cards.hero && (
+        <div class="bento-card hero-card" style={heroStyle}>
+          <div class="hero-bg">
+            {assets.heroIsVideo ? (
+              <video
+                class="hero-bg-video"
+                src={finalHeroUrl}
+                poster={assets.heroThumbnail}
+                autoplay
+                muted
+                loop
+                playsinline
+                aria-hidden="true"
+                style={`object-position: ${heroBackgroundPosition}; transform: scale(${heroBackgroundScale || 1});`}
+              />
+            ) : (
+              <img
+                class="hero-bg-img"
+                src={finalHeroUrl}
+                alt=""
+                aria-hidden="true"
+                style={`object-position: ${heroBackgroundPosition}; transform: scale(${heroBackgroundScale || 1});`}
+              />
+            )}
+            <div class="hero-overlay" />
+          </div>
+          <div class="hero-content">
+            {heroLogoUrl && (bento.hero?.showLogo ?? true) && (
+              <img
+                src={heroLogoUrl}
+                alt={`${data.title} Logo`}
+                class="hero-logo"
+                loading="lazy"
+              />
+            )}
+            <h1 class="hero-title">{data.title}</h1>
+            <p class="hero-description">{data.description}</p>
+          </div>
         </div>
-        <div class="hero-content">
-          {(heroLogoUrl && (bento.hero?.showLogo ?? true)) && (
-            <img src={heroLogoUrl} alt={`${data.title} Logo`} class="hero-logo" loading="lazy">
-          )}
-          <h1 class="hero-title">{data.title}</h1>
-          <p class="hero-description">{data.description}</p>
-        </div>
-      </div>
-    )}
+      )
+    }
 
     {/* No SVG distortion; keep glass simple and clean */}
 
     <!-- Music Links (takes first slot; hides Stats when enabled) -->
-    {hasMusicLinks && (
-      <div class="bento-card music-links-card">
-        <h3 class="card-title">{(typeof bento.musicLinks?.title === 'object' ? (bento.musicLinks.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.musicLinks.title.fr || (Astro.url.searchParams.get('lang') === 'en' ? 'Music Links' : 'Liens Musicaux')) : (bento.musicLinks?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Music Links' : 'Liens Musicaux')))}</h3>
-        <div class="music-links-grid">
-          {bento.musicLinks.items.map(link => {
-            const key = inferPlatform(link.text, link.url);
-            const icon = key ? MUSIC_ICONS[key] : undefined;
-            const label = link.text || key || 'Open link';
-            return (
-              <a class="music-link-btn" data-platform={key || 'generic'} href={link.url} target="_blank" rel="noopener noreferrer" aria-label={label} title={label}>
-                {icon ? (
-                  <img src={icon} alt={`${label} logo`} loading="lazy" />
-                ) : (
-                  <span class="music-link-text">{label}</span>
-                )}
-              </a>
-            );
-          })}
+    {
+      hasMusicLinks && (
+        <div class="bento-card music-links-card">
+          <h3 class="card-title">
+            {typeof bento.musicLinks?.title === "object"
+              ? bento.musicLinks.title[
+                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                ] ||
+                bento.musicLinks.title.fr ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Music Links"
+                  : "Liens Musicaux")
+              : bento.musicLinks?.title ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Music Links"
+                  : "Liens Musicaux")}
+          </h3>
+          <div class="music-links-grid">
+            {bento.musicLinks.items.map((link) => {
+              const key = inferPlatform(link.text, link.url);
+              const icon = key ? MUSIC_ICONS[key] : undefined;
+              const label = link.text || key || "Open link";
+              return (
+                <a
+                  class="music-link-btn"
+                  data-platform={key || "generic"}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  title={label}
+                >
+                  {icon ? (
+                    <img src={icon} alt={`${label} logo`} loading="lazy" />
+                  ) : (
+                    <span class="music-link-text">{label}</span>
+                  )}
+                </a>
+              );
+            })}
+          </div>
         </div>
-      </div>
-    )}
+      )
+    }
 
     <!-- Quick Stats -->
-    {!hasMusicLinks && cards.stats && bento.stats && (
-      <div class="bento-card stats-card">
-        <h3 class="card-title">{(typeof bento.stats?.title === 'object' ? (bento.stats.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.stats.title.fr || (Astro.url.searchParams.get('lang') === 'en' ? 'Project Stats' : 'Infos Projet')) : (bento.stats?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Project Stats' : 'Infos Projet')))}</h3>
-        <div class="stats-grid">
-          {bento.stats.map(stat => (
-            <div class="stat-item">
-              <span class="stat-value">{stat.value}</span>
-              <span class="stat-label">{stat.label}</span>
-            </div>
-          ))}
+    {
+      !hasMusicLinks && cards.stats && bento.stats && (
+        <div class="bento-card stats-card">
+          <h3 class="card-title">
+            {typeof bento.stats?.title === "object"
+              ? bento.stats.title[
+                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                ] ||
+                bento.stats.title.fr ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Project Stats"
+                  : "Infos Projet")
+              : bento.stats?.title ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Project Stats"
+                  : "Infos Projet")}
+          </h3>
+          <div class="stats-grid">
+            {bento.stats.map((stat) => (
+              <div class="stat-item">
+                <span class="stat-value">{stat.value}</span>
+                <span class="stat-label">{stat.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    )}
+      )
+    }
 
     <!-- Action Buttons -->
-    {cards.actions && bento.actions && (
-      <div class="bento-card actions-card">
-        <h3 class="card-title">{(typeof bento.actions?.title === 'object' ? (bento.actions.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.actions.title.fr || (Astro.url.searchParams.get('lang') === 'en' ? 'Experience' : 'Expérience')) : (bento.actions?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Experience' : 'Expérience')))}</h3>
-        {bento.actions.primary && (
-          <a href={bento.actions.primary.url} target="_blank" class="action-btn primary">
-            {(typeof bento.actions.primary.text === 'object' ? (bento.actions.primary.text[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.actions.primary.text.fr) : bento.actions.primary.text)}
-          </a>
-        )}
-        {bento.actions.secondary && (
-          <button class="action-btn secondary" onclick={bento.actions.secondary.url ? `window.open('${bento.actions.secondary.url}', '_blank')` : undefined}>
-            {(typeof bento.actions.secondary.text === 'object' ? (bento.actions.secondary.text[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.actions.secondary.text.fr) : bento.actions.secondary.text)}
-          </button>
-        )}
-      </div>
-    )}
+    {
+      cards.actions && bento.actions && (
+        <div class="bento-card actions-card">
+          <h3 class="card-title">
+            {typeof bento.actions?.title === "object"
+              ? bento.actions.title[
+                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                ] ||
+                bento.actions.title.fr ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Experience"
+                  : "Expérience")
+              : bento.actions?.title ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Experience"
+                  : "Expérience")}
+          </h3>
+          {bento.actions.primary && (
+            <a
+              href={bento.actions.primary.url}
+              target="_blank"
+              class="action-btn primary"
+            >
+              {typeof bento.actions.primary.text === "object"
+                ? bento.actions.primary.text[
+                    Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                  ] || bento.actions.primary.text.fr
+                : bento.actions.primary.text}
+            </a>
+          )}
+          {bento.actions.secondary && (
+            <button
+              class="action-btn secondary"
+              onclick={
+                bento.actions.secondary.url
+                  ? `window.open('${bento.actions.secondary.url}', '_blank')`
+                  : undefined
+              }
+            >
+              {typeof bento.actions.secondary.text === "object"
+                ? bento.actions.secondary.text[
+                    Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                  ] || bento.actions.secondary.text.fr
+                : bento.actions.secondary.text}
+            </button>
+          )}
+        </div>
+      )
+    }
 
     <!-- Technology Stack -->
-    {cards.tech && (
-      <div class={`bento-card ${cards.video && bento.video && cards.process && bento.process ? 'tech-card-shifted' : 'tech-card'}`}>
-        <h3 class="card-title">{(typeof bento.tech?.title === 'object' ? (bento.tech.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.tech.title.en || (Astro.url.searchParams.get('lang') === 'en' ? 'Technology' : 'Technologie')) : (bento.tech?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Technology' : 'Technologie')))}</h3>
-        <p class="card-subtitle">{Astro.url.searchParams.get('lang') === 'en' ? 'Tools and technologies used' : 'Outils et technologies utilisés'}</p>
-        <div class="tech-grid">
-          {data.tech.map(tech => (
-            <span class="tech-pill">{tech}</span>
-          ))}
+    {
+      cards.tech && (
+        <div
+          class={`bento-card ${cards.video && bento.video && cards.process && bento.process ? "tech-card-shifted" : "tech-card"}`}
+        >
+          <h3 class="card-title">
+            {typeof bento.tech?.title === "object"
+              ? bento.tech.title[
+                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                ] ||
+                bento.tech.title.en ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Technology"
+                  : "Technologie")
+              : bento.tech?.title ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Technology"
+                  : "Technologie")}
+          </h3>
+          <p class="card-subtitle">
+            {Astro.url.searchParams.get("lang") === "en"
+              ? "Tools and technologies used"
+              : "Outils et technologies utilisés"}
+          </p>
+          <div class="tech-grid">
+            {data.tech.map((tech) => (
+              <span class="tech-pill">{tech}</span>
+            ))}
+          </div>
         </div>
-      </div>
-    )}
+      )
+    }
 
     <!-- Spotify Card - Conditional positioning based on tech card -->
-    {cards.spotify && bento.spotify && (
-      <div class={`bento-card ${cards.tech ? 'spotify-card-after-tech' : 'spotify-card-replaces-tech'}`}>
-        {getSpotifyEmbedUrl(bento.spotify.url) ? (
-          <iframe 
-            class="spotify-embed"
-            src={getSpotifyEmbedUrl(bento.spotify.url)}
-            title={bento.spotify.title || generateSpotifyTitle(bento.spotify.url)}
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            referrerpolicy="strict-origin-when-cross-origin"
-            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
-            loading="lazy">
-          </iframe>
-        ) : (
-          <div class="spotify-embed" style="display: flex; align-items: center; justify-content: center; color: #666;">
-            <span>Unsupported Spotify URL</span>
-          </div>
-        )}
-      </div>
-    )}
+    {
+      cards.spotify && bento.spotify && (
+        <div
+          class={`bento-card ${cards.tech ? "spotify-card-after-tech" : "spotify-card-replaces-tech"}`}
+        >
+          {getSpotifyEmbedUrl(bento.spotify.url) ? (
+            <iframe
+              class="spotify-embed"
+              src={getSpotifyEmbedUrl(bento.spotify.url)}
+              title={
+                bento.spotify.title || generateSpotifyTitle(bento.spotify.url)
+              }
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              referrerpolicy="strict-origin-when-cross-origin"
+              sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+              loading="lazy"
+            />
+          ) : (
+            <div
+              class="spotify-embed"
+              style="display: flex; align-items: center; justify-content: center; color: #666;"
+            >
+              <span>Unsupported Spotify URL</span>
+            </div>
+          )}
+        </div>
+      )
+    }
 
     <!-- SoundCloud Card - Small and Large size variants -->
-    {cards.soundcloud && bento.soundcloud && (
-      <div class={`bento-card ${
-        bento.soundcloud.large 
-          ? 'soundcloud-card-large' 
-          : cards.tech 
-            ? 'soundcloud-card-small-after-tech' 
-            : 'soundcloud-card-small-replaces-tech'
-      }`}>
-        {getSoundCloudEmbedUrl(bento.soundcloud.url) ? (
-          <iframe 
-            class="soundcloud-embed"
-            src={getSoundCloudEmbedUrl(bento.soundcloud.url)}
-            title={bento.soundcloud.title || generateSoundCloudTitle(bento.soundcloud.url)}
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            referrerpolicy="strict-origin-when-cross-origin"
-            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
-            loading="lazy">
-          </iframe>
-        ) : (
-          <div class="soundcloud-embed" style="display: flex; align-items: center; justify-content: center; color: #666;">
-            <span>Unsupported SoundCloud URL</span>
-          </div>
-        )}
-      </div>
-    )}
+    {
+      cards.soundcloud && bento.soundcloud && (
+        <div
+          class={`bento-card ${
+            bento.soundcloud.large
+              ? "soundcloud-card-large"
+              : cards.tech
+                ? "soundcloud-card-small-after-tech"
+                : "soundcloud-card-small-replaces-tech"
+          }`}
+        >
+          {getSoundCloudEmbedUrl(bento.soundcloud.url) ? (
+            <iframe
+              class="soundcloud-embed"
+              src={getSoundCloudEmbedUrl(bento.soundcloud.url)}
+              title={
+                bento.soundcloud.title ||
+                generateSoundCloudTitle(bento.soundcloud.url)
+              }
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              referrerpolicy="strict-origin-when-cross-origin"
+              sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+              loading="lazy"
+            />
+          ) : (
+            <div
+              class="soundcloud-embed"
+              style="display: flex; align-items: center; justify-content: center; color: #666;"
+            >
+              <span>Unsupported SoundCloud URL</span>
+            </div>
+          )}
+        </div>
+      )
+    }
 
     <!-- Development Process -->
-    {cards.process && bento.process && (
-      <div class="bento-card process-card">
-        <h3 class="card-title">{(typeof bento.process?.title === 'object' ? (bento.process.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.process.title.fr || (Astro.url.searchParams.get('lang') === 'en' ? 'Process' : 'Processus')) : (bento.process?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Process' : 'Processus')))}</h3>
-        {bento.process.subtitle && (
-          <p class="card-subtitle">{(typeof bento.process.subtitle === 'object' ? (bento.process.subtitle[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.process.subtitle.fr) : bento.process.subtitle)}</p>
-        )}
-        <ul class="process-list">
-          {bento.process.steps.map((step, index) => (
-            <li class="process-item">
-              <span class="process-number">{index + 1}</span>
-              <span class="process-text">{(typeof step === 'object' ? (step[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || step.fr) : step)}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
+    {
+      cards.process && bento.process && (
+        <div class="bento-card process-card">
+          <h3 class="card-title">
+            {typeof bento.process?.title === "object"
+              ? bento.process.title[
+                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                ] ||
+                bento.process.title.fr ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Process"
+                  : "Processus")
+              : bento.process?.title ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Process"
+                  : "Processus")}
+          </h3>
+          {bento.process.subtitle && (
+            <p class="card-subtitle">
+              {typeof bento.process.subtitle === "object"
+                ? bento.process.subtitle[
+                    Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                  ] || bento.process.subtitle.fr
+                : bento.process.subtitle}
+            </p>
+          )}
+          <ul class="process-list">
+            {bento.process.steps.map((step, index) => (
+              <li class="process-item">
+                <span class="process-number">{index + 1}</span>
+                <span class="process-text">
+                  {typeof step === "object"
+                    ? step[
+                        Astro.url.searchParams.get("lang") === "en"
+                          ? "en"
+                          : "fr"
+                      ] || step.fr
+                    : step}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
 
     <!-- Video Card - Conditional positioning based on process card -->
-    {cards.video && bento.video && (
-      <div class={`bento-card ${cards.process && bento.process ? 'video-card-after-process' : 'video-card-replaces-process'}`}>
-        {getVideoEmbedUrl(bento.video.url) ? (
-          <iframe 
-            class="video-embed"
-            src={getVideoEmbedUrl(bento.video.url)}
-            title={bento.video.title || generateVideoTitle(bento.video.url, Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr')}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
-            loading="lazy"
-            allowfullscreen>
-          </iframe>
-        ) : (
-          <div class="video-embed" style="display: flex; align-items: center; justify-content: center; color: #666;">
-            <span>Unsupported video URL</span>
-          </div>
-        )}
-        <h3 class="card-title">{(typeof bento.video?.title === 'object' ? (bento.video.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.video.title.fr || generateVideoTitle(bento.video.url, Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr')) : (bento.video?.title || generateVideoTitle(bento.video.url, Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr')))}</h3>
-        {bento.video.description && (
-          <p class="video-description">{bento.video.description}</p>
-        )}
-      </div>
-    )}
+    {
+      cards.video && bento.video && (
+        <div
+          class={`bento-card ${cards.process && bento.process ? "video-card-after-process" : "video-card-replaces-process"}`}
+        >
+          {getVideoEmbedUrl(bento.video.url) ? (
+            <iframe
+              class="video-embed"
+              src={getVideoEmbedUrl(bento.video.url)}
+              title={
+                bento.video.title ||
+                generateVideoTitle(
+                  bento.video.url,
+                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr",
+                )
+              }
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+              loading="lazy"
+              allowfullscreen
+            />
+          ) : (
+            <div
+              class="video-embed"
+              style="display: flex; align-items: center; justify-content: center; color: #666;"
+            >
+              <span>Unsupported video URL</span>
+            </div>
+          )}
+          <h3 class="card-title">
+            {typeof bento.video?.title === "object"
+              ? bento.video.title[
+                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                ] ||
+                bento.video.title.fr ||
+                generateVideoTitle(
+                  bento.video.url,
+                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr",
+                )
+              : bento.video?.title ||
+                generateVideoTitle(
+                  bento.video.url,
+                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr",
+                )}
+          </h3>
+          {bento.video.description && (
+            <p class="video-description">{bento.video.description}</p>
+          )}
+        </div>
+      )
+    }
 
     <!-- Gallery -->
-    {cards.gallery && (galleryImages && galleryImages.length > 0) && (
-      <div class="bento-card gallery-card">
-        <h3 class="card-title">{(typeof bento.gallery?.title === 'object' ? (bento.gallery.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.gallery.title.en || (Astro.url.searchParams.get('lang') === 'en' ? 'Gallery' : 'Galerie')) : (bento.gallery?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Gallery' : 'Galerie')))}</h3>
-        <div class="gallery-grid">
-          {galleryImages[0] && (
-            <div class="gallery-hero" data-gallery-index="0" tabindex="0" role="button" aria-label="Open image" data-full-src={galleryImages[0].fullSrc || galleryImages[0].src}>
-              {galleryImages[0].isVideo ? (
-                <video src={galleryImages[0].src} muted loop autoplay playsinline loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"></video>
-              ) : (
-                <img src={galleryImages[0].src} alt={galleryImages[0].alt || 'Gallery image'} loading="lazy">
-              )}
-              <div class="gallery-counter">{galleryImages.length} {galleryImages.length === 1 ? (galleryImages[0].isVideo ? 'video' : 'image') : 'items'}</div>
-            </div>
-          )}
-          {galleryImages.length > 1 && (
-            <div class="gallery-thumbnails">
-              {galleryImages.slice(1).map((image, i) => (
-                <div class="gallery-thumb" data-gallery-index={String(i + 1)} tabindex="0" role="button" aria-label="Open image" data-full-src={image.fullSrc || image.src}>
-                  {image.isVideo ? (
-                    <video src={image.src} muted loop autoplay playsinline loading="lazy" style="width: 100%; height: 100%; object-fit: cover;"></video>
-                  ) : (
-                    <img src={image.src} alt={image.alt || 'Gallery image'} loading="lazy">
-                  )}
+    {
+      cards.gallery && galleryImages && galleryImages.length > 0 && (
+        <div class="bento-card gallery-card">
+          <h3 class="card-title">
+            {typeof bento.gallery?.title === "object"
+              ? bento.gallery.title[
+                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                ] ||
+                bento.gallery.title.en ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Gallery"
+                  : "Galerie")
+              : bento.gallery?.title ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Gallery"
+                  : "Galerie")}
+          </h3>
+          <div class="gallery-grid">
+            {galleryImages[0] && (
+              <div
+                class="gallery-hero"
+                data-gallery-index="0"
+                tabindex="0"
+                role="button"
+                aria-label="Open image"
+                data-full-src={galleryImages[0].fullSrc || galleryImages[0].src}
+              >
+                {galleryImages[0].isVideo ? (
+                  <video
+                    src={galleryImages[0].src}
+                    muted
+                    loop
+                    autoplay
+                    playsinline
+                    loading="lazy"
+                    style="width: 100%; height: 100%; object-fit: cover;"
+                  />
+                ) : (
+                  <img
+                    src={galleryImages[0].src}
+                    alt={galleryImages[0].alt || "Gallery image"}
+                    loading="lazy"
+                  />
+                )}
+                <div class="gallery-counter">
+                  {galleryImages.length}{" "}
+                  {galleryImages.length === 1
+                    ? galleryImages[0].isVideo
+                      ? "video"
+                      : "image"
+                    : "items"}
                 </div>
-              ))}
-            </div>
-          )}
-          <script type="application/json" class="gallery-data" set:html={JSON.stringify(galleryImages)}></script>
+              </div>
+            )}
+            {galleryImages.length > 1 && (
+              <div class="gallery-thumbnails">
+                {galleryImages.slice(1).map((image, i) => (
+                  <div
+                    class="gallery-thumb"
+                    data-gallery-index={String(i + 1)}
+                    tabindex="0"
+                    role="button"
+                    aria-label="Open image"
+                    data-full-src={image.fullSrc || image.src}
+                  >
+                    {image.isVideo ? (
+                      <video
+                        src={image.src}
+                        muted
+                        loop
+                        autoplay
+                        playsinline
+                        loading="lazy"
+                        style="width: 100%; height: 100%; object-fit: cover;"
+                      />
+                    ) : (
+                      <img
+                        src={image.src}
+                        alt={image.alt || "Gallery image"}
+                        loading="lazy"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            <script
+              type="application/json"
+              class="gallery-data"
+              set:html={JSON.stringify(galleryImages)}
+            />
+          </div>
         </div>
-      </div>
-    )}
+      )
+    }
 
     <!-- Technical Challenges -->
-    {cards.challenges && bento.challenges && (
-      <div class="bento-card challenges-card">
-        <h3 class="card-title">{(typeof bento.challenges?.title === 'object' ? (bento.challenges.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.challenges.title.fr || (Astro.url.searchParams.get('lang') === 'en' ? 'Key Challenges' : 'Défis Clés')) : (bento.challenges?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Key Challenges' : 'Défis Clés')))}</h3>
-        {bento.challenges.subtitle && (
-          <p class="card-subtitle">{(typeof bento.challenges.subtitle === 'object' ? (bento.challenges.subtitle[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.challenges.subtitle.fr) : bento.challenges.subtitle)}</p>
-        )}
-        
-        <ul class="challenges-list">
-          {bento.challenges.items.map(challenge => (
-            <li class="challenge-item">
-              <div class="challenge-title">{(typeof challenge.title === 'object' ? (challenge.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || challenge.title.fr) : challenge.title)}</div>
-              <div class="challenge-text">{(typeof challenge.description === 'object' ? (challenge.description[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || challenge.description.fr) : challenge.description)}</div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
+    {
+      cards.challenges && bento.challenges && (
+        <div class="bento-card challenges-card">
+          <h3 class="card-title">
+            {typeof bento.challenges?.title === "object"
+              ? bento.challenges.title[
+                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                ] ||
+                bento.challenges.title.fr ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Key Challenges"
+                  : "Défis Clés")
+              : bento.challenges?.title ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Key Challenges"
+                  : "Défis Clés")}
+          </h3>
+          {bento.challenges.subtitle && (
+            <p class="card-subtitle">
+              {typeof bento.challenges.subtitle === "object"
+                ? bento.challenges.subtitle[
+                    Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                  ] || bento.challenges.subtitle.fr
+                : bento.challenges.subtitle}
+            </p>
+          )}
+
+          <ul class="challenges-list">
+            {bento.challenges.items.map((challenge) => (
+              <li class="challenge-item">
+                <div class="challenge-title">
+                  {typeof challenge.title === "object"
+                    ? challenge.title[
+                        Astro.url.searchParams.get("lang") === "en"
+                          ? "en"
+                          : "fr"
+                      ] || challenge.title.fr
+                    : challenge.title}
+                </div>
+                <div class="challenge-text">
+                  {typeof challenge.description === "object"
+                    ? challenge.description[
+                        Astro.url.searchParams.get("lang") === "en"
+                          ? "en"
+                          : "fr"
+                      ] || challenge.description.fr
+                    : challenge.description}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
 
     <!-- Results & Impact -->
-    {cards.results && bento.results && (
-      <div class="bento-card results-card">
-        <h3 class="card-title">{(typeof bento.results?.title === 'object' ? (bento.results.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.results.title.fr || (Astro.url.searchParams.get('lang') === 'en' ? 'Results' : 'Résultats')) : (bento.results?.title || (Astro.url.searchParams.get('lang') === 'en' ? 'Results' : 'Résultats')))}</h3>
-        {bento.results.subtitle && (
-          <p class="card-subtitle">{bento.results.subtitle}</p>
-        )}
-        
-        <ul class="results-list">
-          {bento.results.items.map(result => (
-            <li class="results-item">
-              <span class="results-icon">{result.icon}</span>
-              <span class="results-text">{result.text}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
+    {
+      cards.results && bento.results && (
+        <div class="bento-card results-card">
+          <h3 class="card-title">
+            {typeof bento.results?.title === "object"
+              ? bento.results.title[
+                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                ] ||
+                bento.results.title.fr ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Results"
+                  : "Résultats")
+              : bento.results?.title ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Results"
+                  : "Résultats")}
+          </h3>
+          {bento.results.subtitle && (
+            <p class="card-subtitle">{bento.results.subtitle}</p>
+          )}
+
+          <ul class="results-list">
+            {bento.results.items.map((result) => (
+              <li class="results-item">
+                <span class="results-icon">{result.icon}</span>
+                <span class="results-text">{result.text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
 
     <!-- Audio Player Card - New Design -->
-    {cards.audio && bento.audio && (
-      <div class="bento-card audio-card" data-project-slug={project.slug} data-tracks={JSON.stringify(bento.audio.tracks)}>
-        <div class="audio-card-header">
-          <span class="audio-badge">{Astro.url.searchParams.get('lang') === 'en' ? 'Audio Capsule' : 'Capsule Audio'}</span>
-          <p class="audio-heading">{Astro.url.searchParams.get('lang') === 'en' ? 'Play a random track from this project' : 'Jouer une piste aléatoire de ce projet'}</p>
-        </div>
-
-        <div class="audio-main">
-          <div class="audio-controls">
-            <button class="audio-skip-btn prev-btn" aria-label="Previous track">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
-              </svg>
-            </button>
-
-            <button class="audio-play-btn" aria-label="Play">
-              <svg class="play-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-              <svg class="pause-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor" style="display:none">
-                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-              </svg>
-            </button>
-
-        <button class="audio-skip-btn next-btn" aria-label="Next track">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-            <path d="M16.5 12l-8.5-6v12l8.5-6zm1 6h2V6h-2v12z"/>
-          </svg>
-        </button>
-      </div>
-
-          <div class="track-meta">
-            <span class="track-label">{Astro.url.searchParams.get('lang') === 'en' ? 'Now playing' : 'Lecture en cours'}</span>
-            <p class="track-name">...</p>
+    {
+      cards.audio && bento.audio && (
+        <div
+          class="bento-card audio-card"
+          data-project-slug={project.slug}
+          data-tracks={JSON.stringify(bento.audio.tracks)}
+        >
+          <div class="audio-card-header">
+            <span class="audio-badge">
+              {Astro.url.searchParams.get("lang") === "en"
+                ? "Audio Capsule"
+                : "Capsule Audio"}
+            </span>
+            <p class="audio-heading">
+              {Astro.url.searchParams.get("lang") === "en"
+                ? "Play a random track from this project"
+                : "Jouer une piste aléatoire de ce projet"}
+            </p>
           </div>
-        </div>
 
-        <div class="audio-progress-group">
-          <div class="audio-progress-section">
-            <div class="audio-progress-bar">
-              <div class="audio-progress-fill"></div>
+          <div class="audio-main">
+            <div class="audio-controls">
+              <button
+                class="audio-skip-btn prev-btn"
+                aria-label="Previous track"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="currentColor"
+                >
+                  <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
+                </svg>
+              </button>
+
+              <button class="audio-play-btn" aria-label="Play">
+                <svg
+                  class="play-icon"
+                  viewBox="0 0 24 24"
+                  width="28"
+                  height="28"
+                  fill="currentColor"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                <svg
+                  class="pause-icon"
+                  viewBox="0 0 24 24"
+                  width="28"
+                  height="28"
+                  fill="currentColor"
+                  style="display:none"
+                >
+                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                </svg>
+              </button>
+
+              <button class="audio-skip-btn next-btn" aria-label="Next track">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="currentColor"
+                >
+                  <path d="M16.5 12l-8.5-6v12l8.5-6zm1 6h2V6h-2v12z" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="track-meta">
+              <span class="track-label">
+                {Astro.url.searchParams.get("lang") === "en"
+                  ? "Now playing"
+                  : "Lecture en cours"}
+              </span>
+              <p class="track-name">...</p>
             </div>
           </div>
 
-          <div class="audio-times">
-            <span class="time-current">0:00</span>
-            <span class="time-total">0:00</span>
+          <div class="audio-progress-group">
+            <div class="audio-progress-section">
+              <div class="audio-progress-bar">
+                <div class="audio-progress-fill" />
+              </div>
+            </div>
+
+            <div class="audio-times">
+              <span class="time-current">0:00</span>
+              <span class="time-total">0:00</span>
+            </div>
           </div>
         </div>
-      </div>
-    )}
+      )
+    }
 
     {/* Sample Player Card */}
-    {cards.sampler && bento.sampler && (
-      <div
-        class="bento-card sampler-card"
-        data-folder={bento.sampler.folder}
-        data-samples={JSON.stringify(bento.sampler.samplePool || [])}
-      >
-        <div class="sampler-header">
-          <div class="sampler-title">
-            {(typeof bento.sampler.title === 'object'
-              ? bento.sampler.title[Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr'] || bento.sampler.title.fr
-              : bento.sampler.title) || (Astro.url.searchParams.get('lang') === 'en' ? 'Sample Player' : 'Lecteur de Samples')}
-          </div>
-        </div>
-
-        <div class="sampler-content">
-          <div class="sampler-grid">
-            <div class="sampler-pad-row">
-              {Array.from({ length: 2 }).map((_, index) => (
-                <button class="sampler-pad" data-pad-index={index} disabled>
-                  <span class="sampler-pad-icon" aria-hidden="true">▌▌</span>
-                  <span class="sampler-pad-name">{String(index + 1).padStart(2, '0')}</span>
-                </button>
-              ))}
-            </div>
-            <div class="sampler-pad-row">
-              {Array.from({ length: 2 }).map((_, index) => (
-                <button class="sampler-pad" data-pad-index={index + 2} disabled>
-                  <span class="sampler-pad-icon" aria-hidden="true">▌▌</span>
-                  <span class="sampler-pad-name">{String(index + 3).padStart(2, '0')}</span>
-                </button>
-              ))}
+    {
+      cards.sampler && bento.sampler && (
+        <div
+          class="bento-card sampler-card"
+          data-folder={bento.sampler.folder}
+          data-samples={JSON.stringify(bento.sampler.samplePool || [])}
+        >
+          <div class="sampler-header">
+            <div class="sampler-title">
+              {(typeof bento.sampler.title === "object"
+                ? bento.sampler.title[
+                    Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                  ] || bento.sampler.title.fr
+                : bento.sampler.title) ||
+                (Astro.url.searchParams.get("lang") === "en"
+                  ? "Sample Player"
+                  : "Lecteur de Samples")}
             </div>
           </div>
 
-          <div class="sampler-controls">
-            <button class="sampler-regenerate-btn" type="button" aria-label={Astro.url.searchParams.get('lang') === 'en' ? 'Regenerate samples' : 'Régénérer les samples'}>
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
-                <path d="M17.65 6.35A7.95 7.95 0 0012 4a8 8 0 100 16 8 8 0 007.45-5.07 1 1 0 00-1.88-.66A6 6 0 1112 6a5.96 5.96 0 014.24 1.76l-1.99 1.99H21V4.75l-3.35 3.35z"/>
-              </svg>
-            </button>
+          <div class="sampler-content">
+            <div class="sampler-grid">
+              <div class="sampler-pad-row">
+                {Array.from({ length: 2 }).map((_, index) => (
+                  <button class="sampler-pad" data-pad-index={index} disabled>
+                    <div class="sampler-pad-led" />
+                    <span class="sampler-pad-name">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <div class="sampler-pad-row">
+                {Array.from({ length: 2 }).map((_, index) => (
+                  <button
+                    class="sampler-pad"
+                    data-pad-index={index + 2}
+                    disabled
+                  >
+                    <div class="sampler-pad-led" />
+                    <span class="sampler-pad-name">
+                      {String(index + 3).padStart(2, "0")}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div class="sampler-controls">
+              <button
+                class="sampler-regenerate-btn"
+                type="button"
+                aria-label={
+                  Astro.url.searchParams.get("lang") === "en"
+                    ? "Regenerate samples"
+                    : "Régénérer les samples"
+                }
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="22"
+                  height="22"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M17.65 6.35A7.95 7.95 0 0012 4a8 8 0 100 16 8 8 0 007.45-5.07 1 1 0 00-1.88-.66A6 6 0 1112 6a5.96 5.96 0 014.24 1.76l-1.99 1.99H21V4.75l-3.35 3.35z" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    )}
-
+      )
+    }
   </div>
 </div>
 
@@ -2964,194 +3655,242 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   // Note: Using is:inline to ensure single global scope for all ProjectBento instances
 
   // Guard against multiple initializations
-  if (typeof window.__bentoInitialized === 'undefined') {
+  if (typeof window.__bentoInitialized === "undefined") {
     window.__bentoInitialized = false;
   }
 
   // Gallery lightbox: lazy-loaded on first click for reliability across contexts
   // Use window to ensure single instance across all script executions
-  if (typeof window.__GLB === 'undefined') {
+  if (typeof window.__GLB === "undefined") {
     window.__GLB = null;
   }
 
-  if (typeof window.ensureLightbox === 'undefined') {
-    window.ensureLightbox = async function() {
+  if (typeof window.ensureLightbox === "undefined") {
+    window.ensureLightbox = async function () {
       if (!window.__GLB) {
         try {
-          const mod = await import('../atom/ui/GalleryLightbox.js');
+          const mod = await import("../atom/ui/GalleryLightbox.js");
           window.__GLB = mod?.default || mod;
         } catch (err) {
-          console.warn('Failed to load GalleryLightbox module:', err);
+          console.warn("Failed to load GalleryLightbox module:", err);
         }
       }
       return window.__GLB;
-    }
+    };
   }
 
   // Avoid redeclaration errors when multiple bento components are rendered
-  if (typeof ensureLightbox === 'undefined') {
+  if (typeof ensureLightbox === "undefined") {
     var ensureLightbox = window.ensureLightbox;
   }
 
   // Simple Bento Animation System with Synced Audio
   // Audio is strictly gated behind a real user gesture to avoid
   // "AudioContext was not allowed to start" errors in browsers.
-  if (typeof window.__audioUnlocked === 'undefined') {
+  if (typeof window.__audioUnlocked === "undefined") {
     window.__audioUnlocked = true;
   }
 
-// Define BentoAnimationSystem class only once
-  if (typeof window.BentoAnimationSystem === 'undefined') {
+  // Define BentoAnimationSystem class only once
+  if (typeof window.BentoAnimationSystem === "undefined") {
     window.BentoAnimationSystem = class BentoAnimationSystem {
-    constructor() {
-      this.isInitialized = false;
-      this.synth = null;
-      this.chorus = null;
-      this.config = null;
-      this.isPlaying = false;
-    }
-
-    async init() {
-      if (this.isInitialized) return;
-      
-      try {
-        // Always set config with fallback
-        this.config = {
-          enabled: true,
-          staggerDelayMs: 80,
-          animationDurationMs: 400,
-          easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-          cardEnabled: { hero: true, stats: true, actions: true, tech: true, gallery: true, process: true, challenges: true, results: true },
-          audio: {
-            enabled: false,
-            volume: 0.4,
-            syncWithAnimation: true,
-            pitches: { hero: 'C3', stats: 'E3', actions: 'G3', tech: 'C4', gallery: 'E4', process: 'G4', challenges: 'B3', results: 'D4' },
-            synthesis: { attack: 0.01, decay: 0.3, sustain: 0, release: 0.8, chorus: { frequency: 4, depth: 0.3 } }
-          }
-        };
-        
-        // Override with global config if available
-        if (window.atomConfig?.bentoAnimations) {
-          this.config = { ...this.config, ...window.atomConfig.bentoAnimations };
-        }
-
-        // Hard-disable audio placeholder until Tone.js migration completes
-        if (this.config.audio) {
-          this.config.audio.enabled = false;
-        } else {
-          this.config.audio = { enabled: false };
-        }
-
-        if (!this.config.audio?.enabled) {
-          this.isInitialized = true;
-          return;
-        }
-
-        // PLACEHOLDER: Audio will be replaced with custom OGG files + Web Audio API
-        // Only create audio objects when actually needed (defer until user interaction)
-        console.log('ðŸŽµ Bento Animation System initialized (audio deferred until user interaction)');
-        this.isInitialized = true;
-        
-      } catch (error) {
-        console.warn('Failed to initialize Bento system:', error);
+      constructor() {
+        this.isInitialized = false;
+        this.synth = null;
+        this.chorus = null;
+        this.config = null;
+        this.isPlaying = false;
       }
-    }
 
-    async initAudio() {
-      return;
-    }
+      async init() {
+        if (this.isInitialized) return;
 
-    getCardType(card) {
-      // Determine card type from classes
-      if (card.classList.contains('hero-card')) return 'hero';
-      if (card.classList.contains('music-links-card')) return 'stats';
-      if (card.classList.contains('stats-card')) return 'stats';
-      if (card.classList.contains('actions-card')) return 'actions';
-      if (card.classList.contains('tech-card')) return 'tech';
-      if (card.classList.contains('gallery-card')) return 'gallery';
-      if (card.classList.contains('process-card')) return 'process';
-      if (card.classList.contains('challenges-card')) return 'challenges';
-      if (card.classList.contains('results-card')) return 'results';
-      return 'hero'; // fallback
-    }
+        try {
+          // Always set config with fallback
+          this.config = {
+            enabled: true,
+            staggerDelayMs: 80,
+            animationDurationMs: 400,
+            easing: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+            cardEnabled: {
+              hero: true,
+              stats: true,
+              actions: true,
+              tech: true,
+              gallery: true,
+              process: true,
+              challenges: true,
+              results: true,
+            },
+            audio: {
+              enabled: false,
+              volume: 0.4,
+              syncWithAnimation: true,
+              pitches: {
+                hero: "C3",
+                stats: "E3",
+                actions: "G3",
+                tech: "C4",
+                gallery: "E4",
+                process: "G4",
+                challenges: "B3",
+                results: "D4",
+              },
+              synthesis: {
+                attack: 0.01,
+                decay: 0.3,
+                sustain: 0,
+                release: 0.8,
+                chorus: { frequency: 4, depth: 0.3 },
+              },
+            },
+          };
 
-    async ensureAudioReady() {
-      return;
-    }
+          // Override with global config if available
+          if (window.atomConfig?.bentoAnimations) {
+            this.config = {
+              ...this.config,
+              ...window.atomConfig.bentoAnimations,
+            };
+          }
 
-    animateCard(card, cardType, index) {
-      if (!this.config) return; // Safety check
-      
-      const isEnabled = this.config.cardEnabled?.[cardType] ?? true;
-      if (!isEnabled) return;
-      
-      // Set CSS custom properties
-      card.style.setProperty('--duration', `${this.config.animationDurationMs}ms`);
-      card.style.setProperty('--easing', this.config.easing);
-      
-      // Reset any existing classes
-      card.classList.remove('animate-in');
-      
-      const delay = index * this.config.staggerDelayMs;
-      
-      setTimeout(() => {
-        card.classList.add('animate-in');
-      }, delay);
-    }
+          // Hard-disable audio placeholder until Tone.js migration completes
+          if (this.config.audio) {
+            this.config.audio.enabled = false;
+          } else {
+            this.config.audio = { enabled: false };
+          }
 
-    async startAnimation() {
-      console.log('ðŸŽµ startAnimation() called', { isPlaying: this.isPlaying });
-      
-      if (this.isPlaying) {
-        console.log('ðŸŽµ Already playing, returning early');
+          if (!this.config.audio?.enabled) {
+            this.isInitialized = true;
+            return;
+          }
+
+          // PLACEHOLDER: Audio will be replaced with custom OGG files + Web Audio API
+          // Only create audio objects when actually needed (defer until user interaction)
+          console.log(
+            "ðŸŽµ Bento Animation System initialized (audio deferred until user interaction)",
+          );
+          this.isInitialized = true;
+        } catch (error) {
+          console.warn("Failed to initialize Bento system:", error);
+        }
+      }
+
+      async initAudio() {
         return;
       }
-      this.isPlaying = true;
-      
-      // Ensure config is loaded first
-      if (!this.config) {
-        await this.init();
-      }
-      
-      // Ensure audio is ready only if unlocked; otherwise animations proceed silently
-      if (this.config?.audio?.enabled) {
-        await this.ensureAudioReady();
-      }
-      
-      // Only select cards from the currently visible bento project
-      const visibleBentoProject = document.querySelector('#bento-content .bento-project[style*="display: block"]');
-      const cards = visibleBentoProject ? visibleBentoProject.querySelectorAll('.bento-card') : [];
-      
-      console.log(`ðŸŽµ Starting bento animation for ${cards.length} cards (audio: ${this.config.audio?.enabled})`);
-      console.log(`ðŸŽµ Visible project:`, visibleBentoProject?.dataset?.projectSlug || 'none');
-      
-      cards.forEach((card, index) => {
-        const cardType = this.getCardType(card);
-        this.animateCard(card, cardType, index);
-      });
-      
-      // Reset playing flag after animation completes
-      const totalTime = (cards.length * this.config.staggerDelayMs) + this.config.animationDurationMs + 200;
-      setTimeout(() => {
-        this.isPlaying = false;
-      }, totalTime);
-    }
 
-    reset() {
-      console.log('ðŸŽµ reset() called');
-      // Reset ALL bento cards (since we're closing/switching projects)
-      const cards = document.querySelectorAll('#bento-content .bento-card');
-      cards.forEach(card => {
-        card.classList.remove('animate-in');
-      });
-      this.isPlaying = false;
-    }
-  }
+      getCardType(card) {
+        // Determine card type from classes
+        if (card.classList.contains("hero-card")) return "hero";
+        if (card.classList.contains("music-links-card")) return "stats";
+        if (card.classList.contains("stats-card")) return "stats";
+        if (card.classList.contains("actions-card")) return "actions";
+        if (card.classList.contains("tech-card")) return "tech";
+        if (card.classList.contains("gallery-card")) return "gallery";
+        if (card.classList.contains("process-card")) return "process";
+        if (card.classList.contains("challenges-card")) return "challenges";
+        if (card.classList.contains("results-card")) return "results";
+        return "hero"; // fallback
+      }
+
+      async ensureAudioReady() {
+        return;
+      }
+
+      animateCard(card, cardType, index) {
+        if (!this.config) return; // Safety check
+
+        const isEnabled = this.config.cardEnabled?.[cardType] ?? true;
+        if (!isEnabled) return;
+
+        // Set CSS custom properties
+        card.style.setProperty(
+          "--duration",
+          `${this.config.animationDurationMs}ms`,
+        );
+        card.style.setProperty("--easing", this.config.easing);
+
+        // Reset any existing classes
+        card.classList.remove("animate-in");
+
+        const delay = index * this.config.staggerDelayMs;
+
+        setTimeout(() => {
+          card.classList.add("animate-in");
+        }, delay);
+      }
+
+      async startAnimation() {
+        console.log("ðŸŽµ startAnimation() called", {
+          isPlaying: this.isPlaying,
+        });
+
+        if (this.isPlaying) {
+          console.log("ðŸŽµ Already playing, returning early");
+          return;
+        }
+        this.isPlaying = true;
+
+        // Ensure config is loaded first
+        if (!this.config) {
+          await this.init();
+        }
+
+        // Ensure audio is ready only if unlocked; otherwise animations proceed silently
+        if (this.config?.audio?.enabled) {
+          await this.ensureAudioReady();
+        }
+
+        // Only select cards from the currently visible bento project
+        const visibleBentoProject = document.querySelector(
+          '#bento-content .bento-project[style*="display: block"]',
+        );
+        const cards = visibleBentoProject
+          ? visibleBentoProject.querySelectorAll(".bento-card")
+          : [];
+
+        console.log(
+          `ðŸŽµ Starting bento animation for ${cards.length} cards (audio: ${this.config.audio?.enabled})`,
+        );
+        console.log(
+          `ðŸŽµ Visible project:`,
+          visibleBentoProject?.dataset?.projectSlug || "none",
+        );
+
+        cards.forEach((card, index) => {
+          const cardType = this.getCardType(card);
+          this.animateCard(card, cardType, index);
+        });
+
+        // Reset playing flag after animation completes
+        const totalTime =
+          cards.length * this.config.staggerDelayMs +
+          this.config.animationDurationMs +
+          200;
+        setTimeout(() => {
+          this.isPlaying = false;
+        }, totalTime);
+      }
+
+      reset() {
+        console.log("ðŸŽµ reset() called");
+        // Reset ALL bento cards (since we're closing/switching projects)
+        const cards = document.querySelectorAll("#bento-content .bento-card");
+        cards.forEach((card) => {
+          card.classList.remove("animate-in");
+        });
+        this.isPlaying = false;
+      }
+    };
   } // Close the BentoAnimationSystem class definition wrapper
 
   // Global instance - use window to ensure single instance across all components
-  if (typeof window !== 'undefined' && typeof window.bentoAnimationSystem === 'undefined') {
+  if (
+    typeof window !== "undefined" &&
+    typeof window.bentoAnimationSystem === "undefined"
+  ) {
     window.bentoAnimationSystem = null;
   }
 
@@ -3161,423 +3900,515 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
 
   // Wrap all remaining functions to prevent redeclaration in Firefox
   if (!window.__bentoFunctionsInitialized) {
-  let __basicGlb = null;
-  let __basicGlbOpen = false;
-  let __basicLastFocus = null;
-  let __basicItems = [];
-  let __basicIndex = 0;
-  const onBasicKey = (e) => {
-    if (!__basicGlbOpen) return;
-    if (e.key === 'Escape') {
-      e.stopPropagation();
-      e.preventDefault();
-      closeBasicLightbox();
-    }
-    if (e.key === 'ArrowLeft') { e.stopPropagation(); e.preventDefault(); basicPrev(); }
-    if (e.key === 'ArrowRight') { e.stopPropagation(); e.preventDefault(); basicNext(); }
-  };
+    let __basicGlb = null;
+    let __basicGlbOpen = false;
+    let __basicLastFocus = null;
+    let __basicItems = [];
+    let __basicIndex = 0;
+    const onBasicKey = (e) => {
+      if (!__basicGlbOpen) return;
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        e.preventDefault();
+        closeBasicLightbox();
+      }
+      if (e.key === "ArrowLeft") {
+        e.stopPropagation();
+        e.preventDefault();
+        basicPrev();
+      }
+      if (e.key === "ArrowRight") {
+        e.stopPropagation();
+        e.preventDefault();
+        basicNext();
+      }
+    };
 
-  function ensureBasicLightbox() {
-    if (__basicGlb) return __basicGlb;
-    console.log('[GLB] creating basic lightbox DOM');
-    const root = document.createElement('div');
-    root.className = 'glb-root';
-    root.style.display = 'none';
+    function ensureBasicLightbox() {
+      if (__basicGlb) return __basicGlb;
+      console.log("[GLB] creating basic lightbox DOM");
+      const root = document.createElement("div");
+      root.className = "glb-root";
+      root.style.display = "none";
 
-    const scrim = document.createElement('div');
-    scrim.className = 'glb-scrim';
-    scrim.addEventListener('click', () => closeBasicLightbox());
+      const scrim = document.createElement("div");
+      scrim.className = "glb-scrim";
+      scrim.addEventListener("click", () => closeBasicLightbox());
 
-    const container = document.createElement('div');
-    container.className = 'glb-container';
-    container.style.display = 'grid';
+      const container = document.createElement("div");
+      container.className = "glb-container";
+      container.style.display = "grid";
 
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'glb-close';
-    closeBtn.setAttribute('aria-label', 'Close');
-    closeBtn.innerHTML = `<svg width="24" height="24" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      const closeBtn = document.createElement("button");
+      closeBtn.className = "glb-close";
+      closeBtn.setAttribute("aria-label", "Close");
+      closeBtn.innerHTML = `<svg width="24" height="24" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
       <path fill="currentColor" d="M195.2 195.2a64 64 0 0190.496 0L512 421.504 738.304 195.2a64 64 0 0190.496 90.496L602.496 512 828.8 738.304a64 64 0 01-90.496 90.496L512 602.496 285.696 828.8a64 64 0 01-90.496-90.496L421.504 512 195.2 285.696a64 64 0 010-90.496z"/>
     </svg>`;
-    closeBtn.addEventListener('click', () => closeBasicLightbox());
+      closeBtn.addEventListener("click", () => closeBasicLightbox());
 
-    const viewport = document.createElement('div');
-    viewport.className = 'glb-viewport';
+      const viewport = document.createElement("div");
+      viewport.className = "glb-viewport";
 
-    const counter = document.createElement('div');
-    counter.className = 'glb-counter';
-    counter.textContent = '';
+      const counter = document.createElement("div");
+      counter.className = "glb-counter";
+      counter.textContent = "";
 
-    const btnPrev = document.createElement('button');
-    btnPrev.className = 'glb-nav glb-prev';
-    btnPrev.setAttribute('aria-label', 'Previous');
-    btnPrev.innerHTML = `<svg width="24" height="24" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      const btnPrev = document.createElement("button");
+      btnPrev.className = "glb-nav glb-prev";
+      btnPrev.setAttribute("aria-label", "Previous");
+      btnPrev.innerHTML = `<svg width="24" height="24" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
       <path fill="currentColor" d="M685.248 104.704a64 64 0 010 90.496L368.448 512l316.8 316.8a64 64 0 01-90.496 90.496L232.704 557.248a64 64 0 010-90.496l362.048-362.048a64 64 0 0190.496 0z"/>
     </svg>`;
-    btnPrev.addEventListener('click', () => basicPrev());
+      btnPrev.addEventListener("click", () => basicPrev());
 
-    const btnNext = document.createElement('button');
-    btnNext.className = 'glb-nav glb-next';
-    btnNext.setAttribute('aria-label', 'Next');
-    btnNext.innerHTML = `<svg width="24" height="24" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      const btnNext = document.createElement("button");
+      btnNext.className = "glb-nav glb-next";
+      btnNext.setAttribute("aria-label", "Next");
+      btnNext.innerHTML = `<svg width="24" height="24" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
       <path fill="currentColor" d="M338.752 104.704a64 64 0 0190.496 0l362.048 362.048a64 64 0 010 90.496L429.248 919.296a64 64 0 01-90.496-90.496L655.552 512 338.752 195.2a64 64 0 010-90.496z"/>
     </svg>`;
-    btnNext.addEventListener('click', () => basicNext());
+      btnNext.addEventListener("click", () => basicNext());
 
-    container.appendChild(closeBtn);
-    container.appendChild(btnPrev);
-    container.appendChild(viewport);
-    container.appendChild(btnNext);
-    container.appendChild(counter);
+      container.appendChild(closeBtn);
+      container.appendChild(btnPrev);
+      container.appendChild(viewport);
+      container.appendChild(btnNext);
+      container.appendChild(counter);
 
-    root.appendChild(scrim);
-    root.appendChild(container);
-    document.body.appendChild(root);
-    console.log('[GLB] basic lightbox DOM appended to body');
-    __basicGlb = { root, scrim, container, viewport, counter, closeBtn, btnPrev, btnNext };
-    return __basicGlb;
-  }
-
-  function renderBasicSlide() {
-    const glb = __basicGlb || ensureBasicLightbox();
-    if (!__basicItems.length) return;
-    const item = __basicItems[__basicIndex];
-    if (!item) return;
-    // Pause any existing video
-    try { glb.viewport.querySelector('video')?.pause(); } catch {}
-    glb.viewport.innerHTML = '';
-    let el;
-    if (item.isVideo) {
-      el = document.createElement('video');
-      el.src = item.src; el.controls = true; el.playsInline = true;
-      el.style.maxWidth = '100%'; el.style.maxHeight = '100%';
-    } else {
-      el = document.createElement('img');
-      el.src = item.src; el.alt = item.alt || '';
-      el.style.maxWidth = '100%'; el.style.maxHeight = '100%';
-      el.decoding = 'async'; el.loading = 'eager';
+      root.appendChild(scrim);
+      root.appendChild(container);
+      document.body.appendChild(root);
+      console.log("[GLB] basic lightbox DOM appended to body");
+      __basicGlb = {
+        root,
+        scrim,
+        container,
+        viewport,
+        counter,
+        closeBtn,
+        btnPrev,
+        btnNext,
+      };
+      return __basicGlb;
     }
-    glb.viewport.appendChild(el);
-    glb.counter.textContent = `${__basicIndex + 1} / ${__basicItems.length}`;
-    // Preload neighbors (images only)
-    const prev = __basicItems[(__basicIndex - 1 + __basicItems.length) % __basicItems.length];
-    const next = __basicItems[(__basicIndex + 1) % __basicItems.length];
-    [prev, next].forEach(n => { if (n && !n.isVideo) { const img = new Image(); img.src = n.src; } });
-  }
 
-  function basicPrev() {
-    if (!__basicItems.length) return;
-    __basicIndex = (__basicIndex - 1 + __basicItems.length) % __basicItems.length;
-    renderBasicSlide();
-  }
-  function basicNext() {
-    if (!__basicItems.length) return;
-    __basicIndex = (__basicIndex + 1) % __basicItems.length;
-    renderBasicSlide();
-  }
+    function renderBasicSlide() {
+      const glb = __basicGlb || ensureBasicLightbox();
+      if (!__basicItems.length) return;
+      const item = __basicItems[__basicIndex];
+      if (!item) return;
+      // Pause any existing video
+      try {
+        glb.viewport.querySelector("video")?.pause();
+      } catch {}
+      glb.viewport.innerHTML = "";
+      let el;
+      if (item.isVideo) {
+        el = document.createElement("video");
+        el.src = item.src;
+        el.controls = true;
+        el.playsInline = true;
+        el.style.maxWidth = "100%";
+        el.style.maxHeight = "100%";
+      } else {
+        el = document.createElement("img");
+        el.src = item.src;
+        el.alt = item.alt || "";
+        el.style.maxWidth = "100%";
+        el.style.maxHeight = "100%";
+        el.decoding = "async";
+        el.loading = "eager";
+      }
+      glb.viewport.appendChild(el);
+      glb.counter.textContent = `${__basicIndex + 1} / ${__basicItems.length}`;
+      // Preload neighbors (images only)
+      const prev =
+        __basicItems[
+          (__basicIndex - 1 + __basicItems.length) % __basicItems.length
+        ];
+      const next = __basicItems[(__basicIndex + 1) % __basicItems.length];
+      [prev, next].forEach((n) => {
+        if (n && !n.isVideo) {
+          const img = new Image();
+          img.src = n.src;
+        }
+      });
+    }
 
-  function openBasicLightboxWithItems(items, startIndex, returnEl) {
-    const glb = ensureBasicLightbox();
-    __basicItems = Array.isArray(items) ? items.slice() : [];
-    __basicIndex = Math.min(Math.max(0, startIndex || 0), Math.max(0, __basicItems.length - 1));
-    __basicLastFocus = returnEl || document.activeElement;
-    glb.root.style.display = 'block';
-    glb.root.setAttribute('aria-hidden', 'false');
-    document.documentElement.classList.add('glb-scroll-lock');
-    __basicGlbOpen = true;
-    renderBasicSlide();
-    try { glb.closeBtn.focus({ preventScroll: true }); } catch {}
-    document.addEventListener('keydown', onBasicKey, true);
-  }
+    function basicPrev() {
+      if (!__basicItems.length) return;
+      __basicIndex =
+        (__basicIndex - 1 + __basicItems.length) % __basicItems.length;
+      renderBasicSlide();
+    }
+    function basicNext() {
+      if (!__basicItems.length) return;
+      __basicIndex = (__basicIndex + 1) % __basicItems.length;
+      renderBasicSlide();
+    }
 
-  function closeBasicLightbox() {
-    const glb = __basicGlb;
-    if (!glb) return;
-    __basicGlbOpen = false;
-    glb.root.style.display = 'none';
-    glb.root.setAttribute('aria-hidden', 'true');
-    glb.viewport.innerHTML = '';
-    document.documentElement.classList.remove('glb-scroll-lock');
-    document.removeEventListener('keydown', onBasicKey, true);
-    try { __basicLastFocus?.focus({ preventScroll: true }); } catch {}
-  }
+    function openBasicLightboxWithItems(items, startIndex, returnEl) {
+      const glb = ensureBasicLightbox();
+      __basicItems = Array.isArray(items) ? items.slice() : [];
+      __basicIndex = Math.min(
+        Math.max(0, startIndex || 0),
+        Math.max(0, __basicItems.length - 1),
+      );
+      __basicLastFocus = returnEl || document.activeElement;
+      glb.root.style.display = "block";
+      glb.root.setAttribute("aria-hidden", "false");
+      document.documentElement.classList.add("glb-scroll-lock");
+      __basicGlbOpen = true;
+      renderBasicSlide();
+      try {
+        glb.closeBtn.focus({ preventScroll: true });
+      } catch {}
+      document.addEventListener("keydown", onBasicKey, true);
+    }
 
-  // Attach click handlers to open lightbox for each gallery card
-  function setupGalleryClickHandlers(scope = document) {
-    const cards = scope.querySelectorAll('.gallery-card');
-    console.debug('[GLB] setupGalleryClickHandlers: found cards =', cards.length);
-    cards.forEach(card => {
-      if (card.dataset.glbBound === '1') return;
-      card.dataset.glbBound = '1';
-      const dataEl = card.querySelector('.gallery-data');
-      let fallbackItems = [];
-      try { fallbackItems = JSON.parse(dataEl?.textContent || '[]'); } catch (e) { console.warn('[GLB] JSON parse failed', e); }
-      
-      const clickables = card.querySelectorAll('[data-gallery-index]');
-      console.debug('[GLB] card bound. fallback items =', fallbackItems.length, 'clickables =', clickables.length);
-      
-      // Build full-resolution items from data attributes
-      const fullResItems = Array.from(clickables)
-        .sort((a, b) => {
-          const aIdx = parseInt(a.getAttribute('data-gallery-index') || '0', 10);
-          const bIdx = parseInt(b.getAttribute('data-gallery-index') || '0', 10);
-          return aIdx - bIdx;
-        })
-        .map(el => {
-          const fullSrc = el.getAttribute('data-full-src');
-          const fallbackIdx = parseInt(el.getAttribute('data-gallery-index') || '0', 10);
-          const fallbackItem = fallbackItems[fallbackIdx] || {};
-          
-          return {
-            src: fullSrc || fallbackItem.src,
-            alt: fallbackItem.alt || 'Gallery image',
-            isVideo: fallbackItem.isVideo || false
-          };
-        });
-      
-      const items = fullResItems.length > 0 ? fullResItems : fallbackItems;
-      
-      clickables.forEach(el => {
-        const idx = parseInt(el.getAttribute('data-gallery-index') || '0', 10) || 0;
-        el.addEventListener('click', async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          console.debug('[GLB] click on index', idx, 'items total', items.length);
-          if (items && items.length) openBasicLightboxWithItems(items, idx, el);
-        }, { passive: false });
-        el.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            el.click();
-          }
+    function closeBasicLightbox() {
+      const glb = __basicGlb;
+      if (!glb) return;
+      __basicGlbOpen = false;
+      glb.root.style.display = "none";
+      glb.root.setAttribute("aria-hidden", "true");
+      glb.viewport.innerHTML = "";
+      document.documentElement.classList.remove("glb-scroll-lock");
+      document.removeEventListener("keydown", onBasicKey, true);
+      try {
+        __basicLastFocus?.focus({ preventScroll: true });
+      } catch {}
+    }
+
+    // Attach click handlers to open lightbox for each gallery card
+    function setupGalleryClickHandlers(scope = document) {
+      const cards = scope.querySelectorAll(".gallery-card");
+      console.debug(
+        "[GLB] setupGalleryClickHandlers: found cards =",
+        cards.length,
+      );
+      cards.forEach((card) => {
+        if (card.dataset.glbBound === "1") return;
+        card.dataset.glbBound = "1";
+        const dataEl = card.querySelector(".gallery-data");
+        let fallbackItems = [];
+        try {
+          fallbackItems = JSON.parse(dataEl?.textContent || "[]");
+        } catch (e) {
+          console.warn("[GLB] JSON parse failed", e);
+        }
+
+        const clickables = card.querySelectorAll("[data-gallery-index]");
+        console.debug(
+          "[GLB] card bound. fallback items =",
+          fallbackItems.length,
+          "clickables =",
+          clickables.length,
+        );
+
+        // Build full-resolution items from data attributes
+        const fullResItems = Array.from(clickables)
+          .sort((a, b) => {
+            const aIdx = parseInt(
+              a.getAttribute("data-gallery-index") || "0",
+              10,
+            );
+            const bIdx = parseInt(
+              b.getAttribute("data-gallery-index") || "0",
+              10,
+            );
+            return aIdx - bIdx;
+          })
+          .map((el) => {
+            const fullSrc = el.getAttribute("data-full-src");
+            const fallbackIdx = parseInt(
+              el.getAttribute("data-gallery-index") || "0",
+              10,
+            );
+            const fallbackItem = fallbackItems[fallbackIdx] || {};
+
+            return {
+              src: fullSrc || fallbackItem.src,
+              alt: fallbackItem.alt || "Gallery image",
+              isVideo: fallbackItem.isVideo || false,
+            };
+          });
+
+        const items = fullResItems.length > 0 ? fullResItems : fallbackItems;
+
+        clickables.forEach((el) => {
+          const idx =
+            parseInt(el.getAttribute("data-gallery-index") || "0", 10) || 0;
+          el.addEventListener(
+            "click",
+            async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.debug(
+                "[GLB] click on index",
+                idx,
+                "items total",
+                items.length,
+              );
+              if (items && items.length)
+                openBasicLightboxWithItems(items, idx, el);
+            },
+            { passive: false },
+          );
+          el.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              el.click();
+            }
+          });
         });
       });
-    });
-  }
-
-  // ==========================
-  // Gallery layout (dynamic rows)
-  // - Thumbnails are a CSS grid (3 cols desktop, 2 cols mobile landscape)
-  // - Show as many full rows as fit; hide the rest
-  // ==========================
-  function getGridColumnCount(el) {
-    const style = getComputedStyle(el);
-    const template = style.gridTemplateColumns;
-    if (!template || template === 'none') return 1;
-    const m = template.match(/repeat\(\s*(\d+)\s*,/i);
-    if (m) {
-      const n = parseInt(m[1], 10);
-      return Number.isFinite(n) && n > 0 ? n : 1;
     }
-    return template.split(/\s+/).filter(Boolean).length;
-  }
 
-  // Config provider for gallery layout
-  const DEFAULT_GALLERY_CFG = { extraRow1DeltaPx: 500, extraRow2DeltaPx: 800, heroMinHeightFallback: 120, maxRows: 3 };
-  function getGalleryCfg(card) {
-    try { if (window.atomConfig?.bentoGallery) return window.atomConfig.bentoGallery; } catch {}
-    try {
-      const root = card.closest('.project-bento') || document;
-      const el = root.querySelector('.bento-gallery-config');
-      if (el) {
-        const parsed = JSON.parse(el.textContent || '{}');
-        return { ...DEFAULT_GALLERY_CFG, ...parsed };
+    // ==========================
+    // Gallery layout (dynamic rows)
+    // - Thumbnails are a CSS grid (3 cols desktop, 2 cols mobile landscape)
+    // - Show as many full rows as fit; hide the rest
+    // ==========================
+    function getGridColumnCount(el) {
+      const style = getComputedStyle(el);
+      const template = style.gridTemplateColumns;
+      if (!template || template === "none") return 1;
+      const m = template.match(/repeat\(\s*(\d+)\s*,/i);
+      if (m) {
+        const n = parseInt(m[1], 10);
+        return Number.isFinite(n) && n > 0 ? n : 1;
       }
-    } catch {}
-    return DEFAULT_GALLERY_CFG;
-  }
+      return template.split(/\s+/).filter(Boolean).length;
+    }
 
-  function layoutOneGallery(card) {
-    try {
-      const grid = card.querySelector('.gallery-grid');
-      const thumbs = card.querySelector('.gallery-thumbnails');
-      const hero = card.querySelector('.gallery-hero');
-      if (!grid || !thumbs || !hero) return;
+    // Config provider for gallery layout
+    const DEFAULT_GALLERY_CFG = {
+      extraRow1DeltaPx: 500,
+      extraRow2DeltaPx: 800,
+      heroMinHeightFallback: 120,
+      maxRows: 3,
+    };
+    function getGalleryCfg(card) {
+      try {
+        if (window.atomConfig?.bentoGallery)
+          return window.atomConfig.bentoGallery;
+      } catch {}
+      try {
+        const root = card.closest(".project-bento") || document;
+        const el = root.querySelector(".bento-gallery-config");
+        if (el) {
+          const parsed = JSON.parse(el.textContent || "{}");
+          return { ...DEFAULT_GALLERY_CFG, ...parsed };
+        }
+      } catch {}
+      return DEFAULT_GALLERY_CFG;
+    }
 
-      const thumbsStyle = getComputedStyle(thumbs);
-      if (thumbsStyle.display === 'none') return; // hidden on mobile portrait
+    function layoutOneGallery(card) {
+      try {
+        const grid = card.querySelector(".gallery-grid");
+        const thumbs = card.querySelector(".gallery-thumbnails");
+        const hero = card.querySelector(".gallery-hero");
+        if (!grid || !thumbs || !hero) return;
 
-      const gridStyle = getComputedStyle(grid);
-      const gapYGrid = parseFloat(gridStyle.gap) || 0;
-      const gapX = parseFloat(thumbsStyle.columnGap || thumbsStyle.gap) || 0;
+        const thumbsStyle = getComputedStyle(thumbs);
+        if (thumbsStyle.display === "none") return; // hidden on mobile portrait
 
-      const columns = Math.max(1, getGridColumnCount(thumbs));
-      const width = thumbs.clientWidth;
-      if (width <= 0) return;
-      const tile = (width - (columns - 1) * gapX) / columns;
-      if (!(tile > 0)) return;
+        const gridStyle = getComputedStyle(grid);
+        const gapYGrid = parseFloat(gridStyle.gap) || 0;
+        const gapX = parseFloat(thumbsStyle.columnGap || thumbsStyle.gap) || 0;
 
-      // Measure with thumbnails unconstrained to avoid self-limiting from prior runs
-      const __prevH = thumbs.style.height;
-      const __prevFlex = thumbs.style.flex;
-      thumbs.style.height = 'auto';
-      thumbs.style.flex = '0 0 auto';
-      void thumbs.offsetHeight; // force reflow
+        const columns = Math.max(1, getGridColumnCount(thumbs));
+        const width = thumbs.clientWidth;
+        if (width <= 0) return;
+        const tile = (width - (columns - 1) * gapX) / columns;
+        if (!(tile > 0)) return;
 
-      // Available vertical space for thumbnails within the grid (unconstrained)
-      const gridHeightAuto = grid.clientHeight;
-      const available = gridHeightAuto - hero.clientHeight - gapYGrid;
-      if (!(available > 0)) {
-        // Restore and bail
-        thumbs.style.height = __prevH;
-        thumbs.style.flex = __prevFlex;
+        // Measure with thumbnails unconstrained to avoid self-limiting from prior runs
+        const __prevH = thumbs.style.height;
+        const __prevFlex = thumbs.style.flex;
+        thumbs.style.height = "auto";
+        thumbs.style.flex = "0 0 auto";
+        void thumbs.offsetHeight; // force reflow
+
+        // Available vertical space for thumbnails within the grid (unconstrained)
+        const gridHeightAuto = grid.clientHeight;
+        const available = gridHeightAuto - hero.clientHeight - gapYGrid;
+        if (!(available > 0)) {
+          // Restore and bail
+          thumbs.style.height = __prevH;
+          thumbs.style.flex = __prevFlex;
+          return;
+        }
+
+        // Baseline rows using unconstrained measurement
+        let rowsFit = Math.floor((available + gapX) / (tile + gapX));
+        if (rowsFit < 1) rowsFit = 1; // always show at least one full row
+
+        // Config-driven multi-row support (up to 3 rows by default)
+        const cfg = getGalleryCfg(card);
+        const heroStyle = getComputedStyle(hero);
+        const heroMinH =
+          parseFloat(heroStyle.minHeight || "0") ||
+          (cfg.heroMinHeightFallback ?? 120);
+        const maxAvailableWithHeroMin = Math.max(
+          0,
+          gridHeightAuto - heroMinH - gapYGrid,
+        );
+        const rowsWithMin = Math.floor(
+          (maxAvailableWithHeroMin + gapX) / (tile + gapX),
+        );
+
+        // Per-card tallness relative to CSS min-height
+        const cardStyle = getComputedStyle(card);
+        const cardMinH = parseFloat(cardStyle.minHeight || "0") || 0;
+        const cardHeight =
+          card.clientHeight || parseFloat(cardStyle.height || "0") || 0;
+        const delta = Math.max(0, cardHeight - cardMinH);
+        let extraAllowed = 0;
+        const d1 = cfg.extraRow1DeltaPx ?? 500;
+        const d2 = cfg.extraRow2DeltaPx ?? 800;
+        if (delta >= d2) extraAllowed = 2;
+        else if (delta >= d1) extraAllowed = 1;
+
+        const maxRows = cfg.maxRows ?? 3;
+        const desired = Math.min(1 + extraAllowed, rowsWithMin, maxRows);
+        rowsFit = Math.max(rowsFit, desired);
+
+        const items = Array.from(thumbs.children);
+        const visibleCount = Math.min(items.length, columns * rowsFit);
+        for (let i = 0; i < items.length; i++) {
+          const el = items[i];
+          if (i < visibleCount) el.style.removeProperty("display");
+          else el.style.display = "none";
+        }
+
+        // Fix the container height to exactly fit the number of full rows
+        const rowsHeight = rowsFit * tile + (rowsFit - 1) * gapX;
+        thumbs.style.height = rowsHeight + "px";
+        thumbs.style.flex = `0 0 ${rowsHeight}px`;
+
+        thumbs.setAttribute("data-rows", String(rowsFit));
+      } catch (err) {
+        console.warn("Gallery layout error:", err);
+      }
+    }
+
+    function layoutAllGalleries() {
+      const cards = document.querySelectorAll(".gallery-card");
+      cards.forEach((card) => layoutOneGallery(card));
+    }
+
+    function setupGalleryObservers() {
+      const cards = document.querySelectorAll(".gallery-card");
+      let rafId = null;
+      let debounceTimer;
+
+      const schedule = () => {
+        if (rafId) cancelAnimationFrame(rafId);
+        if (debounceTimer) clearTimeout(debounceTimer);
+
+        // Debounce ResizeObserver cascades during animations
+        debounceTimer = setTimeout(() => {
+          rafId = requestAnimationFrame(layoutAllGalleries);
+        }, 100);
+      };
+
+      // Observe size changes of the gallery grid and the card itself to recalc rows
+      cards.forEach((card) => {
+        const grid = card.querySelector(".gallery-grid");
+        const ro = new ResizeObserver(() => schedule());
+        if (grid) ro.observe(grid);
+        ro.observe(card);
+      });
+
+      window.addEventListener("resize", schedule);
+    }
+
+    // Wait for critical assets (hero images/videos) to load before animation
+    async function waitForCriticalAssets() {
+      const heroImages = document.querySelectorAll(
+        ".hero-bg img, .hero-bg video",
+      );
+      const promises = Array.from(heroImages).map((el) => {
+        if (el.tagName === "VIDEO") {
+          return new Promise((resolve) => {
+            if (el.readyState >= 3) resolve();
+            else el.addEventListener("canplay", resolve, { once: true });
+          });
+        } else {
+          return new Promise((resolve) => {
+            if (el.complete) resolve();
+            else el.addEventListener("load", resolve, { once: true });
+          });
+        }
+      });
+
+      // Wait max 2 seconds to avoid blocking animation indefinitely
+      const timeout = new Promise((resolve) => setTimeout(resolve, 2000));
+      return Promise.race([Promise.all(promises), timeout]);
+    }
+
+    // Main animation function with perfect audio sync
+    async function animateBentoCards() {
+      console.log("ðŸŽµ animateBentoCards() called", {
+        hasSystem: !!window.bentoAnimationSystem,
+        isPlaying: window.bentoAnimationSystem?.isPlaying,
+        stack: new Error().stack,
+      });
+
+      // Ensure gallery rows and click handlers are ready before animating cards
+      layoutAllGalleries();
+      setupGalleryClickHandlers();
+
+      if (!window.bentoAnimationSystem) {
+        window.bentoAnimationSystem = new window.BentoAnimationSystem();
+      }
+
+      // Extra safety: prevent multiple calls
+      if (window.bentoAnimationSystem.isPlaying) {
+        console.log("ðŸŽµ Animation already playing, skipping...");
         return;
       }
 
-      // Baseline rows using unconstrained measurement
-      let rowsFit = Math.floor((available + gapX) / (tile + gapX));
-      if (rowsFit < 1) rowsFit = 1; // always show at least one full row
+      await window.bentoAnimationSystem.startAnimation();
+    }
 
-      // Config-driven multi-row support (up to 3 rows by default)
-      const cfg = getGalleryCfg(card);
-      const heroStyle = getComputedStyle(hero);
-      const heroMinH = parseFloat(heroStyle.minHeight || '0') || (cfg.heroMinHeightFallback ?? 120);
-      const maxAvailableWithHeroMin = Math.max(0, gridHeightAuto - heroMinH - gapYGrid);
-      const rowsWithMin = Math.floor((maxAvailableWithHeroMin + gapX) / (tile + gapX));
-
-      // Per-card tallness relative to CSS min-height
-      const cardStyle = getComputedStyle(card);
-      const cardMinH = parseFloat(cardStyle.minHeight || '0') || 0;
-      const cardHeight = card.clientHeight || parseFloat(cardStyle.height || '0') || 0;
-      const delta = Math.max(0, cardHeight - cardMinH);
-      let extraAllowed = 0;
-      const d1 = cfg.extraRow1DeltaPx ?? 500;
-      const d2 = cfg.extraRow2DeltaPx ?? 800;
-      if (delta >= d2) extraAllowed = 2; else if (delta >= d1) extraAllowed = 1;
-
-      const maxRows = cfg.maxRows ?? 3;
-      const desired = Math.min(1 + extraAllowed, rowsWithMin, maxRows);
-      rowsFit = Math.max(rowsFit, desired);
-
-      const items = Array.from(thumbs.children);
-      const visibleCount = Math.min(items.length, columns * rowsFit);
-      for (let i = 0; i < items.length; i++) {
-        const el = items[i];
-        if (i < visibleCount) el.style.removeProperty('display');
-        else el.style.display = 'none';
+    // Reset function for overlay close
+    function resetBentoCards() {
+      console.log("ðŸŽµ resetBentoCards() called globally");
+      if (bentoAnimationSystem) {
+        window.bentoAnimationSystem.reset();
       }
-
-      // Fix the container height to exactly fit the number of full rows
-      const rowsHeight = rowsFit * tile + (rowsFit - 1) * gapX;
-      thumbs.style.height = rowsHeight + 'px';
-      thumbs.style.flex = `0 0 ${rowsHeight}px`;
-
-      thumbs.setAttribute('data-rows', String(rowsFit));
-    } catch (err) {
-      console.warn('Gallery layout error:', err);
     }
-  }
 
-  function layoutAllGalleries() {
-    const cards = document.querySelectorAll('.gallery-card');
-    cards.forEach(card => layoutOneGallery(card));
-  }
+    // Export functions globally (only once)
+    if (typeof window !== "undefined") {
+      if (!window.__bentoInitialized) {
+        window.animateBentoCards = animateBentoCards;
+        window.resetBentoCards = resetBentoCards;
 
-  function setupGalleryObservers() {
-    const cards = document.querySelectorAll('.gallery-card');
-    let rafId = null;
-    let debounceTimer;
-    
-    const schedule = () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      if (debounceTimer) clearTimeout(debounceTimer);
-      
-      // Debounce ResizeObserver cascades during animations
-      debounceTimer = setTimeout(() => {
-        rafId = requestAnimationFrame(layoutAllGalleries);
-      }, 100);
-    };
-
-    // Observe size changes of the gallery grid and the card itself to recalc rows
-    cards.forEach(card => {
-      const grid = card.querySelector('.gallery-grid');
-      const ro = new ResizeObserver(() => schedule());
-      if (grid) ro.observe(grid);
-      ro.observe(card);
-    });
-
-    window.addEventListener('resize', schedule);
-  }
-
-  // Wait for critical assets (hero images/videos) to load before animation
-  async function waitForCriticalAssets() {
-    const heroImages = document.querySelectorAll('.hero-bg img, .hero-bg video');
-    const promises = Array.from(heroImages).map(el => {
-      if (el.tagName === 'VIDEO') {
-        return new Promise(resolve => {
-          if (el.readyState >= 3) resolve();
-          else el.addEventListener('canplay', resolve, { once: true });
+        // Auto-run for direct page loads - wait for assets to load
+        document.addEventListener("DOMContentLoaded", () => {
+          const bentoContent = document.getElementById("bento-content");
+          if (bentoContent && bentoContent.style.display !== "none") {
+            // Wait for critical assets to load before animation
+            waitForCriticalAssets().then(() => {
+              setTimeout(animateBentoCards, 100);
+            });
+          }
+          // Initial gallery layout + observers
+          layoutAllGalleries();
+          setupGalleryObservers();
+          setupGalleryClickHandlers();
         });
-      } else {
-        return new Promise(resolve => {
-          if (el.complete) resolve();
-          else el.addEventListener('load', resolve, { once: true });
-        });
+
+        // Mark as initialized
+        window.__bentoInitialized = true;
       }
-    });
-    
-    // Wait max 2 seconds to avoid blocking animation indefinitely
-    const timeout = new Promise(resolve => setTimeout(resolve, 2000));
-    return Promise.race([Promise.all(promises), timeout]);
-  }
-
-  // Main animation function with perfect audio sync
-  async function animateBentoCards() {
-    console.log('ðŸŽµ animateBentoCards() called', {
-      hasSystem: !!window.bentoAnimationSystem,
-      isPlaying: window.bentoAnimationSystem?.isPlaying,
-      stack: new Error().stack
-    });
-    
-    // Ensure gallery rows and click handlers are ready before animating cards
-    layoutAllGalleries();
-    setupGalleryClickHandlers();
-
-    if (!window.bentoAnimationSystem) {
-      window.bentoAnimationSystem = new window.BentoAnimationSystem();
     }
-    
-    // Extra safety: prevent multiple calls
-    if (window.bentoAnimationSystem.isPlaying) {
-      console.log('ðŸŽµ Animation already playing, skipping...');
-      return;
-    }
-    
-    await window.bentoAnimationSystem.startAnimation();
-  }
-
-  // Reset function for overlay close
-  function resetBentoCards() {
-    console.log('ðŸŽµ resetBentoCards() called globally');
-    if (bentoAnimationSystem) {
-      window.bentoAnimationSystem.reset();
-    }
-  }
-
-  // Export functions globally (only once)
-  if (typeof window !== 'undefined') {
-    if (!window.__bentoInitialized) {
-      window.animateBentoCards = animateBentoCards;
-      window.resetBentoCards = resetBentoCards;
-
-      // Auto-run for direct page loads - wait for assets to load
-      document.addEventListener('DOMContentLoaded', () => {
-        const bentoContent = document.getElementById('bento-content');
-        if (bentoContent && bentoContent.style.display !== 'none') {
-          // Wait for critical assets to load before animation
-          waitForCriticalAssets().then(() => {
-            setTimeout(animateBentoCards, 100);
-          });
-        }
-        // Initial gallery layout + observers
-        layoutAllGalleries();
-        setupGalleryObservers();
-        setupGalleryClickHandlers();
-      });
-
-      // Mark as initialized
-      window.__bentoInitialized = true;
-    }
-  }
 
     // Mark functions as initialized
     window.__bentoFunctionsInitialized = true;
@@ -3586,5 +4417,8 @@ const accentColorRgbDark = hexRgbDark.match(/.{2}/g)?.map(hex => parseInt(hex, 1
   // No shimmer animation â€" simplified glass for clarity
 </script>
 
-<script is:inline set:html={`window.__bentoAudioPlayerConfig = ${JSON.stringify(audioPlayerConfig)};`}></script>
+<script
+  is:inline
+  set:html={`window.__bentoAudioPlayerConfig = ${JSON.stringify(audioPlayerConfig)};`}
+/>
 <script type="module" src={audioPlayerClientScript}></script>
