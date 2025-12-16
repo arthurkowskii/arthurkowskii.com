@@ -270,6 +270,17 @@
   - Implemented graceful fade/low-pass on overlay close, navigation, and page unload via global `bento:audio:shutdown`
   - Ensured dev workflow restarts `npm run dev` each request to drop Astro caches + keep user previews accurate
 
+✅ 2025-12-16: Kubika Sampler & Extended Kit (Wide Mode)
+  - **Kubika Implementation**: Enabled Sampler card for Kubika project using 45 custom OGG assets in `/public/audio/Kubika/`
+  - **Path Logic Fixes**:
+    - Patched `ProjectBento.astro` inline script to correctly prepend `/audio/` to sampler paths
+    - Corrected `chromestesia_showcase.md` to remove redundant path prefixes, resolving double-slash 404 errors
+  - **Extended Kit (Plan 2)**:
+    - Implemented smart "Wide Mode" for Sampler card when Audio card is disabled (`isWideSampler` logic)
+    - Created `.sampler-card-wide` CSS variant spanning full width (columns 1-13)
+    - Expanded functionality to support **8 pads** (4x2 grid) in Wide Mode, maximizing utility of the empty space
+    - Maintained original 4-pad layout for standard configuration (e.g., Chromestesia)
+
 ## Technical Architecture Notes
 
 - Welcome overlay: Inline overlay system with audio prewarming, no route changes
