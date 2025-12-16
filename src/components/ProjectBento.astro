@@ -144,8 +144,17 @@ const cards = {
   gallery: true,
   challenges: true,
   results: true,
+  actions: true,
+  tech: true,
+  process: true,
+  gallery: true,
+  challenges: true,
+  results: true,
   ...bento.cards,
 };
+
+const isWideSampler = cards.sampler && !cards.audio;
+const numPads = isWideSampler ? 8 : 4;
 
 // Merge sampler config with defaults if enabled
 if (cards.sampler) {
@@ -1309,6 +1318,28 @@ const accentColorRgbDark =
     filter: blur(40px);
     opacity: 0.5;
     z-index: 0;
+  }
+
+  /* Wide Sampler Variant (Plan 2: Extended Kit) */
+  .sampler-card-wide {
+    grid-column: 1 / 13;
+  }
+
+  .sampler-card-wide .sampler-content {
+    grid-template-columns: 1fr auto;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sampler-card-wide .sampler-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .sampler-card-wide .sampler-pad-row {
+    gap: 1.25rem;
   }
 
   .sampler-card::after {
@@ -3579,7 +3610,11 @@ const accentColorRgbDark =
     {
       cards.sampler && bento.sampler && (
         <div
-          class="bento-card sampler-card"
+          class:list={[
+            "bento-card",
+            "sampler-card",
+            { "sampler-card-wide": isWideSampler },
+          ]}
           data-folder={bento.sampler.folder}
           data-samples={JSON.stringify(bento.sampler.samplePool || [])}
         >
@@ -3599,28 +3634,35 @@ const accentColorRgbDark =
           <div class="sampler-content">
             <div class="sampler-grid">
               <div class="sampler-pad-row">
-                {Array.from({ length: 2 }).map((_, index) => (
-                  <button class="sampler-pad" data-pad-index={index} disabled>
-                    <div class="sampler-pad-led" />
-                    <span class="sampler-pad-name">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                  </button>
-                ))}
+                {Array.from({ length: Math.ceil(numPads / 2) }).map(
+                  (_, index) => (
+                    <button class="sampler-pad" data-pad-index={index} disabled>
+                      <div class="sampler-pad-led" />
+                      <span class="sampler-pad-name">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </button>
+                  ),
+                )}
               </div>
               <div class="sampler-pad-row">
-                {Array.from({ length: 2 }).map((_, index) => (
-                  <button
-                    class="sampler-pad"
-                    data-pad-index={index + 2}
-                    disabled
-                  >
-                    <div class="sampler-pad-led" />
-                    <span class="sampler-pad-name">
-                      {String(index + 3).padStart(2, "0")}
-                    </span>
-                  </button>
-                ))}
+                {Array.from({ length: Math.floor(numPads / 2) }).map(
+                  (_, index) => (
+                    <button
+                      class="sampler-pad"
+                      data-pad-index={index + Math.ceil(numPads / 2)}
+                      disabled
+                    >
+                      <div class="sampler-pad-led" />
+                      <span class="sampler-pad-name">
+                        {String(index + Math.ceil(numPads / 2) + 1).padStart(
+                          2,
+                          "0",
+                        )}
+                      </span>
+                    </button>
+                  ),
+                )}
               </div>
             </div>
 
