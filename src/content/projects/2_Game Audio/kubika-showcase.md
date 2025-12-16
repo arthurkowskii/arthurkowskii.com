@@ -36,8 +36,8 @@ bento:
   # Sampler Configuration
   sampler:
     title:
-      fr: "Sampler SFX"
-      en: "SFX Sampler"
+      fr: "Jouez avec les sons du jeu ⬇️"
+      en: "PLay sounds from this game ⬇️"
     folder: "Kubika"
     samplePool: 
       - "Click_03.ogg"
