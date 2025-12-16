@@ -30,12 +30,61 @@ bento:
     video: false
     spotify: false
     audio: false
-    actions: true
-    tech: true
-    process: true
-    gallery: true
-    challenges: true
-    results: true
+    sampler: true
+
+
+  # Sampler Configuration
+  sampler:
+    title:
+      fr: "Sampler SFX"
+      en: "SFX Sampler"
+    folder: "Kubika"
+    samplePool: 
+      - "Click_03.ogg"
+      - "Click_04.ogg"
+      - "GRASS_00_002.ogg"
+      - "GRASS_00_005.ogg"
+      - "HIghlands_StartLevel_Medium_02.ogg"
+      - "Level_Editor.ogg"
+      - "Loading Down.ogg"
+      - "Loading_Down.ogg"
+      - "New_crumble_00_001.ogg"
+      - "New_crumble_00_004.ogg"
+      - "Ok_Chord_01.ogg"
+      - "Ok_Chord_02.ogg"
+      - "Select.ogg"
+      - "UI back.ogg"
+      - "UIClick_X4 Small Cute Bop 06_SKII_KUBIKA.ogg"
+      - "UI_select.ogg"
+      - "Water, Movement, Swimming, Full Body Emerge, Surface, Splash SND122413.ogg"
+      - "Win_Base.ogg"
+      - "Win_Gold.ogg"
+      - "Win_Silver.ogg"
+      - "batch_three_glass-003.ogg"
+      - "break_glass-001.ogg"
+      - "crescendo 02.ogg"
+      - "crescendo_01.ogg"
+      - "elevator_01.ogg"
+      - "elevator_02.ogg"
+      - "elevator_03.ogg"
+      - "fallOnTop_01.ogg"
+      - "fall_delivery.ogg"
+      - "fall_elevator_01.ogg"
+      - "fall_elevator_03.ogg"
+      - "gear_01.ogg"
+      - "gear_02.ogg"
+      - "heavy-005.ogg"
+      - "impact_breach_win.ogg"
+      - "move.ogg"
+      - "move_ceramic_01.ogg"
+      - "new_delivery_01.ogg"
+      - "new_delivery_ceramic_02.ogg"
+      - "new_delivery_chord_RAW.ogg"
+      - "play level the vale cubes.ogg"
+      - "removed_before_win.ogg"
+      - "start level transition the vale.ogg"
+      - "start_level_breach.ogg"
+      - "world move 02.ogg"
 
   # Tech section configuration
   tech:

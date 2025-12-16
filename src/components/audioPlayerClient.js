@@ -422,7 +422,7 @@ function initSamplerCards() {
       const sample = pad.dataset.sample;
       if (!sample) return;
       stopPadSound(pad);
-      const url = encodeURI(`${folder}/${sample}`);
+      const url = encodeURI(`/audio/${folder}/${sample}`);
       try {
         const sound = new Howl({
           src: [url],
