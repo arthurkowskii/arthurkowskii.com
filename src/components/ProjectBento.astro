@@ -2315,19 +2315,24 @@ const accentColorRgbDark =
   .results-card {
     grid-column: 6 / 9;
     grid-row: 4;
+    padding: 1.25rem; /* Optimize space for text */
   }
 
   .results-list {
     list-style: none;
     padding: 0;
     margin: 1rem 0;
+    width: 100%; /* Ensure list takes full width */
   }
 
   .results-item {
     padding: 0.8rem 0;
     display: flex;
     align-items: flex-start;
-    gap: 0.8rem;
+    align-items: flex-start;
+    gap: 0.6rem; /* Reduce gap to give text more room */
+    width: 100%; /* Ensure item takes full width */
+    box-sizing: border-box;
   }
 
   .results-icon {
@@ -2340,6 +2345,11 @@ const accentColorRgbDark =
     color: #4a4a4a;
     line-height: 1.5;
     font-size: 0.95rem;
+    font-size: 0.95rem;
+    flex: 1 1 auto; /* Allow grow and shrink */
+    min-width: 0; /* Prevent flex item from overflowing parent */
+    width: 100%; /* Force width */
+    word-break: break-word; /* Ensure long words wrap */
   }
 
   /* Card Titles */
@@ -2477,7 +2487,7 @@ const accentColorRgbDark =
       grid-row: 4;
     }
     .results-card {
-      grid-column: 1 / 8;
+      grid-column: 1 / 11; /* Span full width (10 cols) below gallery */
       grid-row: 5;
     }
   }

@@ -312,3 +312,10 @@
 - Dynamic shells testing across 1-5 domain configurations (low priority)
 - Performance monitoring analysis and optimization opportunities (ongoing)
 - **Next Session**: UI Sound Design implementation (using Howler.js for clicks, hovers, etc.)
+
+### Layout & Responsive Fixes (2025-12-16)
+- **Extended Sampler Kit (8 pads)**: Implemented 'Adaptive Stack' layout for mobile/tablet. Forces full-width container on small screens to prevent 'squashed' pads.
+- **Results Card Layout Bug**: Fixed a persistent blank space on the right side of the Results card in the medium tablet breakpoint (900px-1199px). 
+    - **Root Cause**: The grid was defined as 10 columns, but the card only spanned 7 columns (1 / 8), leaving 30% empty space. 
+    - **Fix**: Updated grid-column span to '1 / 11' to fill the row.
+    - **Hardening**: Added safety CSS (width: 100%, word-break: break-word) to internal list items.
