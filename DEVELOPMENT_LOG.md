@@ -319,3 +319,23 @@
     - **Root Cause**: The grid was defined as 10 columns, but the card only spanned 7 columns (1 / 8), leaving 30% empty space. 
     - **Fix**: Updated grid-column span to '1 / 11' to fill the row.
     - **Hardening**: Added safety CSS (width: 100%, word-break: break-word) to internal list items.
+
+### Sampler Volume Control (2025-12-17)
+- **Feature Implementation**: Added per-project volume control for Sampler cards.
+- **Config Update**: Extended `src/content/config.ts` to include optional `volume` number parameter in sampler schema.
+- **Component Logic**: Updated `ProjectBento.astro` to pass volume data via `data-volume` attribute and apply it to Howler instances.
+- **Volume Handling**: 
+    - Default fallback: `0.7` (if not specified).
+    - Range: `0.0` (mute) to `1.0+` (boost).
+    - Hardening: Parsing checks to handle undefined/null values gracefully.
+- **Verification**: Successfully tested muting Kubika sampler (`volume: 0.0`) and boosting Chromestesia (`volume: 1.5`).
+
+### Sampler Volume Control (2025-12-17)
+- **Feature Implementation**: Added per-project volume control for Sampler cards.
+- **Config Update**: Extended `src/content/config.ts` to include optional `volume` number parameter in sampler schema.
+- **Component Logic**: Updated `ProjectBento.astro` to pass volume data via `data-volume` attribute and apply it to Howler instances.
+- **Volume Handling**: 
+    - Default fallback: `0.7` (if not specified).
+    - Range: `0.0` (mute) to `1.0+` (boost).
+    - Hardening: Parsing checks to handle undefined/null values gracefully.
+- **Verification**: Successfully tested muting Kubika sampler (`volume: 0.0`) and boosting Chromestesia (`volume: 1.5`).

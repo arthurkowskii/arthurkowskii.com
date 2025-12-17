@@ -35,7 +35,7 @@ const projectsCollection = defineCollection({
     featured: z.boolean().default(false),
     date: z.date(),
     useBentoLayout: z.boolean().default(false),
-    
+
     // Bento layout configuration
     bento: z.object({
       // Card visibility toggles
@@ -55,11 +55,11 @@ const projectsCollection = defineCollection({
         challenges: z.boolean().default(true),
         results: z.boolean().default(true),
       }).optional(),
-      
+
       // Accent color theme
       accentColor: z.string().default('#ff6b00'), // Orange default
       accentColorDark: z.string().optional(), // Optional dark theme accent color
-      
+
       // Hero card configuration
       hero: z.object({
         subtitle: BilingualStringOptional,
@@ -74,7 +74,7 @@ const projectsCollection = defineCollection({
         logo: z.string().optional(),
         showLogo: z.boolean().optional(),
       }).optional(),
-      
+
       // Stats configuration
       stats: z.array(z.object({
         value: z.string(),
@@ -128,11 +128,15 @@ const projectsCollection = defineCollection({
         description: BilingualStringOptional,
         folder: z.string(),
         samplePool: z.array(z.string()).min(1),
+        volume: z.number().optional(),
+      }).optional(),
+      secondary: z.object({
+        text: BilingualString,
+        url: z.string().optional(),
       }).optional(),
 
-      // Actions configuration
       actions: z.object({
-        title: BilingualString.default('Experience'),
+        title: BilingualString.default('Links'),
         primary: z.object({
           text: BilingualString,
           url: z.string(),
@@ -142,14 +146,14 @@ const projectsCollection = defineCollection({
           url: z.string().optional(),
         }).optional(),
       }).optional(),
-      
+
       // Process steps
       process: z.object({
         title: BilingualString.default('Process'),
         subtitle: BilingualStringOptional,
         steps: z.array(BilingualString),
       }).optional(),
-      
+
       // Gallery images
       gallery: z.object({
         title: BilingualString.default('Gallery'),
@@ -158,13 +162,13 @@ const projectsCollection = defineCollection({
           alt: z.string(),
         })).optional(),
       }).optional(),
-      
+
       // Folder containing image assets for the project
       // When provided, the template will automatically build the gallery
       // from all images found in this folder, excluding files reserved for
       // the hero section ("hero.*" and "logo.*").
       assetsFolder: z.string().optional(),
-      
+
       // Challenges
       challenges: z.object({
         title: BilingualString.default('Key Challenges'),
@@ -174,7 +178,7 @@ const projectsCollection = defineCollection({
           description: BilingualString,
         })),
       }).optional(),
-      
+
       // Results
       results: z.object({
         title: BilingualString.default('Results'),
@@ -185,7 +189,7 @@ const projectsCollection = defineCollection({
         })),
       }).optional(),
     }).optional(),
-  }),
+  }).optional(),
 });
 
 // Define the bio collection schema

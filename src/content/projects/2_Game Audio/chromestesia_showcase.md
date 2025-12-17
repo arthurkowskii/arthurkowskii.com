@@ -180,6 +180,7 @@ bento:
       fr: "Déclenchez quatre SFX emblématiques du jeu et régénérez une nouvelle configuration aléatoire."
       en: "Trigger four iconic SFX from the game and regenerate a fresh random layout."
     folder: "Chromestesia/SFX"
+    volume: 1.5
     samplePool:
       - "Core_Die.wav"
       - "Core_Idle.wav"

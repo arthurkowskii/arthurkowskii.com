@@ -94,6 +94,7 @@ export interface Props {
           description?: string | { fr: string; en: string };
           folder: string;
           samplePool: string[];
+          volume?: number;
         };
       };
     };
@@ -3671,6 +3672,7 @@ const accentColorRgbDark =
           ]}
           data-folder={bento.sampler.folder}
           data-samples={JSON.stringify(bento.sampler.samplePool || [])}
+          data-volume={bento.sampler.volume}
         >
           <div class="sampler-header">
             <div class="sampler-title">
@@ -4980,11 +4982,20 @@ const accentColorRgbDark =
         const sample = pad.dataset.sample;
         if (!sample) return;
         stopPadSound(pad);
+
+        // Check for volume override
+        const storedVol = card.getAttribute("data-volume");
+        const volOverride =
+          storedVol !== null && storedVol !== "" ? parseFloat(storedVol) : NaN;
+        const finalVol = !isNaN(volOverride)
+          ? volOverride
+          : baseConfig.defaultVolume;
+
         const url = encodeURI(`/audio/${folder}/${sample}`);
         try {
           const sound = new Howl({
             src: [url],
-            volume: baseConfig.defaultVolume,
+            volume: finalVol,
             html5: false,
           });
           activeSounds.set(pad, sound);
