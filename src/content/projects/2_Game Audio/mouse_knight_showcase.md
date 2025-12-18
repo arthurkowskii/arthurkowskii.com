@@ -7,7 +7,7 @@ altTitle:
   en: "Mouse Knight"
 description:
   fr: "Un chevalier-souris part en quête pour retrouver le roi qui lui a lancé une malédiction afin de se venger. J'ai réalisé pour ce projet la composition de cinq musiques orchestrales, avant d'en assurer l'intégration technique sous FMOD et Unity."
-  en: "Explore a miniature world as Mouse Knight, an epic adventure game with an immersive sound dimension."
+  en: "A mouse knight embarks on a quest for vengeance against the king who cursed him. For this project, I composed five orchestral tracks and handled their technical integration using FMOD and Unity."
 tech: ["FMOD", "Reaper", "Unity"]
 status: "in-progress" # or "completed" | "planned"
 link: "https://example.com"
@@ -50,8 +50,8 @@ bento:
   # Hero subtitle only; hero/background/logo auto from assetsFolder
   hero:
     subtitle:
-      fr: "Sound-Designer et Intégrateur Audio"
-      en: "Sound Designer and Audio Integrator"
+      fr: "Compositeur et Intégrateur Audio"
+      en: "Composer and Audio Integrator"
     subtitleColor: "#ffffff"
     backgroundPosition: "center"
     backgroundSize: "cover"
@@ -93,12 +93,14 @@ bento:
       fr: "Processus"
       en: "Process"
     steps:
-      - fr: "Conception sonore des personnages et de l'environnement."
-        en: "Sound design for characters and environment."
-      - fr: "Intégration audio via FMOD."
-        en: "Audio integration via FMOD."
-      - fr: "Création d'ambiances immersives."
-        en: "Creation of immersive ambiances."
+      - fr: "Composition du thème principal"
+        en: "Composition of the main theme"
+      - fr: "Composition des musiques pour chaque arènes."
+        en: "Composing the music for each arena"
+      - fr: "Intégration des musiques dans FMOD."
+        en: "Music integration in FMOD"
+      - fr: "Intégration des musiques dans Unity."
+        en: "Music implementation in Unity"
 
   # Gallery images auto from assetsFolder; title optional
   gallery:
@@ -113,11 +115,17 @@ bento:
       en: "Key Challenges"
     items:
       - title:
-          fr: "Immersion sonore"
-          en: "Sound Immersion"
+          fr: "Temps imparti"
+          en: "Tight deadline"
         description:
-          fr: "Créer une atmosphère sonore riche et détaillée pour un monde à petite échelle."
-          en: "Creating a rich and detailed sound atmosphere for a small-scale world."
+          fr: "Un mois m'a été donné pour composer et intégré les 5 musiques correspondant au final à une dizaine de minutes de musique orchestrales."
+          en: "I was given one month to compose and integrate 5 tracks, totaling around ten minutes of orchestral music."
+      - title:
+          fr: "Intégration en Visual Scripting"
+          en: "Visual Scripting Integration"
+        description:
+          fr: "Au lieu d'une intégration code classique nous étions limité au visual scripting sur ce projet. Ce fut une première pour moi qui avait l'habitude d'utiliser mes scripts en C# et m'a donc permis de m'initier à ce langage."
+          en: "Instead of traditional code-based integration, we were restricted to visual scripting. This was a first for me, as I'm used to C# scripting, and it allowed me to learn this workflow."
 
   # Audio Player Configuration
   audio:
@@ -177,8 +185,16 @@ bento:
     items:
       - icon: "⚔️"
         text:
-          fr: "Un prototype jouable"
-          en: "A playable prototype"
+          fr: "Une build jouable sur PC"
+          en: "A playable build on PC"
+      - icon: "🎵"
+        text:
+          fr: "Une OST de 5 tracks originales"
+          en: "An Original Soundtrack of 5 tracks"
+      - icon: "🎬"
+        text:
+          fr: "Un teaser original disponible sur YouTube"
+          en: "An original teaser available on YouTube"
 ---
 
 # Mouse Knight
