@@ -350,3 +350,15 @@
     - Wrapped the SVG `<image>` in a `<g>` group tag to improve filter application consistency.
     - Added `-webkit-filter` support and `transform: translateZ(0)` to trigger hardware acceleration for filters.
     - Applied changes to both French and English versions.
+
+### Audio Player & Tracklist Implementation (2025-12-18)
+- **Wide Mode Implementation**: Enhanced `ProjectBento.astro` to support a full-width audio card when the sampler is disabled.
+    - **Logic**: Added `isWideAudio` check (`cards.audio && !cards.sampler`).
+    - **CSS**: Created `.audio-card-wide` variant with 2-column layout (player controls left, tracklist right).
+- **Tracklist Feature**: Added scrollable tracklist for multi-track projects (e.g., Mouse Knight).
+    - **UI**: Implemented modern, glassmorphic list items with hover effects and scrollbar styling.
+    - **Interaction**: Added click handlers to play specific tracks directly from the list.
+    - **State**: Active track highlighting synced with playback.
+- **Bug Fix**: Reserved issues with audio player overlap by introducing `.audio-player-column` container with proper flex gap.
+- **Bug Fix**: Resolved missing event listeners for tracklist items by injecting logic directly into the component's inline script.
+

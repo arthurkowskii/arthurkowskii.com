@@ -155,6 +155,7 @@ const cards = {
 };
 
 const isWideSampler = cards.sampler && !cards.audio;
+const isWideAudio = cards.audio && !cards.sampler;
 const numPads = isWideSampler ? 8 : 4;
 
 // Merge sampler config with defaults if enabled
@@ -1257,6 +1258,19 @@ const accentColorRgbDark =
     padding: 0;
   }
 
+  .audio-player-column {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+    gap: 2.5rem; /* Increased gap to prevent overlap */
+  }
+
+  .audio-tracklist-column {
+    display: none;
+  }
+
   /* Audio card positioning - matches hero card width */
   .audio-card {
     grid-column: 1 / 9;
@@ -1322,8 +1336,174 @@ const accentColorRgbDark =
   }
 
   /* Wide Sampler Variant (Plan 2: Extended Kit) */
-  .sampler-card-wide {
+  /* Wide Sampler Variant (Plan 2: Extended Kit) */
+  .sampler-card-wide,
+  .audio-card-wide {
     grid-column: 1 / 13;
+    min-height: 420px;
+  }
+
+  /* Specific styles for wide audio card with tracklist */
+  .audio-card-wide {
+    display: flex;
+    flex-direction: row;
+    gap: 2.5rem;
+    align-items: stretch;
+    padding-right: 1.5rem; /* Reduce right padding to give more space/visual balance with scrollbar */
+  }
+
+  .audio-card-wide .audio-player-column {
+    flex: 0 0 55%;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    padding-right: 2.5rem;
+  }
+
+  .audio-card-wide .audio-tracklist-column {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .tracklist-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0 0 1rem 0;
+    font-weight: 600;
+  }
+
+  .tracklist-scroll {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  /* Custom scrollbar for tracklist */
+  .tracklist-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+  .tracklist-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+  }
+  .tracklist-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+  }
+  .tracklist-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .audio-track-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    outline: none;
+    font-size: 0.95rem;
+  }
+
+  .audio-track-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+    color: #fff;
+  }
+
+  .audio-track-item.active {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+
+  .track-item-number {
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.85rem;
+    opacity: 0.5;
+  }
+
+  .track-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+
+  .track-item-title {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .track-item-duration {
+    font-size: 0.8rem;
+    opacity: 0.6;
+  }
+
+  .track-item-icon {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+    color: inherit;
+    display: flex;
+    align-items: center;
+  }
+
+  .audio-track-item:hover .track-item-icon,
+  .audio-track-item.active .track-item-icon {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .track-item-icon svg {
+    display: block;
+  }
+
+  .audio-track-item.active .track-item-icon svg {
+    /* Make icon match the playing icon style provided via JS if needed, 
+       but simple display is fine. */
+  }
+
+  /* Responsive Adjustments for Tracklist */
+  @media (max-width: 899px) {
+    .audio-card-wide {
+      flex-direction: column;
+      height: auto;
+      max-height: none;
+      padding-right: 2.25rem; /* Reset padding */
+    }
+
+    .audio-card-wide .audio-player-column {
+      flex: 0 0 auto;
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-right: 0;
+      padding-bottom: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .audio-card-wide .audio-tracklist-column {
+      max-height: 300px; /* Limit height on mobile so it doesn't take forever to scroll */
+    }
   }
 
   .sampler-card-wide .sampler-content {
@@ -2477,7 +2657,8 @@ const accentColorRgbDark =
     }
 
     /* Wide Sampler Override */
-    .sampler-card-wide {
+    .sampler-card-wide,
+    .audio-card-wide {
       grid-column: 1 / 11;
       grid-row: 6;
     }
@@ -2578,7 +2759,8 @@ const accentColorRgbDark =
     }
 
     /* Wide Sampler Override */
-    .sampler-card-wide {
+    .sampler-card-wide,
+    .audio-card-wide {
       grid-column: 1 / 9;
       grid-row: 6;
     }
@@ -2689,7 +2871,8 @@ const accentColorRgbDark =
     }
 
     /* Wide Sampler Override & Mobile Layout */
-    .sampler-card-wide {
+    .sampler-card-wide,
+    .audio-card-wide {
       grid-column: 1 / 7 !important;
       grid-row: 9;
     }
@@ -3568,93 +3751,142 @@ const accentColorRgbDark =
     {
       cards.audio && bento.audio && (
         <div
-          class="bento-card audio-card"
+          class:list={[
+            "bento-card",
+            "audio-card",
+            { "audio-card-wide": isWideAudio },
+          ]}
           data-project-slug={project.slug}
           data-tracks={JSON.stringify(bento.audio.tracks)}
         >
-          <div class="audio-card-header">
-            <span class="audio-badge">
-              {Astro.url.searchParams.get("lang") === "en"
-                ? "Audio Capsule"
-                : "Capsule Audio"}
-            </span>
-            <p class="audio-heading">
-              {Astro.url.searchParams.get("lang") === "en"
-                ? "Play a random track from this project"
-                : "Jouer une piste aléatoire de ce projet"}
-            </p>
-          </div>
-
-          <div class="audio-main">
-            <div class="audio-controls">
-              <button
-                class="audio-skip-btn prev-btn"
-                aria-label="Previous track"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                >
-                  <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
-                </svg>
-              </button>
-
-              <button class="audio-play-btn" aria-label="Play">
-                <svg
-                  class="play-icon"
-                  viewBox="0 0 24 24"
-                  width="28"
-                  height="28"
-                  fill="currentColor"
-                >
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-                <svg
-                  class="pause-icon"
-                  viewBox="0 0 24 24"
-                  width="28"
-                  height="28"
-                  fill="currentColor"
-                  style="display:none"
-                >
-                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-                </svg>
-              </button>
-
-              <button class="audio-skip-btn next-btn" aria-label="Next track">
-                <svg
-                  viewBox="0 0 24 24"
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                >
-                  <path d="M16.5 12l-8.5-6v12l8.5-6zm1 6h2V6h-2v12z" />
-                </svg>
-              </button>
-            </div>
-
-            <div class="track-meta">
-              <span class="track-label">
+          <div class="audio-player-column">
+            <div class="audio-card-header">
+              <span class="audio-badge">
                 {Astro.url.searchParams.get("lang") === "en"
-                  ? "Now playing"
-                  : "Lecture en cours"}
+                  ? "Audio Capsule"
+                  : "Capsule Audio"}
               </span>
-              <p class="track-name">...</p>
+              <p class="audio-heading">
+                {Astro.url.searchParams.get("lang") === "en"
+                  ? "Play a random track from this project"
+                  : "Jouer une piste aléatoire de ce projet"}
+              </p>
             </div>
-          </div>
 
-          <div class="audio-progress-group">
-            <div class="audio-progress-section">
-              <div class="audio-progress-bar">
-                <div class="audio-progress-fill" />
+            <div class="audio-main">
+              <div class="audio-controls">
+                <button
+                  class="audio-skip-btn prev-btn"
+                  aria-label="Previous track"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="currentColor"
+                  >
+                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
+                  </svg>
+                </button>
+
+                <button class="audio-play-btn" aria-label="Play">
+                  <svg
+                    class="play-icon"
+                    viewBox="0 0 24 24"
+                    width="28"
+                    height="28"
+                    fill="currentColor"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  <svg
+                    class="pause-icon"
+                    viewBox="0 0 24 24"
+                    width="28"
+                    height="28"
+                    fill="currentColor"
+                    style="display:none"
+                  >
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                  </svg>
+                </button>
+
+                <button class="audio-skip-btn next-btn" aria-label="Next track">
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="currentColor"
+                  >
+                    <path d="M16.5 12l-8.5-6v12l8.5-6zm1 6h2V6h-2v12z" />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="track-meta">
+                <span class="track-label">
+                  {Astro.url.searchParams.get("lang") === "en"
+                    ? "Now playing"
+                    : "Lecture en cours"}
+                </span>
+                <p class="track-name">...</p>
               </div>
             </div>
 
-            <div class="audio-times">
-              <span class="time-current">0:00</span>
-              <span class="time-total">0:00</span>
+            <div class="audio-progress-group">
+              <div class="audio-progress-section">
+                <div class="audio-progress-bar">
+                  <div class="audio-progress-fill" />
+                </div>
+              </div>
+
+              <div class="audio-times">
+                <span class="time-current">0:00</span>
+                <span class="time-total">0:00</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="audio-tracklist-column">
+            <h4 class="tracklist-title">
+              {Astro.url.searchParams.get("lang") === "en"
+                ? "Tracklist"
+                : "Liste des pistes"}
+            </h4>
+            <div class="tracklist-scroll">
+              {bento.audio.tracks.map((track, index) => (
+                <button
+                  class="audio-track-item"
+                  data-track-index={index}
+                  aria-label={`Play ${typeof track.title === "object" ? track.title.en : track.title}`}
+                >
+                  <span class="track-item-number">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <div class="track-item-info">
+                    <span class="track-item-title">
+                      {typeof track.title === "object"
+                        ? track.title[
+                            Astro.url.searchParams.get("lang") === "en"
+                              ? "en"
+                              : "fr"
+                          ] || track.title.en
+                        : track.title}
+                    </span>
+                    <span class="track-item-duration">{track.duration}</span>
+                  </div>
+                  <div class="track-item-icon">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="currentColor"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -4715,6 +4947,7 @@ const accentColorRgbDark =
       const progressFill = card.querySelector(".audio-progress-fill");
       const timeCurrent = card.querySelector(".time-current");
       const timeTotal = card.querySelector(".time-total");
+      const trackItems = card.querySelectorAll(".audio-track-item");
 
       const projectSlug = card.getAttribute("data-project-slug") || "";
       const tracksData = card.getAttribute("data-tracks");
@@ -4731,6 +4964,7 @@ const accentColorRgbDark =
 
       const folderMap = {
         chromestesia_showcase: "Chromestesia",
+        mouse_knight_showcase: "MouseKnight",
       };
       const audioFolder = folderMap[projectSlug] || projectSlug;
 
@@ -4799,6 +5033,13 @@ const accentColorRgbDark =
         }
         isFadingOut = false;
 
+        trackItems.forEach((item) => {
+          item.classList.toggle(
+            "active",
+            parseInt(item.dataset.trackIndex, 10) === index,
+          );
+        });
+
         currentTrackIndex = index;
         const track = tracks[index];
 
@@ -4807,11 +5048,16 @@ const accentColorRgbDark =
         timeTotal.textContent = track.duration || "0:00";
         progressFill.style.width = "0%";
 
-        const audioSources = [
-          `/audio/${audioFolder}/${track.filename}.ogg`,
-          `/audio/${audioFolder}/${track.filename}.mp3`,
-          `/audio/${audioFolder}/${track.filename}.wav`,
-        ];
+        let audioSources = [];
+        if (/\.(mp3|ogg|wav)$/i.test(track.filename)) {
+          audioSources = [`/audio/${audioFolder}/${track.filename}`];
+        } else {
+          audioSources = [
+            `/audio/${audioFolder}/${track.filename}.ogg`,
+            `/audio/${audioFolder}/${track.filename}.mp3`,
+            `/audio/${audioFolder}/${track.filename}.wav`,
+          ];
+        }
 
         sound = new Howl({
           src: audioSources,
@@ -4897,6 +5143,25 @@ const accentColorRgbDark =
         sound.seek(seek);
         progressFill.style.width = `${percent * 100}%`;
         timeCurrent.textContent = formatTime(seek);
+      });
+
+      // Tracklist Click Handlers
+      trackItems.forEach((item) => {
+        item.addEventListener("click", () => {
+          const index = parseInt(item.dataset.trackIndex, 10);
+          if (!isNaN(index)) {
+            if (index === currentTrackIndex && sound) {
+              if (isPlaying) {
+                sound.pause();
+              } else {
+                sound.play();
+              }
+              return;
+            }
+            loadTrack(index);
+            sound?.play();
+          }
+        });
       });
 
       if (tracks.length > 0) {

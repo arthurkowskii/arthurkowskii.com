@@ -161,6 +161,7 @@ function initAudioPlayers() {
     const progressFill = card.querySelector('.audio-progress-fill');
     const timeCurrent = card.querySelector('.time-current');
     const timeTotal = card.querySelector('.time-total');
+    const trackItems = card.querySelectorAll('.audio-track-item');
 
     const projectSlug = card.getAttribute('data-project-slug') || '';
     const tracksData = card.getAttribute('data-tracks');
@@ -248,6 +249,17 @@ function initAudioPlayers() {
       timeCurrent.textContent = '0:00';
       timeTotal.textContent = track.duration || '0:00';
       progressFill.style.width = '0%';
+
+      // Update Active Track Styling in Tracklist
+      trackItems.forEach((item, idx) => {
+        if (idx === index) {
+          item.classList.add('active');
+          item.setAttribute('aria-current', 'true');
+        } else {
+          item.classList.remove('active');
+          item.removeAttribute('aria-current');
+        }
+      });
 
       const audioSources = [
         `/audio/${audioFolder}/${track.filename}.ogg`,
@@ -337,6 +349,30 @@ function initAudioPlayers() {
       sound.seek(seek);
       progressFill.style.width = `${percent * 100}%`;
       timeCurrent.textContent = formatTime(seek);
+    });
+
+    // Tracklist Item Click Handlers
+    trackItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        const index = parseInt(item.dataset.trackIndex, 10);
+        if (!isNaN(index)) {
+          // If clicking the currently playing track, just toggle play/pause?
+          // For now, let's restart if clicked, or just play if paused.
+          // Standard behavior: if it's the same track, do nothing unless we want to restart.
+          // Let's reload only if different.
+          if (index === currentTrackIndex && sound) {
+            if (isPlaying) {
+              sound.pause();
+            } else {
+              sound.play();
+            }
+            return;
+          }
+
+          loadTrack(index);
+          sound?.play();
+        }
+      });
     });
 
     if (tracks.length > 0) {
