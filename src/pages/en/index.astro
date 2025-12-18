@@ -737,7 +737,9 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
             /* Ensure nucleus logo does not intercept pointer events */
             .nucleus-logo { pointer-events: none; }
             html[data-theme="dark"] .nucleus-logo { 
-                filter: invert(1) brightness(0.9); 
+                -webkit-filter: invert(1) brightness(0.9);
+                filter: invert(1) brightness(0.9);
+                transform: translateZ(0); /* Trigger hardware acceleration for filters in Safari */
             }
             
             /* Pruned old bio styles (legacy) */
@@ -1514,14 +1516,15 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 					aria-label="View bio and portfolio information"
 					tabindex="0"
 				/>
-				<image 
-					class="nucleus-logo"
-					x={cfg.viewport.centerX - atomConfig.nucleus.radius * (atomConfig.nucleus.logo.size / 2) + atomConfig.nucleus.logo.offsetX}
-					y={cfg.viewport.centerY - atomConfig.nucleus.radius * (atomConfig.nucleus.logo.size / 2) + atomConfig.nucleus.logo.offsetY}
-					width={atomConfig.nucleus.radius * atomConfig.nucleus.logo.size}
-					height={atomConfig.nucleus.radius * atomConfig.nucleus.logo.size}
-					href={AtomCenterLogo.src}
-				/>
+				<g class="nucleus-logo">
+					<image 
+						x={cfg.viewport.centerX - atomConfig.nucleus.radius * (atomConfig.nucleus.logo.size / 2) + atomConfig.nucleus.logo.offsetX}
+						y={cfg.viewport.centerY - atomConfig.nucleus.radius * (atomConfig.nucleus.logo.size / 2) + atomConfig.nucleus.logo.offsetY}
+						width={atomConfig.nucleus.radius * atomConfig.nucleus.logo.size}
+						height={atomConfig.nucleus.radius * atomConfig.nucleus.logo.size}
+						href={AtomCenterLogo.src}
+					/>
+				</g>
 
 				<!-- Orbital Shells -->
 				{domains.map((domain, shellIndex) => {

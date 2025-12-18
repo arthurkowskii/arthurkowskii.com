@@ -90,7 +90,7 @@ if (existsSync(astroDir)) {
   } else {
     success(`Found ${jsFiles.length} JavaScript bundles in _astro`);
   }
-  
+
   // Check CSS files
   const cssFiles = readdirSync(astroDir).filter(f => f.endsWith('.css'));
   if (cssFiles.length === 0) {
@@ -129,7 +129,7 @@ if (existsSync(enProjectsDir)) {
 }
 
 // Check static assets
-const staticAssets = ['images', 'CV.jpg'];
+const staticAssets = ['images', 'CV_ArthurCroqueboisKowskii.pdf'];
 for (const asset of staticAssets) {
   const assetPath = join(distDir, asset);
   if (existsSync(assetPath)) {
@@ -144,7 +144,7 @@ function checkFileSize(filePath, fileName, maxSizeMB = 10) {
   if (existsSync(filePath)) {
     const stats = statSync(filePath);
     const sizeMB = stats.size / (1024 * 1024);
-    
+
     if (sizeMB > maxSizeMB) {
       warn(`${fileName} is large (${sizeMB.toFixed(2)}MB) - consider optimization`);
     }
@@ -165,17 +165,17 @@ if (existsSync(manifestPath)) {
   try {
     const manifestContent = readFileSync(manifestPath, 'utf8');
     const manifest = JSON.parse(manifestContent);
-    
+
     if (!manifest.name || !manifest.short_name) {
       warn('manifest.json: Missing name or short_name');
     }
-    
+
     if (!manifest.icons || manifest.icons.length === 0) {
       warn('manifest.json: Missing icons');
     }
-    
+
     success('Validated manifest.json');
-    
+
   } catch (err) {
     error(`Failed to validate manifest.json: ${err.message}`);
   }

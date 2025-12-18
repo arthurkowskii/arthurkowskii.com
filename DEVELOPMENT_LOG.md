@@ -339,3 +339,7 @@
     - Range: `0.0` (mute) to `1.0+` (boost).
     - Hardening: Parsing checks to handle undefined/null values gracefully.
 - **Verification**: Successfully tested muting Kubika sampler (`volume: 0.0`) and boosting Chromestesia (`volume: 1.5`).
+### Build System & Dependency Resolution (2025-12-18)
+- **Dependency Fix**: Resolved `MODULE_NOT_FOUND` error for `@rollup/rollup-win32-x64-msvc` by refreshing `node_modules`.
+- **Validation Script Update**: Updated `scripts/validate-build.js` to correctly check for the PDF CV (`CV_ArthurCroqueboisKowskii.pdf`) instead of a deprecated `CV.jpg`.
+- **Build Status**: Verified 100% clean build with zero warnings across 26 generated pages.
