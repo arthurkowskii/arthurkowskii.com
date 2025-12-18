@@ -366,3 +366,6 @@
 - **Audio Link Fix**: Resolved 404 error for `mus_ThisCurseEndsWithYou` by checking for explicit file extensions in `ProjectBento.astro` and simplifying the filename to `mus_ThisCurse.mp3` in both the file system and markdown.
 - **Dark Mode UI**: Implemented `accentColorDark` support for "Mouse Knight". Tuned the color to `#66bb6a` (Forest Light) to ensure optimal visibility and contrast in dark mode while maintaining the project's aesthetic identity.
 
+### Project Archiving (2025-12-18)
+- **Archived FMOD Showcase**: Moved `fmod_showcase.md` and `Assets_FMOD` to a new root-level `Archive/` folder.
+- **Reason**: Removed from active portfolio display while preserving source files and assets for reference.
