@@ -362,3 +362,7 @@
 - **Bug Fix**: Reserved issues with audio player overlap by introducing `.audio-player-column` container with proper flex gap.
 - **Bug Fix**: Resolved missing event listeners for tracklist items by injecting logic directly into the component's inline script.
 
+### Final Refinements (2025-12-18)
+- **Audio Link Fix**: Resolved 404 error for `mus_ThisCurseEndsWithYou` by checking for explicit file extensions in `ProjectBento.astro` and simplifying the filename to `mus_ThisCurse.mp3` in both the file system and markdown.
+- **Dark Mode UI**: Implemented `accentColorDark` support for "Mouse Knight". Tuned the color to `#66bb6a` (Forest Light) to ensure optimal visibility and contrast in dark mode while maintaining the project's aesthetic identity.
+

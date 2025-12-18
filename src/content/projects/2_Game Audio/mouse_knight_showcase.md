@@ -19,6 +19,7 @@ useBentoLayout: true
 bento:
   # Theme color
   accentColor: "#2d5a27"
+  accentColorDark: "#66bb6a" # Lighter forest green for dark mode visibility
 
   # REQUIRED for auto hero/logo + gallery
   # Put images here and name hero.* and logo.* for the hero card
@@ -61,14 +62,14 @@ bento:
 
   # Optional stats
   stats:
-    - value: "Ongoing"
+    - value: "1 Month"
       label: "DURATION"
-    - value: "5 🐭"
+    - value: "7 🐭"
       label: "TEAM SIZE"
     - value : "PC"
       label : "PLATFORM"
-    - value : Personal
-      label : PROJECT
+    - value : "ISART"
+      label : "COMPANY"
 
   # Optional actions
   actions:
