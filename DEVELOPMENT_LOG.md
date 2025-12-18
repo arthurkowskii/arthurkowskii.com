@@ -343,3 +343,10 @@
 - **Dependency Fix**: Resolved `MODULE_NOT_FOUND` error for `@rollup/rollup-win32-x64-msvc` by refreshing `node_modules`.
 - **Validation Script Update**: Updated `scripts/validate-build.js` to correctly check for the PDF CV (`CV_ArthurCroqueboisKowskii.pdf`) instead of a deprecated `CV.jpg`.
 - **Build Status**: Verified 100% clean build with zero warnings across 26 generated pages.
+
+### Safari Compatibility Fix (2025-12-18)
+- **Nucleus Logo Fix**: Resolved a Safari-specific rendering bug where the center logo failed to invert in dark mode.
+- **Implementation**: 
+    - Wrapped the SVG `<image>` in a `<g>` group tag to improve filter application consistency.
+    - Added `-webkit-filter` support and `transform: translateZ(0)` to trigger hardware acceleration for filters.
+    - Applied changes to both French and English versions.
