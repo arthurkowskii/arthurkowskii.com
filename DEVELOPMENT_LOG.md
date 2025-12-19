@@ -1,6 +1,9 @@
 - Status: Phase 4 complete. Stable motion/hover system; overlay and micro-interactions shipped; config-driven.
 - CMS: Decap admin is local-only for now; choose production backend (git-gateway/GitHub) during deploy.
 
+> [!IMPORTANT]
+> **ALWAYS CHECK [`TODO.md`](./TODO.md) AT THE START OF EACH SESSION.**
+
 ## Quickstart
 
 - Run: `npm install`, then `npm run dev` (opens at http://localhost:4324).
