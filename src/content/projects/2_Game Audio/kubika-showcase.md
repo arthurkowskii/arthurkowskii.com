@@ -38,7 +38,7 @@ bento:
       fr: "Jouez avec les sons du jeu ⬇️"
       en: "PLay sounds from this game ⬇️"
     folder: "Kubika"
-    volume: 3.0
+    volume: 2.5
     samplePool: 
       - "Click_03.ogg"
       - "Click_04.ogg"

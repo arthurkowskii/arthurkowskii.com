@@ -1,6 +1,9 @@
 - Status: Phase 4 complete. Stable motion/hover system; overlay and micro-interactions shipped; config-driven.
 - CMS: Decap admin is local-only for now; choose production backend (git-gateway/GitHub) during deploy.
 
+> [!IMPORTANT]
+> **ALWAYS CHECK [`TODO.md`](./TODO.md) AT THE START OF EACH SESSION.**
+
 ## Quickstart
 
 - Run: `npm install`, then `npm run dev` (opens at http://localhost:4324).
@@ -365,6 +368,10 @@
 ### Final Refinements (2025-12-18)
 - **Audio Link Fix**: Resolved 404 error for `mus_ThisCurseEndsWithYou` by checking for explicit file extensions in `ProjectBento.astro` and simplifying the filename to `mus_ThisCurse.mp3` in both the file system and markdown.
 - **Dark Mode UI**: Implemented `accentColorDark` support for "Mouse Knight". Tuned the color to `#66bb6a` (Forest Light) to ensure optimal visibility and contrast in dark mode while maintaining the project's aesthetic identity.
+
+### Sampler Layout Fix (2025-12-22)
+- **Layout Bug Fix**: Decoupled `sampler-card-wide` CSS rule from `audio-card-wide`.
+- **Result**: Sampler card now sizes naturally to its content in wide mode, eliminating excessive vertical whitespace while preserving the necessary height for the Audio Player's tracklist.
 
 ### Project Archiving (2025-12-18)
 - **Archived FMOD Showcase**: Moved `fmod_showcase.md` and `Assets_FMOD` to a new root-level `Archive/` folder.

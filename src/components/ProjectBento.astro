@@ -1337,10 +1337,15 @@ const accentColorRgbDark =
 
   /* Wide Sampler Variant (Plan 2: Extended Kit) */
   /* Wide Sampler Variant (Plan 2: Extended Kit) */
-  .sampler-card-wide,
+  /* Wide Sampler Variant (Plan 2: Extended Kit) */
   .audio-card-wide {
     grid-column: 1 / 13;
     min-height: 420px;
+  }
+
+  .sampler-card-wide {
+    grid-column: 1 / 13;
+    /* Removed min-height so it sizes to content */
   }
 
   /* Specific styles for wide audio card with tracklist */
