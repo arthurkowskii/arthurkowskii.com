@@ -176,7 +176,7 @@ bento:
       fr: "Résultats"
       en: "Results"
     subtitle:
-      fr: "Résultat à l'issu de ce projet"
+      fr: "Résultat à l'issue de ce projet"
       en: "Result achieved from this project"
     items:
       - icon: "⬇️"

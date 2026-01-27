@@ -6,7 +6,7 @@ altTitle:
   fr: "Kubika: A Cube Story"
   en: "Kubika: A Cube Story"
 description:
-  fr: "Kubika est un jeu de Sokoban en 3D où la gravité devient votre meilleur allié… ou votre pire ennemi ! Actuellement en développement, j'assure le Sound-Design et l'Intégration Audio du projet"
+  fr: "Kubika est un jeu de Sokoban en 3D où la gravité devient votre meilleur allié… ou votre pire ennemi ! Actuellement en développement, j'assure le Sound-Design et l'Intégration Audio du projet."
   en: "Kubika is a 3D Sokoban game where gravity becomes your best ally... or your worst enemy! Currently in development, I handle the Sound Design and Audio Integration for the project"
 tech: ["Unity", "Reaper", "FMOD", "C#",]
 status: "completed"

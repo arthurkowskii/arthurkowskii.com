@@ -164,7 +164,7 @@ bento:
           en: "Centralized hub for professional contact and direct CV download"
       - icon: "🚀"
         text:
-          fr: "Performance optimale avec 91% de réduction des assets et animations à 60fps constant"
+          fr: "Performance optimale avec 91% de réduction des assets et animations à 60fps constantes"
           en: "Optimal performance with 91% asset reduction and constant 60fps animations"
       - icon: "📱"
         text:

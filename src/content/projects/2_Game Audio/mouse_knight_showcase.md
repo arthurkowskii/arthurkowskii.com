@@ -10,7 +10,7 @@ description:
   en: "A mouse knight embarks on a quest for vengeance against the king who cursed him. For this project, I composed five orchestral tracks and handled their technical integration using FMOD and Unity."
 tech: ["FMOD", "Reaper", "Unity"]
 status: "in-progress" # or "completed" | "planned"
-link: "https://example.com"
+link: "https://kusalherbe.itch.io/mouse-knight"
 github: "https://github.com/you/repo"
 date: 2024-12-18
 useBentoLayout: true
@@ -78,14 +78,14 @@ bento:
       en: "Links"
     primary:
       text:
-        fr: "📽️ Voir le projet"
-        en: "📽️ View project"
-      url: "#"
+        fr: "🎬 Bande-annonce"
+        en: "🎬 Trailer"
+      url: "https://www.youtube.com/watch?v=pXoGr9FD1V4"
     secondary:
       text:
-        fr: "🕹️ Démo"
-        en: "🕹️ Demo"
-      url: "#"
+        fr: "🕹️ Itch.io"
+        en: "🕹️ Itch.io"
+      url: "https://kusalherbe.itch.io/mouse-knight"
 
   # Optional process
   process:
@@ -95,7 +95,7 @@ bento:
     steps:
       - fr: "Composition du thème principal"
         en: "Composition of the main theme"
-      - fr: "Composition des musiques pour chaque arènes."
+      - fr: "Composition des musiques pour chaque arène."
         en: "Composing the music for each arena"
       - fr: "Intégration des musiques dans FMOD."
         en: "Music integration in FMOD"
@@ -118,13 +118,13 @@ bento:
           fr: "Temps imparti"
           en: "Tight deadline"
         description:
-          fr: "Un mois m'a été donné pour composer et intégré les 5 musiques correspondant au final à une dizaine de minutes de musique orchestrales."
+          fr: "Un mois m'a été donné pour composer et intégrer les 5 musiques correspondant au final à une dizaine de minutes de musiques orchestrales."
           en: "I was given one month to compose and integrate 5 tracks, totaling around ten minutes of orchestral music."
       - title:
           fr: "Intégration en Visual Scripting"
           en: "Visual Scripting Integration"
         description:
-          fr: "Au lieu d'une intégration code classique nous étions limité au visual scripting sur ce projet. Ce fut une première pour moi qui avait l'habitude d'utiliser mes scripts en C# et m'a donc permis de m'initier à ce langage."
+          fr: "Au lieu d'une intégration code classique nous étions limités au visual scripting sur ce projet. Ce fut une première pour moi qui avait l'habitude d'utiliser mes scripts en C# et m'a donc permis de m'initier à ce langage."
           en: "Instead of traditional code-based integration, we were restricted to visual scripting. This was a first for me, as I'm used to C# scripting, and it allowed me to learn this workflow."
 
   # Audio Player Configuration

@@ -6,7 +6,7 @@ altTitle:
   fr: "Étoiles en Plastiques"
   en: "Étoiles en Plastiques"
 description:
-  fr: "\"ETOILES EN PLASTIQUES\" est un album de rap alternatif dont l'univers sonore mêle instrumentales électroniques a des textes sombres et introspectifs. L'album explore des souffrances amoureuses, un contexte de travail éprouvant et des tensions familiales, créant une explosion émotionnelle comparable à une supernova."
+  fr: "\"ETOILES EN PLASTIQUES\" est un album de rap alternatif dont l'univers sonore mêle instrumentales électroniques à des textes sombres et introspectifs. L'album explore des souffrances amoureuses, un contexte de travail éprouvant et des tensions familiales, créant une explosion émotionnelle comparable à une supernova."
   en: "\"PLASTIC STARS\" is an alternative rap album whose sonic universe blends electronic instrumentals with dark and introspective lyrics. The album explores romantic suffering, a grueling work context, and family tensions, creating an emotional explosion comparable to a supernova."
 tech: ["Ableton", "Reaper", "Davinci Resolve"]
 status: "completed" # or "in-progress" | "planned"
@@ -86,7 +86,7 @@ bento:
       en: "I ONLY SEE THE SKY IN PUDDLES (Animation)"
     url: "https://youtu.be/5ikfSQ6UHFU?si=BhXFkc4EQc57FntH"
     description:
-      fr: "Animation entièrement réalisé, dessiné et monté par Arthur Kowskii. Process : Photoshop, Davinci Resolve"
+      fr: "Animation entièrement réalisée, dessinée et montée par Arthur Kowskii. Process : Photoshop, Davinci Resolve"
       en: "Animation entirely created, drawn and edited by Arthur Kowskii. Process: Photoshop, Davinci Resolve"
 
   # Spotify configuration  
@@ -145,7 +145,7 @@ bento:
           fr: "Synopsis Long"
           en: "Extended Synopsis"
         description:
-          fr: "ETOILES EN PLASTIQUES, est un album de rap alternatif dont l'univers sonore mêle instrumentals électroniques a des textes sombres et introspectifs. L'album explore des souffrances amoureuses, un contexte de travail éprouvant et des tensions familiales, créant une explosion émotionnelle comparable à une supernova. Il suit trois personnages : le père, la mère et l'enfant, ce dernier regardant les étoiles en plastique de son plafond pour s'évader des disputes. Celui ci s'inclut comme une préquel au SUPER MEGA SHOW, un album/série audio de 16 titres sans coupures en collaboration avec le comédien de doublage Benoit Grimmiaux (BoJack Horseman, Pokémon, Rick & Morty...)"
+          fr: "ETOILES EN PLASTIQUES est un album de rap alternatif dont l'univers sonore mêle instrumentales électroniques à des textes sombres et introspectifs. L'album explore des souffrances amoureuses, un contexte de travail éprouvant et des tensions familiales, créant une explosion émotionnelle comparable à une supernova. Il suit trois personnages : le père, la mère et l'enfant, ce dernier regardant les étoiles en plastique de son plafond pour s'évader des disputes. Celui-ci s'inclut comme un préquel au SUPER MEGA SHOW, un album/série audio de 16 titres sans coupures en collaboration avec le comédien de doublage Benoit Grimmiaux (BoJack Horseman, Pokémon, Rick & Morty...)"
           en: "PLASTIC STARS is an alternative rap album whose sonic universe blends electronic instrumentals with dark and introspective lyrics. The album explores romantic suffering, a grueling work context, and family tensions, creating an emotional explosion comparable to a supernova. It follows three characters: the father, mother and child, the latter looking at the plastic stars on his ceiling to escape from arguments. This is included as a prequel to THE SUPER MEGA SHOW, a 16-track album/audio series without cuts in collaboration with voice actor Benoit Grimmiaux (BoJack Horseman, Pokémon, Rick & Morty...)"
 
   # Optional results
@@ -164,12 +164,6 @@ bento:
           en: "An animated short film available on Youtube; drawn, animated and edited by Arthur Kowskii"
 ---
 
-# Your Project Title
+# Étoiles en Plastiques
 
-A few paragraphs describing the project goals, your role, the tech, and the outcome. This Markdown is shown on the dedicated route `/projects/<slug>`.
-
-## Highlights
-
-- Key feature or achievement
-- Another notable detail
-- Any recognition, awards, or measurable impact
+Un voyage introspectif mêlant textures électroniques et récits personnels, explorant la dualité entre l'évasion onirique et la réalité crue.

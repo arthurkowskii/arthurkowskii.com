@@ -106,7 +106,7 @@ bento:
         en: "Copy a Youtube or Soundcloud link"
       - fr: "Lancer le script youtube_to_reaper"
         en: "Run the youtube_to_reaper script"
-      - fr: "Une nouvelle piste a été créé depuis votre lien !"
+      - fr: "Une nouvelle piste a été créée depuis votre lien !"
         en: "A new track has been created from your link!"
 
   # Gallery images auto from assetsFolder; title optional
@@ -158,12 +158,6 @@ bento:
           en: "Auto-cleanup: automatic temporary file removal after import"
 ---
 
-# Your Project Title
+# Youtube_to_Reaper for Reaper
 
-A few paragraphs describing the project goals, your role, the tech, and the outcome. This Markdown is shown on the dedicated route `/projects/<slug>`.
-
-## Highlights
-
-- Key feature or achievement
-- Another notable detail
-- Any recognition, awards, or measurable impact
+Un workflow fluide pour importer instantanément du contenu audio depuis YouTube ou SoundCloud directement dans votre session Reaper, gérant le téléchargement et l'importation en un seul clic.

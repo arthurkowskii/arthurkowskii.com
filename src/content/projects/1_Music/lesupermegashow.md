@@ -162,9 +162,15 @@ bento:
       - title:
           fr: "Casting"
           en: "Casting"
-        description: "Le présentateur du « Super Mega Show » a été pensé comme un personnage à la fois charismatique et étrange, nécessitant un comédien de doublage idéal. Ce rôle a été brillamment interprété par Benoit Grimmiaux (Bojack Horseman, Pokémon, Rick et Morty…). Collaborer avec Benoit, d’abord une idole puis un compagnon créatif, a été un immense honneur et une grande fierté pour moi."
-      - title: "Un album, une série audio... et puis un film !"
-        description: "Plus nous travaillions avec Benoit, plus nous mettions de cœur dans ce projet. L’envie de passer à l’image est née lors de l’enregistrement audio, même si cela paraissait impossible : je n’avais jamais écrit de script, storyboardé, monté une équipe, conçu de mise en scène ou assuré une réalisation. Pourtant, c'est exactement ce que j’ai fini par faire !"
+        description:
+          fr: "Le présentateur du « Super Mega Show » a été pensé comme un personnage à la fois charismatique et étrange, nécessitant un comédien de doublage idéal. Ce rôle a été brillamment interprété par Benoit Grimmiaux (Bojack Horseman, Pokémon, Rick et Morty…). Collaborer avec Benoit, d’abord une idole puis un compagnon créatif, a été un immense honneur et une grande fierté pour moi."
+          en: "The host of the 'Super Mega Show' was conceived as a both charismatic and strange character, requiring an ideal voice actor. This role was brilliantly performed by Benoit Grimmiaux (Bojack Horseman, Pokémon, Rick & Morty…). Collaborating with Benoit, first an idol then a creative companion, was an immense honor and a great pride for me."
+      - title:
+          fr: "Un album, une série audio... et puis un film !"
+          en: "An album, an audio series... and then a film!"
+        description:
+          fr: "Plus nous travaillions avec Benoit, plus nous mettions de cœur dans ce projet. L’envie de passer à l’image est née lors de l’enregistrement audio, même si cela paraissait impossible : je n’avais jamais écrit de script, storyboardé, monté une équipe, conçu de mise en scène ou assuré une réalisation. Pourtant, c'est exactement ce que j’ai fini par faire !"
+          en: "The more we worked with Benoit, the more heart we put into this project. The desire to move to film was born during the audio recording, even if it seemed impossible: I had never written a script, storyboarded, assembled a team, designed a scene or handled directing. Yet, that's exactly what I ended up doing!"
 
   # Optional results
   results:
@@ -174,7 +180,7 @@ bento:
     items:
       - icon: "🎬"
         text:
-          fr: "Un court métrage de 12 minutes, écrit et réalisé par Arthur Kowskii"
+          fr: "Un court-métrage de 12 minutes, écrit et réalisé par Arthur Kowskii"
           en: "A 12-minute short film, written and directed by Arthur Kowskii"
       - icon: "🎙️"
         text:
@@ -216,12 +222,6 @@ bento:
 
 ---
 
-# Your Project Title
+# LE SUPER MEGA SHOW !
 
-A few paragraphs describing the project goals, your role, the tech, and the outcome. This Markdown is shown on the dedicated route `/projects/<slug>`.
-
-## Highlights
-
-- Key feature or achievement
-- Another notable detail
-- Any recognition, awards, or measurable impact
+Un projet tentaculaire mêlant musique, narration et cinéma, né d'une collaboration fusionnelle avec Benoit Grimmiaux. Une immersion dans un talk-show rétro-futuriste où la réalité se fragmente au rythme des interludes.

@@ -107,7 +107,7 @@ bento:
     steps:
       - fr: "Création et conception de l'intégralité des SFX pour constituer une banque de son propre au projet."
         en: "Creation and design of all SFX to build a project-specific sound bank."
-      - fr: "Création des musiques ainsi que de leurs variantes (chaque musique à deux versions dans ce jeu)"
+      - fr: "Création des musiques ainsi que de leurs variantes (chaque musique a deux versions dans ce jeu)"
         en: "Creation of music and their variants (each track has two versions in this game)"
       - fr: "Intégration des musiques, SFX et mixage dans FMOD"
         en: "Integration of music, SFX and mixing in FMOD"
@@ -132,7 +132,7 @@ bento:
           fr: "Réactivité du système de music-switch"
           en: "Music-switch system responsiveness"
         description:
-          fr: "Dans ce jeu le joueur peut changer les pistes musicales à volonté grâce au système de switch. Pour une expérience fluide, un système de synchornisation musicale associé a un système de cooldown a permi de rendre cette expérience très satisfaisant pour le joueur."
+          fr: "Dans ce jeu le joueur peut changer les pistes musicales à volonté grâce au système de switch. Pour une expérience fluide, un système de synchronisation musicale associé à un système de cooldown a permis de rendre cette expérience très satisfaisante pour le joueur."
           en: "In this game, players can switch musical tracks at will thanks to the switch system. For a smooth experience, a musical synchronization system combined with a cooldown system made this experience very satisfying for the player."
 
   # Audio Player Configuration
@@ -203,7 +203,7 @@ bento:
     items:
       - icon: "🕹️"
         text:
-          fr: "Une gold jouable développé en 3 semaines"
+          fr: "Une gold jouable développée en 3 semaines"
           en: "A playable gold build developed in 3 weeks"
       - icon: "🎵"
         text:

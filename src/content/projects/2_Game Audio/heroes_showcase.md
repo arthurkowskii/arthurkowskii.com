@@ -113,9 +113,9 @@ bento:
     steps:
       - fr: "Conception des SFX avec PhasePlant et Reaper"
         en: "SFX design with PhasePlant and Reaper"
-      - fr: "Conception d'une banque de son en relation avec le projet"
+      - fr: "Conception d'une banque de sons en relation avec le projet"
         en: "Creating a project-specific sound library"
-      - fr: "Composition de la musique sous les contraintes de DA : instrument fantasiste, cordes... pas de synthé. pas d'instruments modernes."
+      - fr: "Composition de la musique sous les contraintes de DA : instrument fantaisiste, cordes... Pas de synthé. Pas d'instruments modernes."
         en: "Music composition under art direction constraints: fantasy instruments, strings... no synths or modern instruments."
       - fr: "Assemblage de la musique et des SFX dans Reaper directement"
         en: "Music and SFX assembly directly in Reaper"
@@ -148,7 +148,7 @@ bento:
           fr: "De la synthèse... partout."
           en: "Synthesis... everywhere."
         description:
-          fr: "J'ai voulu profiter de ce projet pour explorer la synthèse utilisant Phase Plant pour créer la plupart des sons comme le golem, l'épée, pierre magique, ailes en feu, etc... Ce choix m'a demandé pas mal d'expérimentations, mais il s'est avéré très formateur et a surtout intégré phase plant dans mes habitudes presques quotidiennes. Des démos des sons avec leurs patchs Phase Plant sont disponibles dans la galerie"
+          fr: "J'ai voulu profiter de ce projet pour explorer la synthèse utilisant Phase Plant pour créer la plupart des sons comme le golem, l'épée, pierre magique, ailes en feu, etc... Ce choix m'a demandé pas mal d'expérimentations, mais il s'est avéré très formateur et a surtout intégré phase plant dans mes habitudes presque quotidiennes. Des démos des sons avec leurs patchs Phase Plant sont disponibles dans la galerie"
           en: "I wanted to take advantage of this project to explore synthesis using Phase Plant to create most of the sounds like the golem, sword, magic stone, fire wings, etc... This choice required quite a bit of experimentation, but it proved very educational and above all integrated Phase Plant into my almost daily habits. Sound demos with their Phase Plant patches are available in the gallery"
 
   # Results and impact
@@ -157,7 +157,7 @@ bento:
       fr: "Résultats"
       en: "Results"
     subtitle:
-      fr: "Résultats obtenus à l'issu de ce projet"
+      fr: "Résultats obtenus à l'issue de ce projet"
       en: "Results achieved from this project"
     items:
       - icon: "🎬"

@@ -102,7 +102,7 @@ bento:
       fr: "Guide d'Utilisation"
       en: "User Guide"
     steps:
-      - fr: "Séléctionner les items, (quel que soit le type)"
+      - fr: "Sélectionner les items, (quel que soit le type)"
         en: "Select the items (of any type)"
       - fr: "Enclencher le script depuis le menu Actions \"?\" ou par raccourci"
         en: "Run the script from the Actions \"?\" menu or by shortcut"
@@ -128,7 +128,7 @@ bento:
           fr: "Anticipation en cas d'item déjà existant au début d'une piste; Dans ce cas, l'item sélectionné se mettra collé à la suite de celui-ci"
           en: "Handling cases where an item already exists at the beginning of a track; In this case, the selected item will be placed immediately after it"
       - title:
-          fr: "Séléction mutliple"
+          fr: "Sélection multiple"
           en: "Multiple selection"
         description:
           fr: "En cas de sélection de plusieurs items appartenant à la même piste, ceux-ci vont se positionner de façon séquentielle en respectant l'ordre d'origine."
@@ -158,12 +158,6 @@ bento:
           en: "Free! (not expensive)"
 ---
 
-# Your Project Title
+# Starting_Grid for Reaper
 
-A few paragraphs describing the project goals, your role, the tech, and the outcome. This Markdown is shown on the dedicated route `/projects/<slug>`.
-
-## Highlights
-
-- Key feature or achievement
-- Another notable detail
-- Any recognition, awards, or measurable impact
+Un outil indispensable pour les sessions de sampling intensives, permettant de réorganiser instantanément des centaines d'items au début de leurs pistes respectives pour un workflow propre et efficace.
