@@ -1744,6 +1744,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 				</div>
 				<div class="preview-hero">
 					<img id="preview-image" src="" alt="" class="preview-img">
+					<video id="preview-video" muted loop playsinline class="preview-img" style="display: none; object-fit: cover; width: 100%; height: 100%;"></video>
 				</div>
 			</div>
 		</div>
@@ -3639,10 +3640,36 @@ import atomConfig from '../atom.config.js';
                 
                 // Populate preview content
                 const img = document.getElementById('preview-image');
+                const vid = document.getElementById('preview-video');
                 const title = document.getElementById('preview-title');
                 const subtitle = document.getElementById('preview-subtitle');
                 
-                if (img) img.src = project.preview.heroImage;
+                // Determine if hero image is a video
+                const src = project.preview.heroImage || '';
+                const isVideo = /\.(mp4|webm|mov)(\?|$)/i.test(src);
+
+                if (isVideo) {
+                  if (img) {
+                    img.style.display = 'none';
+                    img.src = ''; // Clear image source
+                  }
+                  if (vid) {
+                    vid.style.display = 'block';
+                    vid.src = src;
+                    vid.play().catch(e => console.warn('Preview video play failed', e));
+                  }
+                } else {
+                  if (vid) {
+                    vid.style.display = 'none';
+                    vid.pause();
+                    vid.src = ''; // Clear video source
+                  }
+                  if (img) {
+                    img.style.display = 'block';
+                    img.src = src;
+                  }
+                }
+
                 if (title) title.textContent = project.altTitle || project.title;
                 if (subtitle) subtitle.textContent = project.preview.subtitle;
                 
