@@ -1,0 +1,5 @@
+Placeholders for D.IA.NE project assets.
+Expected:
+- hero.mp4 or hero.jpg
+- thumbnail.png
+- gallery images
