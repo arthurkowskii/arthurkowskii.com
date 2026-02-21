@@ -410,7 +410,7 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 		     Note: frame-ancestors cannot be set via <meta>; configure via HTTP headers in production. -->
 		<meta http-equiv="Content-Security-Policy" content="
 			default-src 'self';
-			script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:;
+			script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;
 			style-src 'self' 'unsafe-inline' https: data:;
 			img-src 'self' data: https: blob:;
 			media-src 'self' data: https: blob:;

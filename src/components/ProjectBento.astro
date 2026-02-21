@@ -4192,9 +4192,9 @@ const accentColorRgbDark =
             "sampler-card",
             { "sampler-card-wide": isWideSampler },
           ]}
-          data-folder={bento.sampler.folder}
-          data-samples={JSON.stringify(bento.sampler.samplePool || [])}
-          data-volume={bento.sampler.volume}
+          data-sampler-folder={bento.sampler.folder}
+          data-sampler-pool={JSON.stringify(bento.sampler.samplePool || [])}
+          data-sampler-volume={bento.sampler.volume}
         >
           <div class="sampler-header">
             <div class="sampler-title">
@@ -4840,7 +4840,7 @@ const accentColorRgbDark =
         if (thumbsStyle.display === "none") return; // hidden on mobile portrait
 
         const gridStyle = getComputedStyle(grid);
-        const gapYGrid = parseFloat(gridStyle.gap) || 0;
+        let globalVolume = parseFloat(card.dataset.samplerVolume || "1.0");
         const gapX = parseFloat(thumbsStyle.columnGap || thumbsStyle.gap) || 0;
 
         const columns = Math.max(1, getGridColumnCount(thumbs));
@@ -5467,11 +5467,11 @@ const accentColorRgbDark =
       if (card.dataset.samplerReady === "true") return;
       card.dataset.samplerReady = "true";
 
-      const folder = (card.dataset.folder || "").replace(/\/$/, "");
+      const folder = (card.dataset.samplerFolder || "").replace(/\/$/, "");
 
       let samplePool = [];
       try {
-        samplePool = JSON.parse(card.dataset.samples || "[]");
+        samplePool = JSON.parse(card.dataset.samplerPool || "[]");
       } catch {
         samplePool = [];
       }
@@ -5661,221 +5661,282 @@ const accentColorRgbDark =
       window.FMOD = {};
     }
 
-    fmodCards.forEach((card) => {
-      if (card.dataset.fmodReady === "true") return;
-      card.dataset.fmodReady = "true";
+    // Lazy load FMOD only when an FMOD card becomes visible.
+    // This prevents the FMOD engine from allocating 64+MB and stealing
+    // the AudioContext on pages that don't need it (like Chromestesia).
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const card = entry.target;
+          observer.unobserve(card); // Only init once per card
 
-      const statusBadge = card.querySelector(".fmod-status");
-      const paramSliders = card.querySelectorAll(".fmod-slider");
-      const paramValues = card.querySelectorAll(".fmod-param-value");
-      const eventRows = card.querySelectorAll(".fmod-event-row");
+          if (card.dataset.fmodReady === "true") return;
+          card.dataset.fmodReady = "true";
 
-      const folder = card.dataset.fmodFolder || "";
-      const banks = JSON.parse(card.dataset.fmodBanks || "[]");
-      const paramDefs = JSON.parse(card.dataset.fmodParameters || "[]");
+          const statusBadge = card.querySelector(".fmod-status");
+          const paramSliders = card.querySelectorAll(".fmod-slider");
+          const paramValues = card.querySelectorAll(".fmod-param-value");
+          const eventRows = card.querySelectorAll(".fmod-event-row");
 
-      let studioSystem = null;
-      let coreSystem = null;
-      let eventInstances = new Map();
-      let isInitialized = false;
+          const folder = card.dataset.fmodFolder || "";
+          const banks = JSON.parse(card.dataset.fmodBanks || "[]");
+          const paramDefs = JSON.parse(card.dataset.fmodParameters || "[]");
 
-      function updateStatus(state, msg) {
-        if (!statusBadge) return;
-        statusBadge.className = `fmod-status badge-${state}`;
-        statusBadge.textContent = msg;
-      }
+          let studioSystem = null;
+          let coreSystem = null;
+          let eventInstances = new Map();
+          let isInitialized = false;
 
-      // 1. Initialize FMOD Module and File System
-      function prerun() {
-        console.log("FMOD PreRun");
-        let baseUrl = `/fmod/${folder}/`;
-        if (folder === "") baseUrl = `/fmod/`;
-
-        banks.forEach((bankFile) => {
-          const url = `${baseUrl}${bankFile}`;
-          const path = `/${bankFile}`;
-          console.log(`Preloading bank: ${url} to ${path}`);
-          FMOD.FS_createPreloadedFile("/", bankFile, url, true, false);
-        });
-      }
-
-      function main() {
-        console.log("FMOD Main: Engine Ready");
-
-        // Create Studio System
-        let outval = {};
-        let result = FMOD.Studio_System_Create(outval);
-        if (result !== FMOD.OK) {
-          console.error("FMOD Studio System Create error", result);
-          updateStatus("error", "Erreur système audio");
-          return;
-        }
-        studioSystem = outval.val;
-
-        // Get Core System payload
-        result = studioSystem.getCoreSystem(outval);
-        if (result !== FMOD.OK) {
-          console.error("FMOD Core System Get error", result);
-          return;
-        }
-        coreSystem = outval.val;
-
-        // Initialize Studio System
-        result = studioSystem.initialize(
-          1024,
-          FMOD.STUDIO_INIT_NORMAL,
-          FMOD.INIT_NORMAL,
-          null,
-        );
-        if (result !== FMOD.OK) {
-          console.error("FMOD Studio Init error", result);
-          updateStatus("error", "Erreur initialisation");
-          return;
-        }
-
-        // Load Banks
-        banks.forEach((bankFile) => {
-          result = studioSystem.loadBankFile(
-            `/${bankFile}`,
-            FMOD.STUDIO_LOAD_BANK_NORMAL,
-            outval,
-          );
-          if (result !== FMOD.OK) {
-            console.error(`Error loading bank ${bankFile}:`, result);
-          } else {
-            console.log(`Successfully loaded ${bankFile}`);
+          function updateStatus(state, msg) {
+            if (!statusBadge) return;
+            statusBadge.className = `fmod-status badge-${state}`;
+            statusBadge.textContent = msg;
           }
-        });
 
-        isInitialized = true;
-        updateStatus("ready", "Prêt");
-        enableControls();
+          // 1. Initialize FMOD Module and File System
+          function prerun() {
+            console.log("FMOD PreRun");
+            let baseUrl = `/fmod/${folder}/`;
+            if (folder === "") baseUrl = `/fmod/`;
 
-        // Start engine update loop
-        window.requestAnimationFrame(updateFmod);
-      }
+            banks.forEach((bankFile) => {
+              const url = `${baseUrl}${bankFile}`;
+              const path = `/${bankFile}`;
+              console.log(`Preloading bank: ${url} to ${path}`);
+              window.FMOD.FS_createPreloadedFile(
+                "/",
+                bankFile,
+                url,
+                true,
+                false,
+              );
+            });
+          }
 
-      function updateFmod() {
-        if (studioSystem && isInitialized) {
-          studioSystem.update();
-        }
-        window.requestAnimationFrame(updateFmod);
-      }
+          function main() {
+            console.log("FMOD Main: Engine Ready");
 
-      function shutdownFmod() {
-        if (!isInitialized || !studioSystem) return;
-
-        // Stop all instances
-        eventInstances.forEach((instance) => {
-          instance.stop(FMOD.STUDIO_STOP_IMMEDIATE);
-          instance.release();
-        });
-        eventInstances.clear();
-
-        // Release system
-        studioSystem.release();
-        studioSystem = null;
-        coreSystem = null;
-        isInitialized = false;
-        console.log("FMOD Shutdown Complete");
-      }
-
-      // Bind to unmount/navigate events
-      window.addEventListener("bento:audio:shutdown", () => shutdownFmod());
-      window.addEventListener("beforeunload", () => shutdownFmod());
-      window.addEventListener("pagehide", () => shutdownFmod());
-
-      function enableControls() {
-        // Param Sliders
-        paramSliders.forEach((slider) => {
-          slider.removeAttribute("disabled");
-          slider.addEventListener("input", (e) => {
-            const val = parseFloat(e.target.value);
-            const paramName = e.target.dataset.paramName;
-
-            // Update UI
-            const valDisplay = document.getElementById(`fmod-val-${paramName}`);
-            if (valDisplay) valDisplay.textContent = val;
-
-            // Apply to FMOD System (Global params)
-            if (studioSystem && isInitialized) {
-              studioSystem.setParameterByName(paramName, val, false);
+            // Create Studio System
+            let outval = {};
+            let result = window.FMOD.Studio_System_Create(outval);
+            if (result !== window.FMOD.OK) {
+              console.error("FMOD Studio System Create error", result);
+              updateStatus("error", "Erreur système audio");
+              return;
             }
-          });
-        });
+            studioSystem = outval.val;
 
-        // Event Play/Stop buttons
-        eventRows.forEach((row) => {
-          const playBtn = row.querySelector(".play-btn");
-          const stopBtn = row.querySelector(".stop-btn");
-          const eventPath = row.dataset.eventPath;
+            // Get Core System payload
+            result = studioSystem.getCoreSystem(outval);
+            if (result !== window.FMOD.OK) {
+              console.error("FMOD Core System Get error", result);
+              return;
+            }
+            coreSystem = outval.val;
 
-          playBtn.removeAttribute("disabled");
+            // Ensure web audio starts up successfully via resume
+            try {
+              // Need to interact/resume the audiocontext on modern browsers
+              const audioContext = coreSystem.getDriverInfo(
+                0,
+                null,
+                null,
+                outval,
+                null,
+                null,
+              );
+            } catch (e) {}
 
-          playBtn.addEventListener("click", () => {
-            if (!studioSystem || !isInitialized) return;
-
-            // Check if already created/playing
-            let instance = eventInstances.get(eventPath);
-
-            if (!instance) {
-              let outval = {};
-              let result = studioSystem.getEvent(eventPath, outval);
-              if (result !== FMOD.OK) {
-                console.error("GetEvent Error:", result);
-                return;
-              }
-              let eventDesc = outval.val;
-
-              result = eventDesc.createInstance(outval);
-              if (result !== FMOD.OK) {
-                console.error("CreateInstance Error:", result);
-                return;
-              }
-              instance = outval.val;
-              eventInstances.set(eventPath, instance);
+            // Initialize Studio System
+            result = studioSystem.initialize(
+              1024,
+              window.FMOD.STUDIO_INIT_NORMAL,
+              window.FMOD.INIT_NORMAL,
+              null,
+            );
+            if (result !== window.FMOD.OK) {
+              console.error("FMOD Studio Init error", result);
+              updateStatus("error", "Erreur initialisation");
+              return;
             }
 
-            // Apply current slider values before starting
-            paramSliders.forEach((slider) => {
-              const pName = slider.dataset.paramName;
-              const pVal = parseFloat(slider.value);
-              studioSystem.setParameterByName(pName, pVal, false); // Assuming global for now. For local: instance.setParameterByName
+            // Load Banks
+            banks.forEach((bankFile) => {
+              result = studioSystem.loadBankFile(
+                `/${bankFile}`,
+                window.FMOD.STUDIO_LOAD_BANK_NORMAL,
+                outval,
+              );
+              if (result !== window.FMOD.OK) {
+                console.error(`Error loading bank ${bankFile}:`, result);
+              } else {
+                console.log(`Successfully loaded ${bankFile}`);
+              }
             });
 
-            instance.start();
-            stopBtn.removeAttribute("disabled");
-            playBtn.setAttribute("disabled", "true");
-          });
+            isInitialized = true;
+            updateStatus("ready", "Prêt");
+            enableControls();
 
-          stopBtn.addEventListener("click", () => {
-            const instance = eventInstances.get(eventPath);
-            if (instance) {
-              instance.stop(FMOD.STUDIO_STOP_ALLOWFADEOUT);
+            // Start engine update loop
+            window.requestAnimationFrame(updateFmod);
+          }
+
+          function updateFmod() {
+            if (studioSystem && isInitialized) {
+              studioSystem.update();
             }
-            stopBtn.setAttribute("disabled", "true");
-            playBtn.removeAttribute("disabled");
-          });
-        });
-      }
+            window.requestAnimationFrame(updateFmod);
+          }
 
-      // Load WASM Engine
-      if (!window.document.getElementById("fmod-engine-script")) {
-        FMOD.preRun = prerun;
-        FMOD.onRuntimeInitialized = main;
-        FMOD.INITIAL_MEMORY = 64 * 1024 * 1024; // 64MB
+          function shutdownFmod() {
+            if (!isInitialized || !studioSystem) return;
 
-        const script = document.createElement("script");
-        script.id = "fmod-engine-script";
-        script.src = "/fmod/api/fmodstudio.js";
-        script.onerror = () => updateStatus("error", "API non trouvée (404)");
-        document.body.appendChild(script);
-      } else {
-        // Already loaded globally, just run local init logic
-        prerun();
-        setTimeout(main, 500); // Give it a slight delay to ensure C++ memory is ready if it was *just* loaded
-      }
-    });
+            // Stop all instances
+            eventInstances.forEach((instance) => {
+              instance.stop(FMOD.STUDIO_STOP_IMMEDIATE);
+              instance.release();
+            });
+            eventInstances.clear();
+
+            // Release system
+            studioSystem.release();
+            studioSystem = null;
+            coreSystem = null;
+            isInitialized = false;
+            console.log("FMOD Shutdown Complete");
+          }
+
+          // Bind to unmount/navigate events
+          window.addEventListener("bento:audio:shutdown", () => shutdownFmod());
+          window.addEventListener("beforeunload", () => shutdownFmod());
+          window.addEventListener("pagehide", () => shutdownFmod());
+
+          function enableControls() {
+            // Param Sliders
+            paramSliders.forEach((slider) => {
+              slider.removeAttribute("disabled");
+              slider.addEventListener("input", (e) => {
+                const val = parseFloat(e.target.value);
+                const paramName = e.target.dataset.paramName;
+
+                // Update UI
+                const valDisplay = document.getElementById(
+                  `fmod-val-${paramName}`,
+                );
+                if (valDisplay) valDisplay.textContent = val;
+
+                // Apply to both global system AND active event instances (local params)
+                // ignoreSeekSpeed=true ensures discrete params respond immediately
+                if (studioSystem && isInitialized) {
+                  studioSystem.setParameterByName(paramName, val, true);
+                  eventInstances.forEach((instance) => {
+                    try {
+                      instance.setParameterByName(paramName, val, true);
+                    } catch {}
+                  });
+                }
+              });
+            });
+
+            // Event Play/Stop buttons
+            eventRows.forEach((row) => {
+              const playBtn = row.querySelector(".play-btn");
+              const stopBtn = row.querySelector(".stop-btn");
+              const eventPath = row.dataset.eventPath;
+
+              playBtn.removeAttribute("disabled");
+
+              playBtn.addEventListener("click", () => {
+                if (!studioSystem || !isInitialized) return;
+
+                // Check if already created/playing
+                let instance = eventInstances.get(eventPath);
+
+                if (!instance) {
+                  let outval = {};
+                  let result = studioSystem.getEvent(eventPath, outval);
+                  if (result !== FMOD.OK) {
+                    console.error("GetEvent Error:", result);
+                    return;
+                  }
+                  let eventDesc = outval.val;
+
+                  result = eventDesc.createInstance(outval);
+                  if (result !== FMOD.OK) {
+                    console.error("CreateInstance Error:", result);
+                    return;
+                  }
+                  instance = outval.val;
+                  eventInstances.set(eventPath, instance);
+                }
+
+                // Apply current slider values before starting
+                paramSliders.forEach((slider) => {
+                  const pName = slider.dataset.paramName;
+                  const pVal = parseFloat(slider.value);
+                  studioSystem.setParameterByName(pName, pVal, false); // Assuming global for now. For local: instance.setParameterByName
+                });
+
+                instance.start();
+                stopBtn.removeAttribute("disabled");
+                playBtn.setAttribute("disabled", "true");
+              });
+
+              stopBtn.addEventListener("click", () => {
+                const instance = eventInstances.get(eventPath);
+                if (instance) {
+                  instance.stop(FMOD.STUDIO_STOP_ALLOWFADEOUT);
+                }
+                stopBtn.setAttribute("disabled", "true");
+                playBtn.removeAttribute("disabled");
+              });
+            });
+          }
+
+          // Load WASM Engine
+          // Load WASM Engine
+          if (!window.document.getElementById("fmod-engine-script")) {
+            // We must define locateFile because dynamic injection loses document.currentScript,
+            // causing the AudioWorklet to fetch .wasm from the root resulting in a 404/AbortError.
+            window.FMOD.locateFile = function (path, prefix) {
+              if (
+                path.endsWith(".wasm") ||
+                (path.endsWith(".js") && !path.endsWith(".aw.js"))
+              ) {
+                return "/fmod/api/" + path;
+              }
+              return prefix + path;
+            };
+
+            window.FMOD.preRun = prerun;
+            window.FMOD.onRuntimeInitialized = main;
+            window.FMOD.INITIAL_MEMORY = 64 * 1024 * 1024; // 64MB
+
+            const script = document.createElement("script");
+            script.id = "fmod-engine-script";
+            script.src = "/fmod/api/fmodstudio.js";
+            script.onload = () => {
+              if (typeof FMODModule === "function") {
+                FMODModule(window.FMOD);
+              }
+            };
+            script.onerror = () =>
+              updateStatus("error", "API non trouvée (404)");
+            document.body.appendChild(script);
+          } else {
+            // Already loaded globally, just run local init logic if it hasn't fired yet
+            if (!isInitialized) {
+              prerun();
+              setTimeout(main, 500); // Give it a slight delay to ensure C++ memory is ready if it was *just* loaded
+            }
+          }
+        } // Close if (entry.isIntersecting)
+      }); // Close entries.forEach
+    }); // Close new IntersectionObserver
+
+    // Start observing FMOD cards
+    fmodCards.forEach((card) => observer.observe(card));
   }
 
   // Auto-init on page load
