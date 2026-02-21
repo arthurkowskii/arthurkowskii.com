@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{99bd8ab7-2154-4190-ab4d-38e0fadd8478}">
+		<property name="name">
+			<value>BOSS_HEALTH</value>
+		</property>
+		<relationship name="folder">
+			<destination>{3c2eb435-3b48-4e01-948c-5307f6151c3f}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{141f4aae-ae87-41a3-ad1c-566964d64125}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{141f4aae-ae87-41a3-ad1c-566964d64125}">
+		<property name="parameterType">
+			<value>1</value>
+		</property>
+		<property name="maximum">
+			<value>101</value>
+		</property>
+		<property name="initialValue">
+			<value>100</value>
+		</property>
+	</object>
+</objects>

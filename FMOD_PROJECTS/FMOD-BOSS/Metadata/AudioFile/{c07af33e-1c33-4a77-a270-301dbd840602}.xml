@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{c07af33e-1c33-4a77-a270-301dbd840602}">
+		<property name="assetPath">
+			<value>Transitions/Sweep_Impact.wav</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>13.125011337868481</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{cb01a6c6-c943-4b9a-b6dd-487f4785c8b9}</destination>
+		</relationship>
+	</object>
+</objects>

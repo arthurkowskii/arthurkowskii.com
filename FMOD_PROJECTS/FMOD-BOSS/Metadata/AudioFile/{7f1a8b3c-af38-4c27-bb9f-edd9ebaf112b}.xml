@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{7f1a8b3c-af38-4c27-bb9f-edd9ebaf112b}">
+		<property name="assetPath">
+			<value>SFXs/SFX_LARSEN.ogg</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>13.432458333333333</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{cb01a6c6-c943-4b9a-b6dd-487f4785c8b9}</destination>
+		</relationship>
+	</object>
+</objects>

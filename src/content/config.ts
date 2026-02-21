@@ -48,6 +48,7 @@ const projectsCollection = defineCollection({
         sampler: z.boolean().default(false),
         soundcloud: z.boolean().default(false),
         audio: z.boolean().default(false),
+        fmod: z.boolean().default(false),
         actions: z.boolean().default(true),
         tech: z.boolean().default(true),
         process: z.boolean().default(true),
@@ -121,6 +122,26 @@ const projectsCollection = defineCollection({
           filename: z.string(), // filename without extension (e.g., "track1" for track1.webm/mp3)
           duration: z.string().optional(), // e.g., "3:45"
         })),
+      }).optional(),
+
+      // FMOD Interactive Player configuration
+      fmod: z.object({
+        title: BilingualString.default('FMOD Interactive Player'),
+        description: BilingualStringOptional,
+        folder: z.string(), // Folder inside public/fmod containing the banks
+        banks: z.array(z.string()), // e.g., ["Master.bank", "Master.strings.bank"]
+        events: z.array(z.object({
+          name: BilingualString, // Display name
+          path: z.string(), // FMOD event path, e.g., "event:/mus_BOSS"
+        })),
+        parameters: z.array(z.object({
+          name: z.string(), // Parameter name in FMOD
+          label: BilingualStringOptional, // UI display name
+          min: z.number(),
+          max: z.number(),
+          step: z.number().default(0.1),
+          default: z.number()
+        })).optional()
       }).optional(),
 
       sampler: z.object({

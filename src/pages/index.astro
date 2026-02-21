@@ -3108,11 +3108,9 @@ import atomConfig from '../atom.config.js';
                   // Reset scroll position to top
                   overlay.scrollTop = 0;
                   
-                  // Only push history for non-bento projects (bento stays in overlay)
-                  const currentProject = projectBySlug.get(slug);
-                  if (!currentProject?.useBentoLayout) {
-                    try { history.pushState({ overlay: true, slug }, '', `/projects/${slug}`); } catch {}
-                  }
+                  // Sync URL using a clean project name (no directory prefix)
+                  const cleanSlug = slug.split('/').pop() || slug;
+                  try { history.pushState({ overlay: true, slug }, '', `?project=${cleanSlug}`); } catch {}
                   
                   // Trigger bento card animations for bento projects
                   if (p.useBentoLayout && typeof window.animateBentoCards === 'function') {
@@ -3243,7 +3241,7 @@ import atomConfig from '../atom.config.js';
                   if (currentElectron && window.orbitSystem) { window.orbitSystem.resumeElectron(currentElectron); currentElectron = null; }
                   resumeLabelRotation();
                   if (lastFocused) { try { lastFocused.focus({ preventScroll: true }); } catch {} }
-                  try { history.replaceState(null, '', '/'); } catch {}
+                  try { history.replaceState(null, '', window.location.pathname); } catch {}
                 }
               });
             }
@@ -3261,6 +3259,31 @@ import atomConfig from '../atom.config.js';
               }
             });
             
+            // Auto-open project if specified in URL query params
+            window.addEventListener('load', () => {
+              const urlParams = new URLSearchParams(window.location.search);
+              const cleanProjectSlug = urlParams.get('project');
+              if (cleanProjectSlug) {
+                // Find project by matching the clean slug against the end of the full slug
+                const project = PROJECTS.find(p => p.slug === cleanProjectSlug || p.slug.endsWith('/' + cleanProjectSlug));
+                
+                if (project && project.slug) {
+                  const fullSlug = project.slug;
+                  const electron = document.querySelector(`.electron[data-project="${fullSlug}"]`);
+                  // Calculate center coords
+                  const vw = window.innerWidth, vh = window.innerHeight;
+                  let cx = vw / 2, cy = vh / 2;
+                  if (electron) {
+                    const rect = electron.getBoundingClientRect();
+                    cx = rect.left + rect.width / 2;
+                    cy = rect.top + rect.height / 2;
+                  }
+                  // Delay slightly to ensure atom animation has started
+                  setTimeout(() => openProjectOverlay(fullSlug, cx, cy, electron), 100);
+                }
+              }
+            });
+
             // Fix for clip-path resize issue: recalculate overlay mask on window resize
             window.addEventListener('resize', () => {
               if (overlayOpen && overlayR > 0) {

@@ -1,0 +1,1 @@
+em++ simple_c.cpp -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXPORTED_RUNTIME_METHODS=ccall,cwrap,setValue,getValue -s ASYNCIFY=1 -pthread -s PTHREAD_POOL_SIZE=5 -I../inc ../lib/w32/fmodP_wasm.a -o simple_c_pthreads.html

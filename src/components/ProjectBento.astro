@@ -1598,6 +1598,192 @@ const accentColorRgbDark =
     justify-content: center;
   }
 
+  /* FMOD Interactive Card */
+  .fmod-card {
+    grid-column: 1 / 9; /* Matching audio card default width */
+    grid-row: 7; /* Adjust properly relative to other cards */
+    padding: 2.25rem;
+    border-radius: 24px;
+    background: linear-gradient(
+      135deg,
+      rgba(var(--accent-color-rgb), 0.05),
+      rgba(255, 255, 255, 0.95)
+    );
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  html[data-theme="dark"] .fmod-card {
+    background: linear-gradient(
+      160deg,
+      rgba(15, 15, 19, 0.8),
+      rgba(20, 20, 25, 0.9)
+    );
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .fmod-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .fmod-status {
+    display: inline-block;
+    padding: 0.35rem 0.8rem;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    align-self: flex-start;
+    margin-top: 0.5rem;
+  }
+
+  .badge-initializing {
+    background: rgba(234, 179, 8, 0.2);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.4);
+  }
+
+  .badge-ready {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.4);
+  }
+
+  .badge-error {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+  }
+
+  .fmod-events {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.1);
+  }
+
+  html[data-theme="dark"] .fmod-events {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .fmod-event-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.05);
+  }
+
+  html[data-theme="dark"] .fmod-event-row {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .fmod-event-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  .fmod-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .fmod-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .fmod-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .play-btn {
+    background: var(--accent-color);
+    color: white;
+  }
+
+  .play-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--accent-color-rgb), 0.3);
+  }
+
+  .stop-btn {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+  }
+
+  .stop-btn:not(:disabled):hover {
+    background: rgba(239, 68, 68, 0.2);
+  }
+
+  .fmod-parameters {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .fmod-section-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(15, 23, 42, 0.6);
+    margin: 0 0 0.5rem 0;
+  }
+
+  html[data-theme="dark"] .fmod-section-title {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .fmod-param-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .fmod-param-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .fmod-param-value {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--accent-color);
+  }
+
+  .fmod-slider {
+    width: 100%;
+    accent-color: var(--accent-color);
+    cursor: pointer;
+  }
+
+  .fmod-slider:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 899px) {
+    .fmod-card {
+      grid-column: 1 / 9;
+    }
+  }
+
   .sampler-pad {
     border: none;
     border-radius: 20px;
@@ -3898,6 +4084,105 @@ const accentColorRgbDark =
       )
     }
 
+    {/* FMOD Interactive Player Card */}
+    {
+      cards.fmod && bento.fmod && (
+        <div
+          class:list={["bento-card", "fmod-card"]}
+          data-fmod-folder={bento.fmod.folder}
+          data-fmod-banks={JSON.stringify(bento.fmod.banks || [])}
+          data-fmod-events={JSON.stringify(bento.fmod.events || [])}
+          data-fmod-parameters={JSON.stringify(bento.fmod.parameters || [])}
+        >
+          <div class="fmod-header">
+            <h3 class="card-title">
+              {typeof bento.fmod.title === "object"
+                ? bento.fmod.title[
+                    Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                  ] || bento.fmod.title.fr
+                : bento.fmod.title || "FMOD Interactive"}
+            </h3>
+            {bento.fmod.description && (
+              <p class="card-subtitle">
+                {typeof bento.fmod.description === "object"
+                  ? bento.fmod.description[
+                      Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                    ] || bento.fmod.description.fr
+                  : bento.fmod.description}
+              </p>
+            )}
+            <div class="fmod-status badge-initializing">
+              Initialisation du moteur...
+            </div>
+          </div>
+
+          <div class="fmod-events">
+            {bento.fmod.events?.map((evt, index) => (
+              <div class="fmod-event-row" data-event-path={evt.path}>
+                <span class="fmod-event-name">
+                  {typeof evt.name === "object"
+                    ? evt.name[
+                        Astro.url.searchParams.get("lang") === "en"
+                          ? "en"
+                          : "fr"
+                      ] || evt.name.fr
+                    : evt.name}
+                </span>
+                <div class="fmod-controls">
+                  <button class="fmod-btn play-btn" data-action="play" disabled>
+                    Play
+                  </button>
+                  <button class="fmod-btn stop-btn" data-action="stop" disabled>
+                    Stop
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {bento.fmod.parameters && bento.fmod.parameters.length > 0 && (
+            <div class="fmod-parameters">
+              <h4 class="fmod-section-title">Paramètres Dynamiques</h4>
+              {bento.fmod.parameters.map((param) => (
+                <div class="fmod-param-row">
+                  <div class="fmod-param-header">
+                    <label for={`fmod-param-${param.name}`}>
+                      {param.label
+                        ? typeof param.label === "object"
+                          ? param.label[
+                              Astro.url.searchParams.get("lang") === "en"
+                                ? "en"
+                                : "fr"
+                            ] || param.label.fr
+                          : param.label
+                        : param.name}
+                    </label>
+                    <span
+                      class="fmod-param-value"
+                      id={`fmod-val-${param.name}`}
+                    >
+                      {param.default}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    id={`fmod-param-${param.name}`}
+                    class="fmod-slider"
+                    min={param.min}
+                    max={param.max}
+                    step={param.step}
+                    value={param.default}
+                    data-param-name={param.name}
+                    disabled
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )
+    }
+
     {/* Sample Player Card */}
     {
       cards.sampler && bento.sampler && (
@@ -5364,4 +5649,236 @@ const accentColorRgbDark =
       initAudioPlayers();
     }
   }
+</script>
+
+<script is:inline>
+  // FMOD Web API Integration
+  function initFmodCards() {
+    const fmodCards = document.querySelectorAll(".fmod-card");
+    if (fmodCards.length === 0) return;
+
+    if (!window.FMOD) {
+      window.FMOD = {};
+    }
+
+    fmodCards.forEach((card) => {
+      if (card.dataset.fmodReady === "true") return;
+      card.dataset.fmodReady = "true";
+
+      const statusBadge = card.querySelector(".fmod-status");
+      const paramSliders = card.querySelectorAll(".fmod-slider");
+      const paramValues = card.querySelectorAll(".fmod-param-value");
+      const eventRows = card.querySelectorAll(".fmod-event-row");
+
+      const folder = card.dataset.fmodFolder || "";
+      const banks = JSON.parse(card.dataset.fmodBanks || "[]");
+      const paramDefs = JSON.parse(card.dataset.fmodParameters || "[]");
+
+      let studioSystem = null;
+      let coreSystem = null;
+      let eventInstances = new Map();
+      let isInitialized = false;
+
+      function updateStatus(state, msg) {
+        if (!statusBadge) return;
+        statusBadge.className = `fmod-status badge-${state}`;
+        statusBadge.textContent = msg;
+      }
+
+      // 1. Initialize FMOD Module and File System
+      function prerun() {
+        console.log("FMOD PreRun");
+        let baseUrl = `/fmod/${folder}/`;
+        if (folder === "") baseUrl = `/fmod/`;
+
+        banks.forEach((bankFile) => {
+          const url = `${baseUrl}${bankFile}`;
+          const path = `/${bankFile}`;
+          console.log(`Preloading bank: ${url} to ${path}`);
+          FMOD.FS_createPreloadedFile("/", bankFile, url, true, false);
+        });
+      }
+
+      function main() {
+        console.log("FMOD Main: Engine Ready");
+
+        // Create Studio System
+        let outval = {};
+        let result = FMOD.Studio_System_Create(outval);
+        if (result !== FMOD.OK) {
+          console.error("FMOD Studio System Create error", result);
+          updateStatus("error", "Erreur système audio");
+          return;
+        }
+        studioSystem = outval.val;
+
+        // Get Core System payload
+        result = studioSystem.getCoreSystem(outval);
+        if (result !== FMOD.OK) {
+          console.error("FMOD Core System Get error", result);
+          return;
+        }
+        coreSystem = outval.val;
+
+        // Initialize Studio System
+        result = studioSystem.initialize(
+          1024,
+          FMOD.STUDIO_INIT_NORMAL,
+          FMOD.INIT_NORMAL,
+          null,
+        );
+        if (result !== FMOD.OK) {
+          console.error("FMOD Studio Init error", result);
+          updateStatus("error", "Erreur initialisation");
+          return;
+        }
+
+        // Load Banks
+        banks.forEach((bankFile) => {
+          result = studioSystem.loadBankFile(
+            `/${bankFile}`,
+            FMOD.STUDIO_LOAD_BANK_NORMAL,
+            outval,
+          );
+          if (result !== FMOD.OK) {
+            console.error(`Error loading bank ${bankFile}:`, result);
+          } else {
+            console.log(`Successfully loaded ${bankFile}`);
+          }
+        });
+
+        isInitialized = true;
+        updateStatus("ready", "Prêt");
+        enableControls();
+
+        // Start engine update loop
+        window.requestAnimationFrame(updateFmod);
+      }
+
+      function updateFmod() {
+        if (studioSystem && isInitialized) {
+          studioSystem.update();
+        }
+        window.requestAnimationFrame(updateFmod);
+      }
+
+      function shutdownFmod() {
+        if (!isInitialized || !studioSystem) return;
+
+        // Stop all instances
+        eventInstances.forEach((instance) => {
+          instance.stop(FMOD.STUDIO_STOP_IMMEDIATE);
+          instance.release();
+        });
+        eventInstances.clear();
+
+        // Release system
+        studioSystem.release();
+        studioSystem = null;
+        coreSystem = null;
+        isInitialized = false;
+        console.log("FMOD Shutdown Complete");
+      }
+
+      // Bind to unmount/navigate events
+      window.addEventListener("bento:audio:shutdown", () => shutdownFmod());
+      window.addEventListener("beforeunload", () => shutdownFmod());
+      window.addEventListener("pagehide", () => shutdownFmod());
+
+      function enableControls() {
+        // Param Sliders
+        paramSliders.forEach((slider) => {
+          slider.removeAttribute("disabled");
+          slider.addEventListener("input", (e) => {
+            const val = parseFloat(e.target.value);
+            const paramName = e.target.dataset.paramName;
+
+            // Update UI
+            const valDisplay = document.getElementById(`fmod-val-${paramName}`);
+            if (valDisplay) valDisplay.textContent = val;
+
+            // Apply to FMOD System (Global params)
+            if (studioSystem && isInitialized) {
+              studioSystem.setParameterByName(paramName, val, false);
+            }
+          });
+        });
+
+        // Event Play/Stop buttons
+        eventRows.forEach((row) => {
+          const playBtn = row.querySelector(".play-btn");
+          const stopBtn = row.querySelector(".stop-btn");
+          const eventPath = row.dataset.eventPath;
+
+          playBtn.removeAttribute("disabled");
+
+          playBtn.addEventListener("click", () => {
+            if (!studioSystem || !isInitialized) return;
+
+            // Check if already created/playing
+            let instance = eventInstances.get(eventPath);
+
+            if (!instance) {
+              let outval = {};
+              let result = studioSystem.getEvent(eventPath, outval);
+              if (result !== FMOD.OK) {
+                console.error("GetEvent Error:", result);
+                return;
+              }
+              let eventDesc = outval.val;
+
+              result = eventDesc.createInstance(outval);
+              if (result !== FMOD.OK) {
+                console.error("CreateInstance Error:", result);
+                return;
+              }
+              instance = outval.val;
+              eventInstances.set(eventPath, instance);
+            }
+
+            // Apply current slider values before starting
+            paramSliders.forEach((slider) => {
+              const pName = slider.dataset.paramName;
+              const pVal = parseFloat(slider.value);
+              studioSystem.setParameterByName(pName, pVal, false); // Assuming global for now. For local: instance.setParameterByName
+            });
+
+            instance.start();
+            stopBtn.removeAttribute("disabled");
+            playBtn.setAttribute("disabled", "true");
+          });
+
+          stopBtn.addEventListener("click", () => {
+            const instance = eventInstances.get(eventPath);
+            if (instance) {
+              instance.stop(FMOD.STUDIO_STOP_ALLOWFADEOUT);
+            }
+            stopBtn.setAttribute("disabled", "true");
+            playBtn.removeAttribute("disabled");
+          });
+        });
+      }
+
+      // Load WASM Engine
+      if (!window.document.getElementById("fmod-engine-script")) {
+        FMOD.preRun = prerun;
+        FMOD.onRuntimeInitialized = main;
+        FMOD.INITIAL_MEMORY = 64 * 1024 * 1024; // 64MB
+
+        const script = document.createElement("script");
+        script.id = "fmod-engine-script";
+        script.src = "/fmod/api/fmodstudio.js";
+        script.onerror = () => updateStatus("error", "API non trouvée (404)");
+        document.body.appendChild(script);
+      } else {
+        // Already loaded globally, just run local init logic
+        prerun();
+        setTimeout(main, 500); // Give it a slight delay to ensure C++ memory is ready if it was *just* loaded
+      }
+    });
+  }
+
+  // Auto-init on page load
+  document.addEventListener("DOMContentLoaded", initFmodCards);
+  document.addEventListener("astro:page-load", initFmodCards);
 </script>
