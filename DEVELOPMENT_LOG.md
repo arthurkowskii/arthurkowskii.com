@@ -376,3 +376,18 @@
 ### Project Archiving (2025-12-18)
 - **Archived FMOD Showcase**: Moved `fmod_showcase.md` and `Assets_FMOD` to a new root-level `Archive/` folder.
 - **Reason**: Removed from active portfolio display while preserving source files and assets for reference.
+
+### FMOD Boss Interactive Player (2026-02-21)
+- **New Project**: Created `fmod_boss_showcase.md` — a live interactive FMOD demo embedded in the portfolio overlay.
+- **FMOD Web API Integration**:
+  - Added `fmod` card type to content schema (`config.ts`) with `folder`, `banks`, `events`, and `parameters` fields.
+  - Full FMOD card UI + JS in `ProjectBento.astro`: loads `fmodstudio.wasm/.js` dynamically, initializes Studio system, streams banks into Emscripten virtual FS, and renders Play/Stop buttons + parameter sliders.
+  - Lazy init via `IntersectionObserver` — FMOD only loads when the card enters the viewport, preventing AudioContext conflicts with Howler on other projects.
+- **CSP Fix**: Added `blob:` to `script-src` in `index.astro` (FR + EN) to allow FMOD's AudioWorklet blob injection.
+- **`locateFile` Fix**: Configured `window.FMOD.locateFile` before script injection to redirect `.wasm`/`.js` lookups to `/fmod/api/`, fixing `AbortError` from missing `document.currentScript` in dynamically injected scripts. `.aw.js` files excluded from redirection so FMOD handles them natively.
+- **Parameter System**:
+  - Sliders apply values to both `studioSystem` (global) and all active `EventInstance`s (local) simultaneously.
+  - `ignoreSeekSpeed = true` on all `setParameterByName` calls — required for discrete parameters to respond immediately without interpolation delay.
+  - Fixed name mismatch: `ismobKilled` → `is_MobKilled` to match exact FMOD Studio label.
+- **Assets**: Bank files in `/public/fmod/FMOD-BOSS/`, Web API files in `/public/fmod/api/`. All excluded from git via `.gitignore`.
+- **Lifecycle**: FMOD Studio system is cleanly released on overlay close / page unload via the existing `bento:audio:shutdown` custom event.
