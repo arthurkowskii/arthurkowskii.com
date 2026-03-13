@@ -20,11 +20,11 @@ import AtomCenterLogo from '../../Assets/atom_center_logo.png';
 import GitHubIcon from '../../Assets/social_media_icons/github.svg';
 import atomConfig from '../../atom.config.js';
 import { userTweaks } from '../../user-tweaks.js';
-import { calculateElectronPositions } from '../../atom/utils/electronPositioning.js';
 import { sanitizeText } from '../../utils/sanitize.js';
 import { localizeProject, localizeBio, getLocalizedContent } from '../../utils/content-i18n.js';
 import { getDomainDisplayName } from '../../utils/translations.js';
 import { buildPersonStructuredData, buildWebsiteStructuredData, buildProjectItemListStructuredData } from '../../utils/structured-data.js';
+import { buildDomainMeta, buildOrbitCollections, computeAnglesForShell } from '../../utils/project-orbit.js';
 
 // Social meta tag setup
 const socialConfig = atomConfig.socialMeta;
@@ -42,57 +42,12 @@ const alternateOgLocale = currentLocale === 'fr' ? 'en_US' : 'fr_FR';
 
 // Get all projects and compute domains from folder structure (prefix-ordered)
 const projects = await getCollection('projects');
-// console.log('🔍 DEBUG: Total projects loaded:', projects.length);
-// projects.forEach(p => console.log(`🔍 DEBUG: Project ${p.slug} in folder ${p.id.split('/')[0]}`));
-
-function parseDomainFolder(folder) {
-  const m = folder.match(/^(\d+)[-_ ]?(.*)$/);
-  const order = m ? parseInt(m[1], 10) : null;
-  const nameRaw = (m ? m[2] : folder) || '';
-  const name = nameRaw.trim();
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  const display = name.replace(/[-_]+/g, ' ').trim().toUpperCase();
-  return { order, name, slug, display };
-}
-
-// Build domain meta from top-level folder of each project
-const domainMap = new Map(); // slug -> { order, name, slug, display }
-const projectsWithDomains = projects.map(project => {
-  const folder = (project.id.split('/')[0] || '').trim();
-  const meta = parseDomainFolder(folder);
-  if (meta.slug) {
-    if (!domainMap.has(meta.slug)) domainMap.set(meta.slug, meta);
-  }
-  return {
-    ...project,
-    data: {
-      ...project.data,
-      domain: meta.slug || 'misc'
-    }
-  };
-});
-
-// Sort domains by numeric prefix, then alpha, and cap at 5
-let domainMetaList = Array.from(domainMap.values());
-domainMetaList.sort((a, b) => {
-  const ao = a.order ?? Infinity;
-  const bo = b.order ?? Infinity;
-  if (ao !== bo) return ao - bo;
-  return a.name.localeCompare(b.name);
-});
 const maxShells = 5;
+const { domainMetaList, projectsWithDomains } = buildDomainMeta(projects, maxShells);
 if (domainMetaList.length > maxShells) {
   console.warn(`[atom] Domain folders exceed ${maxShells}; extra domains will be hidden:`, domainMetaList.slice(maxShells).map(d => d.slug));
 }
-domainMetaList = domainMetaList.slice(0, maxShells);
 const domains = domainMetaList.map(d => d.slug);
-
-// Calculate electron positions for each shell
-const electronsByDomain = projectsWithDomains.reduce((acc, project) => {
-  if (!acc[project.data.domain]) acc[project.data.domain] = [];
-  acc[project.data.domain].push(project);
-  return acc;
-}, {});
 
 
 // Asset resolution logic (borrowed from ProjectBento)
@@ -194,12 +149,15 @@ const projectSummaries = projectsWithDomains.map(p => {
   };
 });
 
-// Create localized version for UI rendering using projectSummaries
-const localizedElectronsByDomain = projectSummaries.reduce((acc, projectSummary) => {
-  if (!acc[projectSummary.domain]) acc[projectSummary.domain] = [];
-  acc[projectSummary.domain].push(projectSummary);
-  return acc;
-}, {});
+const projectSummaryBySlug = new Map(projectSummaries.map(projectSummary => [projectSummary.slug, projectSummary]));
+const localizedElectronsByShell = buildOrbitCollections(projectsWithDomains, domains).map((shellProjects) =>
+  shellProjects
+    .map((project) => {
+      const summary = projectSummaryBySlug.get(project.slug);
+      return summary ? { ...summary, orbit: project.orbit } : null;
+    })
+    .filter(Boolean)
+);
 
 // Prepare Bio payload from content collection (bio/about)
 let bioPayload = {};
@@ -1529,44 +1487,8 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 				<!-- Orbital Shells -->
 				{domains.map((domain, shellIndex) => {
 					const shell = cfg.shells[shellIndex] || cfg.shells[cfg.shells.length - 1];
-					const electronsInShell = localizedElectronsByDomain[domain] || [];
-					
-					// Random positioning with collision avoidance
-					const minDistance = atomConfig.spacing?.minElectronDistance || 60;
-					const count = electronsInShell.length;
-					
-					let electronPositions = [];
-					
-					if (count === 1) {
-						electronPositions = [Math.random() * 360];
-					} else if (count > 1) {
-						// Generate random positions with minimum distance enforcement
-						for (let i = 0; i < count; i++) {
-							let attempts = 0;
-							let validPosition = false;
-							let newAngle;
-							
-							while (!validPosition && attempts < 100) {
-								newAngle = Math.random() * 360;
-								validPosition = true;
-								
-								// Check distance to all existing positions
-								for (let existingAngle of electronPositions) {
-									const angleDiff = Math.abs(newAngle - existingAngle);
-									const minDist = Math.min(angleDiff, 360 - angleDiff); // Handle wrap-around
-									
-									if (minDist < minDistance) {
-										validPosition = false;
-										break;
-									}
-								}
-								attempts++;
-							}
-							
-							// If we couldn't find a valid position after many attempts, just place it randomly
-							electronPositions.push(newAngle || Math.random() * 360);
-						}
-					}
+					const electronsInShell = localizedElectronsByShell[shellIndex] || [];
+					const electronPositions = computeAnglesForShell(electronsInShell);
 					
 					
 					return (
@@ -1688,11 +1610,10 @@ const cfg = { ...(atomConfig as any), shells: dynamicShells, viewport: dynamicVi
 											stroke={atomConfig.electrons.color}
 											stroke-width={atomConfig.electrons.strokeWidth}
 											data-project={project.slug}
-											data-domain={project.domain}
-											data-shell={shellIndex}
-											data-shell-index={shellIndex}
-											data-electron-index={electronIndex}
-											data-angle={angleDegrees}
+										data-domain={project.domain}
+										data-shell={shellIndex}
+										data-shell-index={shellIndex}
+										data-angle={angleDegrees}
 											role="button"
 											aria-label={`View project: ${project.title} - ${typeof project.description === 'string' ? project.description.slice(0, 60) : String(project.description).slice(0, 60)}...`}
 											tabindex="0"
@@ -3813,16 +3734,9 @@ import atomConfig from '../../atom.config.js';
               },
               
               getProjectForElectron(electron) {
-                // Extract shell and electron indices from the electron's attributes
-                const shellIndex = parseInt(electron.getAttribute('data-shell-index') || '0');
-                const electronIndex = parseInt(electron.getAttribute('data-electron-index') || '0');
-                
-                // Find the project from PROJECTS data using shell/electron indices
-                // Projects are organized by domain in the same order as shells
-                const domainSlug = cfg.domains[shellIndex];
-                const domainProjects = PROJECTS.filter(p => p.domain === domainSlug);
-                
-                return domainProjects[electronIndex] || null;
+                const slug = electron?.getAttribute('data-project');
+                if (!slug) return null;
+                return projectBySlug.get(slug) || null;
               }
 				};
 				

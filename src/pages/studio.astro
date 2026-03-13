@@ -1,0 +1,401 @@
+---
+const title = 'Project Studio';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f1116;
+        --panel: #171a22;
+        --panel-2: #1f2430;
+        --line: rgba(255,255,255,0.1);
+        --text: #eef2ff;
+        --muted: #9aa4b2;
+        --accent: #ff6b00;
+        --accent-soft: rgba(255,107,0,0.16);
+        --danger: #ff6464;
+        --success: #4ade80;
+        --shadow: 0 20px 60px rgba(0,0,0,0.35);
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        background:
+          radial-gradient(circle at top left, rgba(255,107,0,0.12), transparent 28%),
+          radial-gradient(circle at top right, rgba(42,157,143,0.14), transparent 32%),
+          linear-gradient(180deg, #0b0d12, #10131a 45%, #0d1016);
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      .studio-shell {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 420px) minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      .panel {
+        border-right: 1px solid var(--line);
+        background: rgba(15,17,22,0.72);
+        backdrop-filter: blur(16px);
+      }
+
+      .panel-scroll {
+        height: 100vh;
+        overflow: auto;
+        padding: 24px;
+      }
+
+      .hero { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+      .eyebrow { font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--muted); }
+      h1, h2, h3, h4, p { margin: 0; }
+      h1 { font-size: 30px; line-height: 1.05; }
+      h2 { font-size: 20px; margin-bottom: 12px; }
+      h3 { font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+      .muted { color: var(--muted); }
+      .stack { display: grid; gap: 12px; }
+
+      .card {
+        background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        padding: 16px;
+      }
+
+      .project-list { display: grid; gap: 10px; margin-top: 16px; }
+      .project-item { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); padding: 14px; cursor: pointer; }
+      .project-item.active { border-color: rgba(255,107,0,0.5); background: linear-gradient(180deg, rgba(255,107,0,0.18), rgba(255,107,0,0.05)); }
+      .project-item-title { font-size: 16px; margin-bottom: 4px; }
+      .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+
+      button, select, input, textarea { font: inherit; }
+      button {
+        border: 1px solid var(--line);
+        background: var(--panel-2);
+        color: var(--text);
+        border-radius: 999px;
+        padding: 10px 14px;
+        cursor: pointer;
+      }
+      button.primary { background: linear-gradient(180deg, var(--accent), #d75800); color: #100b07; border-color: transparent; font-weight: 700; }
+      button.ghost { background: transparent; }
+      button.danger { color: #ffd4d4; border-color: rgba(255,100,100,0.35); }
+      .editor-section { margin-bottom: 18px; }
+      .field-grid { display: grid; gap: 12px; }
+      .field-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      label { display: grid; gap: 8px; font-size: 13px; color: var(--muted); }
+
+      input, select, textarea {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: rgba(255,255,255,0.03);
+        color: var(--text);
+        padding: 12px;
+      }
+
+      textarea { min-height: 110px; resize: vertical; }
+      .block-list { display: grid; gap: 10px; }
+      .block-item { display: grid; gap: 10px; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: rgba(255,255,255,0.02); }
+      .block-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+      .block-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .status { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,0.05); color: var(--muted); }
+      .status.ok { color: var(--success); }
+      .status.error { color: var(--danger); }
+      .mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
+
+      .preview-panel {
+        background: #0b0d12;
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr);
+      }
+
+      .preview-toolbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        padding: 18px 20px 0;
+      }
+
+      .preview-frame-wrap {
+        padding: 0 20px 20px;
+        min-height: 0;
+        display: grid;
+        align-content: start;
+        gap: 14px;
+      }
+
+      .studio-grid-surface {
+        position: relative;
+        width: 100%;
+        max-width: 1440px;
+        min-height: 520px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background:
+          linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+        background-size: calc((100% - 11 * 12px) / 12 + 12px) 100px, calc((100% - 11 * 12px) / 12 + 12px) 100px, auto;
+        overflow: hidden;
+      }
+
+      .studio-grid-surface::before {
+        content: "Desktop grid editor";
+        position: absolute;
+        top: 14px;
+        right: 18px;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .studio-grid-canvas {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        grid-auto-rows: 88px;
+        gap: 12px;
+        min-height: calc(var(--desktop-grid-rows, 8) * 100px);
+        padding-top: 28px;
+      }
+
+      .studio-grid-block {
+        position: relative;
+        display: grid;
+        align-content: space-between;
+        gap: 10px;
+        padding: 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: linear-gradient(180deg, rgba(255,107,0,0.2), rgba(255,107,0,0.08));
+        color: var(--text);
+        text-align: left;
+        grid-column: var(--grid-x) / span var(--grid-w);
+        grid-row: var(--grid-y) / span var(--grid-h);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.22);
+      }
+
+      .studio-grid-block.is-selected {
+        outline: 2px solid rgba(255,107,0,0.8);
+        outline-offset: 2px;
+      }
+
+      .studio-grid-block.is-disabled {
+        opacity: 0.5;
+      }
+
+      .studio-grid-block__label {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .studio-grid-block__meta {
+        font-size: 11px;
+        color: rgba(255,255,255,0.72);
+      }
+
+      .studio-grid-block__handle {
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        background: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.24);
+      }
+
+      .studio-grid-block__handle--se { right: 10px; bottom: 10px; cursor: nwse-resize; }
+      .studio-grid-block__handle--e { right: 10px; top: calc(50% - 8px); cursor: ew-resize; }
+      .studio-grid-block__handle--s { bottom: 10px; left: calc(50% - 8px); cursor: ns-resize; }
+
+      .preview-viewport {
+        width: 100%;
+        margin: 0 auto;
+        transition: width 180ms ease;
+      }
+
+      .preview-viewport[data-size="desktop"] { width: 100%; max-width: 1440px; }
+      .preview-viewport[data-size="tablet"] { width: 900px; max-width: 100%; }
+      .preview-viewport[data-size="mobile"] { width: 430px; max-width: 100%; }
+
+      .preview-frame {
+        width: 100%;
+        min-height: calc(100vh - 160px);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: white;
+      }
+
+      .soft-unsupported {
+        display: none;
+        margin: 0 20px 14px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,107,0,0.24);
+        background: rgba(255,107,0,0.08);
+        color: #ffd8bf;
+      }
+
+      @media (max-width: 1280px) {
+        .studio-shell { grid-template-columns: 320px minmax(0, 1fr); }
+        .preview-panel { grid-column: 1 / -1; min-height: 70vh; }
+        .panel-scroll { height: auto; }
+      }
+
+      @media (max-width: 1024px) {
+        .soft-unsupported { display: block; }
+      }
+
+      @media (max-width: 900px) {
+        .studio-shell { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="studio-shell">
+      <aside class="panel">
+        <div class="panel-scroll">
+          <div class="hero">
+            <span class="eyebrow">Local Studio</span>
+            <h1>Project Builder</h1>
+            <p class="muted">Desktop-first block placement editor.</p>
+          </div>
+
+          <div class="stack">
+            <div class="card">
+              <h2>Create</h2>
+              <div class="toolbar">
+                <button class="primary" id="create-project-btn">New From Preset</button>
+                <button id="duplicate-project-btn">Duplicate</button>
+              </div>
+              <label>
+                Preset
+                <select id="preset-select"></select>
+              </label>
+            </div>
+
+            <div class="card">
+              <h2>Projects</h2>
+              <div class="project-list" id="project-list"></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="panel">
+        <div class="panel-scroll">
+          <div class="toolbar">
+            <button class="primary" id="save-project-btn">Save Project</button>
+            <button id="reload-project-btn">Reload</button>
+            <button class="ghost" id="open-project-btn">Open Route</button>
+          </div>
+
+          <div class="editor-section">
+            <span class="status" id="studio-status">Loading studio data...</span>
+          </div>
+
+          <section class="card editor-section">
+            <h2>Core Metadata</h2>
+            <div class="field-grid two">
+              <label>File Slug<input id="field-slug" /></label>
+              <label>Domain Folder<select id="field-folder"></select></label>
+              <label>Status<select id="field-status"><option>planned</option><option>in-progress</option><option>completed</option></select></label>
+              <label>Date<input id="field-date" type="date" /></label>
+              <label>Live Link<input id="field-link" /></label>
+              <label>GitHub<input id="field-github" /></label>
+              <label>Accent<input id="field-accent" /></label>
+              <label>Assets Folder<input id="field-assets-folder" /></label>
+            </div>
+          </section>
+
+          <section class="card editor-section">
+            <h2>Localized Content</h2>
+            <div class="field-grid two">
+              <label>Title FR<input id="field-title-fr" /></label>
+              <label>Title EN<input id="field-title-en" /></label>
+              <label>Short Title FR<input id="field-alt-title-fr" /></label>
+              <label>Short Title EN<input id="field-alt-title-en" /></label>
+            </div>
+            <div class="field-grid">
+              <label>Description FR<textarea id="field-description-fr"></textarea></label>
+              <label>Description EN<textarea id="field-description-en"></textarea></label>
+              <label>Tech (comma separated)<input id="field-tech" /></label>
+            </div>
+          </section>
+
+          <section class="card editor-section">
+            <h2>Desktop Layout Grid</h2>
+            <p class="muted" style="margin-bottom: 12px;">Move blocks directly in the grid below. Preview updates when you release the pointer.</p>
+            <div class="studio-grid-surface">
+              <div id="studio-grid-canvas" class="studio-grid-canvas"></div>
+            </div>
+          </section>
+
+          <section class="card editor-section">
+            <h2>Orbit</h2>
+            <div class="field-grid two">
+              <label>Shell Mode<select id="field-shell-mode"><option value="auto">auto</option><option value="manual">manual</option></select></label>
+              <label>Shell<input id="field-shell" type="number" min="1" max="5" /></label>
+              <label>Order<input id="field-order" type="number" step="1" /></label>
+              <label>Angle Mode<select id="field-angle-mode"><option value="auto">auto</option><option value="fixed">fixed</option></select></label>
+              <label>Angle<input id="field-angle" type="number" min="0" max="360" step="1" /></label>
+            </div>
+          </section>
+
+          <section class="card editor-section">
+            <h2>Layout Blocks</h2>
+            <div class="toolbar">
+              <select id="block-type-select"></select>
+              <button id="add-block-btn">Add Block</button>
+            </div>
+            <div class="block-list" id="block-list"></div>
+          </section>
+
+          <section class="card editor-section">
+            <h2>Body Markdown</h2>
+            <label>
+              Project body
+              <textarea id="field-body" style="min-height: 280px"></textarea>
+            </label>
+          </section>
+        </div>
+      </main>
+
+      <aside class="preview-panel">
+        <div class="preview-toolbar">
+          <div>
+            <span class="eyebrow">Live Preview</span>
+            <h2>Real ProjectBento</h2>
+          </div>
+          <div class="toolbar" style="margin:0">
+            <button class="preview-size-btn" data-preview-size="desktop">Desktop</button>
+            <button class="preview-size-btn" data-preview-size="tablet">Tablet</button>
+            <button class="preview-size-btn" data-preview-size="mobile">Mobile</button>
+          </div>
+        </div>
+        <div class="soft-unsupported" id="soft-unsupported-message">
+          The editor is tuned for desktop. Smaller screens may load, but drag placement is not supported or polished there yet.
+        </div>
+        <div class="preview-frame-wrap">
+          <div class="preview-viewport" data-size="desktop" id="preview-viewport">
+            <iframe id="preview-frame" class="preview-frame" title="Studio Preview"></iframe>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <script type="module" src="/src/studio/studio-app.js"></script>
+  </body>
+</html>

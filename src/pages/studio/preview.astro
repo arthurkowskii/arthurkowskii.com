@@ -1,0 +1,53 @@
+---
+import ProjectBento from '../../components/ProjectBento.astro';
+import { getPreviewDraft } from '../../studio/server/preview-store.js';
+import { localizeProject } from '../../utils/content-i18n.js';
+
+export const prerender = false;
+
+const session = Astro.url.searchParams.get('session') || '';
+const lang = Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr';
+const draft = getPreviewDraft(session);
+
+const previewProject = draft?.frontmatter
+  ? {
+      slug: draft.slug || 'preview-project',
+      data: localizeProject(draft.frontmatter, lang),
+      body: draft.body || '',
+    }
+  : null;
+---
+
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Studio Preview</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #f3f4f6;
+      }
+
+      body {
+        min-height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    {
+      previewProject ? (
+        <ProjectBento project={previewProject} />
+      ) : (
+        <main style="min-height: 100vh; display:grid; place-items:center; padding: 2rem; color:#111827; font-family: Georgia, 'Times New Roman', serif;">
+          <div style="max-width: 520px; text-align:center; background:white; border:1px solid rgba(15,23,42,0.08); border-radius:24px; padding:2rem; box-shadow:0 20px 60px rgba(15,23,42,0.08);">
+            <p style="margin:0 0 0.5rem; letter-spacing:0.18em; text-transform:uppercase; font-size:0.75rem; color:#6b7280;">Studio Preview</p>
+            <h1 style="margin:0 0 0.75rem; font-size:2rem; line-height:1.05;">Preparing live preview</h1>
+            <p style="margin:0; color:#4b5563; line-height:1.6;">Load a project or create a draft in `/studio`, then the real ProjectBento layout will appear here automatically.</p>
+          </div>
+        </main>
+      )
+    }
+  </body>
+</html>

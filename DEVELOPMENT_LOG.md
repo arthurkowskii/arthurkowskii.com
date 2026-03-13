@@ -1,393 +1,116 @@
-- Status: Phase 4 complete. Stable motion/hover system; overlay and micro-interactions shipped; config-driven.
-- CMS: Decap admin is local-only for now; choose production backend (git-gateway/GitHub) during deploy.
+# Development Log
+# DO NOT DELETE THIS FILE
+# This file tracks the active development history of the project.
 
-> [!IMPORTANT]
-> **ALWAYS CHECK [`TODO.md`](./TODO.md) AT THE START OF EACH SESSION.**
+To preserve AI context limits, ONLY keep the most recent month of logs here. Older logs go to archives.
+Each entry MUST follow this strict 2-bullet structure (MAX 1 sentence per bullet):
+## Session Log Format (Ultra-Compact)
+## [YYYY-MM-DD] - [Task or Bug Name]
+- **Action**: [What was done]
+- **Bug/Lesson**: [The bug that occurred, how it was fixed, and the lesson for future AIs]
 
-## Quickstart
+---------------------------------------
 
-- Run: `npm install`, then `npm run dev` (opens at http://localhost:4324).
-- Build/Preview: `npm run build`, then `npm run preview`.
-- Admin CMS: visit `/admin` (Decap uses local proxy; production backend TBD).
+## [2025-08-24] - Phase 4: Enterprise-Grade Transformation
+- **Action**: Implemented accessibility compliance, performance monitoring with Core Web Vitals, CI/CD pipeline with GitHub Actions, service worker/PWA capabilities, security headers, and comprehensive asset optimization (91% reduction: 177MB → 15MB).
+- **Bug/Lesson**: N/A - feature implementation
 
-## Key Files
+## [2025-08-25] - Enhanced Systems
+- **Action**: Added header navigation with project filtering, video card support (YouTube/Vimeo), SoundCloud/Spotify card systems, hero video backgrounds with thumbnails, and advanced 3D hover effects.
+- **Bug/Lesson**: N/A - feature implementation
 
-- src/pages/index.astro: Main scene, overlay, event wiring, dynamic shell/viewport generator.
-- src/atom/core/OrbitSystem.js: Electron orbital motion (GSAP transforms).
-- src/atom/utils/electronPositioning.js: Random positions with min angular distance.
-- src/atom.config.js: Client-safe config exported from user tweaks.
-- src/user-tweaks.js: Central knobs (sizes, speeds, transitions, micro, labels, dynamicShells).
-- src/content/config.ts: Content schema; folder-driven domains.
-- src/components/ProjectBento.astro: Bento layout, gallery card grid + lightbox.
+## [2025-08-28] - UI/UX Improvements
+- **Action**: Implemented modern design system with sophisticated shadows/colors, bio page enhancements, welcome overlay with audio prewarming, visited project indicators, and French social sharing meta tags.
+- **Bug/Lesson**: N/A - feature implementation
 
-## How It Works
+## [2025-08-31] - Recent Optimizations
+- **Action**: Removed 470+ lines of dead code, deleted unused components (BioBW, welcome page, backups), cleaned debug console statements while preserving production monitoring, and optimized AI agent tokens.
+- **Bug/Lesson**: N/A - code cleanup
 
-- Static geometry: Nucleus and shell rings are non-moving; electrons move via GSAP x/y transforms computed from angles.
-- Domains → shells (dynamic): Top-level folders under `src/content/projects/` determine domains. Numeric prefixes (e.g., `1_Music`, `2_Sound-Design`) drive order; names are transformed to slugs (kebab) and display (UPPERCASE). Up to 5 shells are rendered (extras hidden).
-- Random placement: Each electron gets a random angle with collision avoidance (min angular distance, wrap-around aware).
-- Hover model: Two distinct systems coordinated by a single state source:
-  - Shell hover: Opacity/thickness change only; motion continues.
-  - Electron hover: Electron grows, global spotlight dims others, shell may accent, orbit pauses for that shell.
-- Overlay: Clicking an electron opens a full-page circular masked overlay; pushes URL to /projects/:slug and restores on close.
+## [2025-08-31] - Press Card System Implementation
+- **Action**: Created press card system for bio page with responsive grid, extended content schema for mixed URL/local image paths, added 4 press articles, organized static assets in public/images/press/.
+- **Bug/Lesson**: **Bug**: Fixed mobile detection false positives causing desktop Firefox overlay blocking - implemented proper user agent and feature detection checks.
 
-## Configure Quickly (user-tweaks.js)
+## [2025-09-04] - Bilingual Content System Fix
+- **Action**: Fixed [object Object] display issue by updating home page to localize project data before passing to ProjectBento, fixed BioBento to receive localized data, created localizedElectronsByDomain, fixed electron hover label data structure references, and resolved initialization order issues.
+- **Bug/Lesson**: **Bug**: ProjectBento receiving raw bilingual objects instead of localized strings caused [object Object] to display. **Fix**: Implemented getLocalizedContent() with robust fallback chains and object-to-string conversion. **Lesson**: Always validate data structure passing between server and client components; defensive coding for object shape assumptions.
 
-- atomScale, nucleusSize, nucleusHoverSize
-- electronSpeeds.*, shellDistances.*, minElectronDistance
-- overlayTransition.openMs|closeMs|easing (bio/nucleus)
-- navTransition.enabled|inMs|outMs|easing|blockInput (electrons)
-- dynamicShells.enabled|baseRadius|baseGap|directionMode|speed
-- labels: mode (ringPattern|orbiting), fontSize, offsetPx, pattern settings
-- micro.hoverCursorRing|ripple|shellPulse (toggles + durations/colors)
-- bentoAnimations: enabled|staggerDelayMs|easing, cardEnabled toggles, audio settings
-- electronPreview: enabled|width|height|offsetX|offsetY, multiStage animation settings
-- bentoSkillsUI, bioText, modernDesign: UI styling parameters
+## [2025-09-08] - Comprehensive Bilingual Translation Fix
+- **Action**: Restored deleted bilingual UI system, created src/utils/translations.js, converted all Game Audio projects to full bilingual, added English translations to Tech projects, fixed "free price" translations, polished bio English, fixed flag emoji display with custom PNG icons.
+- **Bug/Lesson**: **Bug**: Nested quotes in YAML (fmod_showcase.md) caused parsing errors. **Fix**: Used proper YAML escaping. **Lesson**: Test content schema validation after content changes.
 
-## Content Authoring
+## [2025-09-08] - Theme and Language Default Updates
+- **Action**: Changed dark mode to default, updated theme detection to default dark, removed theme toggle from welcome card for cleaner UX, enforced French as default language (removed browser auto-detection), preserved user preference persistence.
+- **Bug/Lesson**: **Bug**: Browser language auto-detection was overriding French default. **Fix**: Removed auto-detection override, fixed fallback logic to always default to French. **Lesson**: Explicit default beats implicit detection for targeted audience.
 
-- Structure: Organize projects under `src/content/projects/<order>_<DomainName>/project.md`.
-- Order: `<order>_` numeric prefix controls shell order; max 5 shells.
-- Display: `<DomainName>` is transformed to display (UPPERCASE) and slug (kebab-case).
-- Project fields: title, description, tech[], link, github, status, date; useBentoLayout boolean.
+## [2025-09-19] - Firefox Compatibility Fixes
+- **Action**: Fixed inline script variable redeclaration errors, added is:inline directive, wrapped variables in window scope with existence checks, converted ES module imports to dynamic imports, added ServiceWorker video bypass.
+- **Bug/Lesson**: **Bug**: Firefox failed with variable declaration errors because inline scripts executed multiple times causing redeclaration. **Fix**: Added typeof guards and window scope wrapping. **Lesson**: Inline scripts need defensive initialization guards; test in Firefox early.
 
-## Bio Page
+## [2025-09-19] - Portfolio Self-Documentation
+- **Action**: Created atom_portfolio.md meta project page showcasing portfolio as technical achievement with bilingual content, documented three major challenges (drag & drop, dynamic shells, circular overlay), created project cards with stats/process/challenges/results.
+- **Bug/Lesson**: N/A - feature implementation
 
-- Route: `/bio` via `src/pages/bio.astro` rendering `src/components/BioBento.astro`.
-- Content: `src/content/bio/about.md` validated by `src/content/config.ts`.
-- API: `GET /api/bio.json` returns bio data with safe defaults.
-- Admin: Decap CMS at `/admin` using proxy backend for local editing.
-- Style: Modern bento-style grid layout; portrait centered; logo-only skill displays.
+## [2025-09-24] - Asset Optimization and Bilingual Support
+- **Action**: Fixed ensureLightbox redeclaration error, resolved Windows reserved filename 'nul' Git push error, added bilingual translations (Technologie, Infos Projet), converted PNG screenshots to WebP (85.8% reduction), optimized hero.mp4 (94.2% reduction), created thumbnail.jpg from video.
+- **Bug/Lesson**: **Bug**: ensureLightbox caused startup failure due to redeclaration. **Fix**: Wrapped in typeof check. **Lesson**: Always use typeof guards for global function checks. **Bug**: Windows reserved filename 'nul' caused Git push failure. **Fix**: Renamed file.
 
-## Debug Checklist
+## [2025-11-08] - Audio Player Card System
+- **Action**: Implemented Howler.js-based audio player with cross-browser support, added audio object to bento schema, created glassmorphic premium design with 72px play button, real-time progress bar, playlist controls, fixed slug propagation from content collections to filename-only.
+- **Bug/Lesson**: **Bug**: Slug propagated as full path (2_Game Audio/chromestesia_showcase) instead of filename. **Fix**: Updated slug extraction in overlay system and project pages to extract filename from full path. **Lesson**: Content collection slugs vs. file paths need explicit conversion.
 
-- Angles in degrees for OrbitSystem; convert to radians only for trig.
-- Cross-browser: Firefox cannot CSS-animate SVG r; use GSAP attr for radius.
-- Inline JSON: Inject with set:html; avoid HTML-escaped JSON that breaks JSON.parse.
-- Lightbox CSS must be global (Astro style scoping won't reach dynamically injected DOM).
-- Event flood: Use rAF throttling for mousemove; precompute squared distances.
-- State: Keep single state machine; kill GSAP tweens on transitions to avoid buildup.
-- Scope: Pass server-only values through atom.config.js; don't import userTweaks in client code.
+## [2025-11-09] - Audio Engine Refinements
+- **Action**: Added configurable Howler/low-pass settings to user-tweaks.js and atom.config.js, refactored audio JS into dedicated audioPlayerClient.js module, implemented graceful fade/low-pass on overlay close/navigation/unload via bento:audio:shutdown event.
+- **Bug/Lesson**: N/A - feature enhancement
 
-## Recent Major Changes
+## [2025-11-10] - Sample Pad Card (MPC-inspired SFX Sampler)
+- **Action**: Added cards.sampler toggle + sampler config to schema, created reusable sampler card with 4 fixed pads + regenerate, extended audioPlayerClient.js with Howler instances, global stop hooks, random pad assignments.
+- **Bug/Lesson**: N/A - feature implementation
 
-### Phase 4 (2025-08-24/26): Enterprise-Grade Transformation
-- Accessibility compliance & bug fixes (electron motion, focus-visible, bio overlay)
-- Performance monitoring system with Core Web Vitals tracking
-- CI/CD pipeline with GitHub Actions, security automation, performance budgets
-- Service worker, PWA capabilities, enhanced security headers
-- Comprehensive asset optimization (91% reduction: 177MB → 15MB)
+## [2025-12-03] - Sample Pad UI & Global Availability
+- **Action**: Replaced play/pause icon with instrument-style design (LED indicators), added visual pulse animation during sample regeneration, implemented DEFAULT_SAMPLER_CONFIG fallback, simplified config to just sampler: true in frontmatter.
+- **Bug/Lesson**: N/A - UI refinement
 
-### Enhanced Systems (2025-08-25/27)
-- Header navigation with project filtering system
-- Video card support (YouTube/Vimeo embeds)
-- SoundCloud/Spotify card systems with positioning logic
-- Hero video backgrounds with thumbnail support
-- Advanced hover effects and 3D interaction system
+## [2025-12-16] - Kubika Sampler & Extended Kit (Wide Mode)
+- **Action**: Enabled Sampler for Kubika project with 45 custom OGG assets, implemented smart Wide Mode for Sampler when Audio disabled (8-pad grid vs 4-pad), created .sampler-card-wide CSS variant.
+- **Bug/Lesson**: **Bug**: Double-slash 404 errors in audio paths. **Fix**: Removed redundant path prefixes in chromestesia_showcase.md. **Lesson**: Path concatenation needs normalization.
 
-### UI/UX Improvements (2025-08-28/29)
-- Modern design system with sophisticated shadows and colors
-- Bio page UI enhancement with professional skills grid
-- Welcome overlay animation system with audio prewarming
-- Visited project indicators with dragging synchronization
-- French social sharing meta tags for target audience
+## [2025-12-16] - Layout & Responsive Fixes
+- **Action**: Implemented Adaptive Stack layout for mobile/tablet (full-width container), fixed Results card layout bug (grid span 7 → 10 columns to fill 30% empty space), added safety CSS (width: 100%, word-break: break-word).
+- **Bug/Lesson**: **Bug**: Results card had blank space on right side at 900px-1199px breakpoint. **Fix**: Updated grid-column span from '1 / 8' to '1 / 11'. **Lesson**: Test grid layouts at all breakpoints; empty space often indicates column span mismatch.
 
-### Recent Optimizations (2025-08-31)
-- Code spring cleaning: removed 470+ lines, optimized comments
-- Deleted unused components (BioBW, welcome page, backup files)
-- Cleaned debug console statements while preserving production monitoring
-- Token optimization for AI agents (~30-40% reduction)
-- Mobile development message: French informational overlay for mobile users
+## [2025-12-17] - Sampler Volume Control
+- **Action**: Added per-project volume control (0.0 mute to 1.0+ boost, default 0.7), extended config.ts with optional volume parameter, updated ProjectBento to pass volume via data-volume attribute to Howler instances.
+- **Bug/Lesson**: N/A - feature enhancement
 
-### Press System Implementation (2025-08-31)
-- **Press Card System**: Complete bio page press section with responsive grid layout
-- **Content Schema**: Extended bio collection to support press articles with mixed URL/local image paths
-- **Press Articles**: Added 4 press articles including Kowskii coverage from major publications
-- **Image Management**: Proper static asset organization in public/images/press/ directory
-- **Critical Bug Fix**: Fixed mobile detection false positives causing desktop Firefox overlay blocking
+## [2025-12-18] - Build System & Dependency Resolution
+- **Action**: Resolved MODULE_NOT_FOUND for @rollup/rollup-win32-x64-msvc by refreshing node_modules, updated validate-build.js to check for CV_ArthurCroqueboisKowskii.pdf, verified clean build with zero warnings.
+- **Bug/Lesson**: **Bug**: MODULE_NOT_FOUND error on Windows. **Fix**: Refreshed node_modules. **Lesson**: Platform-specific native modules can fail; npm ci or node_modules refresh resolves.
 
-### Bilingual Content System Fix (2025-09-04)
-- **Critical Bug Resolution**: Fixed `[object Object]` display issue throughout the portfolio
-- **Root Cause**: ProjectBento components in home page overlays receiving raw bilingual objects instead of localized strings
-- **Core Fixes Applied**:
-  - Updated home page (`src/pages/index.astro`) to properly localize project data before passing to ProjectBento components
-  - Fixed BioBento component to receive localized bio data instead of raw content
-  - Created `localizedElectronsByDomain` for proper electron rendering with localized titles and descriptions
-  - Fixed electron hover labels by updating data structure references (`project.data.domain` → `project.domain`)
-  - Resolved initialization order issue preventing "Cannot access 'projectSummaries' before initialization" error
-- **Defensive Systems**: Enhanced `getLocalizedContent()` function with robust fallback chains and object-to-string conversion safeguards
-- **Testing Results**: 
-  - Eliminated all `[object Object]` occurrences in HTML output
-  - French/English locales working correctly for bilingual projects
-  - Home page overlays displaying proper localized content
-  - Dev server stable with no more `project.data.description.slice` errors
-- **Backward Compatibility**: Projects not yet converted to bilingual format continue working normally
-- **Infrastructure**: Bilingual content system now fully functional with server-side locale detection via URL parameters
+## [2025-12-18] - Safari Compatibility Fix
+- **Action**: Wrapped SVG image in group tag for filter consistency, added -webkit-filter and transform: translateZ(0) for hardware acceleration, applied to both FR/EN versions.
+- **Bug/Lesson**: **Bug**: Center logo failed to invert in dark mode on Safari. **Fix**: Group wrapper + webkit-filter + GPU acceleration. **Lesson**: SVG filters need explicit -webkit prefixes and GPU triggers for Safari.
 
-### Comprehensive Bilingual Translation Fix (2025-09-08)
-- **Translation System Recovery**: Restored accidentally deleted bilingual UI system that was showing both languages simultaneously
-- **UI Translation Infrastructure**: Created `src/utils/translations.js` with centralized UI translations for header filters and domain labels
-- **Complete Project Translations**: 
-  - Converted all 3 Game Audio projects to full bilingual structure (heroes_showcase.md, fmod_showcase.md, chromestesia_showcase.md)
-  - Added missing English translations to all Tech projects (yt_showcase.md, sg_showcase.md) including process steps and challenges
-  - Fixed "free price" translations to proper "pay-what-you-want" across Music projects
-  - Polished bio English translation for better phrasing
-- **Translation Quality Audit**: Used french-english-web-translator agent to audit all translations and identify gaps
-- **UI Enhancements**: 
-  - Fixed language selection flag display issue on enter card
-  - Replaced problematic Unicode flag emojis with custom PNG flag icons (france.png, united-kingdom.png)
-  - Proper CSS styling for flag icons with responsive sizing
-- **Results**: 
-  - All content now has professional English equivalents maintaining marketing impact
-  - Consistent technical terminology across Game Audio and Tech sections
-  - Bilingual system fully functional with ?lang=fr and ?lang=en URL parameters
-  - Complete coverage: 9 project files updated with comprehensive bilingual support
+## [2025-12-18] - Audio Player & Tracklist Implementation
+- **Action**: Implemented Wide Mode for audio card (2-column layout when sampler disabled), added scrollable tracklist with glassmorphic items, click-to-play functionality, active track highlighting, fixed overlap issues with audio-player-column container.
+- **Bug/Lesson**: **Bug**: Event listeners missing on tracklist items. **Fix**: Injected logic directly into component's inline script. **Lesson**: Dynamically added DOM elements need event delegation or inline handlers.
 
-### Theme and Language Default Updates (2025-09-08 continued)
-- **Critical YAML Fix**: Fixed YAML parsing errors in fmod_showcase.md caused by nested quotes around "INTERACTIVITY" parameter
-- **Content Schema Validation**: Added missing bilingual content for challenge descriptions to resolve schema validation errors
-- **Dark Mode Default**: Changed default theme from light to dark mode across all initialization points
-  - Updated early theme detection script to default to dark
-  - Modified main theme initialization logic 
-  - Updated standalone toggle initial state
-- **Welcome Card UX Refinements**: 
-  - Initially implemented theme toggle (Light/Dark) matching language selection design
-  - Removed theme toggle from welcome card for cleaner, focused UX
-  - Maintained only language selection (FR/EN) for streamlined experience
-- **French Language Enforcement**: Ensured French is always the default language for new visitors
-  - Removed browser language auto-detection override
-  - Fixed fallback logic to always default to French
-  - Preserved user preference persistence for returning users
-- **Development Stability**: Fixed development server startup issues and maintained clean build process
+## [2025-12-18] - Final Refinements
+- **Action**: Fixed audio file 404 (mus_ThisCurseEndsWithYou → mus_ThisCurse.mp3), implemented accentColorDark support (#66bb6a Forest Light for Mouse Knight).
+- **Bug/Lesson**: **Bug**: 404 error for audio file with long name. **Fix**: Shortened filename in both filesystem and markdown. **Lesson**: Check file extensions explicitly in path logic; shorter filenames avoid URL encoding issues.
 
-### Firefox Compatibility Fixes (2025-09-19)
-- **Critical Script Loading Issues**: Resolved multiple variable declaration errors in Firefox caused by inline scripts
-- **Root Cause**: ProjectBento script executed multiple times (once per bento project), causing redeclaration errors
-- **Solutions Implemented**:
-  - Added `is:inline` directive to ProjectBento script for global scope execution
-  - Wrapped all variables (`__GLB`, `__audioUnlocked`, etc.) in window scope with existence checks
-  - Converted ES module imports to dynamic imports for inline script compatibility
-  - Implemented comprehensive initialization guards to prevent multiple declarations
-- **ServiceWorker Video Fix**: Added bypass logic for video files to prevent streaming issues in Firefox
-- **Results**: Full compatibility achieved across Firefox and Chrome browsers
+## [2025-12-22] - Sampler Layout Fix
+- **Action**: Decoupled sampler-card-wide CSS from audio-card-wide, allowing natural sizing for Sampler in wide mode.
+- **Bug/Lesson**: **Bug**: Sampler card had excessive vertical whitespace in wide mode due to coupling with Audio card styles. **Fix**: Decoupled CSS rules. **Lesson**: Component variants need independent styling hooks, not shared dependencies.
 
-### Portfolio Self-Documentation (2025-09-19)
-- **Meta Project Page**: Created atom_portfolio.md showcasing the portfolio itself as a technical achievement
-- **Personal Narrative**: Crafted bilingual content emphasizing personal journey and technical innovations
-- **Key Highlights**:
-  - Documented three major early-stage challenges: drag & drop physics, dynamic shell generation, circular overlay system
-  - Created comprehensive project cards: stats, process, challenges, results
-  - Established Atom_Assets folder structure for future hero and gallery images
-- **Content Focus**: Emphasized design decisions (bento inspiration, minimalist electrons, accessibility features)
+## [2025-12-18] - Project Archiving
+- **Action**: Moved fmod_showcase.md and Assets_FMOD to Archive/ folder, removed from active portfolio.
+- **Bug/Lesson**: N/A - maintenance
 
-### Asset Optimization and Bilingual Support (2025-09-24)
-- **Critical Bug Fixes**:
-  - Fixed `ensureLightbox` redeclaration error causing startup failure by wrapping in typeof check
-  - Resolved Git push error caused by Windows reserved filename `nul`
-- **Bilingual System Enhancements**:
-  - Fixed French translations: "Technology" → "Technologie", "Stats Projet" → "Infos Projet"
-  - Added complete bilingual support for all bento card titles (actions, process, challenges)
-  - Updated HR_showcase.md with missing French translations for Links, Process, Key Challenges sections
-  - Extended bilingual support to sg_showcase.md and yt_showcase.md projects
-- **Asset Optimization Campaign**:
-  - **Images**: Converted PNG screenshots to WebP format with 85.8% size reduction (2.4MB → 340KB)
-  - **Hero Video**: Optimized hero.mp4 with 94.2% reduction (5.4MB → 318KB) using H.264 CRF 23
-  - **Thumbnail Generation**: Created thumbnail.jpg from hero.mp4 first frame for electron preview compatibility
-  - **Web Optimization**: Applied faststart flag to videos for progressive download
-- **Project Updates**:
-  - Updated atom_portfolio.md stats: changed "91%" to "Astro / JS" for language stat
-  - Maintained 10 projects count reflecting current portfolio state
+## [2026-02-21] - FMOD Boss Interactive Player
+- **Action**: Created fmod_boss_showcase.md with live FMOD demo, added FMOD card type to schema, implemented dynamic FMOD Web API loading with IntersectionObserver lazy init, added blob: to CSP script-src, configured locateFile for wasm/js redirection, implemented parameter sliders with ignoreSeekSpeed, fixed FMOD parameter name mismatch (ismobKilled → is_MobKilled).
+- **Bug/Lesson**: **Bug**: FMOD AbortError from missing document.currentScript in dynamically injected scripts. **Fix**: Configured locateFile before script injection to redirect to /fmod/api/. **Bug**: FMOD parameters not responding to slider. **Fix**: Set ignoreSeekSpeed=true for discrete parameters. **Lesson**: Dynamic script loading needs pre-configuration before injection; FMOD parameters need explicit seek speed flags.
 
-### Audio Player Card System (2025-11-08)
-- **Feature Implementation**: Complete custom audio player card for bento project pages
-- **Library Integration**: Howler.js (7KB) for cross-browser audio playback with OGG/MP3/WAV format support
-- **Content Schema Extension**:
-  - Added `audio` object to bento cards schema in config.ts
-  - Support for bilingual titles, track lists with metadata (title, artist, filename, duration)
-  - Card toggle system: `cards.audio` boolean in project frontmatter
-- **Component Architecture Evolution**:
-  - **Initial Implementation**: Separate AudioCard.astro component with full playlist UI
-  - **Complete Redesign**: Rebuilt inline in ProjectBento.astro following bento card patterns
-  - **Design Direction**: Glassmorphic Premium - aligns with liquid glass aesthetic throughout portfolio
-  - **Player Features**: Simplified controls (play/pause, prev/next), real-time progress bar, track display, bilingual UI
-  - Location: [ProjectBento.astro:2421-2460](src/components/ProjectBento.astro#L2421-L2460) (HTML), [1086-1364](src/components/ProjectBento.astro#L1086-L1364) (CSS), [3093-3266](src/components/ProjectBento.astro#L3093-L3266) (JavaScript)
-- **Design System**:
-  - **Visual Hierarchy**: 72px play button (hero element), 48px skip buttons, gradient fills
-  - **Micro-Interactions**: Glow effects on hover, pulsing ring animation when playing, progress bar expansion on hover (8px → 10px)
-  - **Typography**: Uppercase heading with wide letter-spacing, Inter font stack, tabular nums for time display
-  - **Color Strategy**: Accent color tints at 8-20% opacity, gradient progress fills, dual-layer shadows
-  - **Accessibility**: `prefers-reduced-motion` support, ARIA labels, high contrast in both themes
-- **Critical Slug Path Fix**:
-  - Fixed slug propagation from content collections (full path `2_Game Audio/chromestesia_showcase`) to filename-only (`chromestesia_showcase`)
-  - Updated [src/pages/projects/[slug].astro:257](src/pages/projects/[slug].astro#L257) to pass filename slug to ProjectBento
-  - Updated [src/pages/index.astro:2450-2458](src/pages/index.astro#L2450-L2458) overlay system to extract filename from full path
-- **Audio File Management**:
-  - Local workflow: Audio files stored in `/public/audio/<ProjectFolder>/` (e.g., `/public/audio/Chromestesia/`)
-  - Folder mapping system: `folderMap` object in JavaScript translates slugs to folder names
-  - Git exclusions: `*.ogg`, `*.mp3`, `*.wav`, `/public/audio/` added to .gitignore
-  - Browser handles URL encoding automatically for filenames with spaces
-- **Configuration System**:
-  - All 10 project files updated with `audio: false` default toggle
-  - Chromestesia project configured as first implementation with 5 soundtrack files (.ogg format)
-  - Bilingual track titles supporting French/English localization via `data-tracks` attribute
-- **Known Patterns & Gotchas**:
-  - Audio files NOT committed to git (too large, stored locally for dev, remote on production server)
-  - ProjectSlug must be filename-only for folder mapping to work correctly
-  - Overlay system and direct project URLs both require proper slug handling
-  - **Content Collection Caching**: Astro caches content collections - manual track order/config changes require dev server restart
-  - Song titles should NOT be translated - use original names in both FR/EN versions
-  - **Session Cleanup Required**: Dev server must be killed and restarted at end of work sessions for cache clearing (see CLAUDE.md SESSION CLEANUP PROTOCOL)
-
-## Current Status
-
-✅ Production ready with enterprise-grade monitoring, security, and performance
-✅ Complete UI design system with **dark mode as default**
-✅ Asset optimization complete with 91% size reduction
-✅ Social sharing system with French localization
-✅ Advanced project filtering and interactive navigation
-✅ Professional hover interactions across all components
-✅ Comprehensive animation system with accessibility support
-✅ Press card system with responsive design and content management
-✅ Mobile detection system with cross-browser compatibility
-✅ Bilingual content system with **French as guaranteed default language**
-✅ Complete bilingual translation coverage with professional English content
-✅ Streamlined welcome experience with focused language selection
-✅ **Full Firefox compatibility** with proper script handling and video streaming
-✅ **Portfolio self-documentation** with meta project page showcasing technical achievements
-✅ **Comprehensive asset optimization** with 85-94% size reductions across images and videos
-✅ **Complete bilingual support** for all bento cards with proper French translations
-✅ **Audio player card system** with Howler.js integration, playlist support, and bilingual UI
-✅ 2025-12-03: Sample Pad UI & Global Availability
-  - **UI Refresh**: Replaced play/pause icon with a cleaner "instrument-style" design featuring LED indicators and larger typography
-  - **Loading Animation**: Added visual pulse animation and 0.5s delay during sample regeneration for better feedback
-  - **Global Fallback**: Implemented `DEFAULT_SAMPLER_CONFIG` in `ProjectBento.astro`
-  - **Simplified Config**: Projects can now enable the sampler just by setting `sampler: true` in frontmatter; it automatically falls back to default samples (Chromestesia SFX) if no specific data is provided
-✅ 2025-11-10: Sample Pad Card (MPC-inspired SFX sampler)
-  - Added `cards.sampler` toggle + `sampler` config block (folder + samplePool) to `content/config.ts`
-  - Introduced reusable sampler card in `ProjectBento.astro` with four fixed pads + regenerate control
-  - Extended `audioPlayerClient.js` to manage sampler Howler instances, global stop hooks, random pad assignments, and click-to-refresh animation
-  - First implementation wired to Chromestesia with `/audio/Chromestesia/SFX`; other projects can enable by specifying their sample folders
-  - UI parity with audio player: glassmorphic styling, numbered pads, refresh button with spin animation + pad pulse feedback
-✅ 2025-11-09: Audio engine refinements
-  - Added configurable Howler/low-pass settings to `user-tweaks.js` + `atom.config.js` (volume, fade speed, low-pass frequency/Q, independent LPF fade duration)
-  - Refactored audio card JS into dedicated `audioPlayerClient.js` module (shared by overlays + project pages; no inline imports)
-  - Implemented graceful fade/low-pass on overlay close, navigation, and page unload via global `bento:audio:shutdown`
-  - Ensured dev workflow restarts `npm run dev` each request to drop Astro caches + keep user previews accurate
-
-✅ 2025-12-16: Kubika Sampler & Extended Kit (Wide Mode)
-  - **Kubika Implementation**: Enabled Sampler card for Kubika project using 45 custom OGG assets in `/public/audio/Kubika/`
-  - **Path Logic Fixes**:
-    - Patched `ProjectBento.astro` inline script to correctly prepend `/audio/` to sampler paths
-    - Corrected `chromestesia_showcase.md` to remove redundant path prefixes, resolving double-slash 404 errors
-  - **Extended Kit (Plan 2)**:
-    - Implemented smart "Wide Mode" for Sampler card when Audio card is disabled (`isWideSampler` logic)
-    - Created `.sampler-card-wide` CSS variant spanning full width (columns 1-13)
-    - Expanded functionality to support **8 pads** (4x2 grid) in Wide Mode, maximizing utility of the empty space
-    - Maintained original 4-pad layout for standard configuration (e.g., Chromestesia)
-
-## Technical Architecture Notes
-
-- Welcome overlay: Inline overlay system with audio prewarming, no route changes
-- Filtering: Domain-based with GSAP transitions, visual hierarchy management
-- Overlay system: Circular clip-path with resize handling, dual overlay support
-- Asset system: Auto-detection of hero/thumbnail files, video support
-- Configuration chain: user-tweaks.js → atom.config.js → components
-- Mobile detection: Multi-method detection (viewport, touch, user agent) with French message overlay
-
-## Content Management
-
-- Projects support both atomic and bento layouts via useBentoLayout flag
-- Bento projects: assetsFolder auto-scanning, hero/logo detection, gallery population
-- Music projects: musicLinks card system, SoundCloud/Spotify integration
-- Video support: hero backgrounds, gallery integration, thumbnail fallbacks
-- Bio system: skills with logo mapping, social links, modern card design, press articles with mixed image sources
-
-## Performance & Optimization
-
-- **Latest optimization results**: hero.mp4 94.2% reduction, screenshots 85.8% reduction (WebP conversion)
-- 91% overall asset optimization: videos (H.264, CRF 23-28), images (WebP 75-88% quality)
-- GSAP animations optimized for 60fps with Safari-specific enhancements
-- Memory management: comprehensive cleanup, frame throttling
-- Cross-browser compatibility: Chrome, Firefox, Safari tested
-- Accessibility: prefers-reduced-motion support, focus-visible implementation
-
-## Known Issues & Next Steps
-
-- Dynamic shells testing across 1-5 domain configurations (low priority)
-- Performance monitoring analysis and optimization opportunities (ongoing)
-- **Next Session**: UI Sound Design implementation (using Howler.js for clicks, hovers, etc.)
-
-### Layout & Responsive Fixes (2025-12-16)
-- **Extended Sampler Kit (8 pads)**: Implemented 'Adaptive Stack' layout for mobile/tablet. Forces full-width container on small screens to prevent 'squashed' pads.
-- **Results Card Layout Bug**: Fixed a persistent blank space on the right side of the Results card in the medium tablet breakpoint (900px-1199px). 
-    - **Root Cause**: The grid was defined as 10 columns, but the card only spanned 7 columns (1 / 8), leaving 30% empty space. 
-    - **Fix**: Updated grid-column span to '1 / 11' to fill the row.
-    - **Hardening**: Added safety CSS (width: 100%, word-break: break-word) to internal list items.
-
-### Sampler Volume Control (2025-12-17)
-- **Feature Implementation**: Added per-project volume control for Sampler cards.
-- **Config Update**: Extended `src/content/config.ts` to include optional `volume` number parameter in sampler schema.
-- **Component Logic**: Updated `ProjectBento.astro` to pass volume data via `data-volume` attribute and apply it to Howler instances.
-- **Volume Handling**: 
-    - Default fallback: `0.7` (if not specified).
-    - Range: `0.0` (mute) to `1.0+` (boost).
-    - Hardening: Parsing checks to handle undefined/null values gracefully.
-- **Verification**: Successfully tested muting Kubika sampler (`volume: 0.0`) and boosting Chromestesia (`volume: 1.5`).
-
-### Sampler Volume Control (2025-12-17)
-- **Feature Implementation**: Added per-project volume control for Sampler cards.
-- **Config Update**: Extended `src/content/config.ts` to include optional `volume` number parameter in sampler schema.
-- **Component Logic**: Updated `ProjectBento.astro` to pass volume data via `data-volume` attribute and apply it to Howler instances.
-- **Volume Handling**: 
-    - Default fallback: `0.7` (if not specified).
-    - Range: `0.0` (mute) to `1.0+` (boost).
-    - Hardening: Parsing checks to handle undefined/null values gracefully.
-- **Verification**: Successfully tested muting Kubika sampler (`volume: 0.0`) and boosting Chromestesia (`volume: 1.5`).
-### Build System & Dependency Resolution (2025-12-18)
-- **Dependency Fix**: Resolved `MODULE_NOT_FOUND` error for `@rollup/rollup-win32-x64-msvc` by refreshing `node_modules`.
-- **Validation Script Update**: Updated `scripts/validate-build.js` to correctly check for the PDF CV (`CV_ArthurCroqueboisKowskii.pdf`) instead of a deprecated `CV.jpg`.
-- **Build Status**: Verified 100% clean build with zero warnings across 26 generated pages.
-
-### Safari Compatibility Fix (2025-12-18)
-- **Nucleus Logo Fix**: Resolved a Safari-specific rendering bug where the center logo failed to invert in dark mode.
-- **Implementation**: 
-    - Wrapped the SVG `<image>` in a `<g>` group tag to improve filter application consistency.
-    - Added `-webkit-filter` support and `transform: translateZ(0)` to trigger hardware acceleration for filters.
-    - Applied changes to both French and English versions.
-
-### Audio Player & Tracklist Implementation (2025-12-18)
-- **Wide Mode Implementation**: Enhanced `ProjectBento.astro` to support a full-width audio card when the sampler is disabled.
-    - **Logic**: Added `isWideAudio` check (`cards.audio && !cards.sampler`).
-    - **CSS**: Created `.audio-card-wide` variant with 2-column layout (player controls left, tracklist right).
-- **Tracklist Feature**: Added scrollable tracklist for multi-track projects (e.g., Mouse Knight).
-    - **UI**: Implemented modern, glassmorphic list items with hover effects and scrollbar styling.
-    - **Interaction**: Added click handlers to play specific tracks directly from the list.
-    - **State**: Active track highlighting synced with playback.
-- **Bug Fix**: Reserved issues with audio player overlap by introducing `.audio-player-column` container with proper flex gap.
-- **Bug Fix**: Resolved missing event listeners for tracklist items by injecting logic directly into the component's inline script.
-
-### Final Refinements (2025-12-18)
-- **Audio Link Fix**: Resolved 404 error for `mus_ThisCurseEndsWithYou` by checking for explicit file extensions in `ProjectBento.astro` and simplifying the filename to `mus_ThisCurse.mp3` in both the file system and markdown.
-- **Dark Mode UI**: Implemented `accentColorDark` support for "Mouse Knight". Tuned the color to `#66bb6a` (Forest Light) to ensure optimal visibility and contrast in dark mode while maintaining the project's aesthetic identity.
-
-### Sampler Layout Fix (2025-12-22)
-- **Layout Bug Fix**: Decoupled `sampler-card-wide` CSS rule from `audio-card-wide`.
-- **Result**: Sampler card now sizes naturally to its content in wide mode, eliminating excessive vertical whitespace while preserving the necessary height for the Audio Player's tracklist.
-
-### Project Archiving (2025-12-18)
-- **Archived FMOD Showcase**: Moved `fmod_showcase.md` and `Assets_FMOD` to a new root-level `Archive/` folder.
-- **Reason**: Removed from active portfolio display while preserving source files and assets for reference.
-
-### FMOD Boss Interactive Player (2026-02-21)
-- **New Project**: Created `fmod_boss_showcase.md` — a live interactive FMOD demo embedded in the portfolio overlay.
-- **FMOD Web API Integration**:
-  - Added `fmod` card type to content schema (`config.ts`) with `folder`, `banks`, `events`, and `parameters` fields.
-  - Full FMOD card UI + JS in `ProjectBento.astro`: loads `fmodstudio.wasm/.js` dynamically, initializes Studio system, streams banks into Emscripten virtual FS, and renders Play/Stop buttons + parameter sliders.
-  - Lazy init via `IntersectionObserver` — FMOD only loads when the card enters the viewport, preventing AudioContext conflicts with Howler on other projects.
-- **CSP Fix**: Added `blob:` to `script-src` in `index.astro` (FR + EN) to allow FMOD's AudioWorklet blob injection.
-- **`locateFile` Fix**: Configured `window.FMOD.locateFile` before script injection to redirect `.wasm`/`.js` lookups to `/fmod/api/`, fixing `AbortError` from missing `document.currentScript` in dynamically injected scripts. `.aw.js` files excluded from redirection so FMOD handles them natively.
-- **Parameter System**:
-  - Sliders apply values to both `studioSystem` (global) and all active `EventInstance`s (local) simultaneously.
-  - `ignoreSeekSpeed = true` on all `setParameterByName` calls — required for discrete parameters to respond immediately without interpolation delay.
-  - Fixed name mismatch: `ismobKilled` → `is_MobKilled` to match exact FMOD Studio label.
-- **Assets**: Bank files in `/public/fmod/FMOD-BOSS/`, Web API files in `/public/fmod/api/`. All excluded from git via `.gitignore`.
-- **Lifecycle**: FMOD Studio system is cleanly released on overlay close / page unload via the existing `bento:audio:shutdown` custom event.
+## [2026-03-12] - Local Project Studio v1
+- **Action**: Added a local `/studio` builder with preset creation, direct Markdown/frontmatter save APIs, shared block/orbit normalization utilities, and deterministic homepage electron placement so new projects can be created and appear on the atom without hand-coding new files.
+- **Bug/Lesson**: **Bug**: Studio-generated YAML let implicit scalars turn `bento.stats[].value` into a number and `date` into an invalid empty string. **Fix**: Added save-time normalization and safer YAML serialization in `src/studio/server/project-files.js`. **Lesson**: Builder output must be schema-valid before Astro content reloads, and YAML implicit typing should never be trusted.

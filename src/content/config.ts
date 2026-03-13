@@ -1,4 +1,8 @@
 import { defineCollection, z } from 'astro:content';
+import { BLOCK_TYPES, BLOCK_VARIANTS } from './project-schema.js';
+
+const blockTypeEnum = BLOCK_TYPES as unknown as [string, ...string[]];
+const blockVariantEnum = BLOCK_VARIANTS as unknown as [string, ...string[]];
 
 // Utility types for bilingual content support
 const BilingualString = z.union([
@@ -35,9 +39,51 @@ const projectsCollection = defineCollection({
     featured: z.boolean().default(false),
     date: z.date(),
     useBentoLayout: z.boolean().default(false),
+    orbit: z.object({
+      shellMode: z.enum(['auto', 'manual']).default('auto').optional(),
+      shell: z.number().int().min(1).max(5).optional(),
+      order: z.number().optional(),
+      angleMode: z.enum(['auto', 'fixed']).default('auto').optional(),
+      angle: z.number().min(0).max(360).optional(),
+    }).optional(),
 
     // Bento layout configuration
     bento: z.object({
+      layout: z.object({
+        version: z.number().int().default(2),
+        columns: z.object({
+          desktop: z.number().int().min(1).default(12),
+          tablet: z.number().int().min(1).default(8),
+          mobile: z.number().int().min(1).default(4),
+        }).optional(),
+        blocks: z.array(z.object({
+          id: z.string(),
+          type: z.enum(blockTypeEnum),
+          enabled: z.boolean().default(true),
+          variant: z.enum(blockVariantEnum).default('default').optional(),
+          placement: z.object({
+            desktop: z.object({
+              x: z.number().int().min(0),
+              y: z.number().int().min(0),
+              w: z.number().int().min(1),
+              h: z.number().int().min(1),
+            }),
+            tablet: z.object({
+              x: z.number().int().min(0),
+              y: z.number().int().min(0),
+              w: z.number().int().min(1),
+              h: z.number().int().min(1),
+            }),
+            mobile: z.object({
+              x: z.number().int().min(0),
+              y: z.number().int().min(0),
+              w: z.number().int().min(1),
+              h: z.number().int().min(1),
+            }),
+          }).optional(),
+        })).optional(),
+      }).optional(),
+
       // Card visibility toggles
       cards: z.object({
         hero: z.boolean().default(true),

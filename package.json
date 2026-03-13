@@ -16,6 +16,7 @@
   "dependencies": {
     "astro": "^5.13.2",
     "dompurify": "^3.2.6",
+    "gray-matter": "^4.0.3",
     "gsap": "^3.13.0",
     "howler": "^2.2.4",
     "jsdom": "^26.1.0"

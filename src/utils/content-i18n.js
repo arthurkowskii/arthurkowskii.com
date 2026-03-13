@@ -126,6 +126,61 @@ export function localizeProject(project, locale = 'fr') {
         description: getLocalizedContent(project.bento.soundcloud.description, locale)
       };
     }
+
+    // Audio section
+    if (project.bento.audio) {
+      localized.bento.audio = {
+        ...project.bento.audio,
+        title: getLocalizedContent(project.bento.audio.title, locale)
+      };
+
+      if (Array.isArray(project.bento.audio.tracks)) {
+        localized.bento.audio.tracks = project.bento.audio.tracks.map(track => ({
+          ...track,
+          title: getLocalizedContent(track.title, locale)
+        }));
+      }
+    }
+
+    // FMOD section
+    if (project.bento.fmod) {
+      localized.bento.fmod = {
+        ...project.bento.fmod,
+        title: getLocalizedContent(project.bento.fmod.title, locale),
+        description: getLocalizedContent(project.bento.fmod.description, locale)
+      };
+
+      if (Array.isArray(project.bento.fmod.events)) {
+        localized.bento.fmod.events = project.bento.fmod.events.map(event => ({
+          ...event,
+          name: getLocalizedContent(event.name, locale)
+        }));
+      }
+
+      if (Array.isArray(project.bento.fmod.parameters)) {
+        localized.bento.fmod.parameters = project.bento.fmod.parameters.map(parameter => ({
+          ...parameter,
+          label: getLocalizedContent(parameter.label, locale)
+        }));
+      }
+    }
+
+    // Sampler section
+    if (project.bento.sampler) {
+      localized.bento.sampler = {
+        ...project.bento.sampler,
+        title: getLocalizedContent(project.bento.sampler.title, locale),
+        description: getLocalizedContent(project.bento.sampler.description, locale)
+      };
+    }
+
+    // Tech section
+    if (project.bento.tech) {
+      localized.bento.tech = {
+        ...project.bento.tech,
+        title: getLocalizedContent(project.bento.tech.title, locale)
+      };
+    }
     
     // Actions section
     if (project.bento.actions) {
