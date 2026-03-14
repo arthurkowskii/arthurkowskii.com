@@ -23,227 +23,531 @@ orbit:
   angleMode: auto
 bento:
   layout:
-    version: 1
+    version: 3
+    columns:
+      desktop: 12
+      tablet: 8
+      mobile: 4
     blocks:
-      -
-        id: hero-1
-        type: hero
-        enabled: true
-        variant: default
-      -
-        id: hero-2
-        type: hero
-        enabled: true
-        variant: default
-      -
-        id: tech-3
-        type: tech
-        enabled: true
-        variant: default
       -
         id: audio-4
         type: audio
         enabled: true
         variant: wide
-      -
-        id: video-5
-        type: video
-        enabled: true
-        variant: default
-      -
-        id: stats-6
-        type: stats
-        enabled: false
-        variant: default
-      -
-        id: musicLinks-7
-        type: musicLinks
-        enabled: true
-        variant: default
+        placement:
+          desktop:
+            x: 0
+            y: 0
+            w: 8
+            h: 1
+          tablet:
+            x: 0
+            y: 5
+            w: 5
+            h: 1
+          mobile:
+            x: 0
+            y: 12
+            w: 4
+            h: 1
+        content:
+          title:
+            fr: Listen
+            en: Listen
+          tracks:
+            -
+              title:
+                fr: Track 1
+                en: Track 1
+              artist: ""
+              filename: track-1
+              duration: "0:00"
       -
         id: actions-8
         type: actions
         enabled: true
         variant: default
+        placement:
+          desktop:
+            x: 8
+            y: 0
+            w: 4
+            h: 1
+          tablet:
+            x: 0
+            y: 1
+            w: 3
+            h: 1
+          mobile:
+            x: 0
+            y: 3
+            w: 4
+            h: 1
+        content:
+          title:
+            fr: Links
+            en: Links
+          primary:
+            text:
+              fr: Primary action
+              en: Primary action
+            url: ""
+          secondary:
+            text:
+              fr: Secondary action
+              en: Secondary action
+            url: ""
+      -
+        id: tech-3
+        type: tech
+        enabled: true
+        variant: default
+        placement:
+          desktop:
+            x: 0
+            y: 1
+            w: 4
+            h: 1
+          tablet:
+            x: 0
+            y: 2
+            w: 4
+            h: 1
+          mobile:
+            x: 0
+            y: 4
+            w: 4
+            h: 1
+        content:
+          title:
+            fr: Technology
+            en: Technology
+      -
+        id: process-11
+        type: process
+        enabled: true
+        variant: default
+        placement:
+          desktop:
+            x: 4
+            y: 1
+            w: 4
+            h: 1
+          tablet:
+            x: 4
+            y: 2
+            w: 4
+            h: 1
+          mobile:
+            x: 0
+            y: 5
+            w: 4
+            h: 1
+        content:
+          title:
+            fr: Process
+            en: Process
+          subtitle:
+            fr: ""
+            en: ""
+          steps:
+            -
+              fr: Step 1
+              en: Step 1
+      -
+        id: musicLinks-7
+        type: musicLinks
+        enabled: true
+        variant: default
+        placement:
+          desktop:
+            x: 8
+            y: 1
+            w: 4
+            h: 1
+          tablet:
+            x: 0
+            y: 0
+            w: 3
+            h: 1
+          mobile:
+            x: 0
+            y: 2
+            w: 4
+            h: 1
+        content:
+          title:
+            fr: Music Links
+            en: Music Links
+          items:
+            -
+              text: Spotify
+              url: https://open.spotify.com/
+            -
+              text: Apple Music
+              url: https://music.apple.com/
+            -
+              text: Bandcamp
+              url: https://bandcamp.com/
+            -
+              text: YouTube
+              url: https://youtube.com/
+      -
+        id: stats-6
+        type: stats
+        enabled: true
+        variant: default
+        placement:
+          desktop:
+            x: 0
+            y: 2
+            w: 4
+            h: 1
+          tablet:
+            x: 0
+            y: 0
+            w: 3
+            h: 1
+          mobile:
+            x: 0
+            y: 2
+            w: 4
+            h: 1
+        content:
+          items:
+            -
+              value: "1"
+              label:
+                fr: STAT
+                en: STAT
       -
         id: spotify-9
         type: spotify
         enabled: true
         variant: default
-      -
-        id: soundcloud-10
-        type: soundcloud
-        enabled: false
-        variant: default
-      -
-        id: process-11
-        type: process
-        enabled: false
-        variant: default
+        placement:
+          desktop:
+            x: 4
+            y: 2
+            w: 4
+            h: 1
+          tablet:
+            x: 4
+            y: 2
+            w: 4
+            h: 1
+          mobile:
+            x: 0
+            y: 8
+            w: 4
+            h: 1
+        content:
+          title:
+            fr: Spotify
+            en: Spotify
+          url: https://open.spotify.com/
+          description:
+            fr: ""
+            en: ""
       -
         id: gallery-12
         type: gallery
         enabled: true
         variant: default
+        placement:
+          desktop:
+            x: 8
+            y: 2
+            w: 4
+            h: 2
+          tablet:
+            x: 0
+            y: 3
+            w: 4
+            h: 2
+          mobile:
+            x: 0
+            y: 6
+            w: 4
+            h: 2
+        content:
+          title:
+            fr: Gallery
+            en: Gallery
+          source: assetsFolder
+          images: []
+      -
+        id: soundcloud-10
+        type: soundcloud
+        enabled: false
+        variant: default
+        placement:
+          desktop:
+            x: 8
+            y: 2
+            w: 4
+            h: 1
+          tablet:
+            x: 4
+            y: 2
+            w: 4
+            h: 1
+          mobile:
+            x: 0
+            y: 9
+            w: 4
+            h: 1
+        content:
+          title:
+            fr: SoundCloud
+            en: SoundCloud
+          url: https://soundcloud.com/
+          description:
+            fr: ""
+            en: ""
+          large: false
       -
         id: challenges-13
         type: challenges
         enabled: true
         variant: default
+        placement:
+          desktop:
+            x: 0
+            y: 3
+            w: 8
+            h: 1
+          tablet:
+            x: 4
+            y: 3
+            w: 4
+            h: 1
+          mobile:
+            x: 0
+            y: 8
+            w: 4
+            h: 1
+        content:
+          title:
+            fr: Challenges
+            en: Challenges
+          subtitle:
+            fr: ""
+            en: ""
+          items:
+            -
+              title:
+                fr: Challenge
+                en: Challenge
+              description:
+                fr: Describe the challenge.
+                en: Describe the challenge.
       -
-        id: results-14
-        type: results
+        id: hero-2
+        type: hero
         enabled: true
         variant: default
+        placement:
+          desktop:
+            x: 0
+            y: 4
+            w: 8
+            h: 2
+          tablet:
+            x: 3
+            y: 0
+            w: 5
+            h: 2
+          mobile:
+            x: 0
+            y: 0
+            w: 4
+            h: 2
+        content:
+          subtitle:
+            fr: ""
+            en: ""
+          subtitleColor: "#ff6b00"
+          backgroundImage: ""
+          backgroundPosition: center
+          backgroundSize: cover
+          backgroundScale: 1
+          overlayTopOpacity: 0.2
+          overlayBottomOpacity: 0.6
+          logo: ""
+          showLogo: false
       -
-        id: fmod-15
-        type: fmod
-        enabled: false
+        id: video-5
+        type: video
+        enabled: true
         variant: default
-      -
-        id: sampler-16
-        type: sampler
-        enabled: false
-        variant: default
+        placement:
+          desktop:
+            x: 8
+            y: 4
+            w: 4
+            h: 2
+          tablet:
+            x: 0
+            y: 3
+            w: 4
+            h: 1
+          mobile:
+            x: 0
+            y: 8
+            w: 4
+            h: 1
+        content:
+          title:
+            fr: Video
+            en: Video
+          url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          description:
+            fr: ""
+            en: ""
   accentColor: "#113860"
-  assetsFolder: /src/content/projects/1_Music/Assets_etoilesenplastiques
   cards:
     hero: true
-    stats: false
+    stats: true
+    actions: true
+    tech: true
+    process: true
+    gallery: true
+    challenges: true
+    results: false
     musicLinks: true
     video: true
     spotify: true
     soundcloud: false
-    audio: false
+    audio: true
     sampler: false
     fmod: false
-    actions: true
-    tech: false
-    process: false
-    gallery: true
-    challenges: true
-    results: true
-  hero:
-    subtitle:
-      fr: Album et Animation
-      en: Album and Animation
-    subtitleColor: "#faf525"
-    backgroundPosition: top
-    backgroundSize: cover
-    backgroundScale: 1.2
-    overlayTopOpacity: 0.05
-    overlayBottomOpacity: 0.7
-    showLogo: false
-  stats:
-    -
-      value: 2y
-      label: DURATION
-    -
-      value: "5 👨‍👩‍👦‍👦"
-      label: TEAM SIZE
-    -
-      value: Youtube
-      label: PLATFORM
-    -
-      value: Kowskii
-      label: COMPANY
+  audio:
+    title:
+      fr: Listen
+      en: Listen
+    tracks:
+      -
+        title:
+          fr: Track 1
+          en: Track 1
+        artist: ""
+        filename: track-1
+        duration: "0:00"
   actions:
     title:
-      fr: Liens
+      fr: Links
       en: Links
     primary:
       text:
-        fr: "💽 Écouter l'Album"
-        en: "💽 Listen to the Album"
-      url: "https://open.spotify.com/album/4pHpH5Nzl4m9AxuQ3IE43G?si=pX20HINfSfKWbUJ7BKib2g"
+        fr: Primary action
+        en: Primary action
+      url: ""
     secondary:
       text:
-        fr: "Soutenir à prix libre sur Bandcamp"
-        en: Support with pay-what-you-want on Bandcamp
-      url: https://kowskii.bandcamp.com/album/toiles-en-plastique-album
-  video:
+        fr: Secondary action
+        en: Secondary action
+      url: ""
+  tech:
     title:
-      fr: "JE NE VOIS LE CIEL QUE DANS LES FLAQUES (Animation)"
-      en: "I ONLY SEE THE SKY IN PUDDLES (Animation)"
-    url: "https://youtu.be/5ikfSQ6UHFU?si=BhXFkc4EQc57FntH"
-    description:
-      fr: "Animation entièrement réalisée, dessinée et montée par Arthur Kowskii. Process : Photoshop, Davinci Resolve"
-      en: "Animation entirely created, drawn and edited by Arthur Kowskii. Process: Photoshop, Davinci Resolve"
-  spotify:
+      fr: Technology
+      en: Technology
+  process:
     title:
-      fr: "Étoiles en Plastiques - Album"
-      en: Plastic Stars - Album
-    url: "https://open.spotify.com/album/4pHpH5Nzl4m9AxuQ3IE43G?si=qogefLmpQIC8hnrB7YAsPQ"
-    description:
-      fr: "L'album complet avec tous les morceaux sur Spotify"
-      en: Complete album with all tracks on Spotify
+      fr: Process
+      en: Process
+    subtitle:
+      fr: ""
+      en: ""
+    steps:
+      -
+        fr: Step 1
+        en: Step 1
   musicLinks:
     title:
-      fr: Liens Musicaux
+      fr: Music Links
       en: Music Links
     items:
       -
         text: Spotify
-        url: "https://open.spotify.com/album/4pHpH5Nzl4m9AxuQ3IE43G?si=syf-V0dsTPWzd7m5i9N8DA"
+        url: https://open.spotify.com/
       -
         text: Apple Music
-        url: "https://music.apple.com/fr/album/%C3%A9toiles-en-plastiques/1827122321"
+        url: https://music.apple.com/
       -
         text: Bandcamp
-        url: https://kowskii.bandcamp.com/album/toiles-en-plastique-album
+        url: https://bandcamp.com/
       -
-        text: "*Soundcloud*"
-        url: https://on.soundcloud.com/G4M0eKE9CAg6g6DeCh
-  process:
+        text: YouTube
+        url: https://youtube.com/
+  stats:
+    -
+      value: "1"
+      label:
+        fr: STAT
+        en: STAT
+  spotify:
     title:
-      fr: Tracklist
-      en: Tracklist
-    steps:
-      - "OUVERTURE (des portes)"
-      - 06h59
-      - ETOILES EN PLASTIQUES
-      - GO FAST
-      - KETAMINE
-      - POEME ELECTRONIQUE
-      - LE SABLE SOUS MES YEUX
-      - JE NE VOIS LE CIEL QUE DANS LES FLAQUES
+      fr: Spotify
+      en: Spotify
+    url: https://open.spotify.com/
+    description:
+      fr: ""
+      en: ""
   gallery:
     title:
-      fr: Galerie
+      fr: Gallery
       en: Gallery
+    images: []
+  assetsFolder: /src/content/projects/1_Music/Assets_etoilesenplastiques
+  soundcloud:
+    title:
+      fr: SoundCloud
+      en: SoundCloud
+    url: https://soundcloud.com/
+    description:
+      fr: ""
+      en: ""
+    large: false
   challenges:
     title:
-      fr: Synopsis
-      en: Synopsis
+      fr: Challenges
+      en: Challenges
+    subtitle:
+      fr: ""
+      en: ""
     items:
       -
         title:
-          fr: Synopsis Long
-          en: Extended Synopsis
+          fr: Challenge
+          en: Challenge
         description:
-          fr: "ETOILES EN PLASTIQUES est un album de rap alternatif dont l'univers sonore mêle instrumentales électroniques à des textes sombres et introspectifs. L'album explore des souffrances amoureuses, un contexte de travail éprouvant et des tensions familiales, créant une explosion émotionnelle comparable à une supernova. Il suit trois personnages : le père, la mère et l'enfant, ce dernier regardant les étoiles en plastique de son plafond pour s'évader des disputes. Celui-ci s'inclut comme un préquel au SUPER MEGA SHOW, un album/série audio de 16 titres sans coupures en collaboration avec le comédien de doublage Benoit Grimmiaux (BoJack Horseman, Pokémon, Rick & Morty...)"
-          en: "PLASTIC STARS is an alternative rap album whose sonic universe blends electronic instrumentals with dark and introspective lyrics. The album explores romantic suffering, a grueling work context, and family tensions, creating an emotional explosion comparable to a supernova. It follows three characters: the father, mother and child, the latter looking at the plastic stars on his ceiling to escape from arguments. This is included as a prequel to THE SUPER MEGA SHOW, a 16-track album/audio series without cuts in collaboration with voice actor Benoit Grimmiaux (BoJack Horseman, Pokémon, Rick & Morty...)"
-  results:
+          fr: Describe the challenge.
+          en: Describe the challenge.
+  hero:
+    subtitle:
+      fr: ""
+      en: ""
+    subtitleColor: "#ff6b00"
+    backgroundPosition: center
+    backgroundSize: cover
+    backgroundScale: 1
+    overlayTopOpacity: 0.2
+    overlayBottomOpacity: 0.6
+    showLogo: false
+  video:
     title:
-      fr: "Résultats"
-      en: Results
-    items:
-      -
-        icon: "💽"
-        text:
-          fr: Un album de 8 titres
-          en: An 8-track album
-      -
-        icon: "🖍️"
-        text:
-          fr: "Un mini film d'animation disponible sur Youtube; dessiné, animé et monté par Arthur Kowskii"
-          en: "An animated short film available on Youtube; drawn, animated and edited by Arthur Kowskii"
-  tech:
-    title:
-      fr: Technologie
-      en: Technology
+      fr: Video
+      en: Video
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    description:
+      fr: ""
+      en: ""
 ---
 
 TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
 TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
 TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
+
+
+

@@ -4564,8 +4564,8 @@ const accentColorRgbDark =
         if (thumbsStyle.display === "none") return; // hidden on mobile portrait
 
         const gridStyle = getComputedStyle(grid);
-        let globalVolume = parseFloat(card.dataset.samplerVolume || "1.0");
         const gapX = parseFloat(thumbsStyle.columnGap || thumbsStyle.gap) || 0;
+        const gapYGrid = parseFloat(gridStyle.rowGap || gridStyle.gap) || 0;
 
         const columns = Math.max(1, getGridColumnCount(thumbs));
         const width = thumbs.clientWidth;

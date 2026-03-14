@@ -1,5 +1,5 @@
 ---
-const title = 'Project Studio';
+const title = 'Studio V2';
 ---
 
 <html lang="en">
@@ -7,44 +7,59 @@ const title = 'Project Studio';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
-    <style>
+    <style is:global>
       :root {
         color-scheme: dark;
-        --bg: #0f1116;
-        --panel: #171a22;
-        --panel-2: #1f2430;
-        --line: rgba(255,255,255,0.1);
-        --text: #eef2ff;
-        --muted: #9aa4b2;
+        --bg: #090a0f;
+        --panel: rgba(12, 15, 22, 0.82);
+        --panel-strong: #11141d;
+        --panel-soft: rgba(255, 255, 255, 0.04);
+        --line: rgba(255, 255, 255, 0.08);
+        --line-strong: rgba(255, 115, 0, 0.28);
+        --text: #f8f5ee;
+        --muted: #a8a195;
         --accent: #ff6b00;
-        --accent-soft: rgba(255,107,0,0.16);
-        --danger: #ff6464;
-        --success: #4ade80;
-        --shadow: 0 20px 60px rgba(0,0,0,0.35);
+        --accent-soft: rgba(255, 107, 0, 0.12);
+        --success: #49d17d;
+        --danger: #ff7272;
+        --shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
       }
 
       * { box-sizing: border-box; }
+
       body {
         margin: 0;
-        font-family: Georgia, "Times New Roman", serif;
-        background:
-          radial-gradient(circle at top left, rgba(255,107,0,0.12), transparent 28%),
-          radial-gradient(circle at top right, rgba(42,157,143,0.14), transparent 32%),
-          linear-gradient(180deg, #0b0d12, #10131a 45%, #0d1016);
-        color: var(--text);
         min-height: 100vh;
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 0% 0%, rgba(255, 107, 0, 0.16), transparent 24%),
+          radial-gradient(circle at 100% 0%, rgba(73, 209, 125, 0.08), transparent 18%),
+          linear-gradient(180deg, #07080b, #0a0d13 46%, #090b11);
+      }
+
+      button, input, select, textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
       }
 
       .studio-shell {
         display: grid;
-        grid-template-columns: 320px minmax(0, 420px) minmax(0, 1fr);
+        grid-template-columns: 320px minmax(0, 1fr) 360px;
         min-height: 100vh;
       }
 
-      .panel {
-        border-right: 1px solid var(--line);
-        background: rgba(15,17,22,0.72);
-        backdrop-filter: blur(16px);
+      .studio-panel {
+        min-width: 0;
+        background: var(--panel);
+        backdrop-filter: blur(18px);
+      }
+
+      .studio-panel + .studio-panel {
+        border-left: 1px solid var(--line);
       }
 
       .panel-scroll {
@@ -53,344 +68,878 @@ const title = 'Project Studio';
         padding: 24px;
       }
 
-      .hero { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
-      .eyebrow { font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--muted); }
-      h1, h2, h3, h4, p { margin: 0; }
-      h1 { font-size: 30px; line-height: 1.05; }
-      h2 { font-size: 20px; margin-bottom: 12px; }
-      h3 { font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-      .muted { color: var(--muted); }
-      .stack { display: grid; gap: 12px; }
-
-      .card {
-        background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        box-shadow: var(--shadow);
-        padding: 16px;
-      }
-
-      .project-list { display: grid; gap: 10px; margin-top: 16px; }
-      .project-item { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); padding: 14px; cursor: pointer; }
-      .project-item.active { border-color: rgba(255,107,0,0.5); background: linear-gradient(180deg, rgba(255,107,0,0.18), rgba(255,107,0,0.05)); }
-      .project-item-title { font-size: 16px; margin-bottom: 4px; }
-      .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
-
-      button, select, input, textarea { font: inherit; }
-      button {
-        border: 1px solid var(--line);
-        background: var(--panel-2);
-        color: var(--text);
-        border-radius: 999px;
-        padding: 10px 14px;
-        cursor: pointer;
-      }
-      button.primary { background: linear-gradient(180deg, var(--accent), #d75800); color: #100b07; border-color: transparent; font-weight: 700; }
-      button.ghost { background: transparent; }
-      button.danger { color: #ffd4d4; border-color: rgba(255,100,100,0.35); }
-      .editor-section { margin-bottom: 18px; }
-      .field-grid { display: grid; gap: 12px; }
-      .field-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      label { display: grid; gap: 8px; font-size: 13px; color: var(--muted); }
-
-      input, select, textarea {
-        width: 100%;
-        border-radius: 12px;
-        border: 1px solid var(--line);
-        background: rgba(255,255,255,0.03);
-        color: var(--text);
-        padding: 12px;
-      }
-
-      textarea { min-height: 110px; resize: vertical; }
-      .block-list { display: grid; gap: 10px; }
-      .block-item { display: grid; gap: 10px; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: rgba(255,255,255,0.02); }
-      .block-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
-      .block-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-      .status { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,0.05); color: var(--muted); }
-      .status.ok { color: var(--success); }
-      .status.error { color: var(--danger); }
-      .mono { font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
-
-      .preview-panel {
-        background: #0b0d12;
-        display: grid;
-        grid-template-rows: auto auto minmax(0, 1fr);
-      }
-
-      .preview-toolbar {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
+      .eyebrow {
+        display: inline-flex;
         align-items: center;
-        padding: 18px 20px 0;
-      }
-
-      .preview-frame-wrap {
-        padding: 0 20px 20px;
-        min-height: 0;
-        display: grid;
-        align-content: start;
-        gap: 14px;
-      }
-
-      .studio-grid-surface {
-        position: relative;
-        width: 100%;
-        max-width: 1440px;
-        min-height: 520px;
-        padding: 18px;
-        border: 1px solid var(--line);
-        border-radius: 20px;
-        background:
-          linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
-          linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-        background-size: calc((100% - 11 * 12px) / 12 + 12px) 100px, calc((100% - 11 * 12px) / 12 + 12px) 100px, auto;
-        overflow: hidden;
-      }
-
-      .studio-grid-surface::before {
-        content: "Desktop grid editor";
-        position: absolute;
-        top: 14px;
-        right: 18px;
+        gap: 10px;
         font-size: 11px;
-        letter-spacing: 0.18em;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
         color: var(--muted);
       }
 
-      .studio-grid-canvas {
-        display: grid;
-        grid-template-columns: repeat(12, minmax(0, 1fr));
-        grid-auto-rows: 88px;
-        gap: 12px;
-        min-height: calc(var(--desktop-grid-rows, 8) * 100px);
-        padding-top: 28px;
+      .eyebrow::before {
+        content: "";
+        width: 28px;
+        height: 1px;
+        background: linear-gradient(90deg, var(--accent), transparent);
       }
 
-      .studio-grid-block {
+      h1, h2, h3, h4, p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 38px;
+        line-height: 0.95;
+      }
+
+      h2 {
+        font-size: 18px;
+      }
+
+      h3 {
+        font-size: 13px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .hero {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .card {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+          rgba(11, 14, 20, 0.92);
+        box-shadow: var(--shadow);
+      }
+
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .button,
+      .segmented button,
+      .project-item,
+      .palette-item {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--panel-soft);
+        color: var(--text);
+      }
+
+      .button {
+        padding: 10px 14px;
+      }
+
+      .button.primary {
+        background: linear-gradient(180deg, #ff7a1a, #d95b00);
+        border-color: transparent;
+        color: #140901;
+        font-weight: 700;
+      }
+
+      .button.ghost {
+        background: transparent;
+      }
+
+      .button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+        padding: 12px 14px;
+      }
+
+      .field textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .field-grid {
+        display: grid;
+        gap: 12px;
+      }
+
+      .field-grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .project-list,
+      .palette-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .project-item,
+      .palette-item {
+        width: 100%;
+        padding: 14px;
+        text-align: left;
+      }
+
+      .project-item.active {
+        border-color: var(--line-strong);
+        background: linear-gradient(180deg, rgba(255, 107, 0, 0.16), rgba(255, 107, 0, 0.04));
+      }
+
+      .project-item-title,
+      .palette-item-title {
+        display: block;
+        font-size: 15px;
+      }
+
+      .mono {
+        font-family: Consolas, "SFMono-Regular", monospace;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .palette-item {
+        display: grid;
+        gap: 6px;
+        position: relative;
+      }
+
+      .palette-item::after {
+        content: "Drag or click";
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .palette-item.disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr);
+      }
+
+      .workspace-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 22px 24px 0;
+      }
+
+      .workspace-heading {
+        display: grid;
+        gap: 8px;
+      }
+
+      .workspace-tools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+
+      .segmented {
+        display: inline-flex;
+        padding: 4px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .segmented button {
+        border: 0;
+        background: transparent;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+      }
+
+      .segmented button.is-active {
+        background: linear-gradient(180deg, rgba(255, 107, 0, 0.24), rgba(255, 107, 0, 0.12));
+        color: #fff2e7;
+      }
+
+      .workspace-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        padding: 16px 24px 0;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+      }
+
+      .status.ok {
+        color: var(--success);
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .doc-chip {
+        padding: 10px 14px;
+        border: 1px dashed rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .workspace-stage {
+        min-height: 0;
+        padding: 20px 24px 24px;
+      }
+
+      .stage-surface {
         position: relative;
         display: grid;
-        align-content: space-between;
-        gap: 10px;
+        height: 100%;
+        min-height: calc(100vh - 170px);
+        border-radius: 28px;
+        border: 1px solid var(--line);
+        background:
+          linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+        background-size: 88px 88px, 88px 88px, auto;
+        overflow: hidden;
+      }
+
+      .canvas-stage,
+      .preview-stage {
+        position: absolute;
+        inset: 0;
+        display: none;
+      }
+
+      .canvas-stage {
+        padding: 18px;
+      }
+
+      .preview-stage {
+        display: none;
+        padding: 18px;
+      }
+
+      .preview-stage.is-active,
+      .canvas-stage.is-active {
+        display: block;
+      }
+
+      .studio-canvas {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        grid-auto-rows: 74px;
+        gap: 14px;
+        min-height: 100%;
+      }
+
+      .canvas-card {
+        position: relative;
+        display: grid;
+        grid-column: var(--grid-column) / span var(--grid-width);
+        grid-row: var(--grid-row) / span var(--grid-height);
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 12px;
         padding: 14px;
-        border-radius: 18px;
-        border: 1px solid rgba(255,255,255,0.12);
-        background: linear-gradient(180deg, rgba(255,107,0,0.2), rgba(255,107,0,0.08));
-        color: var(--text);
-        text-align: left;
-        grid-column: var(--grid-x) / span var(--grid-w);
-        grid-row: var(--grid-y) / span var(--grid-h);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.22);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+          linear-gradient(180deg, rgba(255, 107, 0, 0.12), rgba(255, 107, 0, 0.02));
+        box-shadow: 0 20px 42px rgba(0, 0, 0, 0.28);
+        overflow: hidden;
       }
 
-      .studio-grid-block.is-selected {
-        outline: 2px solid rgba(255,107,0,0.8);
-        outline-offset: 2px;
+      .canvas-card.is-selected {
+        border-color: rgba(255, 107, 0, 0.72);
+        box-shadow: 0 0 0 1px rgba(255, 107, 0, 0.32), 0 24px 54px rgba(0, 0, 0, 0.34);
       }
 
-      .studio-grid-block.is-disabled {
+      .canvas-card.is-disabled {
         opacity: 0.5;
       }
 
-      .studio-grid-block__label {
-        font-size: 13px;
-        font-weight: 700;
-        letter-spacing: 0.06em;
+      .canvas-card.is-legacy {
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+          linear-gradient(180deg, rgba(77, 155, 230, 0.14), rgba(77, 155, 230, 0.03));
+      }
+
+      .canvas-card__chrome {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: start;
+      }
+
+      .canvas-card__tools {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .canvas-card__body {
+        min-height: 0;
+        display: grid;
+        gap: 10px;
+        align-content: start;
+      }
+
+      .canvas-chip {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        font-size: 11px;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
       }
 
-      .studio-grid-block__meta {
-        font-size: 11px;
-        color: rgba(255,255,255,0.72);
+      .canvas-chip--move {
+        cursor: grab;
       }
 
-      .studio-grid-block__handle {
+      .canvas-chip--danger {
+        color: #ffd0d0;
+      }
+
+      .canvas-resize {
         position: absolute;
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
         border-radius: 999px;
         background: white;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.24);
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.26);
       }
 
-      .studio-grid-block__handle--se { right: 10px; bottom: 10px; cursor: nwse-resize; }
-      .studio-grid-block__handle--e { right: 10px; top: calc(50% - 8px); cursor: ew-resize; }
-      .studio-grid-block__handle--s { bottom: 10px; left: calc(50% - 8px); cursor: ns-resize; }
+      .canvas-resize--e { right: 10px; top: calc(50% - 7px); cursor: ew-resize; }
+      .canvas-resize--s { left: calc(50% - 7px); bottom: 10px; cursor: ns-resize; }
+      .canvas-resize--se { right: 10px; bottom: 10px; cursor: nwse-resize; }
+
+      .inline-value,
+      .inline-editor {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        padding: 0;
+        text-align: left;
+      }
+
+      .inline-value {
+        cursor: text;
+      }
+
+      .inline-editor {
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.06);
+        outline: 1px solid rgba(255, 107, 0, 0.36);
+        padding: 8px 10px;
+        resize: none;
+      }
+
+      .canvas-hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 2fr;
+        gap: 14px;
+        min-height: 100%;
+      }
+
+      .canvas-hero__art {
+        border-radius: 18px;
+        background:
+          radial-gradient(circle at 30% 30%, rgba(255, 214, 170, 0.85), transparent 22%),
+          radial-gradient(circle at 70% 40%, rgba(255, 107, 0, 0.35), transparent 28%),
+          linear-gradient(135deg, rgba(255, 107, 0, 0.4), rgba(9, 10, 15, 0.2));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .canvas-hero__copy {
+        display: grid;
+        gap: 10px;
+        align-content: end;
+      }
+
+      .canvas-title {
+        font-size: clamp(26px, 2vw, 42px);
+        font-weight: 700;
+        line-height: 0.98;
+      }
+
+      .canvas-kicker {
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #ffd8bb;
+      }
+
+      .canvas-body {
+        font-size: 15px;
+        line-height: 1.55;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .canvas-card__heading {
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .canvas-subtle {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .canvas-empty-copy {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .canvas-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .canvas-stat {
+        display: grid;
+        gap: 4px;
+        padding: 12px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .canvas-stat__value {
+        font-size: 26px;
+        font-weight: 700;
+      }
+
+      .canvas-stat__label {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .canvas-actions {
+        display: grid;
+        gap: 10px;
+      }
+
+      .canvas-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        border-radius: 16px;
+        padding: 0 14px;
+      }
+
+      .canvas-action--primary {
+        background: linear-gradient(180deg, #ff7a1a, #d95b00);
+        color: #140901;
+      }
+
+      .canvas-action--secondary {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .canvas-pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .canvas-pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+        font-size: 12px;
+      }
+
+      .canvas-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .canvas-list__row,
+      .canvas-result {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 12px;
+        align-items: start;
+      }
+
+      .canvas-index,
+      .canvas-result__icon {
+        display: inline-grid;
+        place-items: center;
+        min-width: 26px;
+        min-height: 26px;
+        padding: 0 8px;
+        border-radius: 999px;
+        background: rgba(255, 107, 0, 0.18);
+        color: #ffe2cf;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+      }
+
+      .canvas-copy-pair {
+        display: grid;
+        gap: 6px;
+        padding: 10px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .canvas-copy-pair:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .canvas-copy-pair__title {
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .canvas-copy-pair__body,
+      .canvas-list__value,
+      .canvas-result__body {
+        font-size: 13px;
+        line-height: 1.55;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .canvas-gallery {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .canvas-gallery__hero {
+        grid-column: 1 / -1;
+        min-height: 110px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.34), rgba(255, 255, 255, 0.04));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        display: grid;
+        place-items: center;
+        color: #ffe8d6;
+      }
+
+      .canvas-gallery__tile {
+        min-height: 54px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .legacy-pill {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(77, 155, 230, 0.16);
+        color: #d3e9ff;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .palette-ghost {
+        position: fixed;
+        z-index: 9999;
+        pointer-events: none;
+        padding: 10px 14px;
+        border-radius: 14px;
+        background: rgba(255, 107, 0, 0.92);
+        color: #1b0b00;
+        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.26);
+      }
+
+      .canvas-empty {
+        display: none;
+        height: 100%;
+        place-items: center;
+      }
+
+      .canvas-empty.is-visible {
+        display: grid;
+      }
+
+      .empty-card {
+        max-width: 420px;
+        text-align: center;
+        padding: 26px;
+        border-radius: 24px;
+        border: 1px dashed rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.03);
+      }
 
       .preview-viewport {
         width: 100%;
+        height: 100%;
         margin: 0 auto;
         transition: width 180ms ease;
       }
 
-      .preview-viewport[data-size="desktop"] { width: 100%; max-width: 1440px; }
-      .preview-viewport[data-size="tablet"] { width: 900px; max-width: 100%; }
+      .preview-viewport[data-size="desktop"] { max-width: 1440px; }
+      .preview-viewport[data-size="tablet"] { width: 920px; max-width: 100%; }
       .preview-viewport[data-size="mobile"] { width: 430px; max-width: 100%; }
 
       .preview-frame {
         width: 100%;
-        min-height: calc(100vh - 160px);
+        height: 100%;
         border: 1px solid var(--line);
-        border-radius: 18px;
-        background: white;
+        border-radius: 22px;
+        background: #fff;
       }
 
-      .soft-unsupported {
-        display: none;
-        margin: 0 20px 14px;
-        padding: 14px 16px;
+      .inspector-shell {
+        display: grid;
+        gap: 16px;
+      }
+
+      .inspector-block {
+        display: grid;
+        gap: 14px;
+      }
+
+      .inspector-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .soft-note {
+        padding: 12px 14px;
         border-radius: 16px;
-        border: 1px solid rgba(255,107,0,0.24);
-        background: rgba(255,107,0,0.08);
-        color: #ffd8bf;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
       }
 
-      @media (max-width: 1280px) {
-        .studio-shell { grid-template-columns: 320px minmax(0, 1fr); }
-        .preview-panel { grid-column: 1 / -1; min-height: 70vh; }
-        .panel-scroll { height: auto; }
+      .mobile-note {
+        display: none;
+        margin-top: 14px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 107, 0, 0.16);
+        background: rgba(255, 107, 0, 0.08);
+        color: #ffd7bc;
       }
 
-      @media (max-width: 1024px) {
-        .soft-unsupported { display: block; }
+      @media (max-width: 1460px) {
+        .studio-shell {
+          grid-template-columns: 300px minmax(0, 1fr) 340px;
+        }
       }
 
-      @media (max-width: 900px) {
-        .studio-shell { grid-template-columns: 1fr; }
+      @media (max-width: 1200px) {
+        .studio-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .studio-panel + .studio-panel {
+          border-left: 0;
+          border-top: 1px solid var(--line);
+        }
+
+        .panel-scroll {
+          height: auto;
+        }
+
+        .workspace-stage {
+          min-height: 60vh;
+        }
+      }
+
+      @media (max-width: 860px) {
+        .field-grid.two {
+          grid-template-columns: 1fr;
+        }
+
+        .mobile-note {
+          display: block;
+        }
       }
     </style>
   </head>
   <body>
     <div class="studio-shell">
-      <aside class="panel">
+      <aside class="studio-panel">
         <div class="panel-scroll">
           <div class="hero">
-            <span class="eyebrow">Local Studio</span>
-            <h1>Project Builder</h1>
-            <p class="muted">Desktop-first block placement editor.</p>
+            <span class="eyebrow">Local Builder</span>
+            <h1>Studio V2</h1>
+            <p class="muted">Palette, live grid canvas, and a dedicated inspector for page building.</p>
           </div>
 
           <div class="stack">
-            <div class="card">
+            <section class="card">
               <h2>Create</h2>
               <div class="toolbar">
-                <button class="primary" id="create-project-btn">New From Preset</button>
-                <button id="duplicate-project-btn">Duplicate</button>
+                <button class="button primary" id="create-project-btn">New From Preset</button>
+                <button class="button" id="duplicate-project-btn">Duplicate</button>
               </div>
-              <label>
+              <label class="field">
                 Preset
                 <select id="preset-select"></select>
               </label>
-            </div>
+            </section>
 
-            <div class="card">
+            <section class="card">
               <h2>Projects</h2>
-              <div class="project-list" id="project-list"></div>
-            </div>
+              <div id="project-list" class="project-list"></div>
+            </section>
+
+            <section class="card">
+              <div class="inspector-header">
+                <h2>Block Palette</h2>
+                <span class="mono">Core blocks</span>
+              </div>
+              <div id="palette-list" class="palette-list"></div>
+              <p class="soft-note">Drag a block onto the canvas or click to add it to the next open slot.</p>
+            </section>
           </div>
         </div>
       </aside>
 
-      <main class="panel">
-        <div class="panel-scroll">
-          <div class="toolbar">
-            <button class="primary" id="save-project-btn">Save Project</button>
-            <button id="reload-project-btn">Reload</button>
-            <button class="ghost" id="open-project-btn">Open Route</button>
+      <main class="studio-panel workspace">
+        <div class="workspace-header">
+          <div class="workspace-heading">
+            <span class="eyebrow">Workspace</span>
+            <h2 id="studio-project-label">Loading document</h2>
           </div>
-
-          <div class="editor-section">
-            <span class="status" id="studio-status">Loading studio data...</span>
+          <div class="workspace-tools">
+            <div class="segmented" id="locale-toggle">
+              <button type="button" data-locale="fr" class="is-active">FR</button>
+              <button type="button" data-locale="en">EN</button>
+            </div>
+            <div class="segmented" id="preview-mode-toggle">
+              <button type="button" data-mode="canvas" class="is-active">Canvas</button>
+              <button type="button" data-mode="preview">Published Preview</button>
+            </div>
+            <button class="button primary" id="save-project-btn">Save Project</button>
+            <button class="button" id="reload-project-btn">Reload</button>
+            <button class="button ghost" id="open-project-btn">Open Route</button>
           </div>
+        </div>
 
-          <section class="card editor-section">
-            <h2>Core Metadata</h2>
-            <div class="field-grid two">
-              <label>File Slug<input id="field-slug" /></label>
-              <label>Domain Folder<select id="field-folder"></select></label>
-              <label>Status<select id="field-status"><option>planned</option><option>in-progress</option><option>completed</option></select></label>
-              <label>Date<input id="field-date" type="date" /></label>
-              <label>Live Link<input id="field-link" /></label>
-              <label>GitHub<input id="field-github" /></label>
-              <label>Accent<input id="field-accent" /></label>
-              <label>Assets Folder<input id="field-assets-folder" /></label>
-            </div>
-          </section>
+        <div class="workspace-meta">
+          <div class="status" id="studio-status">Loading Studio V2...</div>
+          <div class="doc-chip" id="studio-doc-id">No project selected</div>
+          <div class="segmented" id="preview-size-toggle">
+            <button type="button" data-preview-size="desktop" class="is-active">Desktop</button>
+            <button type="button" data-preview-size="tablet">Tablet</button>
+            <button type="button" data-preview-size="mobile">Mobile</button>
+          </div>
+        </div>
 
-          <section class="card editor-section">
-            <h2>Localized Content</h2>
-            <div class="field-grid two">
-              <label>Title FR<input id="field-title-fr" /></label>
-              <label>Title EN<input id="field-title-en" /></label>
-              <label>Short Title FR<input id="field-alt-title-fr" /></label>
-              <label>Short Title EN<input id="field-alt-title-en" /></label>
+        <div class="workspace-stage">
+          <div class="stage-surface">
+            <div id="canvas-stage" class="canvas-stage is-active">
+              <div id="studio-canvas" class="studio-canvas"></div>
+              <div id="canvas-empty" class="canvas-empty">
+                <div class="empty-card">
+                  <span class="eyebrow">Canvas</span>
+                  <h2 style="margin-top: 10px;">No blocks on this page</h2>
+                  <p class="muted" style="margin-top: 10px;">Pick a preset or drag a core block from the palette to start the composition.</p>
+                </div>
+              </div>
             </div>
-            <div class="field-grid">
-              <label>Description FR<textarea id="field-description-fr"></textarea></label>
-              <label>Description EN<textarea id="field-description-en"></textarea></label>
-              <label>Tech (comma separated)<input id="field-tech" /></label>
-            </div>
-          </section>
 
-          <section class="card editor-section">
-            <h2>Desktop Layout Grid</h2>
-            <p class="muted" style="margin-bottom: 12px;">Move blocks directly in the grid below. Preview updates when you release the pointer.</p>
-            <div class="studio-grid-surface">
-              <div id="studio-grid-canvas" class="studio-grid-canvas"></div>
+            <div id="preview-stage" class="preview-stage">
+              <div id="preview-viewport" class="preview-viewport" data-size="desktop">
+                <iframe id="preview-frame" class="preview-frame" title="Studio Published Preview"></iframe>
+              </div>
             </div>
-          </section>
-
-          <section class="card editor-section">
-            <h2>Orbit</h2>
-            <div class="field-grid two">
-              <label>Shell Mode<select id="field-shell-mode"><option value="auto">auto</option><option value="manual">manual</option></select></label>
-              <label>Shell<input id="field-shell" type="number" min="1" max="5" /></label>
-              <label>Order<input id="field-order" type="number" step="1" /></label>
-              <label>Angle Mode<select id="field-angle-mode"><option value="auto">auto</option><option value="fixed">fixed</option></select></label>
-              <label>Angle<input id="field-angle" type="number" min="0" max="360" step="1" /></label>
-            </div>
-          </section>
-
-          <section class="card editor-section">
-            <h2>Layout Blocks</h2>
-            <div class="toolbar">
-              <select id="block-type-select"></select>
-              <button id="add-block-btn">Add Block</button>
-            </div>
-            <div class="block-list" id="block-list"></div>
-          </section>
-
-          <section class="card editor-section">
-            <h2>Body Markdown</h2>
-            <label>
-              Project body
-              <textarea id="field-body" style="min-height: 280px"></textarea>
-            </label>
-          </section>
+          </div>
+          <div class="mobile-note">Studio V2 is desktop-first. The route loads on smaller screens, but grid editing is designed for desktop input.</div>
         </div>
       </main>
 
-      <aside class="preview-panel">
-        <div class="preview-toolbar">
-          <div>
-            <span class="eyebrow">Live Preview</span>
-            <h2>Real ProjectBento</h2>
-          </div>
-          <div class="toolbar" style="margin:0">
-            <button class="preview-size-btn" data-preview-size="desktop">Desktop</button>
-            <button class="preview-size-btn" data-preview-size="tablet">Tablet</button>
-            <button class="preview-size-btn" data-preview-size="mobile">Mobile</button>
-          </div>
-        </div>
-        <div class="soft-unsupported" id="soft-unsupported-message">
-          The editor is tuned for desktop. Smaller screens may load, but drag placement is not supported or polished there yet.
-        </div>
-        <div class="preview-frame-wrap">
-          <div class="preview-viewport" data-size="desktop" id="preview-viewport">
-            <iframe id="preview-frame" class="preview-frame" title="Studio Preview"></iframe>
+      <aside class="studio-panel">
+        <div class="panel-scroll">
+          <div class="inspector-shell">
+            <section class="card inspector-block">
+              <div class="inspector-header">
+                <div>
+                  <span class="eyebrow">Inspector</span>
+                  <h2>Project Settings</h2>
+                </div>
+                <span class="mono" id="active-locale-label">Locale FR</span>
+              </div>
+              <div id="project-inspector"></div>
+            </section>
+
+            <section class="card inspector-block">
+              <div class="inspector-header">
+                <div>
+                  <span class="eyebrow">Inspector</span>
+                  <h2>Selected Block</h2>
+                </div>
+                <span class="mono" id="selected-block-label">No selection</span>
+              </div>
+              <div id="block-inspector"></div>
+            </section>
           </div>
         </div>
       </aside>

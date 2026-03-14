@@ -4,8 +4,13 @@ import matter from 'gray-matter';
 import { fileURLToPath } from 'node:url';
 import { z } from 'astro/zod';
 
-import { createProjectFromPreset, listPresetSummaries } from './project-presets.js';
-import { buildBentoPayload } from '../../utils/project-layout.js';
+import { listPresetSummaries, PROJECT_PRESET_DEFINITIONS } from './project-presets.js';
+import {
+  buildProjectDraftFromStudioDocument,
+  createBlankStudioDocument,
+  createStudioDocument,
+  getStudioPalette,
+} from '../studio-document.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,7 +62,7 @@ const projectInputSchema = z.object({
           tablet: z.object({ x: z.number(), y: z.number(), w: z.number(), h: z.number() }).optional(),
           mobile: z.object({ x: z.number(), y: z.number(), w: z.number(), h: z.number() }).optional(),
         }).optional(),
-      })).optional(),
+      }).passthrough()).optional(),
     }).optional(),
   }).passthrough().optional(),
 }).passthrough();
@@ -109,7 +114,7 @@ function normalizeDateValue(value) {
 }
 
 function normalizeProjectFrontmatter(frontmatter) {
-  const next = structuredClone(frontmatter);
+  const next = structuredClone(frontmatter || {});
   next.date = normalizeDateValue(next.date);
 
   if (typeof next.link === 'string') next.link = next.link.trim();
@@ -137,6 +142,24 @@ function normalizeProjectFrontmatter(frontmatter) {
       text: item?.text === undefined || item?.text === null ? '' : String(item.text),
       url: item?.url === undefined || item?.url === null ? '' : String(item.url),
     }));
+  }
+
+  if (next?.bento?.actions?.primary) {
+    next.bento.actions.primary = {
+      ...next.bento.actions.primary,
+      url: next.bento.actions.primary?.url === undefined || next.bento.actions.primary?.url === null
+        ? ''
+        : String(next.bento.actions.primary.url),
+    };
+  }
+
+  if (next?.bento?.actions?.secondary) {
+    next.bento.actions.secondary = {
+      ...next.bento.actions.secondary,
+      url: next.bento.actions.secondary?.url === undefined || next.bento.actions.secondary?.url === null
+        ? ''
+        : String(next.bento.actions.secondary.url),
+    };
   }
 
   if (Array.isArray(next?.bento?.results?.items)) {
@@ -256,20 +279,28 @@ export async function readProjectFile(relativeId) {
   const raw = await fs.readFile(fullPath, 'utf8');
   const parsed = matter(raw);
 
-  return {
+  return createStudioDocument({
     id: normalizedId,
     folder: normalizedId.split('/')[0],
     slug: path.basename(normalizedId, '.md'),
     frontmatter: normalizeProjectFrontmatter(parsed.data),
     body: parsed.content,
-  };
+  });
 }
 
 export async function createProjectDraft(presetKey) {
-  const frontmatter = createProjectFromPreset(presetKey);
+  const preset =
+    PROJECT_PRESET_DEFINITIONS.find((item) => item.key === presetKey) ||
+    PROJECT_PRESET_DEFINITIONS[0];
+
   return {
-    frontmatter,
-    body: '# New Project\n',
+    document: createBlankStudioDocument({
+      folder: preset.domainFolder,
+      slug: 'new_project',
+      coreBlocks: preset.coreBlocks,
+      body: '# New project\n',
+      presetKey: preset.key,
+    }),
     presets: listPresetSummaries(),
     domains: await listDomainFolders(),
   };
@@ -278,24 +309,32 @@ export async function createProjectDraft(presetKey) {
 export async function duplicateProject(relativeId) {
   const source = await readProjectFile(relativeId);
   return {
-    frontmatter: source.frontmatter,
-    body: source.body,
+    document: {
+      ...structuredClone(source),
+      id: null,
+      slug: `${source.slug}_copy`,
+      ui: {
+        ...source.ui,
+        selectedBlockId: source.blocks?.[0]?.id || null,
+      },
+    },
     sourceId: source.id,
     presets: listPresetSummaries(),
     domains: await listDomainFolders(),
   };
 }
 
-export async function saveProjectFile({ id, folder, slug, frontmatter, body = '' }) {
-  const normalizedInput = normalizeProjectFrontmatter(frontmatter);
+export async function saveProjectFile(payload) {
+  const sourceDocument = payload?.document || payload;
+  const projectDraft = buildProjectDraftFromStudioDocument(sourceDocument);
+  const normalizedInput = normalizeProjectFrontmatter(projectDraft.frontmatter);
   const parsed = projectInputSchema.parse(normalizedInput);
-  const safeFolder = folder || frontmatter.__presetDomainFolder || '3_tech';
-  const safeSlug = slugify(slug || id || parsed.title?.fr || parsed.title || 'new_project');
+  const safeFolder = projectDraft.folder || '3_tech';
+  const safeSlug = slugify(projectDraft.slug || sourceDocument?.id || parsed.title?.fr || parsed.title || 'new_project');
   const finalFrontmatter = {
     ...parsed,
-    bento: parsed.bento ? buildBentoPayload(parsed.bento) : parsed.bento,
+    bento: parsed.bento,
   };
-  delete finalFrontmatter.__presetDomainFolder;
 
   const folderPath = path.join(PROJECTS_DIR, safeFolder);
   await fs.mkdir(folderPath, { recursive: true });
@@ -304,7 +343,7 @@ export async function saveProjectFile({ id, folder, slug, frontmatter, body = ''
   const filePath = path.join(folderPath, fileName);
   const relativeId = `${safeFolder}/${fileName}`;
 
-  const fileContent = serializeProjectFile(finalFrontmatter, body);
+  const fileContent = serializeProjectFile(finalFrontmatter, projectDraft.body);
   await fs.writeFile(filePath, fileContent, 'utf8');
 
   return {
@@ -312,6 +351,13 @@ export async function saveProjectFile({ id, folder, slug, frontmatter, body = ''
     folder: safeFolder,
     slug: safeSlug,
     filePath,
+    document: createStudioDocument({
+      id: relativeId,
+      folder: safeFolder,
+      slug: safeSlug,
+      frontmatter: finalFrontmatter,
+      body: projectDraft.body,
+    }),
   };
 }
 
@@ -320,5 +366,6 @@ export async function getStudioBootstrap() {
     projects: await listProjectFiles(),
     presets: listPresetSummaries(),
     domains: await listDomainFolders(),
+    palette: getStudioPalette(),
   };
 }
