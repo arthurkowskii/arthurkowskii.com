@@ -126,3 +126,7 @@ Each entry MUST follow this strict 2-bullet structure (MAX 1 sentence per bullet
 ## [2026-03-16] - Studio V2 Page-First Canvas Reset
 - **Action**: Reworked `/studio` into a page-first editor with a floating corner menu, transient project/block sheets, iframe-native contextual `+` insertion, and an explicit Layout mode instead of permanent shell chrome.
 - **Bug/Lesson**: **Bug**: Persistent bars and rail-based move controls made the preview-backed canvas harder to understand than the published page. **Fix**: Moved editing affordances onto the real iframe surface and hid layout controls behind a dedicated mode. **Lesson**: For visual builders, the default state must read like the final page, not like editor scaffolding.
+
+## [2026-03-16] - Studio Plan Documentation
+- **Action**: Added `STUDIO_PLAN.md` to capture the Studio timeline, architecture, current UX, known issues, verification rules, and the exact files that now own the builder implementation.
+- **Bug/Lesson**: **Bug**: Studio context had become spread across chat history, handoff notes, and uncommitted assumptions. **Fix**: Centralized the implementation state in one repo document. **Lesson**: Builder work needs a living state document once interaction logic spans multiple routes, preview bridges, and save contracts.
