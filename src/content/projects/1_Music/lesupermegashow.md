@@ -38,7 +38,7 @@ bento:
             x: 0
             y: 0
             w: 4
-            h: 2
+            h: 1
           tablet:
             x: 0
             y: 0
@@ -101,6 +101,41 @@ bento:
           logo: ""
           showLogo: false
       -
+        id: actions-1
+        type: actions
+        enabled: true
+        variant: default
+        placement:
+          desktop:
+            x: 0
+            y: 1
+            w: 4
+            h: 1
+          tablet:
+            x: 0
+            y: 4
+            w: 3
+            h: 2
+          mobile:
+            x: 0
+            y: 6
+            w: 4
+            h: 2
+        content:
+          title:
+            fr: Liens
+            en: Links
+          primary:
+            text:
+              fr: "📽️ Regarder le Court-Métrage"
+              en: "📽️ Watch the Short Film"
+            url: "https://youtu.be/GtoGUcY1K1Y?si=YQXis7RFPEgLKbPy"
+          secondary:
+            text:
+              fr: "💽 Écouter l'Album"
+              en: "💽 Listen to the Album"
+            url: "https://open.spotify.com/album/1y7wp1DtYeQpGxxhoC2i3t?si=gVXYTvsqRoC6D18xovDuYg"
+      -
         id: stats-1
         type: stats
         enabled: false
@@ -144,41 +179,6 @@ bento:
                 fr: COMPANY
                 en: COMPANY
       -
-        id: actions-1
-        type: actions
-        enabled: true
-        variant: default
-        placement:
-          desktop:
-            x: 0
-            y: 2
-            w: 4
-            h: 2
-          tablet:
-            x: 0
-            y: 4
-            w: 3
-            h: 2
-          mobile:
-            x: 0
-            y: 6
-            w: 4
-            h: 2
-        content:
-          title:
-            fr: Liens
-            en: Links
-          primary:
-            text:
-              fr: "📽️ Regarder le Court-Métrage"
-              en: "📽️ Watch the Short Film"
-            url: "https://youtu.be/GtoGUcY1K1Y?si=YQXis7RFPEgLKbPy"
-          secondary:
-            text:
-              fr: "💽 Écouter l'Album"
-              en: "💽 Listen to the Album"
-            url: "https://open.spotify.com/album/1y7wp1DtYeQpGxxhoC2i3t?si=gVXYTvsqRoC6D18xovDuYg"
-      -
         id: spotify-1
         type: spotify
         enabled: true
@@ -188,7 +188,7 @@ bento:
             x: 4
             y: 2
             w: 4
-            h: 2
+            h: 1
           tablet:
             x: 4
             y: 4
@@ -217,7 +217,7 @@ bento:
             x: 8
             y: 2
             w: 4
-            h: 2
+            h: 3
           tablet:
             x: 0
             y: 10
@@ -556,6 +556,20 @@ bento:
     overlayTopOpacity: 0.2
     overlayBottomOpacity: 0.6
     showLogo: false
+  actions:
+    title:
+      fr: Liens
+      en: Links
+    primary:
+      text:
+        fr: "📽️ Regarder le Court-Métrage"
+        en: "📽️ Watch the Short Film"
+      url: "https://youtu.be/GtoGUcY1K1Y?si=YQXis7RFPEgLKbPy"
+    secondary:
+      text:
+        fr: "💽 Écouter l'Album"
+        en: "💽 Listen to the Album"
+      url: "https://open.spotify.com/album/1y7wp1DtYeQpGxxhoC2i3t?si=gVXYTvsqRoC6D18xovDuYg"
   stats:
     -
       value: 2y
@@ -577,20 +591,6 @@ bento:
       label:
         fr: COMPANY
         en: COMPANY
-  actions:
-    title:
-      fr: Liens
-      en: Links
-    primary:
-      text:
-        fr: "📽️ Regarder le Court-Métrage"
-        en: "📽️ Watch the Short Film"
-      url: "https://youtu.be/GtoGUcY1K1Y?si=YQXis7RFPEgLKbPy"
-    secondary:
-      text:
-        fr: "💽 Écouter l'Album"
-        en: "💽 Listen to the Album"
-      url: "https://open.spotify.com/album/1y7wp1DtYeQpGxxhoC2i3t?si=gVXYTvsqRoC6D18xovDuYg"
   spotify:
     title:
       fr: LE SUPER MEGA SHOW - Album
@@ -762,6 +762,15 @@ bento:
 # LE SUPER MEGA SHOW !
 
 Un projet tentaculaire mêlant musique, narration et cinéma, né d'une collaboration fusionnelle avec Benoit Grimmiaux. Une immersion dans un talk-show rétro-futuriste où la réalité se fragmente au rythme des interludes.
+
+
+
+
+
+
+
+
+
 
 
 

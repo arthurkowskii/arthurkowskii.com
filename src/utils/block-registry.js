@@ -57,11 +57,11 @@ export const BLOCK_REGISTRY = {
         ),
       },
       {
-        constraints: { minW: 3, minH: 2, maxW: 6 },
+        constraints: { minW: 3, minH: 1, maxW: 6 },
         placement: placement(
-          { x: 0, y: 0, w: 4, h: 2 },
-          { x: 0, y: 0, w: 3, h: 2 },
-          { x: 0, y: 2, w: 4, h: 2 },
+          { x: 0, y: 0, w: 4, h: 1 },
+          { x: 0, y: 0, w: 3, h: 1 },
+          { x: 0, y: 2, w: 4, h: 1 },
         ),
       },
     ),
@@ -82,11 +82,11 @@ export const BLOCK_REGISTRY = {
         ),
       },
       {
-        constraints: { minW: 3, minH: 2, maxW: 6 },
+        constraints: { minW: 3, minH: 1, maxW: 6 },
         placement: placement(
-          { x: 0, y: 0, w: 4, h: 2 },
-          { x: 0, y: 0, w: 3, h: 2 },
-          { x: 0, y: 2, w: 4, h: 2 },
+          { x: 0, y: 0, w: 4, h: 1 },
+          { x: 0, y: 0, w: 3, h: 1 },
+          { x: 0, y: 2, w: 4, h: 1 },
         ),
       },
     ),
@@ -115,11 +115,11 @@ export const BLOCK_REGISTRY = {
         ),
       },
       {
-        constraints: { minW: 3, minH: 2, maxW: 6 },
+        constraints: { minW: 3, minH: 1, maxW: 6 },
         placement: placement(
-          { x: 0, y: 3, w: 4, h: 2 },
-          { x: 0, y: 3, w: 4, h: 2 },
-          { x: 0, y: 8, w: 4, h: 2 },
+          { x: 0, y: 3, w: 4, h: 1 },
+          { x: 0, y: 3, w: 4, h: 1 },
+          { x: 0, y: 8, w: 4, h: 1 },
         ),
       },
     ),
@@ -144,11 +144,11 @@ export const BLOCK_REGISTRY = {
         ),
       },
       {
-        constraints: { minW: 3, minH: 2, maxW: 6 },
+        constraints: { minW: 3, minH: 1, maxW: 6 },
         placement: placement(
-          { x: 4, y: 3, w: 4, h: 2 },
-          { x: 4, y: 2, w: 4, h: 2 },
-          { x: 0, y: 8, w: 4, h: 2 },
+          { x: 4, y: 3, w: 4, h: 1 },
+          { x: 4, y: 2, w: 4, h: 1 },
+          { x: 0, y: 8, w: 4, h: 1 },
         ),
       },
     ),
@@ -261,11 +261,11 @@ export const BLOCK_REGISTRY = {
         ),
       },
       {
-        constraints: { minW: 3, minH: 2, maxW: 6 },
+        constraints: { minW: 3, minH: 1, maxW: 6 },
         placement: placement(
-          { x: 0, y: 1, w: 4, h: 2 },
-          { x: 0, y: 1, w: 3, h: 2 },
-          { x: 0, y: 3, w: 4, h: 2 },
+          { x: 0, y: 1, w: 4, h: 1 },
+          { x: 0, y: 1, w: 3, h: 1 },
+          { x: 0, y: 3, w: 4, h: 1 },
         ),
       },
     ),
@@ -290,11 +290,11 @@ export const BLOCK_REGISTRY = {
         ),
       },
       {
-        constraints: { minW: 3, minH: 2, maxW: 6 },
+        constraints: { minW: 3, minH: 1, maxW: 6 },
         placement: placement(
-          { x: 0, y: 2, w: 4, h: 2 },
-          { x: 0, y: 2, w: 4, h: 2 },
-          { x: 0, y: 4, w: 4, h: 2 },
+          { x: 0, y: 2, w: 4, h: 1 },
+          { x: 0, y: 2, w: 4, h: 1 },
+          { x: 0, y: 4, w: 4, h: 1 },
         ),
       },
     ),
@@ -317,11 +317,11 @@ export const BLOCK_REGISTRY = {
         ),
       },
       {
-        constraints: { minW: 3, minH: 2, maxW: 6 },
+        constraints: { minW: 3, minH: 1, maxW: 6 },
         placement: placement(
-          { x: 4, y: 2, w: 4, h: 2 },
-          { x: 4, y: 2, w: 4, h: 2 },
-          { x: 0, y: 5, w: 4, h: 2 },
+          { x: 4, y: 2, w: 4, h: 1 },
+          { x: 4, y: 2, w: 4, h: 1 },
+          { x: 0, y: 5, w: 4, h: 1 },
         ),
       },
     ),
@@ -388,11 +388,11 @@ export const BLOCK_REGISTRY = {
         ),
       },
       {
-        constraints: { minW: 3, minH: 2, maxW: 8 },
+        constraints: { minW: 3, minH: 1, maxW: 8 },
         placement: placement(
-          { x: 5, y: 3, w: 3, h: 2 },
-          { x: 0, y: 4, w: 8, h: 2 },
-          { x: 0, y: 9, w: 4, h: 2 },
+          { x: 5, y: 3, w: 3, h: 1 },
+          { x: 0, y: 4, w: 8, h: 1 },
+          { x: 0, y: 9, w: 4, h: 1 },
         ),
       },
     ),
@@ -401,7 +401,7 @@ export const BLOCK_REGISTRY = {
       subtitle: bilingualValue('', ''),
       items: [
         {
-          icon: 'âœ¨',
+          icon: '✨',
           text: bilingualValue('Resultat', 'Result'),
         },
       ],
