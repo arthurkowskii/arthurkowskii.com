@@ -46,26 +46,37 @@ const title = 'Studio V2';
         cursor: pointer;
       }
 
+      h1, h2, h3, h4, p {
+        margin: 0;
+      }
+
       .studio-shell {
         display: grid;
-        grid-template-columns: 320px minmax(0, 1fr) 360px;
+        grid-template-columns: minmax(0, 1fr) 430px;
         min-height: 100vh;
       }
 
-      .studio-panel {
+      .studio-workspace,
+      .studio-sidebar {
         min-width: 0;
         background: var(--panel);
         backdrop-filter: blur(18px);
       }
 
-      .studio-panel + .studio-panel {
+      .studio-sidebar {
         border-left: 1px solid var(--line);
       }
 
-      .panel-scroll {
+      .studio-workspace {
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      .sidebar-scroll {
         height: 100vh;
         overflow: auto;
-        padding: 24px;
+        padding: 16px 16px 22px;
       }
 
       .eyebrow {
@@ -85,10 +96,6 @@ const title = 'Studio V2';
         background: linear-gradient(90deg, var(--accent), transparent);
       }
 
-      h1, h2, h3, h4, p {
-        margin: 0;
-      }
-
       h1 {
         font-size: 38px;
         line-height: 0.95;
@@ -105,20 +112,14 @@ const title = 'Studio V2';
         color: var(--muted);
       }
 
-      .hero {
-        display: grid;
-        gap: 10px;
-        margin-bottom: 22px;
-      }
-
       .muted {
         color: var(--muted);
       }
 
       .card {
         display: grid;
-        gap: 14px;
-        padding: 18px;
+        gap: 12px;
+        padding: 16px;
         border: 1px solid var(--line);
         border-radius: 22px;
         background:
@@ -135,13 +136,14 @@ const title = 'Studio V2';
       .toolbar {
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 8px;
       }
 
       .button,
       .segmented button,
       .project-item,
-      .palette-item {
+      .palette-item,
+      .inactive-item {
         border: 1px solid var(--line);
         border-radius: 16px;
         background: var(--panel-soft);
@@ -149,7 +151,7 @@ const title = 'Studio V2';
       }
 
       .button {
-        padding: 10px 14px;
+        padding: 9px 12px;
       }
 
       .button.primary {
@@ -170,8 +172,8 @@ const title = 'Studio V2';
 
       .field {
         display: grid;
-        gap: 8px;
-        font-size: 12px;
+        gap: 6px;
+        font-size: 11px;
         color: var(--muted);
       }
 
@@ -180,48 +182,24 @@ const title = 'Studio V2';
       .field textarea {
         width: 100%;
         border: 1px solid var(--line);
-        border-radius: 14px;
+        border-radius: 12px;
         background: rgba(255, 255, 255, 0.03);
         color: var(--text);
-        padding: 12px 14px;
+        padding: 10px 12px;
       }
 
       .field textarea {
-        min-height: 120px;
+        min-height: 96px;
         resize: vertical;
       }
 
       .field-grid {
         display: grid;
-        gap: 12px;
+        gap: 10px;
       }
 
       .field-grid.two {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .project-list,
-      .palette-list {
-        display: grid;
-        gap: 10px;
-      }
-
-      .project-item,
-      .palette-item {
-        width: 100%;
-        padding: 14px;
-        text-align: left;
-      }
-
-      .project-item.active {
-        border-color: var(--line-strong);
-        background: linear-gradient(180deg, rgba(255, 107, 0, 0.16), rgba(255, 107, 0, 0.04));
-      }
-
-      .project-item-title,
-      .palette-item-title {
-        display: block;
-        font-size: 15px;
       }
 
       .mono {
@@ -230,36 +208,12 @@ const title = 'Studio V2';
         color: var(--muted);
       }
 
-      .palette-item {
-        display: grid;
-        gap: 6px;
-        position: relative;
-      }
-
-      .palette-item::after {
-        content: "Drag or click";
-        font-size: 10px;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--muted);
-      }
-
-      .palette-item.disabled {
-        opacity: 0.35;
-        cursor: not-allowed;
-      }
-
-      .workspace {
-        display: grid;
-        grid-template-rows: auto auto minmax(0, 1fr);
-      }
-
       .workspace-header {
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
-        gap: 12px;
-        padding: 22px 24px 0;
+        gap: 18px;
+        padding: 24px 28px 0;
       }
 
       .workspace-heading {
@@ -272,6 +226,7 @@ const title = 'Studio V2';
         flex-wrap: wrap;
         gap: 10px;
         justify-content: flex-end;
+        align-items: flex-start;
       }
 
       .segmented {
@@ -300,7 +255,7 @@ const title = 'Studio V2';
         flex-wrap: wrap;
         gap: 10px;
         align-items: center;
-        padding: 16px 24px 0;
+        padding: 16px 28px 0;
       }
 
       .status {
@@ -332,21 +287,21 @@ const title = 'Studio V2';
 
       .workspace-stage {
         min-height: 0;
-        padding: 20px 24px 24px;
+        padding: 22px 28px 28px;
       }
 
       .stage-surface {
         position: relative;
         display: grid;
         height: 100%;
-        min-height: calc(100vh - 170px);
-        border-radius: 28px;
+        min-height: calc(100vh - 188px);
+        border-radius: 30px;
         border: 1px solid var(--line);
         background:
           linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
           linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
           linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-        background-size: 88px 88px, 88px 88px, auto;
+        background-size: 96px 96px, 96px 96px, auto;
         overflow: hidden;
       }
 
@@ -358,12 +313,12 @@ const title = 'Studio V2';
       }
 
       .canvas-stage {
-        padding: 18px;
+        padding: 20px;
+        overflow: auto;
       }
 
       .preview-stage {
-        display: none;
-        padding: 18px;
+        padding: 20px;
       }
 
       .preview-stage.is-active,
@@ -386,7 +341,8 @@ const title = 'Studio V2';
         grid-row: var(--grid-row) / span var(--grid-height);
         grid-template-rows: auto minmax(0, 1fr);
         gap: 12px;
-        padding: 14px;
+        min-width: 0;
+        padding: 16px;
         border-radius: 24px;
         border: 1px solid rgba(255, 255, 255, 0.1);
         background:
@@ -415,7 +371,17 @@ const title = 'Studio V2';
         display: flex;
         justify-content: space-between;
         gap: 10px;
-        align-items: start;
+        align-items: center;
+        min-height: 38px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 160ms ease;
+      }
+
+      .canvas-card:hover .canvas-card__chrome,
+      .canvas-card.is-selected .canvas-card__chrome {
+        opacity: 1;
+        pointer-events: auto;
       }
 
       .canvas-card__tools {
@@ -423,6 +389,12 @@ const title = 'Studio V2';
         gap: 8px;
         flex-wrap: wrap;
         justify-content: flex-end;
+        pointer-events: none;
+      }
+
+      .canvas-card:hover .canvas-card__tools,
+      .canvas-card.is-selected .canvas-card__tools {
+        pointer-events: auto;
       }
 
       .canvas-card__body {
@@ -432,7 +404,15 @@ const title = 'Studio V2';
         align-content: start;
       }
 
+      .canvas-card.is-compact .canvas-card__body {
+        gap: 8px;
+      }
+
       .canvas-chip {
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+        min-height: 32px;
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 999px;
         padding: 6px 10px;
@@ -441,6 +421,14 @@ const title = 'Studio V2';
         font-size: 11px;
         letter-spacing: 0.08em;
         text-transform: uppercase;
+      }
+
+      .canvas-chip__label {
+        display: block;
+        max-width: 112px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .canvas-chip--move {
@@ -458,6 +446,15 @@ const title = 'Studio V2';
         border-radius: 999px;
         background: white;
         box-shadow: 0 6px 14px rgba(0, 0, 0, 0.26);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 160ms ease;
+      }
+
+      .canvas-card:hover .canvas-resize,
+      .canvas-card.is-selected .canvas-resize {
+        opacity: 1;
+        pointer-events: auto;
       }
 
       .canvas-resize--e { right: 10px; top: calc(50% - 7px); cursor: ew-resize; }
@@ -465,8 +462,10 @@ const title = 'Studio V2';
       .canvas-resize--se { right: 10px; bottom: 10px; cursor: nwse-resize; }
 
       .inline-value,
+      .canvas-static,
       .inline-editor {
         width: 100%;
+        min-width: 0;
         border: 0;
         background: transparent;
         color: var(--text);
@@ -506,6 +505,7 @@ const title = 'Studio V2';
         display: grid;
         gap: 10px;
         align-content: end;
+        min-width: 0;
       }
 
       .canvas-title {
@@ -530,6 +530,10 @@ const title = 'Studio V2';
       .canvas-card__heading {
         font-size: 16px;
         font-weight: 700;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .canvas-subtle {
@@ -548,10 +552,15 @@ const title = 'Studio V2';
         gap: 10px;
       }
 
+      .canvas-card.is-compact .canvas-stats {
+        grid-template-columns: 1fr;
+      }
+
       .canvas-stat {
         display: grid;
         gap: 4px;
         padding: 12px;
+        min-width: 0;
         border-radius: 18px;
         background: rgba(255, 255, 255, 0.04);
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -579,8 +588,9 @@ const title = 'Studio V2';
         align-items: center;
         justify-content: center;
         min-height: 48px;
-        border-radius: 16px;
         padding: 0 14px;
+        border-radius: 16px;
+        line-height: 1.2;
       }
 
       .canvas-action--primary {
@@ -657,6 +667,16 @@ const title = 'Studio V2';
         font-size: 13px;
         line-height: 1.55;
         color: rgba(255, 255, 255, 0.82);
+      }
+
+      .canvas-card.is-compact .canvas-copy-pair__body,
+      .canvas-card.is-compact .canvas-list__value,
+      .canvas-card.is-compact .canvas-result__body,
+      .canvas-card.is-compact .canvas-body {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
       }
 
       .canvas-gallery {
@@ -749,31 +769,266 @@ const title = 'Studio V2';
         background: #fff;
       }
 
-      .inspector-shell {
-        display: grid;
-        gap: 16px;
-      }
-
-      .inspector-block {
-        display: grid;
-        gap: 14px;
-      }
-
-      .inspector-header {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        align-items: center;
-      }
-
-      .soft-note {
-        padding: 12px 14px;
+      .soft-note,
+      .sidebar-note {
+        padding: 10px 12px;
         border-radius: 16px;
         border: 1px solid rgba(255, 255, 255, 0.08);
         background: rgba(255, 255, 255, 0.03);
         color: var(--muted);
-        font-size: 13px;
+        font-size: 12px;
         line-height: 1.5;
+      }
+
+      .sidebar-stack {
+        display: grid;
+        gap: 12px;
+      }
+
+      .sidebar-summary {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        border-color: rgba(255, 255, 255, 0.1);
+        background:
+          linear-gradient(180deg, rgba(17, 20, 29, 0.96), rgba(10, 13, 19, 0.94)),
+          rgba(11, 14, 20, 0.94);
+        backdrop-filter: blur(18px);
+      }
+
+      .sidebar-summary__header {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .sidebar-summary__path {
+        display: block;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .sidebar-summary__stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .summary-cell {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .summary-cell strong {
+        font-size: 13px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .summary-label {
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .sidebar-section {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+          rgba(11, 14, 20, 0.92);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .sidebar-section summary {
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        padding: 14px 14px 12px;
+        cursor: pointer;
+      }
+
+      .sidebar-section summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .sidebar-section[open] summary {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .section-heading {
+        display: grid;
+        gap: 4px;
+      }
+
+      .section-meta {
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-align: right;
+      }
+
+      .section-body {
+        display: grid;
+        gap: 12px;
+        padding: 12px 14px 14px;
+      }
+
+      .subsection {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.02);
+        overflow: hidden;
+      }
+
+      .subsection summary {
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        cursor: pointer;
+      }
+
+      .subsection summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .subsection[open] summary {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .subsection-body {
+        display: grid;
+        gap: 12px;
+        padding: 12px 14px 14px;
+      }
+
+      .create-grid {
+        display: grid;
+        gap: 10px;
+      }
+
+      .project-list,
+      .palette-list,
+      .inactive-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .project-item,
+      .palette-item,
+      .inactive-item {
+        width: 100%;
+        padding: 11px 12px;
+        text-align: left;
+      }
+
+      .project-item.active,
+      .inactive-item.active {
+        border-color: var(--line-strong);
+        background: linear-gradient(180deg, rgba(255, 107, 0, 0.16), rgba(255, 107, 0, 0.04));
+      }
+
+      .row-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+        min-width: 0;
+      }
+
+      .item-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .item-pill--accent {
+        border-color: rgba(255, 107, 0, 0.24);
+        background: rgba(255, 107, 0, 0.12);
+        color: #ffd8bb;
+      }
+
+      .project-item-title,
+      .palette-item-title,
+      .inactive-item-title {
+        display: block;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 13px;
+      }
+
+      .inactive-item {
+        display: grid;
+        gap: 5px;
+      }
+
+      .inactive-item-reason {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .palette-item {
+        display: grid;
+        gap: 6px;
+        position: relative;
+      }
+
+      .palette-item::after {
+        content: none;
+      }
+
+      .palette-item.disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+
+      .project-item .mono,
+      .palette-item .mono,
+      .inactive-item .mono {
+        display: block;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .sidebar-projects {
+        max-height: 320px;
+        overflow: auto;
+        display: grid;
+        gap: 8px;
       }
 
       .mobile-note {
@@ -786,23 +1041,23 @@ const title = 'Studio V2';
         color: #ffd7bc;
       }
 
-      @media (max-width: 1460px) {
+      @media (max-width: 1440px) {
         .studio-shell {
-          grid-template-columns: 300px minmax(0, 1fr) 340px;
+          grid-template-columns: minmax(0, 1fr) 390px;
         }
       }
 
-      @media (max-width: 1200px) {
+      @media (max-width: 1260px) {
         .studio-shell {
           grid-template-columns: 1fr;
         }
 
-        .studio-panel + .studio-panel {
+        .studio-sidebar {
           border-left: 0;
           border-top: 1px solid var(--line);
         }
 
-        .panel-scroll {
+        .sidebar-scroll {
           height: auto;
         }
 
@@ -816,6 +1071,10 @@ const title = 'Studio V2';
           grid-template-columns: 1fr;
         }
 
+        .sidebar-summary__stats {
+          grid-template-columns: 1fr;
+        }
+
         .mobile-note {
           display: block;
         }
@@ -824,45 +1083,7 @@ const title = 'Studio V2';
   </head>
   <body>
     <div class="studio-shell">
-      <aside class="studio-panel">
-        <div class="panel-scroll">
-          <div class="hero">
-            <span class="eyebrow">Local Builder</span>
-            <h1>Studio V2</h1>
-            <p class="muted">Palette, live grid canvas, and a dedicated inspector for page building.</p>
-          </div>
-
-          <div class="stack">
-            <section class="card">
-              <h2>Create</h2>
-              <div class="toolbar">
-                <button class="button primary" id="create-project-btn">New From Preset</button>
-                <button class="button" id="duplicate-project-btn">Duplicate</button>
-              </div>
-              <label class="field">
-                Preset
-                <select id="preset-select"></select>
-              </label>
-            </section>
-
-            <section class="card">
-              <h2>Projects</h2>
-              <div id="project-list" class="project-list"></div>
-            </section>
-
-            <section class="card">
-              <div class="inspector-header">
-                <h2>Block Palette</h2>
-                <span class="mono">Core blocks</span>
-              </div>
-              <div id="palette-list" class="palette-list"></div>
-              <p class="soft-note">Drag a block onto the canvas or click to add it to the next open slot.</p>
-            </section>
-          </div>
-        </div>
-      </aside>
-
-      <main class="studio-panel workspace">
+      <main class="studio-workspace">
         <div class="workspace-header">
           <div class="workspace-heading">
             <span class="eyebrow">Workspace</span>
@@ -900,8 +1121,8 @@ const title = 'Studio V2';
               <div id="canvas-empty" class="canvas-empty">
                 <div class="empty-card">
                   <span class="eyebrow">Canvas</span>
-                  <h2 style="margin-top: 10px;">No blocks on this page</h2>
-                  <p class="muted" style="margin-top: 10px;">Pick a preset or drag a core block from the palette to start the composition.</p>
+                  <h2 style="margin-top: 10px;">No visible blocks on this page</h2>
+                  <p class="muted" style="margin-top: 10px;">Enable a block or drag a core block from the sidebar palette to start the composition.</p>
                 </div>
               </div>
             </div>
@@ -916,31 +1137,9 @@ const title = 'Studio V2';
         </div>
       </main>
 
-      <aside class="studio-panel">
-        <div class="panel-scroll">
-          <div class="inspector-shell">
-            <section class="card inspector-block">
-              <div class="inspector-header">
-                <div>
-                  <span class="eyebrow">Inspector</span>
-                  <h2>Project Settings</h2>
-                </div>
-                <span class="mono" id="active-locale-label">Locale FR</span>
-              </div>
-              <div id="project-inspector"></div>
-            </section>
-
-            <section class="card inspector-block">
-              <div class="inspector-header">
-                <div>
-                  <span class="eyebrow">Inspector</span>
-                  <h2>Selected Block</h2>
-                </div>
-                <span class="mono" id="selected-block-label">No selection</span>
-              </div>
-              <div id="block-inspector"></div>
-            </section>
-          </div>
+      <aside class="studio-sidebar">
+        <div class="sidebar-scroll">
+          <div id="studio-sidebar-content" data-sidebar-content="true"></div>
         </div>
       </aside>
     </div>

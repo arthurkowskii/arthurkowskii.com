@@ -114,3 +114,11 @@ Each entry MUST follow this strict 2-bullet structure (MAX 1 sentence per bullet
 ## [2026-03-12] - Local Project Studio v1
 - **Action**: Added a local `/studio` builder with preset creation, direct Markdown/frontmatter save APIs, shared block/orbit normalization utilities, and deterministic homepage electron placement so new projects can be created and appear on the atom without hand-coding new files.
 - **Bug/Lesson**: **Bug**: Studio-generated YAML let implicit scalars turn `bento.stats[].value` into a number and `date` into an invalid empty string. **Fix**: Added save-time normalization and safer YAML serialization in `src/studio/server/project-files.js`. **Lesson**: Builder output must be schema-valid before Astro content reloads, and YAML implicit typing should never be trusted.
+
+## [2026-03-16] - Published Bento Layout Repair
+- **Action**: Split published versus Studio block geometry, added shared multi-breakpoint layout normalization/runtime legacy fallback, migrated legacy `useBentoLayout` files to explicit `bento.layout.blocks`, and added audit/migration scripts.
+- **Bug/Lesson**: **Bug**: Studio-sized defaults leaked into published legacy bento pages and caused overlapping cards. **Fix**: Moved collision-free normalization into the shared layout layer with explicit `published` and `studio` profiles so direct routes, overlay rendering, and Studio start from the same layout rules.
+
+## [2026-03-16] - Studio V2 Sidebar And Save Context
+- **Action**: Added URL-backed Studio project state, preserved transient client UI across save hydration, compacted the sidebar with a sticky current-project summary and searchable switcher, and moved body markdown behind a nested collapse.
+- **Bug/Lesson**: **Bug**: Saving could drop Studio back onto the first file after Astro refresh and reset client-only editor state. **Fix**: Stored the active file in `?project=` and restored save-time UI state locally so save/reload stays on the same project instead of losing context.

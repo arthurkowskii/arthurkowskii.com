@@ -1,9 +1,11 @@
 import {
   createDefaultPayloadForBlock,
   getBlockConstraints,
-  getBlockPlacementDefaults,
 } from '../utils/block-registry.js';
-import { normalizeBentoLayout } from '../utils/project-layout.js';
+import {
+  normalizeBentoLayout,
+  normalizeBlockPlacement,
+} from '../utils/project-layout.js';
 
 export const STUDIO_COLUMNS = {
   desktop: 12,
@@ -136,10 +138,6 @@ function clone(value) {
   return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
 }
 
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, value));
-}
-
 function cleanText(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
@@ -195,28 +193,8 @@ function getBlockKind(type) {
   return CORE_BLOCK_TYPES.includes(type) ? 'core' : 'legacy';
 }
 
-function normalizePlacementValue(rawPlacement, breakpoint, type) {
-  const defaults = getBlockPlacementDefaults(type)[breakpoint];
-  const constraints = getBlockConstraints(type);
-  const columns = STUDIO_COLUMNS[breakpoint];
-  const maxW = Math.min(constraints.maxW || columns, columns);
-  const minW = Math.min(constraints.minW || 1, maxW);
-  const minH = constraints.minH || 1;
-  const x = clamp(Number.isFinite(rawPlacement?.x) ? rawPlacement.x : defaults.x, 0, columns - 1);
-  const w = clamp(Number.isFinite(rawPlacement?.w) ? rawPlacement.w : defaults.w, minW, maxW);
-  const safeX = clamp(x, 0, Math.max(0, columns - w));
-  const y = Math.max(0, Number.isFinite(rawPlacement?.y) ? rawPlacement.y : defaults.y);
-  const h = Math.max(minH, Number.isFinite(rawPlacement?.h) ? rawPlacement.h : defaults.h);
-
-  return { x: safeX, y, w, h };
-}
-
 export function normalizePlacementSet(type, placement) {
-  return {
-    desktop: normalizePlacementValue(placement?.desktop, 'desktop', type),
-    tablet: normalizePlacementValue(placement?.tablet, 'tablet', type),
-    mobile: normalizePlacementValue(placement?.mobile, 'mobile', type),
-  };
+  return normalizeBlockPlacement(type, placement, { profile: 'studio' });
 }
 
 function normalizeTheme(metaTheme = {}, bento = {}) {
@@ -373,16 +351,16 @@ function inferLegacyContent(type, frontmatter) {
   return clone(frontmatter?.bento?.[type] || defaultContentForType(type));
 }
 
-function hasPayload(type, frontmatter, meta) {
+function hasPayload(type, frontmatter, meta, normalizedLayout = null) {
   const bento = frontmatter?.bento || {};
 
   switch (type) {
     case 'hero':
-      return Boolean(frontmatter?.useBentoLayout);
+      return Boolean(normalizedLayout?.blocks?.find((block) => block.type === 'hero' && block.enabled !== false));
     case 'stats':
       return Array.isArray(bento?.stats) && bento.stats.length > 0;
     case 'actions':
-      return Boolean(bento?.actions?.primary || bento?.actions?.secondary || meta?.link || meta?.github);
+      return Boolean(bento?.actions?.primary || bento?.actions?.secondary);
     case 'tech':
       return Array.isArray(meta?.tech) && meta.tech.length > 0;
     case 'process':
@@ -425,7 +403,7 @@ function inferBlockVariant(type, explicitBlock, normalizedLayout) {
 
 function inferBlockPlacement(type, explicitBlock, normalizedLayout) {
   const layoutBlock = explicitBlock || normalizedLayout?.blocks?.find((block) => block.type === type);
-  return normalizePlacementSet(type, layoutBlock?.placement);
+  return normalizeBlockPlacement(type, layoutBlock?.placement, { profile: 'studio' });
 }
 
 function normalizeStoredBlocks(rawBlocks = [], normalizedLayout) {
@@ -479,12 +457,81 @@ export function sortStudioBlocks(blocks = []) {
     .map(({ block }) => block);
 }
 
+function hasRenderableMusicLinks(block) {
+  return Array.isArray(block?.content?.items) && block.content.items.length === 4;
+}
+
+function hasRenderableGallery(block, document) {
+  if (!block) return false;
+  if (block.content?.source === 'manual') {
+    return Array.isArray(block.content?.images) && block.content.images.length > 0;
+  }
+
+  return cleanText(document?.meta?.theme?.assetsFolder).length > 0;
+}
+
+function visibilityForBlock(block, document) {
+  if (!block) {
+    return { visible: false, reason: 'Unknown block.' };
+  }
+
+  if (block.enabled === false) {
+    return { visible: false, reason: 'Disabled in Studio.' };
+  }
+
+  if (block.type === 'musicLinks') {
+    return hasRenderableMusicLinks(block)
+      ? { visible: true, reason: '' }
+      : { visible: false, reason: 'Needs exactly 4 links to match the published card.' };
+  }
+
+  if (block.type === 'stats') {
+    const musicLinks = document?.blocks?.find((entry) => entry.type === 'musicLinks');
+    if (musicLinks?.enabled !== false && hasRenderableMusicLinks(musicLinks)) {
+      return { visible: false, reason: 'Hidden because Music Links replaces Stats when 4 links are present.' };
+    }
+    return { visible: true, reason: '' };
+  }
+
+  if (block.type === 'gallery') {
+    return hasRenderableGallery(block, document)
+      ? { visible: true, reason: '' }
+      : { visible: false, reason: 'Needs manual images or an assets folder to render.' };
+  }
+
+  return { visible: true, reason: '' };
+}
+
+export function getStudioPresentation(document) {
+  const blocks = sortStudioBlocks(Array.isArray(document?.blocks) ? document.blocks : []);
+  const visibleBlocks = [];
+  const inactiveBlocks = [];
+
+  blocks.forEach((block) => {
+    const entry = visibilityForBlock(block, document);
+    if (entry.visible) {
+      visibleBlocks.push(block);
+      return;
+    }
+
+    inactiveBlocks.push({
+      block,
+      reason: entry.reason,
+    });
+  });
+
+  return {
+    visibleBlocks,
+    inactiveBlocks,
+  };
+}
+
 export function getStudioPalette() {
   return CORE_BLOCK_TYPES.map((type) => ({
     type,
     label: BLOCK_LABELS[type] || type,
     kind: 'core',
-    constraints: getBlockConstraints(type),
+    constraints: getBlockConstraints(type, 'studio'),
   }));
 }
 
@@ -497,19 +544,25 @@ export function createStudioDocument({
   presetKey = 'blank',
 } = {}) {
   const meta = normalizeStudioMeta(frontmatter);
-  const normalizedLayout = normalizeBentoLayout(frontmatter?.bento || {});
+  const normalizedLayout = normalizeBentoLayout(frontmatter?.bento || {}, {
+    profile: 'studio',
+    synthesizeProfile: 'studio',
+    meta: {
+      tech: Array.isArray(frontmatter?.tech) ? frontmatter.tech : [],
+    },
+  });
   const storedBlocks = normalizeStoredBlocks(frontmatter?.bento?.layout?.blocks || [], normalizedLayout);
   const blocks = [];
 
   CORE_BLOCK_TYPES.forEach((type) => {
     const explicit = storedBlocks.get(type);
-    if (!explicit && !hasPayload(type, frontmatter, meta)) return;
+    if (!explicit && !hasPayload(type, frontmatter, meta, normalizedLayout)) return;
     blocks.push(buildCoreBlock(type, explicit, frontmatter, meta, normalizedLayout));
   });
 
   LEGACY_BLOCK_TYPES.forEach((type) => {
     const explicit = storedBlocks.get(type);
-    if (!explicit && !hasPayload(type, frontmatter, meta)) return;
+    if (!explicit && !hasPayload(type, frontmatter, meta, normalizedLayout)) return;
     blocks.push(buildLegacyBlock(type, explicit, frontmatter, normalizedLayout));
   });
 

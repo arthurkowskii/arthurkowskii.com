@@ -1,13 +1,14 @@
 import {
   buildProjectDraftFromStudioDocument,
   createStudioBlockInstance,
+  getStudioPresentation,
 } from './studio-document.js';
 import {
   clientPointToPlacement,
   findNextOpenPlacement,
+  normalizeBlocksForCanvas,
   normalizeDesktopPlacement,
   renderStudioCanvas,
-  resolveDesktopCollisions,
 } from './studio-canvas.js';
 
 const state = {
@@ -20,17 +21,15 @@ const state = {
   editing: null,
   paletteDrag: null,
   canvasInteraction: null,
+  presentation: { visibleBlocks: [], inactiveBlocks: [] },
+  projectFilter: '',
+  sidebarSections: {},
 };
 
 const elements = {
   status: document.getElementById('studio-status'),
   docId: document.getElementById('studio-doc-id'),
   projectLabel: document.getElementById('studio-project-label'),
-  presetSelect: document.getElementById('preset-select'),
-  createProjectBtn: document.getElementById('create-project-btn'),
-  duplicateProjectBtn: document.getElementById('duplicate-project-btn'),
-  projectList: document.getElementById('project-list'),
-  paletteList: document.getElementById('palette-list'),
   saveProjectBtn: document.getElementById('save-project-btn'),
   reloadProjectBtn: document.getElementById('reload-project-btn'),
   openProjectBtn: document.getElementById('open-project-btn'),
@@ -43,10 +42,8 @@ const elements = {
   canvasEmpty: document.getElementById('canvas-empty'),
   previewViewport: document.getElementById('preview-viewport'),
   previewFrame: document.getElementById('preview-frame'),
-  projectInspector: document.getElementById('project-inspector'),
-  blockInspector: document.getElementById('block-inspector'),
-  activeLocaleLabel: document.getElementById('active-locale-label'),
-  selectedBlockLabel: document.getElementById('selected-block-label'),
+  sidebarScroll: document.querySelector('.sidebar-scroll'),
+  sidebar: document.getElementById('studio-sidebar-content'),
 };
 
 function clone(value) {
@@ -135,10 +132,220 @@ function getSelectedBlock() {
   return state.document.blocks.find((block) => block.id === state.document.ui.selectedBlockId) || null;
 }
 
-function updateDocument(mutator, previewReason = 'edit') {
+function currentPresentation() {
+  return state.presentation || { visibleBlocks: [], inactiveBlocks: [] };
+}
+
+function getInactiveEntry(blockId) {
+  return currentPresentation().inactiveBlocks.find((entry) => entry.block.id === blockId) || null;
+}
+
+function ensureSelectedBlock(document) {
+  if (!document) return;
+  const selectedExists = document.blocks.some((block) => block.id === document.ui.selectedBlockId);
+  if (selectedExists) return;
+  const visibleId = state.presentation?.visibleBlocks?.[0]?.id;
+  document.ui.selectedBlockId = visibleId || document.blocks[0]?.id || null;
+}
+
+function captureSidebarFocus() {
+  const active = document.activeElement;
+  if (!(active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement || active instanceof HTMLSelectElement)) {
+    return null;
+  }
+  if (!active.closest('[data-sidebar-content="true"]')) return null;
+
+  return {
+    sidebarControl: active.dataset.sidebarControl || '',
+    metaPath: active.dataset.metaPath || '',
+    blockPath: active.dataset.blockPath || '',
+    blockId: active.dataset.blockId || '',
+    selectionStart: 'selectionStart' in active ? active.selectionStart : null,
+    selectionEnd: 'selectionEnd' in active ? active.selectionEnd : null,
+  };
+}
+
+function restoreSidebarFocus(snapshot) {
+  if (!snapshot || state.editing) return;
+  let selector = '';
+
+  if (snapshot.sidebarControl) {
+    selector = `[data-sidebar-control="${snapshot.sidebarControl}"]`;
+  } else if (snapshot.metaPath) {
+    selector = `[data-meta-path="${snapshot.metaPath}"]`;
+  } else if (snapshot.blockPath) {
+    selector = `[data-block-path="${snapshot.blockPath}"][data-block-id="${snapshot.blockId}"]`;
+  } else {
+    return;
+  }
+
+  const next = elements.sidebar.querySelector(selector);
+  if (!(next instanceof HTMLInputElement || next instanceof HTMLTextAreaElement || next instanceof HTMLSelectElement)) {
+    return;
+  }
+
+  next.focus();
+  if ((next instanceof HTMLInputElement || next instanceof HTMLTextAreaElement) && snapshot.selectionStart !== null) {
+    next.setSelectionRange(snapshot.selectionStart, snapshot.selectionEnd ?? snapshot.selectionStart);
+  }
+}
+
+function buildDraftProjectId(documentRecord = state.document) {
+  if (!documentRecord) return null;
+  const folder = documentRecord.folder || '3_tech';
+  const slug = documentRecord.slug || 'new_project';
+  return `${folder}/${slug}.md`;
+}
+
+function getDisplayedProjectId(documentRecord = state.document) {
+  const draftProjectId = buildDraftProjectId(documentRecord);
+  if (!draftProjectId) return 'No project selected';
+  if (state.currentProjectId && state.currentProjectId !== draftProjectId) {
+    return `${draftProjectId} (unsaved)`;
+  }
+  return state.currentProjectId || draftProjectId;
+}
+
+function hasKnownProject(projectId) {
+  return Boolean(projectId) && (state.bootstrap?.projects || []).some((project) => project.id === projectId);
+}
+
+function readProjectIdFromUrl() {
+  const url = new URL(window.location.href);
+  return url.searchParams.get('project') || null;
+}
+
+function writeProjectIdToUrl(projectId, mode = 'replace') {
+  const url = new URL(window.location.href);
+  if (projectId) {
+    url.searchParams.set('project', projectId);
+  } else {
+    url.searchParams.delete('project');
+  }
+
+  const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+  const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  if (nextUrl === currentUrl) return;
+
+  const method = mode === 'push' ? 'pushState' : 'replaceState';
+  window.history[method]({}, '', nextUrl);
+}
+
+function captureHydrationState() {
+  return {
+    locale: currentLocale(),
+    previewMode: currentPreviewMode(),
+    selectedBlockId: state.document?.ui?.selectedBlockId || null,
+    sidebarScrollTop: elements.sidebarScroll?.scrollTop || 0,
+    canvasScrollTop: elements.canvasStage?.scrollTop || 0,
+    focusSnapshot: captureSidebarFocus(),
+  };
+}
+
+function applyHydrationState(documentRecord, snapshot) {
+  if (!documentRecord || !snapshot) return;
+  if (snapshot.locale) documentRecord.ui.locale = snapshot.locale;
+  if (snapshot.previewMode) documentRecord.ui.previewMode = snapshot.previewMode;
+  if (
+    snapshot.selectedBlockId &&
+    documentRecord.blocks.some((block) => block.id === snapshot.selectedBlockId)
+  ) {
+    documentRecord.ui.selectedBlockId = snapshot.selectedBlockId;
+  }
+}
+
+function restoreHydrationState(snapshot) {
+  if (!snapshot) return;
+  requestAnimationFrame(() => {
+    if (elements.sidebarScroll && typeof snapshot.sidebarScrollTop === 'number') {
+      elements.sidebarScroll.scrollTop = snapshot.sidebarScrollTop;
+    }
+    if (typeof snapshot.canvasScrollTop === 'number') {
+      elements.canvasStage.scrollTop = snapshot.canvasScrollTop;
+    }
+    restoreSidebarFocus(snapshot.focusSnapshot);
+  });
+}
+
+function defaultSidebarSectionOpen(key) {
+  if (key === 'selectedBlock') return true;
+  if (key === 'inactiveBlocks') return currentPresentation().inactiveBlocks.length > 0;
+  return false;
+}
+
+function isSidebarSectionOpen(key) {
+  if (Object.prototype.hasOwnProperty.call(state.sidebarSections, key)) {
+    return state.sidebarSections[key];
+  }
+  return defaultSidebarSectionOpen(key);
+}
+
+function getFilteredProjects() {
+  const projects = state.bootstrap?.projects || [];
+  const query = state.projectFilter.trim().toLowerCase();
+  if (!query) return projects;
+
+  return projects.filter((project) => {
+    const title = typeof project.title === 'string' ? project.title : project.title?.fr || project.slug;
+    return [title, project.id, project.slug, project.status]
+      .join(' ')
+      .toLowerCase()
+      .includes(query);
+  });
+}
+
+function normalizeDocumentForCanvas(document, activeBlockId = document?.ui?.selectedBlockId || null) {
+  if (!document) return;
+
+  document.blocks = Array.isArray(document.blocks)
+    ? document.blocks.map((block) => ({
+        ...block,
+        placement: {
+          ...block.placement,
+          desktop: normalizeDesktopPlacement(block.type, block.placement?.desktop),
+        },
+      }))
+    : [];
+
+  let presentation = getStudioPresentation(document);
+  const normalizedVisible = presentation.visibleBlocks.length
+    ? normalizeBlocksForCanvas(
+        presentation.visibleBlocks,
+        presentation.visibleBlocks.some((block) => block.id === activeBlockId) ? activeBlockId : null,
+      )
+    : [];
+
+  if (normalizedVisible.length) {
+    const placementById = new Map(
+      normalizedVisible.map((block) => [block.id, { ...block.placement.desktop }]),
+    );
+
+    document.blocks = document.blocks.map((block) =>
+      placementById.has(block.id)
+        ? {
+            ...block,
+            placement: {
+              ...block.placement,
+              desktop: placementById.get(block.id),
+            },
+          }
+        : block,
+    );
+
+    presentation = getStudioPresentation(document);
+  }
+
+  state.presentation = presentation;
+  ensureSelectedBlock(document);
+}
+
+function updateDocument(mutator, previewReason = 'edit', options = {}) {
   if (!state.document) return;
+  const focusSnapshot = captureSidebarFocus();
   mutator(state.document);
+  normalizeDocumentForCanvas(state.document, options.activeBlockId || state.document.ui.selectedBlockId);
   renderAll();
+  restoreSidebarFocus(focusSnapshot);
   if (previewReason !== 'none') {
     schedulePreviewSync(previewReason);
   }
@@ -149,7 +356,7 @@ function updateSelectedBlock(mutator, previewReason = 'edit') {
     const block = document.blocks.find((entry) => entry.id === document.ui.selectedBlockId);
     if (!block) return;
     mutator(block, document);
-  }, previewReason);
+  }, previewReason, { activeBlockId: state.document?.ui?.selectedBlockId });
 }
 
 function createBlockId(type) {
@@ -190,10 +397,13 @@ function syncPreviewFrame() {
 function schedulePreviewSync(reason = 'edit') {
   window.clearTimeout(state.previewTimer);
   const delay = reason === 'layout' ? 60 : reason === 'save' ? 0 : 180;
+  const quiet = reason === 'save';
   state.previewTimer = window.setTimeout(async () => {
     if (!state.document) return;
     try {
-      setStatus(reason === 'layout' ? 'Updating preview after layout change...' : 'Updating preview...');
+      if (!quiet) {
+        setStatus(reason === 'layout' ? 'Updating preview after layout change...' : 'Updating preview...');
+      }
       const draft = buildProjectDraftFromStudioDocument(state.document);
       await api('/api/studio-preview.json', {
         method: 'POST',
@@ -204,7 +414,9 @@ function schedulePreviewSync(reason = 'edit') {
       });
       const url = new URL(`/studio/preview?session=${encodeURIComponent(state.previewSessionId)}&lang=${currentLocale()}&t=${Date.now()}`, window.location.origin);
       elements.previewFrame.src = url.toString();
-      setStatus('Preview synced', 'ok');
+      if (!quiet) {
+        setStatus('Preview synced', 'ok');
+      }
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'Preview sync failed', 'error');
     }
@@ -215,68 +427,6 @@ function renderSegmented(container, activeValue, attributeName) {
   Array.from(container.querySelectorAll('button')).forEach((button) => {
     button.classList.toggle('is-active', button.dataset[attributeName] === activeValue);
   });
-}
-
-function renderProjectList() {
-  elements.projectList.innerHTML = '';
-  (state.bootstrap?.projects || []).forEach((project) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = `project-item${project.id === state.currentProjectId ? ' active' : ''}`;
-    button.dataset.projectId = project.id;
-    const title = typeof project.title === 'string' ? project.title : project.title?.fr || project.slug;
-    button.innerHTML = `
-      <span class="project-item-title">${escapeHtml(title)}</span>
-      <span class="mono">${escapeHtml(project.id)}</span>
-    `;
-    elements.projectList.appendChild(button);
-  });
-}
-
-function renderPresetSelect() {
-  elements.presetSelect.innerHTML = '';
-  (state.bootstrap?.presets || []).forEach((preset) => {
-    const option = document.createElement('option');
-    option.value = preset.key;
-    option.textContent = `${preset.label} - ${preset.description}`;
-    elements.presetSelect.appendChild(option);
-  });
-}
-
-function renderPalette() {
-  const existingTypes = new Set((state.document?.blocks || []).map((block) => block.type));
-  elements.paletteList.innerHTML = '';
-
-  (state.bootstrap?.palette || []).forEach((item) => {
-    const disabled = existingTypes.has(item.type);
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = `palette-item${disabled ? ' disabled' : ''}`;
-    button.dataset.blockType = item.type;
-    button.disabled = disabled;
-    button.innerHTML = `
-      <span class="palette-item-title">${escapeHtml(item.label)}</span>
-      <span class="mono">min ${item.constraints?.minW || 1}x${item.constraints?.minH || 1}</span>
-    `;
-    elements.paletteList.appendChild(button);
-  });
-}
-
-function renderProjectHeader() {
-  const title = localizedValue(state.document?.meta?.title, currentLocale()) || 'Untitled project';
-  elements.projectLabel.textContent = title;
-  elements.docId.textContent = state.currentProjectId || `${state.document?.folder || '3_tech'}/${state.document?.slug || 'new_project'}.md`;
-  elements.activeLocaleLabel.textContent = `Locale ${currentLocale().toUpperCase()}`;
-}
-
-function renderCanvas() {
-  if (!state.document) return;
-  renderStudioCanvas(elements.canvas, state.document, {
-    locale: currentLocale(),
-    selectedBlockId: state.document.ui.selectedBlockId,
-    editing: state.editing,
-  });
-  elements.canvasEmpty.classList.toggle('is-visible', !state.document.blocks.length);
 }
 
 function field(label, control) {
@@ -318,48 +468,170 @@ function checkboxInput({ label, checked, path, scope = 'block', blockId = '' }) 
   return field(label, `<input type="checkbox" ${attr}="${path}" ${idAttr} data-checkbox="true"${checked ? ' checked' : ''} />`);
 }
 
-function renderProjectInspector() {
+function renderProjectListMarkup() {
+  const projects = getFilteredProjects();
+  if (!projects.length) {
+    return state.projectFilter
+      ? `<div class="sidebar-note">No projects match "${escapeHtml(state.projectFilter)}".</div>`
+      : '<div class="sidebar-note">No projects found.</div>';
+  }
+
+  return `
+    <div class="project-list">
+      ${projects
+    .map((project) => {
+      const title = typeof project.title === 'string' ? project.title : project.title?.fr || project.slug;
+      return `
+        <button type="button" class="project-item${project.id === state.currentProjectId ? ' active' : ''}" data-project-id="${escapeHtml(project.id)}">
+          <span class="row-head">
+            <span class="project-item-title">${escapeHtml(title)}</span>
+            <span class="item-pill">${escapeHtml(project.status)}</span>
+          </span>
+          <span class="mono">${escapeHtml(project.id)}</span>
+        </button>
+      `;
+    })
+    .join('')}
+    </div>
+  `;
+}
+
+function renderPaletteMarkup() {
+  const existingTypes = new Set((state.document?.blocks || []).map((block) => block.type));
+  return `
+    <div class="palette-list">
+      ${(state.bootstrap?.palette || [])
+    .map((item) => {
+      const disabled = existingTypes.has(item.type);
+      return `
+        <button
+          type="button"
+          class="palette-item${disabled ? ' disabled' : ''}"
+          data-block-type="${escapeHtml(item.type)}"
+          ${disabled ? 'disabled' : ''}
+        >
+          <span class="row-head">
+            <span class="palette-item-title">${escapeHtml(item.label)}</span>
+            <span class="item-pill${disabled ? '' : ' item-pill--accent'}">${disabled ? 'Present' : 'Add'}</span>
+          </span>
+          <span class="mono">min ${item.constraints?.minW || 1}x${item.constraints?.minH || 1}</span>
+        </button>
+      `;
+    })
+    .join('')}
+    </div>
+  `;
+}
+
+function renderCreateProjectsMarkup() {
+  const presets = state.bootstrap?.presets || [];
+  const selectedPreset = state.document?.ui?.presetKey || presets[0]?.key || '';
+  const presetOptions = presets
+    .map((preset) => `<option value="${escapeHtml(preset.key)}"${preset.key === selectedPreset ? ' selected' : ''}>${escapeHtml(`${preset.label} - ${preset.description}`)}</option>`)
+    .join('');
+
+  return `
+    <div class="create-grid">
+      <div class="toolbar">
+        <button class="button primary" type="button" data-create-project="true">New From Preset</button>
+        <button class="button" type="button" data-duplicate-project="true"${state.currentProjectId ? '' : ' disabled'}>Duplicate</button>
+      </div>
+      <label class="field">
+        <span>Preset</span>
+        <select data-preset-select="true">${presetOptions}</select>
+      </label>
+      <label class="field">
+        <span>Find project</span>
+        <input
+          type="search"
+          data-sidebar-control="project-filter"
+          placeholder="Search title, slug, folder"
+          value="${escapeHtml(state.projectFilter)}"
+        />
+      </label>
+    </div>
+    <div class="sidebar-note">Duplicate loads a copy into Studio without overwriting the source file until you save.</div>
+    <div class="sidebar-projects">${renderProjectListMarkup()}</div>
+  `;
+}
+
+function renderInactiveBlocksMarkup() {
+  const inactiveBlocks = currentPresentation().inactiveBlocks;
+  if (!inactiveBlocks.length) {
+    return '<div class="sidebar-note">Every stored block is currently visible on the canvas.</div>';
+  }
+
+  return `
+    <div class="inactive-list">
+      ${inactiveBlocks.map(({ block, reason }) => `
+        <button
+          type="button"
+          class="inactive-item${state.document?.ui?.selectedBlockId === block.id ? ' active' : ''}"
+          data-select-block-id="${escapeHtml(block.id)}"
+        >
+          <span class="row-head">
+            <span class="inactive-item-title">${escapeHtml(block.label || block.type)}</span>
+            <span class="item-pill">${escapeHtml(block.kind)}</span>
+          </span>
+          <span class="inactive-item-reason">${escapeHtml(reason)}</span>
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderProjectInspectorMarkup() {
   if (!state.document) {
-    elements.projectInspector.innerHTML = '<div class="soft-note">Load a project to edit its metadata.</div>';
-    return;
+    return '<div class="sidebar-note">Load a project to edit its metadata.</div>';
   }
 
   const meta = state.document.meta;
   const locale = currentLocale();
   const localeLabel = locale.toUpperCase();
   const domains = (state.bootstrap?.domains || []).map((folder) => ({ value: folder, label: folder }));
+  const bodyLineCount = Math.max(1, String(state.document.body || '').split(/\r?\n/).length);
 
-  elements.projectInspector.innerHTML = `
-    <div class="field-grid two">
-      ${textInput({ label: 'Slug', value: state.document.slug, path: 'slug' })}
-      <div>${selectInput({ label: 'Domain folder', value: state.document.folder, path: 'folder', options: domains })}</div>
-      <div>${selectInput({ label: 'Status', value: meta.status, path: 'meta.status', options: [
-        { value: 'planned', label: 'planned' },
-        { value: 'in-progress', label: 'in-progress' },
-        { value: 'completed', label: 'completed' },
-      ] })}</div>
-      ${textInput({ label: 'Date', value: meta.date, path: 'meta.date', type: 'date' })}
-      ${textInput({ label: `Title (${localeLabel})`, value: localizedValue(meta.title, locale), path: 'meta.title', localized: true, wide: true })}
-      ${textInput({ label: `Short title (${localeLabel})`, value: localizedValue(meta.altTitle, locale), path: 'meta.altTitle', localized: true, wide: true })}
-      ${textareaInput({ label: `Description (${localeLabel})`, value: localizedValue(meta.description, locale), path: 'meta.description', localized: true })}
-      ${textInput({ label: 'Tech tags', value: meta.tech.join(', '), path: 'meta.tech', wide: true })}
-      ${textInput({ label: 'Live link', value: meta.link, path: 'meta.link', wide: true })}
-      ${textInput({ label: 'GitHub', value: meta.github, path: 'meta.github', wide: true })}
-      ${textInput({ label: 'Accent color', value: meta.theme.accentColor, path: 'meta.theme.accentColor' })}
-      ${textInput({ label: 'Accent dark', value: meta.theme.accentColorDark, path: 'meta.theme.accentColorDark' })}
-      ${textInput({ label: 'Assets folder', value: meta.theme.assetsFolder, path: 'meta.theme.assetsFolder', wide: true })}
-      <div>${selectInput({ label: 'Shell mode', value: meta.orbit.shellMode || 'auto', path: 'meta.orbit.shellMode', options: [
-        { value: 'auto', label: 'auto' },
-        { value: 'manual', label: 'manual' },
-      ] })}</div>
-      ${textInput({ label: 'Shell', value: meta.orbit.shell ?? '', path: 'meta.orbit.shell', type: 'number' })}
-      ${textInput({ label: 'Order', value: meta.orbit.order ?? '', path: 'meta.orbit.order', type: 'number' })}
-      <div>${selectInput({ label: 'Angle mode', value: meta.orbit.angleMode || 'auto', path: 'meta.orbit.angleMode', options: [
-        { value: 'auto', label: 'auto' },
-        { value: 'fixed', label: 'fixed' },
-      ] })}</div>
-      ${textInput({ label: 'Angle', value: meta.orbit.angle ?? '', path: 'meta.orbit.angle', type: 'number' })}
-      ${textareaInput({ label: 'Body markdown', value: state.document.body, path: 'body' })}
+  return `
+    <div class="stack">
+      <div class="field-grid two">
+        ${textInput({ label: 'Slug', value: state.document.slug, path: 'slug' })}
+        <div>${selectInput({ label: 'Domain folder', value: state.document.folder, path: 'folder', options: domains })}</div>
+        <div>${selectInput({ label: 'Status', value: meta.status, path: 'meta.status', options: [
+          { value: 'planned', label: 'planned' },
+          { value: 'in-progress', label: 'in-progress' },
+          { value: 'completed', label: 'completed' },
+        ] })}</div>
+        ${textInput({ label: 'Date', value: meta.date, path: 'meta.date', type: 'date' })}
+        ${textInput({ label: `Title (${localeLabel})`, value: localizedValue(meta.title, locale), path: 'meta.title', localized: true, wide: true })}
+        ${textInput({ label: `Short title (${localeLabel})`, value: localizedValue(meta.altTitle, locale), path: 'meta.altTitle', localized: true, wide: true })}
+        ${textareaInput({ label: `Description (${localeLabel})`, value: localizedValue(meta.description, locale), path: 'meta.description', localized: true })}
+        ${textInput({ label: 'Tech tags', value: meta.tech.join(', '), path: 'meta.tech', wide: true })}
+        ${textInput({ label: 'Live link', value: meta.link, path: 'meta.link', wide: true })}
+        ${textInput({ label: 'GitHub', value: meta.github, path: 'meta.github', wide: true })}
+        ${textInput({ label: 'Accent color', value: meta.theme.accentColor, path: 'meta.theme.accentColor' })}
+        ${textInput({ label: 'Accent dark', value: meta.theme.accentColorDark, path: 'meta.theme.accentColorDark' })}
+        ${textInput({ label: 'Assets folder', value: meta.theme.assetsFolder, path: 'meta.theme.assetsFolder', wide: true })}
+        <div>${selectInput({ label: 'Shell mode', value: meta.orbit.shellMode || 'auto', path: 'meta.orbit.shellMode', options: [
+          { value: 'auto', label: 'auto' },
+          { value: 'manual', label: 'manual' },
+        ] })}</div>
+        ${textInput({ label: 'Shell', value: meta.orbit.shell ?? '', path: 'meta.orbit.shell', type: 'number' })}
+        ${textInput({ label: 'Order', value: meta.orbit.order ?? '', path: 'meta.orbit.order', type: 'number' })}
+        <div>${selectInput({ label: 'Angle mode', value: meta.orbit.angleMode || 'auto', path: 'meta.orbit.angleMode', options: [
+          { value: 'auto', label: 'auto' },
+          { value: 'fixed', label: 'fixed' },
+        ] })}</div>
+        ${textInput({ label: 'Angle', value: meta.orbit.angle ?? '', path: 'meta.orbit.angle', type: 'number' })}
+      </div>
+      <details class="subsection">
+        <summary>
+          <span>Body Markdown</span>
+          <span class="section-meta">${bodyLineCount} lines</span>
+        </summary>
+        <div class="subsection-body">
+          ${textareaInput({ label: 'Markdown body', value: state.document.body, path: 'body' })}
+        </div>
+      </details>
     </div>
   `;
 }
@@ -472,7 +744,7 @@ function renderGalleryInspector(block, locale) {
           `).join('')}
         </div>
         <button class="button" type="button" data-array-action="add" data-block-id="${block.id}" data-array-path="content.images">Add image</button>
-      ` : '<div class="soft-note" style="grid-column: 1 / -1;">Gallery images will resolve from the project assets folder.</div>'}
+      ` : '<div class="sidebar-note" style="grid-column: 1 / -1;">Gallery images will resolve from the project assets folder.</div>'}
     </div>
   `;
 }
@@ -510,7 +782,7 @@ function renderCoreInspector(block, locale) {
       return `
         <div class="field-grid">
           ${textInput({ label: `Title (${locale.toUpperCase()})`, value: localizedValue(block.content?.title, locale), path: 'content.title', scope: 'block', blockId: block.id, localized: true })}
-          <div class="soft-note">Technology pills come from the project tech tags above.</div>
+          <div class="sidebar-note">Technology pills come from the project tech tags above.</div>
         </div>
       `;
     case 'process':
@@ -522,44 +794,175 @@ function renderCoreInspector(block, locale) {
     case 'results':
       return renderResultsInspector(block, locale);
     default:
-      return '<div class="soft-note">This block has no editable inspector.</div>';
+      return '<div class="sidebar-note">This block has no editable inspector.</div>';
   }
 }
 
-function renderBlockInspector() {
+function renderBlockInspectorMarkup() {
   const block = getSelectedBlock();
   const locale = currentLocale();
+
   if (!block) {
-    elements.selectedBlockLabel.textContent = 'No selection';
-    elements.blockInspector.innerHTML = '<div class="soft-note">Select a block on the canvas to edit its settings.</div>';
-    return;
+    return {
+      meta: 'No selection',
+      body: '<div class="sidebar-note">Select a visible or inactive block to edit its settings.</div>',
+    };
   }
 
-  elements.selectedBlockLabel.textContent = `${block.label} (${block.kind})`;
+  const inactiveEntry = getInactiveEntry(block.id);
+  const preface = inactiveEntry
+    ? `<div class="sidebar-note">${escapeHtml(inactiveEntry.reason)}</div>`
+    : '';
 
   const body = block.kind === 'legacy'
     ? `
-      <div class="soft-note">Legacy media blocks can move, resize, enable, disable, and round-trip. Content editing stays limited in this first release.</div>
-      <div class="soft-note"><pre style="margin:0; white-space:pre-wrap; font-family:Consolas, monospace;">${escapeHtml(JSON.stringify(block.content || {}, null, 2))}</pre></div>
+      <div class="sidebar-note">Legacy media blocks can move, resize, enable, disable, and round-trip. Content editing stays limited in this pass.</div>
+      <div class="sidebar-note"><pre style="margin:0; white-space:pre-wrap; font-family:Consolas, monospace;">${escapeHtml(JSON.stringify(block.content || {}, null, 2))}</pre></div>
     `
     : renderCoreInspector(block, locale);
 
-  elements.blockInspector.innerHTML = `
-    <div class="field-grid two">
-      ${checkboxInput({ label: 'Enabled', checked: block.enabled !== false, path: 'enabled', blockId: block.id })}
-      ${textInput({ label: 'Variant', value: block.variant || 'default', path: 'variant', scope: 'block', blockId: block.id })}
-      ${textInput({ label: 'Grid X', value: block.placement.desktop.x, path: 'placement.desktop.x', scope: 'block', blockId: block.id, type: 'number' })}
-      ${textInput({ label: 'Grid Y', value: block.placement.desktop.y, path: 'placement.desktop.y', scope: 'block', blockId: block.id, type: 'number' })}
-      ${textInput({ label: 'Width', value: block.placement.desktop.w, path: 'placement.desktop.w', scope: 'block', blockId: block.id, type: 'number' })}
-      ${textInput({ label: 'Height', value: block.placement.desktop.h, path: 'placement.desktop.h', scope: 'block', blockId: block.id, type: 'number' })}
-    </div>
-    ${body}
+  return {
+    meta: `${block.label} | ${block.kind}`,
+    body: `
+      ${preface}
+      <div class="field-grid two">
+        ${checkboxInput({ label: 'Enabled', checked: block.enabled !== false, path: 'enabled', blockId: block.id })}
+        ${textInput({ label: 'Variant', value: block.variant || 'default', path: 'variant', scope: 'block', blockId: block.id })}
+        ${textInput({ label: 'Grid X', value: block.placement.desktop.x, path: 'placement.desktop.x', scope: 'block', blockId: block.id, type: 'number' })}
+        ${textInput({ label: 'Grid Y', value: block.placement.desktop.y, path: 'placement.desktop.y', scope: 'block', blockId: block.id, type: 'number' })}
+        ${textInput({ label: 'Width', value: block.placement.desktop.w, path: 'placement.desktop.w', scope: 'block', blockId: block.id, type: 'number' })}
+        ${textInput({ label: 'Height', value: block.placement.desktop.h, path: 'placement.desktop.h', scope: 'block', blockId: block.id, type: 'number' })}
+      </div>
+      ${body}
+    `,
+  };
+}
+
+function renderSidebarSection({ key, eyebrow, title, meta, body }) {
+  return `
+    <details class="sidebar-section"${isSidebarSectionOpen(key) ? ' open' : ''} data-section-key="${key}">
+      <summary>
+        <div class="section-heading">
+          <span class="eyebrow">${escapeHtml(eyebrow)}</span>
+          <h2>${escapeHtml(title)}</h2>
+        </div>
+        <span class="section-meta">${escapeHtml(meta)}</span>
+      </summary>
+      <div class="section-body">${body}</div>
+    </details>
   `;
 }
 
+function renderSidebarSummary() {
+  if (!state.document) {
+    return `
+      <div class="card sidebar-summary">
+        <span class="eyebrow">Current Project</span>
+        <h2>Loading Studio</h2>
+      </div>
+    `;
+  }
+
+  const selectedBlock = getSelectedBlock();
+  const visibleCount = currentPresentation().visibleBlocks.length;
+  const inactiveCount = currentPresentation().inactiveBlocks.length;
+  const title = localizedValue(state.document.meta?.title, currentLocale()) || state.document.slug || 'Untitled project';
+
+  return `
+    <div class="card sidebar-summary">
+      <div class="sidebar-summary__header">
+        <div class="stack" style="gap: 8px;">
+          <span class="eyebrow">Current Project</span>
+          <h2>${escapeHtml(title)}</h2>
+        </div>
+        <span class="item-pill item-pill--accent">${escapeHtml(state.document.meta?.status || 'planned')}</span>
+      </div>
+      <div class="mono sidebar-summary__path">${escapeHtml(getDisplayedProjectId())}</div>
+      <div class="sidebar-summary__stats">
+        <div class="summary-cell">
+          <span class="summary-label">Selected</span>
+          <strong>${escapeHtml(selectedBlock?.label || 'None')}</strong>
+        </div>
+        <div class="summary-cell">
+          <span class="summary-label">Visible</span>
+          <strong>${visibleCount}</strong>
+        </div>
+        <div class="summary-cell">
+          <span class="summary-label">Hidden</span>
+          <strong>${inactiveCount}</strong>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSidebar() {
+  const blockInspector = renderBlockInspectorMarkup();
+  const inactiveCount = currentPresentation().inactiveBlocks.length;
+  const filteredProjects = getFilteredProjects();
+  const totalProjects = (state.bootstrap?.projects || []).length;
+
+  elements.sidebar.innerHTML = `
+    <div class="sidebar-stack">
+      ${renderSidebarSummary()}
+      ${renderSidebarSection({
+        key: 'selectedBlock',
+        eyebrow: 'Inspector',
+        title: 'Selected Block',
+        meta: blockInspector.meta,
+        body: blockInspector.body,
+      })}
+      ${renderSidebarSection({
+        key: 'projectSettings',
+        eyebrow: 'Inspector',
+        title: 'Project Settings',
+        meta: state.document?.meta?.status || 'project',
+        body: renderProjectInspectorMarkup(),
+      })}
+      ${renderSidebarSection({
+        key: 'inactiveBlocks',
+        eyebrow: 'Parity',
+        title: 'Inactive / Conditional Blocks',
+        meta: inactiveCount ? `${inactiveCount} hidden` : 'All visible',
+        body: renderInactiveBlocksMarkup(),
+      })}
+      ${renderSidebarSection({
+        key: 'palette',
+        eyebrow: 'Palette',
+        title: 'Block Palette',
+        meta: `${(state.bootstrap?.palette || []).length} core`,
+        body: `${renderPaletteMarkup()}<div class="sidebar-note">Drag a block onto the canvas or click to add it to the next open slot.</div>`,
+      })}
+      ${renderSidebarSection({
+        key: 'projects',
+        eyebrow: 'Projects',
+        title: 'Create & Switch',
+        meta: state.projectFilter ? `${filteredProjects.length}/${totalProjects} files` : `${totalProjects} files`,
+        body: renderCreateProjectsMarkup(),
+      })}
+    </div>
+  `;
+}
+
+function renderProjectHeader() {
+  const title = localizedValue(state.document?.meta?.title, currentLocale()) || 'Untitled project';
+  elements.projectLabel.textContent = title;
+  elements.docId.textContent = getDisplayedProjectId();
+}
+
+function renderCanvas() {
+  if (!state.document) return;
+  const visibleBlocks = currentPresentation().visibleBlocks;
+  renderStudioCanvas(elements.canvas, state.document, {
+    locale: currentLocale(),
+    selectedBlockId: state.document.ui.selectedBlockId,
+    editing: state.editing,
+    blocks: visibleBlocks,
+  });
+  elements.canvasEmpty.classList.toggle('is-visible', !visibleBlocks.length);
+}
+
 function renderAll() {
-  renderProjectList();
-  renderPalette();
   renderProjectHeader();
   renderSegmented(elements.localeToggle, currentLocale(), 'locale');
   renderSegmented(elements.previewModeToggle, currentPreviewMode(), 'mode');
@@ -567,15 +970,14 @@ function renderAll() {
   elements.canvasStage.classList.toggle('is-active', currentPreviewMode() === 'canvas');
   elements.previewStage.classList.toggle('is-active', currentPreviewMode() === 'preview');
   renderCanvas();
-  renderProjectInspector();
-  renderBlockInspector();
+  renderSidebar();
   elements.openProjectBtn.disabled = !state.document;
 }
 
 function selectBlock(blockId) {
   updateDocument((document) => {
     document.ui.selectedBlockId = blockId;
-  }, 'none');
+  }, 'none', { activeBlockId: blockId });
 }
 
 function setEditing(payload) {
@@ -624,8 +1026,7 @@ function commitInlineEdit(editor) {
     } else {
       setAtPath(block, path, value);
     }
-  });
-
+  }, 'edit', { activeBlockId: blockId || state.document.ui.selectedBlockId });
 }
 
 function normalizeTypedValue(target, descriptorPath, rawValue) {
@@ -650,6 +1051,9 @@ function handleBoundInput(target, scope) {
   const localized = target.dataset.localized === 'true';
   const rawValue = target instanceof HTMLInputElement && target.type === 'checkbox' ? target.checked : target.value;
   const nextValue = normalizeTypedValue(target, path, rawValue);
+  const isLayoutField = scope === 'block' && (path === 'enabled' || path.startsWith('placement.desktop'));
+  const previewReason = isLayoutField ? 'layout' : 'edit';
+  const activeBlockId = scope === 'block' ? target.dataset.blockId || state.document.ui.selectedBlockId : state.document.ui.selectedBlockId;
 
   updateDocument((document) => {
     if (scope === 'meta') {
@@ -672,7 +1076,7 @@ function handleBoundInput(target, scope) {
     } else {
       setAtPath(block, path, nextValue);
     }
-  });
+  }, previewReason, { activeBlockId });
 }
 
 function addBlock(type, placement = null) {
@@ -682,15 +1086,17 @@ function addBlock(type, placement = null) {
     return;
   }
 
+  const nextBlockId = createBlockId(type);
   updateDocument((document) => {
+    const visibleBlocks = getStudioPresentation(document).visibleBlocks;
     const block = createStudioBlockInstance(type, {
-      id: createBlockId(type),
+      id: nextBlockId,
       placement: placement ? { desktop: placement } : undefined,
     });
-    block.placement.desktop = findNextOpenPlacement(document.blocks, type, block.placement.desktop);
+    block.placement.desktop = findNextOpenPlacement(visibleBlocks, type, block.placement.desktop);
     document.blocks.push(block);
     document.ui.selectedBlockId = block.id;
-  }, 'layout');
+  }, 'layout', { activeBlockId: nextBlockId });
 }
 
 function commitPlacement(blockId, placement) {
@@ -698,9 +1104,16 @@ function commitPlacement(blockId, placement) {
     const block = document.blocks.find((entry) => entry.id === blockId);
     if (!block) return;
     block.placement.desktop = placement;
-    document.blocks = resolveDesktopCollisions(document.blocks, blockId);
     document.ui.selectedBlockId = blockId;
-  }, 'layout');
+  }, 'layout', { activeBlockId: blockId });
+}
+
+function currentPresetKey() {
+  const select = elements.sidebar.querySelector('[data-preset-select="true"]');
+  if (!(select instanceof HTMLSelectElement)) {
+    return state.bootstrap?.presets?.[0]?.key || 'blank';
+  }
+  return select.value;
 }
 
 function beginPaletteDrag(event, type, label) {
@@ -737,8 +1150,8 @@ function beginPaletteDrag(event, type, label) {
       pointerEvent.clientY <= rect.bottom;
 
     if (insideCanvas) {
-      const placement = clientPointToPlacement(elements.canvas, type, pointerEvent.clientX, pointerEvent.clientY);
-      addBlock(type, placement);
+      const droppedPlacement = clientPointToPlacement(elements.canvas, type, pointerEvent.clientX, pointerEvent.clientY);
+      addBlock(type, droppedPlacement);
     } else if (!state.paletteDrag.moved) {
       addBlock(type);
     }
@@ -840,29 +1253,41 @@ function handleError(error) {
 
 async function loadBootstrap() {
   state.bootstrap = await studioApi('/bootstrap');
-  renderPresetSelect();
 }
 
-function hydrateDocument(document, currentProjectId) {
+function hydrateDocument(document, currentProjectId, options = {}) {
+  const preservedUi = options.preservedUi || null;
   state.document = clone(document);
   state.currentProjectId = currentProjectId;
   state.editing = null;
+  applyHydrationState(state.document, preservedUi);
+  normalizeDocumentForCanvas(state.document, state.document.ui?.selectedBlockId || null);
   renderAll();
+  restoreHydrationState(preservedUi);
   syncPreviewFrame();
   schedulePreviewSync('save');
 }
 
-async function loadProject(projectId) {
+async function loadProject(projectId, options = {}) {
+  const {
+    urlMode = 'push',
+    statusMessage = null,
+    statusMode = 'ok',
+  } = options;
   setStatus('Loading project...');
-  const document = await studioApi(`/project?id=${encodeURIComponent(projectId)}`);
-  hydrateDocument(document, document.id || projectId);
-  setStatus(`Loaded ${document.id}`, 'ok');
+  const loadedDocument = await studioApi(`/project?id=${encodeURIComponent(projectId)}`);
+  hydrateDocument(loadedDocument, loadedDocument.id || projectId);
+  if (urlMode !== 'none') {
+    writeProjectIdToUrl(loadedDocument.id || projectId, urlMode);
+  }
+  setStatus(statusMessage || `Loaded ${loadedDocument.id}`, statusMode);
 }
 
 async function createFromPreset() {
   setStatus('Creating draft...');
-  const draft = await studioApi(`/draft?preset=${encodeURIComponent(elements.presetSelect.value)}`);
+  const draft = await studioApi(`/draft?preset=${encodeURIComponent(currentPresetKey())}`);
   hydrateDocument(draft.document, null);
+  writeProjectIdToUrl(null, 'replace');
   setStatus('Draft ready', 'ok');
 }
 
@@ -874,25 +1299,25 @@ async function duplicateProject() {
   setStatus('Duplicating project...');
   const duplicate = await studioApi(`/duplicate?id=${encodeURIComponent(state.currentProjectId)}`);
   hydrateDocument(duplicate.document, null);
+  writeProjectIdToUrl(null, 'replace');
   setStatus('Duplicate ready', 'ok');
 }
 
 async function saveProject() {
   if (!state.document) return;
+  const preservedUi = captureHydrationState();
   setStatus('Saving project...');
   const response = await studioApi('/save', {
     method: 'POST',
     body: JSON.stringify({ document: state.document }),
   });
-  hydrateDocument(response.document, response.id);
   await loadBootstrap();
-  renderAll();
+  hydrateDocument(response.document, response.id, { preservedUi });
+  writeProjectIdToUrl(response.id, 'replace');
   setStatus(`Saved ${response.id}`, 'ok');
 }
 
 function attachEvents() {
-  elements.createProjectBtn.addEventListener('click', () => createFromPreset().catch(handleError));
-  elements.duplicateProjectBtn.addEventListener('click', () => duplicateProject().catch(handleError));
   elements.saveProjectBtn.addEventListener('click', () => saveProject().catch(handleError));
   elements.reloadProjectBtn.addEventListener('click', () => {
     if (!state.currentProjectId) return;
@@ -901,19 +1326,6 @@ function attachEvents() {
   elements.openProjectBtn.addEventListener('click', () => {
     if (!state.document) return;
     window.open(`/projects/${state.document.slug}`, '_blank', 'noopener');
-  });
-
-  elements.projectList.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-project-id]');
-    if (!button) return;
-    loadProject(button.dataset.projectId).catch(handleError);
-  });
-
-  elements.paletteList.addEventListener('pointerdown', (event) => {
-    const button = event.target.closest('[data-block-type]');
-    if (!button || button.disabled) return;
-    event.preventDefault();
-    beginPaletteDrag(event, button.dataset.blockType, button.querySelector('.palette-item-title')?.textContent || button.dataset.blockType);
   });
 
   elements.localeToggle.addEventListener('click', (event) => {
@@ -950,12 +1362,12 @@ function attachEvents() {
         updateDocument((document) => {
           const block = document.blocks.find((entry) => entry.id === blockId);
           if (block) block.enabled = block.enabled === false;
-        });
+        }, 'layout', { activeBlockId: blockId });
       } else if (action === 'remove') {
         updateDocument((document) => {
           document.blocks = document.blocks.filter((block) => block.id !== blockId);
           if (document.ui.selectedBlockId === blockId) {
-            document.ui.selectedBlockId = document.blocks[0]?.id || null;
+            document.ui.selectedBlockId = null;
           }
         }, 'layout');
       } else if (action === 'select') {
@@ -1011,48 +1423,61 @@ function attachEvents() {
     }
   }, true);
 
-  elements.projectInspector.addEventListener('input', (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement)) return;
-    if (!target.dataset.metaPath) return;
-    handleBoundInput(target, 'meta');
+  elements.sidebar.addEventListener('toggle', (event) => {
+    if (!(event.target instanceof HTMLDetailsElement)) return;
+    const key = event.target.dataset.sectionKey;
+    if (!key) return;
+    state.sidebarSections[key] = event.target.open;
   });
 
-  elements.projectInspector.addEventListener('change', (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement)) return;
-    if (!target.dataset.metaPath) return;
-    handleBoundInput(target, 'meta');
+  elements.sidebar.addEventListener('pointerdown', (event) => {
+    const button = event.target.closest('[data-block-type]');
+    if (!button || button.disabled) return;
+    event.preventDefault();
+    beginPaletteDrag(event, button.dataset.blockType, button.querySelector('.palette-item-title')?.textContent || button.dataset.blockType);
   });
 
-  elements.blockInspector.addEventListener('input', (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement)) return;
-    if (!target.dataset.blockPath) return;
-    handleBoundInput(target, 'block');
-  });
+  elements.sidebar.addEventListener('click', (event) => {
+    const createButton = event.target.closest('[data-create-project]');
+    if (createButton) {
+      createFromPreset().catch(handleError);
+      return;
+    }
 
-  elements.blockInspector.addEventListener('change', (event) => {
-    const target = event.target;
-    if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement)) return;
-    if (!target.dataset.blockPath) return;
-    handleBoundInput(target, 'block');
-  });
+    const duplicateButton = event.target.closest('[data-duplicate-project]');
+    if (duplicateButton) {
+      duplicateProject().catch(handleError);
+      return;
+    }
 
-  elements.blockInspector.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-array-action]');
-    if (!button) return;
-    const blockId = button.dataset.blockId;
-    const arrayPath = button.dataset.arrayPath;
-    const arrayIndex = Number(button.dataset.arrayIndex);
-    const action = button.dataset.arrayAction;
+    const projectButton = event.target.closest('[data-project-id]');
+    if (projectButton) {
+      loadProject(projectButton.dataset.projectId).catch(handleError);
+      return;
+    }
 
-    updateSelectedBlock((block) => {
-      if (block.id !== blockId) return;
+    const selectBlockButton = event.target.closest('[data-select-block-id]');
+    if (selectBlockButton) {
+      selectBlock(selectBlockButton.dataset.selectBlockId);
+      return;
+    }
+
+    const arrayButton = event.target.closest('[data-array-action]');
+    if (!arrayButton) return;
+
+    const blockId = arrayButton.dataset.blockId;
+    const arrayPath = arrayButton.dataset.arrayPath;
+    const arrayIndex = Number(arrayButton.dataset.arrayIndex);
+    const action = arrayButton.dataset.arrayAction;
+
+    updateDocument((document) => {
+      const block = document.blocks.find((entry) => entry.id === blockId);
+      if (!block) return;
       const items = getAtPath(block, arrayPath) || [];
       if (action === 'add') {
         items.push(defaultArrayItemFor(block.type, arrayPath));
         setAtPath(block, arrayPath, items);
+        document.ui.selectedBlockId = blockId;
         return;
       }
       if (!Array.isArray(items)) return;
@@ -1064,8 +1489,58 @@ function attachEvents() {
         [items[arrayIndex + 1], items[arrayIndex]] = [items[arrayIndex], items[arrayIndex + 1]];
       }
       setAtPath(block, arrayPath, items);
-    });
+      document.ui.selectedBlockId = blockId;
+    }, 'edit', { activeBlockId: blockId });
   });
+
+  const handleSidebarBoundInput = (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement)) return;
+    if (target.dataset.sidebarControl === 'project-filter') {
+      const focusSnapshot = captureSidebarFocus();
+      state.projectFilter = target.value;
+      renderSidebar();
+      restoreSidebarFocus(focusSnapshot);
+      return;
+    }
+    if (target.dataset.metaPath) {
+      handleBoundInput(target, 'meta');
+      return;
+    }
+    if (target.dataset.blockPath) {
+      handleBoundInput(target, 'block');
+    }
+  };
+
+  elements.sidebar.addEventListener('input', handleSidebarBoundInput);
+  elements.sidebar.addEventListener('change', handleSidebarBoundInput);
+}
+
+async function handleHistoryNavigation() {
+  if (!state.bootstrap?.projects?.length) return;
+
+  const requestedProjectId = readProjectIdFromUrl();
+  const fallbackProjectId = state.bootstrap.projects[0]?.id || null;
+
+  if (requestedProjectId && hasKnownProject(requestedProjectId)) {
+    if (requestedProjectId !== state.currentProjectId) {
+      await loadProject(requestedProjectId, { urlMode: 'none' });
+    }
+    return;
+  }
+
+  if (requestedProjectId && !hasKnownProject(requestedProjectId) && fallbackProjectId) {
+    await loadProject(fallbackProjectId, {
+      urlMode: 'replace',
+      statusMessage: `Project "${requestedProjectId}" was not found. Loaded ${fallbackProjectId}.`,
+      statusMode: 'error',
+    });
+    return;
+  }
+
+  if (!requestedProjectId && fallbackProjectId && fallbackProjectId !== state.currentProjectId) {
+    await loadProject(fallbackProjectId, { urlMode: 'none' });
+  }
 }
 
 async function init() {
@@ -1073,14 +1548,31 @@ async function init() {
     await loadBootstrap();
     attachEvents();
     if (state.bootstrap?.projects?.length) {
-      await loadProject(state.bootstrap.projects[0].id);
+      const requestedProjectId = readProjectIdFromUrl();
+      const fallbackProjectId = state.bootstrap.projects[0].id;
+      if (requestedProjectId && hasKnownProject(requestedProjectId)) {
+        await loadProject(requestedProjectId, { urlMode: 'replace' });
+      } else if (requestedProjectId) {
+        await loadProject(fallbackProjectId, {
+          urlMode: 'replace',
+          statusMessage: `Project "${requestedProjectId}" was not found. Loaded ${fallbackProjectId}.`,
+          statusMode: 'error',
+        });
+      } else {
+        await loadProject(fallbackProjectId, { urlMode: 'replace' });
+      }
     } else {
+      writeProjectIdToUrl(null, 'replace');
       await createFromPreset();
     }
   } catch (error) {
     handleError(error);
   }
 }
+
+window.addEventListener('popstate', () => {
+  handleHistoryNavigation().catch(handleError);
+});
 
 window.addEventListener('beforeunload', () => {
   fetch(`/api/studio-preview.json?session=${encodeURIComponent(state.previewSessionId)}`, { method: 'DELETE' }).catch(() => {});

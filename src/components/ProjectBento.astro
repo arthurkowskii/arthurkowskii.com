@@ -137,7 +137,13 @@ const DEFAULT_SAMPLER_CONFIG = {
 const bento = {
   ...(data.bento || {}),
 };
-const normalizedLayout = normalizeBentoLayout(bento);
+const normalizedLayout = normalizeBentoLayout(bento, {
+  profile: 'published',
+  synthesizeProfile: 'studio',
+  meta: {
+    tech: Array.isArray(data.tech) ? data.tech : [],
+  },
+});
 const cards = normalizedLayout.cards;
 const layoutBlocks = normalizedLayout.blocks.filter((block) => block.enabled !== false);
 const blockByType = new Map(layoutBlocks.map((block) => [block.type, block]));

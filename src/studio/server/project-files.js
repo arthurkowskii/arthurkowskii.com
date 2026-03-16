@@ -330,7 +330,12 @@ export async function saveProjectFile(payload) {
   const normalizedInput = normalizeProjectFrontmatter(projectDraft.frontmatter);
   const parsed = projectInputSchema.parse(normalizedInput);
   const safeFolder = projectDraft.folder || '3_tech';
-  const safeSlug = slugify(projectDraft.slug || sourceDocument?.id || parsed.title?.fr || parsed.title || 'new_project');
+  const existingSlug = sourceDocument?.id ? path.basename(String(sourceDocument.id), '.md') : '';
+  const requestedSlug = String(projectDraft.slug || '').trim();
+  const preserveExistingSlug = existingSlug && requestedSlug && requestedSlug === existingSlug;
+  const safeSlug = preserveExistingSlug
+    ? existingSlug
+    : slugify(requestedSlug || sourceDocument?.id || parsed.title?.fr || parsed.title || 'new_project');
   const finalFrontmatter = {
     ...parsed,
     bento: parsed.bento,

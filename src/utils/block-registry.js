@@ -4,6 +4,8 @@ import {
   DEFAULT_LAYOUT_COLUMNS,
 } from '../content/project-schema.js';
 
+const DEFAULT_PROFILE = 'published';
+
 function bilingualValue(fr, en = '') {
   return { fr, en };
 }
@@ -12,18 +14,24 @@ function placement(desktop, tablet, mobile) {
   return { desktop, tablet, mobile };
 }
 
+function profiles(published, studio = published) {
+  return { published, studio };
+}
+
 export const BLOCK_REGISTRY = {
   hero: {
     type: 'hero',
     label: BLOCK_LABELS.hero,
     variant: 'default',
     payloadKey: 'hero',
-    constraints: { minW: 3, minH: 2, maxW: 12 },
-    placement: placement(
-      { x: 4, y: 0, w: 8, h: 2 },
-      { x: 3, y: 0, w: 5, h: 2 },
-      { x: 0, y: 0, w: 4, h: 2 },
-    ),
+    profiles: profiles({
+      constraints: { minW: 3, minH: 2, maxW: 12 },
+      placement: placement(
+        { x: 4, y: 0, w: 8, h: 2 },
+        { x: 3, y: 0, w: 5, h: 2 },
+        { x: 0, y: 0, w: 4, h: 2 },
+      ),
+    }),
     createDefaultPayload: () => ({
       subtitle: bilingualValue('', ''),
       subtitleColor: '#ff6b00',
@@ -39,11 +47,23 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.stats,
     variant: 'default',
     payloadKey: 'stats',
-    constraints: { minW: 3, minH: 1, maxW: 6 },
-    placement: placement(
-      { x: 0, y: 0, w: 4, h: 1 },
-      { x: 0, y: 0, w: 3, h: 1 },
-      { x: 0, y: 2, w: 4, h: 1 },
+    profiles: profiles(
+      {
+        constraints: { minW: 3, minH: 1, maxW: 6 },
+        placement: placement(
+          { x: 0, y: 0, w: 4, h: 1 },
+          { x: 0, y: 0, w: 3, h: 1 },
+          { x: 0, y: 2, w: 4, h: 1 },
+        ),
+      },
+      {
+        constraints: { minW: 3, minH: 2, maxW: 6 },
+        placement: placement(
+          { x: 0, y: 0, w: 4, h: 2 },
+          { x: 0, y: 0, w: 3, h: 2 },
+          { x: 0, y: 2, w: 4, h: 2 },
+        ),
+      },
     ),
     createDefaultPayload: () => ([{ value: '1', label: bilingualValue('STAT', 'STAT') }]),
   },
@@ -52,11 +72,23 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.musicLinks,
     variant: 'default',
     payloadKey: 'musicLinks',
-    constraints: { minW: 3, minH: 1, maxW: 6 },
-    placement: placement(
-      { x: 0, y: 0, w: 4, h: 1 },
-      { x: 0, y: 0, w: 3, h: 1 },
-      { x: 0, y: 2, w: 4, h: 1 },
+    profiles: profiles(
+      {
+        constraints: { minW: 3, minH: 1, maxW: 6 },
+        placement: placement(
+          { x: 0, y: 0, w: 4, h: 1 },
+          { x: 0, y: 0, w: 3, h: 1 },
+          { x: 0, y: 2, w: 4, h: 1 },
+        ),
+      },
+      {
+        constraints: { minW: 3, minH: 2, maxW: 6 },
+        placement: placement(
+          { x: 0, y: 0, w: 4, h: 2 },
+          { x: 0, y: 0, w: 3, h: 2 },
+          { x: 0, y: 2, w: 4, h: 2 },
+        ),
+      },
     ),
     createDefaultPayload: () => ({
       title: bilingualValue('Music Links', 'Music Links'),
@@ -73,11 +105,23 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.video,
     variant: 'default',
     payloadKey: 'video',
-    constraints: { minW: 3, minH: 1, maxW: 6 },
-    placement: placement(
-      { x: 0, y: 3, w: 4, h: 1 },
-      { x: 0, y: 3, w: 4, h: 1 },
-      { x: 0, y: 8, w: 4, h: 1 },
+    profiles: profiles(
+      {
+        constraints: { minW: 3, minH: 1, maxW: 6 },
+        placement: placement(
+          { x: 0, y: 3, w: 4, h: 1 },
+          { x: 0, y: 3, w: 4, h: 1 },
+          { x: 0, y: 8, w: 4, h: 1 },
+        ),
+      },
+      {
+        constraints: { minW: 3, minH: 2, maxW: 6 },
+        placement: placement(
+          { x: 0, y: 3, w: 4, h: 2 },
+          { x: 0, y: 3, w: 4, h: 2 },
+          { x: 0, y: 8, w: 4, h: 2 },
+        ),
+      },
     ),
     createDefaultPayload: () => ({
       title: bilingualValue('Video', 'Video'),
@@ -90,11 +134,23 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.spotify,
     variant: 'default',
     payloadKey: 'spotify',
-    constraints: { minW: 3, minH: 1, maxW: 6 },
-    placement: placement(
-      { x: 4, y: 3, w: 4, h: 1 },
-      { x: 4, y: 2, w: 4, h: 1 },
-      { x: 0, y: 8, w: 4, h: 1 },
+    profiles: profiles(
+      {
+        constraints: { minW: 3, minH: 1, maxW: 6 },
+        placement: placement(
+          { x: 4, y: 3, w: 4, h: 1 },
+          { x: 4, y: 2, w: 4, h: 1 },
+          { x: 0, y: 8, w: 4, h: 1 },
+        ),
+      },
+      {
+        constraints: { minW: 3, minH: 2, maxW: 6 },
+        placement: placement(
+          { x: 4, y: 3, w: 4, h: 2 },
+          { x: 4, y: 2, w: 4, h: 2 },
+          { x: 0, y: 8, w: 4, h: 2 },
+        ),
+      },
     ),
     createDefaultPayload: () => ({
       title: bilingualValue('Spotify', 'Spotify'),
@@ -107,12 +163,14 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.soundcloud,
     variant: 'default',
     payloadKey: 'soundcloud',
-    constraints: { minW: 3, minH: 1, maxW: 6 },
-    placement: placement(
-      { x: 8, y: 2, w: 4, h: 1 },
-      { x: 4, y: 2, w: 4, h: 1 },
-      { x: 0, y: 9, w: 4, h: 1 },
-    ),
+    profiles: profiles({
+      constraints: { minW: 3, minH: 1, maxW: 6 },
+      placement: placement(
+        { x: 8, y: 2, w: 4, h: 1 },
+        { x: 4, y: 2, w: 4, h: 1 },
+        { x: 0, y: 9, w: 4, h: 1 },
+      ),
+    }),
     createDefaultPayload: () => ({
       title: bilingualValue('SoundCloud', 'SoundCloud'),
       url: 'https://soundcloud.com/',
@@ -125,12 +183,14 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.audio,
     variant: 'wide',
     payloadKey: 'audio',
-    constraints: { minW: 4, minH: 1, maxW: 12 },
-    placement: placement(
-      { x: 0, y: 4, w: 8, h: 1 },
-      { x: 0, y: 5, w: 5, h: 1 },
-      { x: 0, y: 12, w: 4, h: 1 },
-    ),
+    profiles: profiles({
+      constraints: { minW: 4, minH: 1, maxW: 12 },
+      placement: placement(
+        { x: 0, y: 4, w: 8, h: 1 },
+        { x: 0, y: 5, w: 5, h: 1 },
+        { x: 0, y: 12, w: 4, h: 1 },
+      ),
+    }),
     createDefaultPayload: () => ({
       title: bilingualValue('Listen', 'Listen'),
       tracks: [
@@ -148,12 +208,14 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.sampler,
     variant: 'wide',
     payloadKey: 'sampler',
-    constraints: { minW: 3, minH: 1, maxW: 12 },
-    placement: placement(
-      { x: 8, y: 4, w: 4, h: 1 },
-      { x: 5, y: 5, w: 3, h: 1 },
-      { x: 0, y: 13, w: 4, h: 1 },
-    ),
+    profiles: profiles({
+      constraints: { minW: 3, minH: 1, maxW: 12 },
+      placement: placement(
+        { x: 8, y: 4, w: 4, h: 1 },
+        { x: 5, y: 5, w: 3, h: 1 },
+        { x: 0, y: 13, w: 4, h: 1 },
+      ),
+    }),
     createDefaultPayload: () => ({
       title: bilingualValue('Sampler', 'Sampler'),
       description: bilingualValue('', ''),
@@ -167,12 +229,14 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.fmod,
     variant: 'default',
     payloadKey: 'fmod',
-    constraints: { minW: 4, minH: 1, maxW: 12 },
-    placement: placement(
-      { x: 0, y: 5, w: 12, h: 1 },
-      { x: 0, y: 6, w: 8, h: 1 },
-      { x: 0, y: 14, w: 4, h: 1 },
-    ),
+    profiles: profiles({
+      constraints: { minW: 4, minH: 1, maxW: 12 },
+      placement: placement(
+        { x: 0, y: 5, w: 12, h: 1 },
+        { x: 0, y: 6, w: 8, h: 1 },
+        { x: 0, y: 14, w: 4, h: 1 },
+      ),
+    }),
     createDefaultPayload: () => ({
       title: bilingualValue('FMOD Interactive Player', 'FMOD Interactive Player'),
       description: bilingualValue('', ''),
@@ -187,11 +251,23 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.actions,
     variant: 'default',
     payloadKey: 'actions',
-    constraints: { minW: 3, minH: 1, maxW: 6 },
-    placement: placement(
-      { x: 0, y: 1, w: 4, h: 1 },
-      { x: 0, y: 1, w: 3, h: 1 },
-      { x: 0, y: 3, w: 4, h: 1 },
+    profiles: profiles(
+      {
+        constraints: { minW: 3, minH: 1, maxW: 6 },
+        placement: placement(
+          { x: 0, y: 1, w: 4, h: 1 },
+          { x: 0, y: 1, w: 3, h: 1 },
+          { x: 0, y: 3, w: 4, h: 1 },
+        ),
+      },
+      {
+        constraints: { minW: 3, minH: 2, maxW: 6 },
+        placement: placement(
+          { x: 0, y: 1, w: 4, h: 2 },
+          { x: 0, y: 1, w: 3, h: 2 },
+          { x: 0, y: 3, w: 4, h: 2 },
+        ),
+      },
     ),
     createDefaultPayload: () => ({
       title: bilingualValue('Links', 'Links'),
@@ -204,11 +280,23 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.tech,
     variant: 'default',
     payloadKey: 'tech',
-    constraints: { minW: 3, minH: 1, maxW: 6 },
-    placement: placement(
-      { x: 0, y: 2, w: 4, h: 1 },
-      { x: 0, y: 2, w: 4, h: 1 },
-      { x: 0, y: 4, w: 4, h: 1 },
+    profiles: profiles(
+      {
+        constraints: { minW: 3, minH: 1, maxW: 6 },
+        placement: placement(
+          { x: 0, y: 2, w: 4, h: 1 },
+          { x: 0, y: 2, w: 4, h: 1 },
+          { x: 0, y: 4, w: 4, h: 1 },
+        ),
+      },
+      {
+        constraints: { minW: 3, minH: 2, maxW: 6 },
+        placement: placement(
+          { x: 0, y: 2, w: 4, h: 2 },
+          { x: 0, y: 2, w: 4, h: 2 },
+          { x: 0, y: 4, w: 4, h: 2 },
+        ),
+      },
     ),
     createDefaultPayload: () => ({
       title: bilingualValue('Technologie', 'Technology'),
@@ -219,11 +307,23 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.process,
     variant: 'default',
     payloadKey: 'process',
-    constraints: { minW: 3, minH: 1, maxW: 6 },
-    placement: placement(
-      { x: 4, y: 2, w: 4, h: 1 },
-      { x: 4, y: 2, w: 4, h: 1 },
-      { x: 0, y: 5, w: 4, h: 1 },
+    profiles: profiles(
+      {
+        constraints: { minW: 3, minH: 1, maxW: 6 },
+        placement: placement(
+          { x: 4, y: 2, w: 4, h: 1 },
+          { x: 4, y: 2, w: 4, h: 1 },
+          { x: 0, y: 5, w: 4, h: 1 },
+        ),
+      },
+      {
+        constraints: { minW: 3, minH: 2, maxW: 6 },
+        placement: placement(
+          { x: 4, y: 2, w: 4, h: 2 },
+          { x: 4, y: 2, w: 4, h: 2 },
+          { x: 0, y: 5, w: 4, h: 2 },
+        ),
+      },
     ),
     createDefaultPayload: () => ({
       title: bilingualValue('Processus', 'Process'),
@@ -236,12 +336,14 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.gallery,
     variant: 'default',
     payloadKey: 'gallery',
-    constraints: { minW: 3, minH: 2, maxW: 6 },
-    placement: placement(
-      { x: 8, y: 2, w: 4, h: 2 },
-      { x: 0, y: 3, w: 4, h: 1 },
-      { x: 0, y: 6, w: 4, h: 2 },
-    ),
+    profiles: profiles({
+      constraints: { minW: 3, minH: 2, maxW: 6 },
+      placement: placement(
+        { x: 8, y: 2, w: 4, h: 2 },
+        { x: 0, y: 3, w: 4, h: 1 },
+        { x: 0, y: 6, w: 4, h: 2 },
+      ),
+    }),
     createDefaultPayload: () => ({
       title: bilingualValue('Galerie', 'Gallery'),
       images: [],
@@ -252,12 +354,14 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.challenges,
     variant: 'default',
     payloadKey: 'challenges',
-    constraints: { minW: 3, minH: 1, maxW: 8 },
-    placement: placement(
-      { x: 0, y: 3, w: 5, h: 1 },
-      { x: 4, y: 3, w: 4, h: 1 },
-      { x: 0, y: 8, w: 4, h: 1 },
-    ),
+    profiles: profiles({
+      constraints: { minW: 3, minH: 1, maxW: 8 },
+      placement: placement(
+        { x: 0, y: 3, w: 5, h: 1 },
+        { x: 4, y: 3, w: 4, h: 1 },
+        { x: 0, y: 8, w: 4, h: 1 },
+      ),
+    }),
     createDefaultPayload: () => ({
       title: bilingualValue('Defis Cles', 'Key Challenges'),
       subtitle: bilingualValue('', ''),
@@ -274,18 +378,30 @@ export const BLOCK_REGISTRY = {
     label: BLOCK_LABELS.results,
     variant: 'default',
     payloadKey: 'results',
-    constraints: { minW: 3, minH: 1, maxW: 8 },
-    placement: placement(
-      { x: 5, y: 3, w: 3, h: 1 },
-      { x: 0, y: 4, w: 8, h: 1 },
-      { x: 0, y: 9, w: 4, h: 1 },
+    profiles: profiles(
+      {
+        constraints: { minW: 3, minH: 1, maxW: 8 },
+        placement: placement(
+          { x: 5, y: 3, w: 3, h: 1 },
+          { x: 0, y: 4, w: 8, h: 1 },
+          { x: 0, y: 9, w: 4, h: 1 },
+        ),
+      },
+      {
+        constraints: { minW: 3, minH: 2, maxW: 8 },
+        placement: placement(
+          { x: 5, y: 3, w: 3, h: 2 },
+          { x: 0, y: 4, w: 8, h: 2 },
+          { x: 0, y: 9, w: 4, h: 2 },
+        ),
+      },
     ),
     createDefaultPayload: () => ({
       title: bilingualValue('Resultats', 'Results'),
       subtitle: bilingualValue('', ''),
       items: [
         {
-          icon: '✨',
+          icon: 'âœ¨',
           text: bilingualValue('Resultat', 'Result'),
         },
       ],
@@ -293,16 +409,27 @@ export const BLOCK_REGISTRY = {
   },
 };
 
-export function createDefaultBlock(type, index = 0) {
+function getProfileName(profile = DEFAULT_PROFILE) {
+  return profile === 'studio' ? 'studio' : DEFAULT_PROFILE;
+}
+
+function getProfileData(type, profile = DEFAULT_PROFILE) {
   const definition = BLOCK_REGISTRY[type];
-  if (!definition) return null;
+  const profileName = getProfileName(profile);
+  return definition?.profiles?.[profileName] || definition?.profiles?.[DEFAULT_PROFILE];
+}
+
+export function createDefaultBlock(type, index = 0, profile = DEFAULT_PROFILE) {
+  const definition = BLOCK_REGISTRY[type];
+  const profileData = getProfileData(type, profile);
+  if (!definition || !profileData) return null;
 
   return {
     id: `${type}-${index + 1}`,
     type,
     enabled: true,
     variant: definition.variant || 'default',
-    placement: structuredClone(definition.placement),
+    placement: structuredClone(profileData.placement),
   };
 }
 
@@ -312,23 +439,24 @@ export function createDefaultPayloadForBlock(type) {
   return definition.createDefaultPayload ? definition.createDefaultPayload() : null;
 }
 
-export function getBlockPlacementDefaults(type) {
-  return structuredClone(BLOCK_REGISTRY[type]?.placement || {
+export function getBlockPlacementDefaults(type, profile = DEFAULT_PROFILE) {
+  const placementDefaults = getProfileData(type, profile)?.placement;
+  return structuredClone(placementDefaults || {
     desktop: { x: 0, y: 0, w: DEFAULT_LAYOUT_COLUMNS.desktop, h: 1 },
     tablet: { x: 0, y: 0, w: DEFAULT_LAYOUT_COLUMNS.tablet, h: 1 },
     mobile: { x: 0, y: 0, w: DEFAULT_LAYOUT_COLUMNS.mobile, h: 1 },
   });
 }
 
-export function getBlockConstraints(type) {
-  return BLOCK_REGISTRY[type]?.constraints || { minW: 1, minH: 1, maxW: 12 };
+export function getBlockConstraints(type, profile = DEFAULT_PROFILE) {
+  return structuredClone(getProfileData(type, profile)?.constraints || { minW: 1, minH: 1, maxW: 12 });
 }
 
-export function getBlockDefinitionList() {
+export function getBlockDefinitionList(profile = DEFAULT_PROFILE) {
   return BLOCK_TYPES.map((type) => ({
     type,
     label: BLOCK_REGISTRY[type]?.label || type,
     variant: BLOCK_REGISTRY[type]?.variant || 'default',
-    constraints: BLOCK_REGISTRY[type]?.constraints || { minW: 1, minH: 1, maxW: 12 },
+    constraints: getBlockConstraints(type, profile),
   }));
 }
