@@ -1,14 +1,16 @@
 import {
+  STUDIO_COLUMNS,
   buildProjectDraftFromStudioDocument,
   createStudioBlockInstance,
 } from './studio-document.js';
 import {
-  clientPointToPlacement,
+  CANVAS_GAP,
+  CANVAS_ROW_HEIGHT,
   findNextOpenPlacement,
   normalizeDesktopPlacement,
-  renderStudioCanvas,
   resolveDesktopCollisions,
 } from './studio-canvas.js';
+import { getBlockConstraints } from '../utils/block-registry.js';
 
 const state = {
   bootstrap: null,
@@ -18,12 +20,16 @@ const state = {
   previewSize: 'desktop',
   previewTimer: null,
   editing: null,
-  paletteDrag: null,
+  designGeometry: null,
   canvasInteraction: null,
+  layoutMode: false,
+  menuOpen: false,
+  activeSheet: null,
 };
 
 const elements = {
   status: document.getElementById('studio-status'),
+  cornerStatus: document.getElementById('corner-status'),
   docId: document.getElementById('studio-doc-id'),
   projectLabel: document.getElementById('studio-project-label'),
   presetSelect: document.getElementById('preset-select'),
@@ -37,20 +43,32 @@ const elements = {
   localeToggle: document.getElementById('locale-toggle'),
   previewModeToggle: document.getElementById('preview-mode-toggle'),
   previewSizeToggle: document.getElementById('preview-size-toggle'),
+  menuToggle: document.getElementById('studio-menu-toggle'),
+  menuPanel: document.getElementById('studio-menu-panel'),
+  openProjectSettingsBtn: document.getElementById('open-project-settings-btn'),
+  openBlockSettingsBtn: document.getElementById('open-block-settings-btn'),
+  toggleLayoutModeBtn: document.getElementById('toggle-layout-mode-btn'),
   canvasStage: document.getElementById('canvas-stage'),
   previewStage: document.getElementById('preview-stage'),
-  canvas: document.getElementById('studio-canvas'),
-  canvasEmpty: document.getElementById('canvas-empty'),
+  designViewport: document.getElementById('design-viewport'),
+  designFrame: document.getElementById('design-frame'),
   previewViewport: document.getElementById('preview-viewport'),
   previewFrame: document.getElementById('preview-frame'),
   projectInspector: document.getElementById('project-inspector'),
   blockInspector: document.getElementById('block-inspector'),
   activeLocaleLabel: document.getElementById('active-locale-label'),
   selectedBlockLabel: document.getElementById('selected-block-label'),
+  projectSheet: document.getElementById('project-sheet'),
+  blockSheet: document.getElementById('block-sheet'),
+  closeSheetButtons: Array.from(document.querySelectorAll('[data-close-sheet]')),
 };
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
 }
 
 function escapeHtml(value) {
@@ -64,7 +82,7 @@ function escapeHtml(value) {
 
 function setStatus(message, mode = '') {
   elements.status.textContent = message;
-  elements.status.className = `status${mode ? ` ${mode}` : ''}`;
+  elements.status.className = `status-toast${mode ? ` ${mode}` : ''}`;
 }
 
 async function api(url, options = {}) {
@@ -89,9 +107,23 @@ function currentPreviewMode() {
   return state.document?.ui?.previewMode || 'canvas';
 }
 
+function currentBreakpoint() {
+  if (state.previewSize === 'tablet') return 'tablet';
+  if (state.previewSize === 'mobile') return 'mobile';
+  return 'desktop';
+}
+
 function localizedValue(value, locale = currentLocale()) {
   if (typeof value === 'string') return value;
   return value?.[locale] || value?.fr || value?.en || '';
+}
+
+function isLayoutEditingEnabled() {
+  return currentBreakpoint() === 'desktop';
+}
+
+function isLayoutModeActive() {
+  return Boolean(state.layoutMode && isLayoutEditingEnabled() && currentPreviewMode() === 'canvas');
 }
 
 function parsePath(path) {
@@ -181,10 +213,198 @@ function defaultArrayItemFor(blockType, path) {
   return '';
 }
 
-function syncPreviewFrame() {
+function previewUrl(mode, bust = null) {
+  const url = new URL('/studio/preview', window.location.origin);
+  url.searchParams.set('session', state.previewSessionId);
+  url.searchParams.set('lang', currentLocale());
+  url.searchParams.set('mode', mode);
+  if (bust) {
+    url.searchParams.set('t', String(bust));
+  }
+  return url.toString();
+}
+
+function syncPreviewFrames(bust = null) {
+  elements.designViewport.dataset.size = state.previewSize;
   elements.previewViewport.dataset.size = state.previewSize;
-  const url = new URL(`/studio/preview?session=${encodeURIComponent(state.previewSessionId)}&lang=${currentLocale()}`, window.location.origin);
-  elements.previewFrame.src = url.toString();
+  elements.designFrame.src = previewUrl('design', bust);
+  elements.previewFrame.src = previewUrl('preview', bust);
+}
+
+function indexDesignGeometry(payload = {}) {
+  const blocks = Array.isArray(payload.blocks) ? payload.blocks : [];
+  const fields = Array.isArray(payload.fields) ? payload.fields : [];
+  const blocksById = Object.fromEntries(blocks.filter((block) => block?.id).map((block) => [block.id, block]));
+  const fieldsById = {};
+  const fieldsByBlockId = {};
+
+  fields.forEach((field) => {
+    if (!field?.id) return;
+    fieldsById[field.id] = field;
+    if (!field.blockId) return;
+    if (!fieldsByBlockId[field.blockId]) fieldsByBlockId[field.blockId] = [];
+    fieldsByBlockId[field.blockId].push(field);
+  });
+
+  Object.values(fieldsByBlockId).forEach((items) => {
+    items.sort((a, b) => (a.rect.top - b.rect.top) || (a.rect.left - b.rect.left));
+  });
+
+  return {
+    blocks,
+    fields,
+    blocksById,
+    fieldsById,
+    fieldsByBlockId,
+    container: payload.container || null,
+    viewport: payload.viewport || { width: 0, height: 0 },
+    documentHeight: payload.documentHeight || 0,
+  };
+}
+
+function getDesignGeometryBlock(blockId) {
+  return state.designGeometry?.blocksById?.[blockId] || null;
+}
+
+function getDesignGeometryField(fieldId) {
+  return state.designGeometry?.fieldsById?.[fieldId] || null;
+}
+
+function getDesignGeometryFields(blockId) {
+  return state.designGeometry?.fieldsByBlockId?.[blockId] || [];
+}
+
+function getActiveGridGeometry() {
+  const container = state.designGeometry?.container;
+  if (container?.rect?.width) return container;
+  return {
+    rect: {
+      left: 0,
+      top: 0,
+      width: elements.designViewport.clientWidth,
+      height: elements.designViewport.clientHeight,
+    },
+    gapX: CANVAS_GAP,
+    gapY: CANVAS_GAP,
+  };
+}
+
+function normalizePlacementForBreakpoint(blockType, placement, breakpoint = currentBreakpoint()) {
+  const constraints = getBlockConstraints(blockType);
+  const columns = STUDIO_COLUMNS[breakpoint];
+  const maxW = Math.min(constraints.maxW || columns, columns);
+  const minW = Math.min(constraints.minW || 1, maxW);
+  const minH = constraints.minH || 1;
+  const width = clamp(Number.isFinite(placement?.w) ? placement.w : minW, minW, maxW);
+  const x = clamp(Number.isFinite(placement?.x) ? placement.x : 0, 0, Math.max(0, columns - width));
+  const y = Math.max(0, Number.isFinite(placement?.y) ? placement.y : 0);
+  const h = Math.max(minH, Number.isFinite(placement?.h) ? placement.h : minH);
+  return { x, y, w: width, h };
+}
+
+function pointToPlacementForGeometry(blockType, clientX, clientY, originPlacement = null, breakpoint = currentBreakpoint()) {
+  const geometry = getActiveGridGeometry();
+  const columns = STUDIO_COLUMNS[breakpoint];
+  const gapX = Number.isFinite(geometry?.gapX) ? geometry.gapX : CANVAS_GAP;
+  const rect = geometry?.rect || { left: 0, top: 0, width: elements.designViewport.clientWidth };
+  const safeWidth = Math.max(rect.width || 0, 1);
+  const cellWidth = (safeWidth - gapX * (columns - 1)) / columns;
+  const relativeX = clientX - rect.left;
+  const relativeY = clientY - rect.top;
+  const base = normalizePlacementForBreakpoint(blockType, originPlacement || { x: 0, y: 0, w: 4, h: 1 }, breakpoint);
+  const x = clamp(Math.round(relativeX / (cellWidth + gapX)), 0, Math.max(0, columns - base.w));
+  const y = Math.max(0, Math.round(relativeY / (CANVAS_ROW_HEIGHT + CANVAS_GAP)));
+  return { ...base, x, y };
+}
+
+function postDesignMessage(payload) {
+  elements.designFrame.contentWindow?.postMessage({
+    ...payload,
+    session: state.previewSessionId,
+  }, '*');
+}
+
+function syncDesignState() {
+  if (!state.document) return;
+  const selectedBlock = getSelectedBlock();
+  const existingTypes = new Set(state.document.blocks.map((block) => block.type));
+  const placementDrafts = state.canvasInteraction?.previewPlacement
+    ? {
+        [state.canvasInteraction.blockId]: {
+          breakpoint: currentBreakpoint(),
+          placement: state.canvasInteraction.previewPlacement,
+        },
+      }
+    : {};
+
+  postDesignMessage({
+    type: 'studio:design-state',
+    previewSize: state.previewSize,
+    breakpoint: currentBreakpoint(),
+    canLayoutEdit: isLayoutEditingEnabled(),
+    layoutMode: isLayoutModeActive(),
+    selectedBlockId: state.document.ui.selectedBlockId || null,
+    editingFieldId: state.editing?.fieldId || null,
+    selectedBlock: selectedBlock
+      ? {
+          id: selectedBlock.id,
+          type: selectedBlock.type,
+          kind: selectedBlock.kind,
+          label: selectedBlock.label || selectedBlock.type,
+          enabled: selectedBlock.enabled !== false,
+        }
+      : null,
+    blocks: state.document.blocks.map((block) => ({
+      id: block.id,
+      type: block.type,
+      kind: block.kind,
+      label: block.label || block.type,
+      enabled: block.enabled !== false,
+    })),
+    palette: (state.bootstrap?.palette || []).map((item) => ({
+      type: item.type,
+      label: item.label,
+      disabled: existingTypes.has(item.type),
+    })),
+    placementDrafts,
+  });
+}
+
+function getOverlayCellWidth() {
+  const rect = elements.canvas.getBoundingClientRect();
+  return (rect.width - CANVAS_GAP * 11) / 12;
+}
+
+function placementToRect(blockType, placement) {
+  const normalized = normalizeDesktopPlacement(blockType, placement);
+  const cellWidth = getOverlayCellWidth();
+  return {
+    left: normalized.x * (cellWidth + CANVAS_GAP),
+    top: normalized.y * (CANVAS_ROW_HEIGHT + CANVAS_GAP),
+    width: normalized.w * cellWidth + (normalized.w - 1) * CANVAS_GAP,
+    height: normalized.h * CANVAS_ROW_HEIGHT + (normalized.h - 1) * CANVAS_GAP,
+  };
+}
+
+function getBlockRect(block) {
+  const geometry = getDesignGeometryBlock(block.id);
+  return geometry?.rect || placementToRect(block.type, block.placement?.desktop || { x: 0, y: 0, w: 4, h: 2 });
+}
+
+function positionRectStyle(rect) {
+  return `left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;`;
+}
+
+function applyPositionRect(target, rect) {
+  target.style.left = `${rect.left}px`;
+  target.style.top = `${rect.top}px`;
+  target.style.width = `${rect.width}px`;
+  target.style.height = `${rect.height}px`;
+}
+
+function resetSurfaceEditors() {
+  elements.inlineEditor.innerHTML = '';
+  elements.techEditor.innerHTML = '';
 }
 
 function schedulePreviewSync(reason = 'edit') {
@@ -202,8 +422,8 @@ function schedulePreviewSync(reason = 'edit') {
           draft,
         }),
       });
-      const url = new URL(`/studio/preview?session=${encodeURIComponent(state.previewSessionId)}&lang=${currentLocale()}&t=${Date.now()}`, window.location.origin);
-      elements.previewFrame.src = url.toString();
+      state.designGeometry = null;
+      syncPreviewFrames(Date.now());
       setStatus('Preview synced', 'ok');
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'Preview sync failed', 'error');
@@ -218,19 +438,26 @@ function renderSegmented(container, activeValue, attributeName) {
 }
 
 function renderProjectList() {
+  const projects = state.bootstrap?.projects || [];
+  const currentValue = state.currentProjectId || '';
   elements.projectList.innerHTML = '';
-  (state.bootstrap?.projects || []).forEach((project) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = `project-item${project.id === state.currentProjectId ? ' active' : ''}`;
-    button.dataset.projectId = project.id;
+
+  if (!state.currentProjectId) {
+    const draftOption = document.createElement('option');
+    draftOption.value = '';
+    draftOption.textContent = 'Unsaved draft';
+    elements.projectList.appendChild(draftOption);
+  }
+
+  projects.forEach((project) => {
+    const option = document.createElement('option');
+    option.value = project.id;
     const title = typeof project.title === 'string' ? project.title : project.title?.fr || project.slug;
-    button.innerHTML = `
-      <span class="project-item-title">${escapeHtml(title)}</span>
-      <span class="mono">${escapeHtml(project.id)}</span>
-    `;
-    elements.projectList.appendChild(button);
+    option.textContent = `${title} - ${project.id}`;
+    elements.projectList.appendChild(option);
   });
+
+  elements.projectList.value = currentValue;
 }
 
 function renderPresetSelect() {
@@ -269,14 +496,215 @@ function renderProjectHeader() {
   elements.activeLocaleLabel.textContent = `Locale ${currentLocale().toUpperCase()}`;
 }
 
+function renderCornerChrome() {
+  elements.menuPanel.classList.toggle('is-open', state.menuOpen);
+  elements.menuToggle.setAttribute('aria-expanded', state.menuOpen ? 'true' : 'false');
+  elements.cornerStatus.dataset.layoutActive = isLayoutModeActive() ? 'true' : 'false';
+  if (currentPreviewMode() === 'preview') {
+    elements.cornerStatus.textContent = 'Published Preview';
+  } else if (isLayoutModeActive()) {
+    elements.cornerStatus.textContent = 'Layout mode';
+  } else {
+    elements.cornerStatus.textContent = 'Canvas mode';
+  }
+
+  const selectedBlock = getSelectedBlock();
+  elements.openProjectBtn.disabled = !state.document;
+  elements.openProjectSettingsBtn.disabled = !state.document;
+  elements.openBlockSettingsBtn.disabled = !selectedBlock;
+  elements.toggleLayoutModeBtn.disabled = !state.document || !isLayoutEditingEnabled();
+  elements.toggleLayoutModeBtn.textContent = isLayoutModeActive() ? 'Exit Layout Mode' : 'Enter Layout Mode';
+
+  elements.projectSheet.classList.toggle('is-open', state.activeSheet === 'project');
+  elements.blockSheet.classList.toggle('is-open', state.activeSheet === 'block');
+}
+
+function getArrayControlConfig(block) {
+  switch (block.type) {
+    case 'stats':
+      return { path: 'content.items', addLabel: 'Add stat', removeLabel: 'Remove last' };
+    case 'process':
+      return { path: 'content.steps', addLabel: 'Add step', removeLabel: 'Remove last' };
+    case 'challenges':
+      return { path: 'content.items', addLabel: 'Add challenge', removeLabel: 'Remove last' };
+    case 'results':
+      return { path: 'content.items', addLabel: 'Add result', removeLabel: 'Remove last' };
+    default:
+      return null;
+  }
+}
+
+function getFieldValue(descriptor) {
+  if (!descriptor || !state.document) return '';
+  const target = descriptor.scope === 'meta'
+    ? getAtPath(state.document, descriptor.path)
+    : getAtPath(state.document.blocks.find((block) => block.id === descriptor.blockId), descriptor.path);
+
+  if (descriptor.kind === 'tech-tags') {
+    return Array.isArray(target) ? target : [];
+  }
+  if (descriptor.localized) {
+    return localizedValue(target, currentLocale());
+  }
+  return target ?? '';
+}
+
+function clampPanelRect(rect, minWidth = 180, minHeight = 48) {
+  const viewportWidth = elements.designViewport.clientWidth;
+  const viewportHeight = elements.designViewport.clientHeight;
+  const width = Math.min(Math.max(rect.width, minWidth), Math.max(minWidth, viewportWidth - 16));
+  const height = Math.max(rect.height, minHeight);
+  return {
+    left: Math.max(8, Math.min(rect.left, viewportWidth - width - 8)),
+    top: Math.max(8, Math.min(rect.top, viewportHeight - height - 8)),
+    width,
+    height,
+  };
+}
+
+function renderSurfaceFieldTargets(block, blockRect) {
+  if (state.canvasInteraction?.blockId === block.id) return '';
+  return getDesignGeometryFields(block.id)
+    .map((field) => {
+      const localLeft = field.rect.left - blockRect.left;
+      const localTop = field.rect.top - blockRect.top;
+      if (field.rect.width <= 0 || field.rect.height <= 0) return '';
+      const label = field.path.replace(/^meta\./, '').replace(/^content\./, '').replaceAll('.', ' ');
+      return `
+        <button
+          type="button"
+          class="surface-field${state.editing?.fieldId === field.id ? ' is-editing' : ''}"
+          data-field-id="${field.id}"
+          aria-label="Edit ${escapeHtml(label)}"
+          title="Edit field"
+          style="left:${localLeft}px;top:${localTop}px;width:${field.rect.width}px;height:${field.rect.height}px;"
+        ></button>
+      `;
+    })
+    .join('');
+}
+
+function renderBlockToolbar(block) {
+  const arrayConfig = getArrayControlConfig(block);
+  const itemCount = arrayConfig ? (Array.isArray(getAtPath(block, arrayConfig.path)) ? getAtPath(block, arrayConfig.path).length : 0) : 0;
+  const selected = state.document?.ui?.selectedBlockId === block.id;
+  const tools = [];
+
+  if (selected && arrayConfig) {
+    tools.push(`<button type="button" class="surface-chip" data-card-action="add-array-item" data-block-id="${block.id}" data-array-path="${arrayConfig.path}">${arrayConfig.addLabel}</button>`);
+    if (itemCount > 0) {
+      tools.push(`<button type="button" class="surface-chip" data-card-action="remove-array-item" data-block-id="${block.id}" data-array-path="${arrayConfig.path}">${arrayConfig.removeLabel}</button>`);
+    }
+  }
+
+  if (selected && block.type === 'tech') {
+    tools.push(`<button type="button" class="surface-chip" data-card-action="edit-tech" data-block-id="${block.id}">Edit tags</button>`);
+  }
+
+  tools.push(`<button type="button" class="surface-chip" data-card-action="toggle" data-block-id="${block.id}">${block.enabled === false ? 'Enable' : 'Disable'}</button>`);
+  tools.push(`<button type="button" class="surface-chip surface-chip--danger" data-card-action="remove" data-block-id="${block.id}">Remove</button>`);
+
+  return `
+    <div class="surface-block__chrome">
+      <button type="button" class="surface-chip surface-chip--grab" data-card-action="select" data-block-id="${block.id}">
+        ${escapeHtml(block.label || block.type)}
+      </button>
+      <div class="surface-block__tools">
+        ${tools.join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderSurfaceBlock(block) {
+  const rect = getBlockRect(block);
+  const selected = state.document?.ui?.selectedBlockId === block.id;
+  return `
+    <article
+      class="surface-block${selected ? ' is-selected' : ''}${block.enabled === false ? ' is-disabled' : ''}${block.kind === 'legacy' ? ' is-legacy' : ''}"
+      data-block-id="${block.id}"
+      data-block-type="${block.type}"
+      style="${positionRectStyle(rect)}"
+    >
+      ${renderBlockToolbar(block)}
+      ${selected ? renderSurfaceFieldTargets(block, rect) : ''}
+      ${selected ? `
+        <button type="button" class="surface-resize surface-resize--e" data-resize="e" data-block-id="${block.id}" aria-label="Resize width"></button>
+        <button type="button" class="surface-resize surface-resize--s" data-resize="s" data-block-id="${block.id}" aria-label="Resize height"></button>
+        <button type="button" class="surface-resize surface-resize--se" data-resize="se" data-block-id="${block.id}" aria-label="Resize block"></button>
+      ` : ''}
+    </article>
+  `;
+}
+
+function renderInlineSurfaceEditor() {
+  elements.inlineEditor.innerHTML = '';
+  if (!state.editing || state.editing.kind === 'tech-tags') return;
+  const field = getDesignGeometryField(state.editing.fieldId);
+  if (!field) return;
+
+  const currentValue = String(getFieldValue(field) || '');
+  const nextRect = clampPanelRect({
+    left: field.rect.left,
+    top: field.rect.top,
+    width: field.rect.width,
+    height: field.kind === 'textarea' ? Math.max(field.rect.height, 110) : Math.max(field.rect.height, 54),
+  }, 180, field.kind === 'textarea' ? 96 : 48);
+
+  const control = field.kind === 'textarea'
+    ? `<textarea data-inline-editor="true" data-inline-scope="${field.scope}" data-inline-path="${field.path}" data-inline-block-id="${field.blockId || ''}" data-inline-localized="${field.localized ? 'true' : 'false'}">${escapeHtml(currentValue)}</textarea>`
+    : `<input data-inline-editor="true" data-inline-scope="${field.scope}" data-inline-path="${field.path}" data-inline-block-id="${field.blockId || ''}" data-inline-localized="${field.localized ? 'true' : 'false'}" value="${escapeHtml(currentValue)}" />`;
+
+  elements.inlineEditor.innerHTML = `
+    <div class="surface-editor" style="${positionRectStyle(nextRect)}">
+      ${control}
+    </div>
+  `;
+}
+
+function renderTechEditor() {
+  elements.techEditor.innerHTML = '';
+  if (!state.editing || state.editing.kind !== 'tech-tags') return;
+  const field = getDesignGeometryField(state.editing.fieldId);
+  if (!field) return;
+  const tags = getFieldValue(field);
+  const panelRect = clampPanelRect({
+    left: field.rect.left,
+    top: field.rect.top + field.rect.height + 10,
+    width: 320,
+    height: 220,
+  }, 260, 180);
+
+  elements.techEditor.innerHTML = `
+    <div class="tech-editor-panel" style="${positionRectStyle(panelRect)}">
+      <div class="tech-editor-panel__header">
+        <h3>Tech tags</h3>
+        <button type="button" class="surface-chip" data-tech-cancel="true">Close</button>
+      </div>
+      <div class="tech-editor-panel__chips">
+        ${tags.length
+          ? tags.map((tag, index) => `
+            <span class="tech-editor-chip">
+              <button type="button" data-tech-edit-index="${index}">${escapeHtml(tag)}</button>
+              <button type="button" data-tech-remove-index="${index}">x</button>
+            </span>
+          `).join('')
+          : '<span class="soft-note">No tags yet.</span>'}
+      </div>
+      <div class="tech-editor-panel__controls">
+        <input type="text" data-tech-draft="true" value="${escapeHtml(state.techEditor.draft)}" placeholder="Add a tag" />
+        <button type="button" class="surface-chip" data-tech-apply="true">${state.techEditor.editIndex === null ? 'Add' : 'Update'}</button>
+        <button type="button" class="surface-chip surface-chip--danger" data-tech-reset="true">Clear</button>
+      </div>
+    </div>
+  `;
+}
+
 function renderCanvas() {
-  if (!state.document) return;
-  renderStudioCanvas(elements.canvas, state.document, {
-    locale: currentLocale(),
-    selectedBlockId: state.document.ui.selectedBlockId,
-    editing: state.editing,
-  });
-  elements.canvasEmpty.classList.toggle('is-visible', !state.document.blocks.length);
+  elements.canvasStage.classList.toggle('is-active', currentPreviewMode() === 'canvas');
+  elements.previewStage.classList.toggle('is-active', currentPreviewMode() === 'preview');
+  elements.designViewport.dataset.size = state.previewSize;
+  elements.previewViewport.dataset.size = state.previewSize;
 }
 
 function field(label, control) {
@@ -548,10 +976,14 @@ function renderBlockInspector() {
     <div class="field-grid two">
       ${checkboxInput({ label: 'Enabled', checked: block.enabled !== false, path: 'enabled', blockId: block.id })}
       ${textInput({ label: 'Variant', value: block.variant || 'default', path: 'variant', scope: 'block', blockId: block.id })}
-      ${textInput({ label: 'Grid X', value: block.placement.desktop.x, path: 'placement.desktop.x', scope: 'block', blockId: block.id, type: 'number' })}
-      ${textInput({ label: 'Grid Y', value: block.placement.desktop.y, path: 'placement.desktop.y', scope: 'block', blockId: block.id, type: 'number' })}
-      ${textInput({ label: 'Width', value: block.placement.desktop.w, path: 'placement.desktop.w', scope: 'block', blockId: block.id, type: 'number' })}
-      ${textInput({ label: 'Height', value: block.placement.desktop.h, path: 'placement.desktop.h', scope: 'block', blockId: block.id, type: 'number' })}
+      ${isLayoutModeActive()
+        ? `
+          ${textInput({ label: 'Grid X', value: block.placement.desktop.x, path: 'placement.desktop.x', scope: 'block', blockId: block.id, type: 'number' })}
+          ${textInput({ label: 'Grid Y', value: block.placement.desktop.y, path: 'placement.desktop.y', scope: 'block', blockId: block.id, type: 'number' })}
+          ${textInput({ label: 'Width', value: block.placement.desktop.w, path: 'placement.desktop.w', scope: 'block', blockId: block.id, type: 'number' })}
+          ${textInput({ label: 'Height', value: block.placement.desktop.h, path: 'placement.desktop.h', scope: 'block', blockId: block.id, type: 'number' })}
+        `
+        : '<div class="soft-note" style="grid-column: 1 / -1;">Use Layout mode when you need to move or resize this block precisely.</div>'}
     </div>
     ${body}
   `;
@@ -559,39 +991,30 @@ function renderBlockInspector() {
 
 function renderAll() {
   renderProjectList();
-  renderPalette();
   renderProjectHeader();
+  renderCornerChrome();
   renderSegmented(elements.localeToggle, currentLocale(), 'locale');
   renderSegmented(elements.previewModeToggle, currentPreviewMode(), 'mode');
   renderSegmented(elements.previewSizeToggle, state.previewSize, 'previewSize');
-  elements.canvasStage.classList.toggle('is-active', currentPreviewMode() === 'canvas');
-  elements.previewStage.classList.toggle('is-active', currentPreviewMode() === 'preview');
   renderCanvas();
   renderProjectInspector();
   renderBlockInspector();
-  elements.openProjectBtn.disabled = !state.document;
+  syncDesignState();
 }
 
 function selectBlock(blockId) {
   updateDocument((document) => {
-    document.ui.selectedBlockId = blockId;
+    document.ui.selectedBlockId = blockId || null;
+    state.editing = null;
+    if (!blockId && state.activeSheet === 'block') {
+      state.activeSheet = null;
+    }
   }, 'none');
 }
 
 function setEditing(payload) {
   state.editing = payload;
-  renderCanvas();
-  requestAnimationFrame(() => {
-    const selector = payload
-      ? `[data-inline-editor="true"][data-inline-scope="${payload.scope}"][data-inline-path="${payload.path}"]${payload.blockId ? `[data-inline-block-id="${payload.blockId}"]` : ''}`
-      : null;
-    const input = selector ? elements.canvas.querySelector(selector) : null;
-    if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
-      input.focus();
-      const end = input.value.length;
-      input.setSelectionRange?.(end, end);
-    }
-  });
+  renderAll();
 }
 
 function commitInlineEdit(editor) {
@@ -628,6 +1051,41 @@ function commitInlineEdit(editor) {
 
 }
 
+function clearEditing(render = true) {
+  state.editing = null;
+  if (render) {
+    renderAll();
+  }
+}
+
+function applyTechEditorDraft() {
+  const draft = state.techEditor.draft.trim();
+  if (!draft) return;
+  updateDocument((document) => {
+    const nextTags = Array.isArray(document.meta?.tech) ? [...document.meta.tech] : [];
+    if (state.techEditor.editIndex === null) {
+      nextTags.push(draft);
+    } else {
+      nextTags[state.techEditor.editIndex] = draft;
+    }
+    document.meta.tech = [...new Set(nextTags.filter(Boolean))];
+  });
+  state.techEditor = { draft: '', editIndex: null };
+  renderCanvas();
+}
+
+function removeTechEditorTag(index) {
+  updateDocument((document) => {
+    const nextTags = Array.isArray(document.meta?.tech) ? [...document.meta.tech] : [];
+    nextTags.splice(index, 1);
+    document.meta.tech = nextTags;
+  });
+  if (state.techEditor.editIndex === index) {
+    state.techEditor = { draft: '', editIndex: null };
+  }
+  renderCanvas();
+}
+
 function normalizeTypedValue(target, descriptorPath, rawValue) {
   if (target instanceof HTMLInputElement && target.type === 'checkbox') {
     return target.checked;
@@ -644,38 +1102,87 @@ function normalizeTypedValue(target, descriptorPath, rawValue) {
   return rawValue;
 }
 
+function applyFieldValue({ scope, path, blockId = '', localized = false, value }, previewReason = 'edit') {
+  if (!path || !state.document) return;
+  updateDocument((document) => {
+    if (scope === 'meta') {
+      if (localized) {
+        ensureLocalizedTarget(document, path);
+        const existing = getAtPath(document, path);
+        existing[currentLocale()] = String(value);
+      } else {
+        setAtPath(document, path, value);
+      }
+      return;
+    }
+
+    const block = document.blocks.find((entry) => entry.id === blockId);
+    if (!block) return;
+    if (localized) {
+      ensureLocalizedTarget(block, path);
+      const existing = getAtPath(block, path);
+      existing[currentLocale()] = String(value);
+    } else {
+      setAtPath(block, path, value);
+    }
+  }, previewReason);
+}
+
+function focusProjectTechInput() {
+  state.activeSheet = 'project';
+  renderAll();
+  requestAnimationFrame(() => {
+    const input = elements.projectInspector.querySelector('[data-meta-path="meta.tech"]');
+    if (input instanceof HTMLInputElement) {
+      input.focus();
+      input.setSelectionRange?.(input.value.length, input.value.length);
+    }
+  });
+}
+
 function handleBoundInput(target, scope) {
   const path = scope === 'meta' ? target.dataset.metaPath : target.dataset.blockPath;
   if (!path || !state.document) return;
   const localized = target.dataset.localized === 'true';
   const rawValue = target instanceof HTMLInputElement && target.type === 'checkbox' ? target.checked : target.value;
   const nextValue = normalizeTypedValue(target, path, rawValue);
-
-  updateDocument((document) => {
-    if (scope === 'meta') {
-      if (localized) {
-        ensureLocalizedTarget(document, path);
-        const existing = getAtPath(document, path);
-        existing[currentLocale()] = String(nextValue);
-      } else {
-        setAtPath(document, path, nextValue);
-      }
-      return;
-    }
-
-    const block = document.blocks.find((entry) => entry.id === target.dataset.blockId);
-    if (!block) return;
-    if (localized) {
-      ensureLocalizedTarget(block, path);
-      const existing = getAtPath(block, path);
-      existing[currentLocale()] = String(nextValue);
-    } else {
-      setAtPath(block, path, nextValue);
-    }
+  applyFieldValue({
+    scope,
+    path,
+    blockId: target.dataset.blockId || '',
+    localized,
+    value: nextValue,
   });
 }
 
-function addBlock(type, placement = null) {
+function preferredPlacementForInsertion(type, insertion = {}) {
+  const defaultPlacement = createStudioBlockInstance(type, { id: '__preview__' }).placement.desktop;
+  const blocks = state.document?.blocks || [];
+  if (insertion?.placement) {
+    return normalizePlacementForBreakpoint(type, insertion.placement, 'desktop');
+  }
+  if (insertion?.afterBlockId) {
+    const anchor = blocks.find((block) => block.id === insertion.afterBlockId);
+    if (anchor) {
+      return normalizePlacementForBreakpoint(type, {
+        ...defaultPlacement,
+        x: anchor.placement.desktop.x,
+        y: anchor.placement.desktop.y + anchor.placement.desktop.h,
+      }, 'desktop');
+    }
+  }
+  if (insertion?.atEnd) {
+    const maxY = blocks.reduce((max, block) => Math.max(max, block.placement.desktop.y + block.placement.desktop.h), 0);
+    return normalizePlacementForBreakpoint(type, {
+      ...defaultPlacement,
+      x: 0,
+      y: maxY,
+    }, 'desktop');
+  }
+  return defaultPlacement;
+}
+
+function addBlock(type, insertion = null) {
   if (!state.document) return;
   if (state.document.blocks.some((block) => block.type === type)) {
     setStatus(`${type} is already on the page`, 'error');
@@ -683,9 +1190,10 @@ function addBlock(type, placement = null) {
   }
 
   updateDocument((document) => {
+    const preferredPlacement = preferredPlacementForInsertion(type, insertion || {});
     const block = createStudioBlockInstance(type, {
       id: createBlockId(type),
-      placement: placement ? { desktop: placement } : undefined,
+      placement: { desktop: preferredPlacement },
     });
     block.placement.desktop = findNextOpenPlacement(document.blocks, type, block.placement.desktop);
     document.blocks.push(block);
@@ -701,6 +1209,182 @@ function commitPlacement(blockId, placement) {
     document.blocks = resolveDesktopCollisions(document.blocks, blockId);
     document.ui.selectedBlockId = blockId;
   }, 'layout');
+}
+
+function updateInteractionPreview(clientX, clientY) {
+  if (!state.canvasInteraction) return;
+  const { blockId, blockType, mode, origin } = state.canvasInteraction;
+  const deltaX = clientX - state.canvasInteraction.startX;
+  const deltaY = clientY - state.canvasInteraction.startY;
+  const geometry = getActiveGridGeometry();
+  const gapX = Number.isFinite(geometry?.gapX) ? geometry.gapX : CANVAS_GAP;
+  const columns = STUDIO_COLUMNS.desktop;
+  const cellWidth = (Math.max(geometry?.rect?.width || 1, 1) - gapX * (columns - 1)) / columns;
+  const dx = Math.round(deltaX / (cellWidth + gapX));
+  const dy = Math.round(deltaY / (CANVAS_ROW_HEIGHT + CANVAS_GAP));
+  const nextPlacement = { ...origin };
+
+  if (mode === 'move') {
+    nextPlacement.x += dx;
+    nextPlacement.y += dy;
+  } else {
+    if (mode.includes('e')) nextPlacement.w += dx;
+    if (mode.includes('s')) nextPlacement.h += dy;
+  }
+
+  const previewPlacement = mode === 'move'
+    ? pointToPlacementForGeometry(blockType, clientX, clientY, nextPlacement, 'desktop')
+    : normalizePlacementForBreakpoint(blockType, nextPlacement, 'desktop');
+
+  state.canvasInteraction.previewPlacement = mode === 'move'
+    ? { ...nextPlacement, x: previewPlacement.x, y: previewPlacement.y }
+    : previewPlacement;
+
+  syncDesignState();
+}
+
+function beginFrameInteraction({ blockId, mode, clientX, clientY }) {
+  if (!state.document || !isLayoutModeActive()) return;
+  const block = state.document.blocks.find((entry) => entry.id === blockId);
+  if (!block) return;
+  state.canvasInteraction = {
+    blockId,
+    blockType: block.type,
+    mode,
+    origin: { ...block.placement.desktop },
+    startX: clientX,
+    startY: clientY,
+    previewPlacement: { ...block.placement.desktop },
+  };
+  selectBlock(blockId);
+  syncDesignState();
+}
+
+function commitFrameInteraction({ clientX, clientY, cancelled = false }) {
+  if (!state.canvasInteraction) return;
+  if (!cancelled) {
+    updateInteractionPreview(clientX, clientY);
+    const nextPlacement = state.canvasInteraction.previewPlacement;
+    const blockId = state.canvasInteraction.blockId;
+    state.canvasInteraction = null;
+    commitPlacement(blockId, nextPlacement);
+  } else {
+    state.canvasInteraction = null;
+    syncDesignState();
+  }
+}
+
+function handleDesignEvent(payload) {
+  if (!payload || payload.session !== state.previewSessionId) return;
+
+  if (payload.type === 'studio:design-geometry') {
+    state.designGeometry = indexDesignGeometry(payload);
+    renderCanvas();
+    syncDesignState();
+    return;
+  }
+
+  if (payload.type !== 'studio:design-event') return;
+
+  switch (payload.event) {
+    case 'select-block':
+      selectBlock(payload.blockId || null);
+      break;
+    case 'clear-selection':
+      selectBlock(null);
+      break;
+    case 'open-tech-dock':
+      if (payload.blockId) {
+        selectBlock(payload.blockId);
+      }
+      focusProjectTechInput();
+      break;
+    case 'open-block-settings':
+      if (payload.blockId) {
+        selectBlock(payload.blockId);
+      }
+      state.activeSheet = 'block';
+      renderAll();
+      break;
+    case 'insert-block':
+      if (payload.blockType) {
+        addBlock(payload.blockType, {
+          afterBlockId: payload.afterBlockId || null,
+          atEnd: payload.atEnd === true,
+        });
+      }
+      break;
+    case 'toggle-layout-mode':
+      state.layoutMode = !state.layoutMode;
+      state.editing = null;
+      renderAll();
+      break;
+    case 'block-action':
+      if (payload.action === 'toggle' && payload.blockId) {
+        updateDocument((document) => {
+          const block = document.blocks.find((entry) => entry.id === payload.blockId);
+          if (block) block.enabled = block.enabled === false;
+        }, 'edit');
+      }
+      if (payload.action === 'remove' && payload.blockId) {
+        updateDocument((document) => {
+          document.blocks = document.blocks.filter((block) => block.id !== payload.blockId);
+          if (document.ui.selectedBlockId === payload.blockId) {
+            document.ui.selectedBlockId = document.blocks[0]?.id || null;
+          }
+          if (state.editing?.blockId === payload.blockId) {
+            state.editing = null;
+          }
+          if (!document.ui.selectedBlockId && state.activeSheet === 'block') {
+            state.activeSheet = null;
+          }
+        }, 'layout');
+      }
+      break;
+    case 'field-edit-start':
+      setEditing({
+        fieldId: payload.fieldId,
+        kind: payload.kind,
+        scope: payload.scope,
+        path: payload.path,
+        blockId: payload.blockId || null,
+      });
+      break;
+    case 'field-edit-input':
+      applyFieldValue({
+        scope: payload.scope,
+        path: payload.path,
+        blockId: payload.blockId || '',
+        localized: payload.localized,
+        value: payload.value,
+      }, 'none');
+      break;
+    case 'field-edit-commit':
+      applyFieldValue({
+        scope: payload.scope,
+        path: payload.path,
+        blockId: payload.blockId || '',
+        localized: payload.localized,
+        value: payload.value,
+      }, 'edit');
+      clearEditing(false);
+      syncDesignState();
+      break;
+    case 'field-edit-cancel':
+      clearEditing();
+      break;
+    case 'interaction-start':
+      beginFrameInteraction(payload);
+      break;
+    case 'interaction-update':
+      updateInteractionPreview(payload.clientX, payload.clientY);
+      break;
+    case 'interaction-end':
+      commitFrameInteraction(payload);
+      break;
+    default:
+      break;
+  }
 }
 
 function beginPaletteDrag(event, type, label) {
@@ -729,7 +1413,7 @@ function beginPaletteDrag(event, type, label) {
 
   const end = (pointerEvent) => {
     if (!state.paletteDrag) return;
-    const rect = elements.canvas.getBoundingClientRect();
+    const rect = elements.designViewport.getBoundingClientRect();
     const insideCanvas =
       pointerEvent.clientX >= rect.left &&
       pointerEvent.clientX <= rect.right &&
@@ -737,8 +1421,19 @@ function beginPaletteDrag(event, type, label) {
       pointerEvent.clientY <= rect.bottom;
 
     if (insideCanvas) {
-      const placement = clientPointToPlacement(elements.canvas, type, pointerEvent.clientX, pointerEvent.clientY);
-      addBlock(type, placement);
+      if (isLayoutEditingEnabled() && state.designGeometry?.container?.rect) {
+        const containerRect = state.designGeometry.container.rect;
+        const placement = pointToPlacementForGeometry(
+          type,
+          pointerEvent.clientX - rect.left + containerRect.left,
+          pointerEvent.clientY - rect.top + containerRect.top,
+          null,
+          'desktop',
+        );
+        addBlock(type, placement);
+      } else {
+        addBlock(type);
+      }
     } else if (!state.paletteDrag.moved) {
       addBlock(type);
     }
@@ -759,7 +1454,7 @@ function beginCanvasInteraction(event, blockId, mode) {
   if (!block) return;
 
   const rect = elements.canvas.getBoundingClientRect();
-  const cellWidth = (rect.width - 14 * 11) / 12;
+  const cellWidth = (rect.width - CANVAS_GAP * 11) / 12;
 
   state.canvasInteraction = {
     blockId,
@@ -775,8 +1470,8 @@ function beginCanvasInteraction(event, blockId, mode) {
     if (!state.canvasInteraction) return;
     const deltaX = pointerEvent.clientX - state.canvasInteraction.startX;
     const deltaY = pointerEvent.clientY - state.canvasInteraction.startY;
-    const dx = Math.round(deltaX / (state.canvasInteraction.cellWidth + 14));
-    const dy = Math.round(deltaY / (74 + 14));
+    const dx = Math.round(deltaX / (state.canvasInteraction.cellWidth + CANVAS_GAP));
+    const dy = Math.round(deltaY / (CANVAS_ROW_HEIGHT + CANVAS_GAP));
     const nextPlacement = { ...state.canvasInteraction.origin };
 
     if (mode === 'move') {
@@ -796,10 +1491,7 @@ function beginCanvasInteraction(event, blockId, mode) {
 
     const target = elements.canvas.querySelector(`[data-block-id="${blockId}"]`);
     if (target) {
-      target.style.setProperty('--grid-column', String(finalPlacement.x + 1));
-      target.style.setProperty('--grid-row', String(finalPlacement.y + 1));
-      target.style.setProperty('--grid-width', String(finalPlacement.w));
-      target.style.setProperty('--grid-height', String(finalPlacement.h));
+      applyPositionRect(target, placementToRect(state.canvasInteraction.blockType, finalPlacement));
     }
   };
 
@@ -807,8 +1499,8 @@ function beginCanvasInteraction(event, blockId, mode) {
     if (!state.canvasInteraction) return;
     const deltaX = pointerEvent.clientX - state.canvasInteraction.startX;
     const deltaY = pointerEvent.clientY - state.canvasInteraction.startY;
-    const dx = Math.round(deltaX / (state.canvasInteraction.cellWidth + 14));
-    const dy = Math.round(deltaY / (74 + 14));
+    const dx = Math.round(deltaX / (state.canvasInteraction.cellWidth + CANVAS_GAP));
+    const dy = Math.round(deltaY / (CANVAS_ROW_HEIGHT + CANVAS_GAP));
     const nextPlacement = { ...state.canvasInteraction.origin };
 
     if (mode === 'move') {
@@ -847,8 +1539,12 @@ function hydrateDocument(document, currentProjectId) {
   state.document = clone(document);
   state.currentProjectId = currentProjectId;
   state.editing = null;
+  state.designGeometry = null;
+  state.layoutMode = false;
+  state.activeSheet = null;
+  state.menuOpen = false;
   renderAll();
-  syncPreviewFrame();
+  syncPreviewFrames();
   schedulePreviewSync('save');
 }
 
@@ -903,17 +1599,11 @@ function attachEvents() {
     window.open(`/projects/${state.document.slug}`, '_blank', 'noopener');
   });
 
-  elements.projectList.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-project-id]');
-    if (!button) return;
-    loadProject(button.dataset.projectId).catch(handleError);
-  });
-
-  elements.paletteList.addEventListener('pointerdown', (event) => {
-    const button = event.target.closest('[data-block-type]');
-    if (!button || button.disabled) return;
-    event.preventDefault();
-    beginPaletteDrag(event, button.dataset.blockType, button.querySelector('.palette-item-title')?.textContent || button.dataset.blockType);
+  elements.projectList.addEventListener('change', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) return;
+    if (!target.value) return;
+    loadProject(target.value).catch(handleError);
   });
 
   elements.localeToggle.addEventListener('click', (event) => {
@@ -922,11 +1612,15 @@ function attachEvents() {
     updateDocument((document) => {
       document.ui.locale = button.dataset.locale;
     }, 'none');
+    syncPreviewFrames(Date.now());
   });
 
   elements.previewModeToggle.addEventListener('click', (event) => {
     const button = event.target.closest('[data-mode]');
     if (!button || !state.document) return;
+    if (button.dataset.mode === 'preview') {
+      state.layoutMode = false;
+    }
     updateDocument((document) => {
       document.ui.previewMode = button.dataset.mode;
     }, 'none');
@@ -937,79 +1631,46 @@ function attachEvents() {
     const button = event.target.closest('[data-preview-size]');
     if (!button) return;
     state.previewSize = button.dataset.previewSize;
-    renderSegmented(elements.previewSizeToggle, state.previewSize, 'previewSize');
-    elements.previewViewport.dataset.size = state.previewSize;
+    if (!isLayoutEditingEnabled()) {
+      state.layoutMode = false;
+    }
+    renderAll();
   });
 
-  elements.canvas.addEventListener('click', (event) => {
-    const actionButton = event.target.closest('[data-card-action]');
-    if (actionButton) {
-      const blockId = actionButton.dataset.blockId;
-      const action = actionButton.dataset.cardAction;
-      if (action === 'toggle') {
-        updateDocument((document) => {
-          const block = document.blocks.find((entry) => entry.id === blockId);
-          if (block) block.enabled = block.enabled === false;
-        });
-      } else if (action === 'remove') {
-        updateDocument((document) => {
-          document.blocks = document.blocks.filter((block) => block.id !== blockId);
-          if (document.ui.selectedBlockId === blockId) {
-            document.ui.selectedBlockId = document.blocks[0]?.id || null;
-          }
-        }, 'layout');
-      } else if (action === 'select') {
-        selectBlock(blockId);
+  elements.menuToggle.addEventListener('click', () => {
+    state.menuOpen = !state.menuOpen;
+    renderAll();
+  });
+
+  elements.openProjectSettingsBtn.addEventListener('click', () => {
+    state.activeSheet = 'project';
+    state.menuOpen = false;
+    renderAll();
+  });
+
+  elements.openBlockSettingsBtn.addEventListener('click', () => {
+    if (!getSelectedBlock()) return;
+    state.activeSheet = 'block';
+    state.menuOpen = false;
+    renderAll();
+  });
+
+  elements.toggleLayoutModeBtn.addEventListener('click', () => {
+    if (!isLayoutEditingEnabled()) return;
+    state.layoutMode = !state.layoutMode;
+    state.editing = null;
+    state.menuOpen = false;
+    renderAll();
+  });
+
+  elements.closeSheetButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      if (button.dataset.closeSheet === state.activeSheet) {
+        state.activeSheet = null;
       }
-      return;
-    }
-
-    const inlineTarget = event.target.closest('[data-inline-target="true"]');
-    if (inlineTarget) {
-      setEditing({
-        scope: inlineTarget.dataset.inlineScope,
-        path: inlineTarget.dataset.inlinePath,
-        blockId: inlineTarget.dataset.inlineBlockId || null,
-      });
-      return;
-    }
-
-    const card = event.target.closest('[data-block-id]');
-    if (card) selectBlock(card.dataset.blockId);
+      renderAll();
+    });
   });
-
-  elements.canvas.addEventListener('pointerdown', (event) => {
-    const resize = event.target.closest('[data-resize]');
-    const move = event.target.closest('.canvas-chip--move');
-    const card = event.target.closest('[data-block-id]');
-    if (!card) return;
-    if (event.target.closest('[data-inline-target],[data-inline-editor],.canvas-chip:not(.canvas-chip--move)')) return;
-    event.preventDefault();
-    selectBlock(card.dataset.blockId);
-    beginCanvasInteraction(event, card.dataset.blockId, resize?.dataset.resize || (move ? 'move' : 'move'));
-  });
-
-  elements.canvas.addEventListener('keydown', (event) => {
-    if (!(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)) return;
-    if (event.target.dataset.inlineEditor !== 'true') return;
-    if (event.key === 'Escape') {
-      state.editing = null;
-      renderCanvas();
-      return;
-    }
-    if (event.key === 'Enter' && !(event.target instanceof HTMLTextAreaElement && event.shiftKey)) {
-      event.preventDefault();
-      commitInlineEdit(event.target);
-    }
-  });
-
-  elements.canvas.addEventListener('blur', (event) => {
-    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
-      if (event.target.dataset.inlineEditor === 'true') {
-        commitInlineEdit(event.target);
-      }
-    }
-  }, true);
 
   elements.projectInspector.addEventListener('input', (event) => {
     const target = event.target;
@@ -1065,6 +1726,45 @@ function attachEvents() {
       }
       setAtPath(block, arrayPath, items);
     });
+  });
+
+  window.addEventListener('message', (event) => {
+    if (event.source !== elements.designFrame.contentWindow) return;
+    handleDesignEvent(event.data);
+  });
+
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    if (
+      state.menuOpen &&
+      !target.closest('#studio-menu-panel') &&
+      !target.closest('#studio-menu-toggle')
+    ) {
+      state.menuOpen = false;
+      renderAll();
+      return;
+    }
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    if (state.activeSheet) {
+      state.activeSheet = null;
+      renderAll();
+      return;
+    }
+    if (state.menuOpen) {
+      state.menuOpen = false;
+      renderAll();
+    }
+  });
+
+  elements.designFrame.addEventListener('load', () => {
+    window.setTimeout(() => {
+      syncDesignState();
+    }, 0);
   });
 }
 

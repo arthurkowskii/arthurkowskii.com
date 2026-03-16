@@ -7,6 +7,7 @@ export const prerender = false;
 
 const session = Astro.url.searchParams.get('session') || '';
 const lang = Astro.url.searchParams.get('lang') === 'en' ? 'en' : 'fr';
+const mode = Astro.url.searchParams.get('mode') === 'design' ? 'design' : 'preview';
 const draft = getPreviewDraft(session);
 
 const previewProject = draft?.frontmatter
@@ -24,21 +25,38 @@ const previewProject = draft?.frontmatter
     <meta name="viewport" content="width=device-width" />
     <title>Studio Preview</title>
     <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        background: #f3f4f6;
-      }
-
-      body {
-        min-height: 100vh;
-      }
+      html, body { margin: 0; padding: 0; min-height: 100vh; background: #f3f1eb; }
+      body.studio-design-preview { background: #ece6da; }
+      body.studio-design-preview [data-studio-block] { position: relative; isolation: isolate; }
+      body.studio-design-preview [data-studio-block]::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 0 1px transparent; transition: box-shadow 120ms ease; }
+      body.studio-design-preview [data-studio-block].is-studio-hovered::after { box-shadow: inset 0 0 0 1px rgba(24, 20, 15, 0.12); }
+      body.studio-design-preview [data-studio-block].is-studio-selected::after { box-shadow: inset 0 0 0 2px rgba(255, 107, 0, 0.96), 0 0 0 1px rgba(255, 107, 0, 0.18); }
+      body.studio-design-preview [data-studio-block].is-studio-hidden { display: none !important; }
+      body.studio-design-preview [data-studio-field].is-studio-edit-target:hover { border-radius: 10px; background: rgba(255, 107, 0, 0.06); box-shadow: inset 0 0 0 1px rgba(255, 107, 0, 0.16); }
+      body.studio-design-preview [data-studio-field].is-studio-editing { border-radius: 10px; background: rgba(255, 107, 0, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 107, 0, 0.26); outline: none; white-space: pre-wrap; }
+      body.studio-design-preview.is-layout-mode [data-studio-block].is-studio-selected { cursor: move; }
+      .studio-overlay-root { position: fixed; inset: 0; z-index: 90; pointer-events: none; }
+      .studio-overlay-root > * { pointer-events: auto; }
+      .studio-overlay-chip { position: fixed; display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(17, 14, 10, 0.08); background: rgba(255, 251, 245, 0.96); color: #171512; box-shadow: 0 16px 36px rgba(17, 14, 10, 0.16); backdrop-filter: blur(14px); font: inherit; font-size: 12px; }
+      .studio-overlay-chip--icon { width: 34px; padding: 0; font-size: 18px; line-height: 1; }
+      .studio-overlay-chip--accent { border-color: rgba(255, 107, 0, 0.22); background: rgba(255, 244, 236, 0.98); }
+      .studio-layout-badge { letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px; }
+      .studio-popover { position: fixed; display: grid; gap: 8px; min-width: 220px; max-width: min(280px, calc(100vw - 24px)); padding: 12px; border-radius: 20px; border: 1px solid rgba(17, 14, 10, 0.08); background: rgba(255, 250, 244, 0.98); box-shadow: 0 22px 60px rgba(17, 14, 10, 0.2); backdrop-filter: blur(16px); }
+      .studio-popover__title { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(23, 21, 18, 0.56); }
+      .studio-popover__list { display: grid; gap: 8px; }
+      .studio-popover__list button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 42px; padding: 10px 12px; border: 1px solid rgba(17, 14, 10, 0.08); border-radius: 14px; background: rgba(23, 21, 18, 0.03); color: #171512; font: inherit; text-align: left; }
+      .studio-popover__list button[disabled] { opacity: 0.4; cursor: not-allowed; }
+      .studio-popover__hint { font-size: 11px; color: rgba(23, 21, 18, 0.5); }
+      .studio-layout-handle { position: fixed; width: 16px; height: 16px; border-radius: 999px; border: 1px solid rgba(17, 14, 10, 0.08); background: rgba(255, 250, 244, 0.98); box-shadow: 0 12px 26px rgba(17, 14, 10, 0.16); }
+      .studio-layout-handle[data-layout-handle="e"] { cursor: ew-resize; }
+      .studio-layout-handle[data-layout-handle="s"] { cursor: ns-resize; }
+      .studio-layout-handle[data-layout-handle="se"] { cursor: nwse-resize; }
     </style>
   </head>
-  <body>
+  <body class:list={[mode === 'design' && 'studio-design-preview']}>
     {
       previewProject ? (
-        <ProjectBento project={previewProject} />
+        <ProjectBento project={previewProject} studioMode={mode} />
       ) : (
         <main style="min-height: 100vh; display:grid; place-items:center; padding: 2rem; color:#111827; font-family: Georgia, 'Times New Roman', serif;">
           <div style="max-width: 520px; text-align:center; background:white; border:1px solid rgba(15,23,42,0.08); border-radius:24px; padding:2rem; box-shadow:0 20px 60px rgba(15,23,42,0.08);">
@@ -49,5 +67,454 @@ const previewProject = draft?.frontmatter
         </main>
       )
     }
+    {previewProject && mode === 'design' && <script is:inline define:vars={{ session }}>
+      (() => {
+        if (window.parent === window) return;
+        let rafId = 0;
+        let resizeObserver = null;
+        let mutationObserver = null;
+        let overlayRoot = null;
+        let editorState = null;
+        let interactionState = null;
+        let hoveredBlockId = null;
+        let popoverState = null;
+        let studioState = { selectedBlockId: null, editingFieldId: null, selectedBlock: null, blocks: [], blocksById: {}, palette: [], placementDrafts: {}, layoutMode: false, canLayoutEdit: true, breakpoint: 'desktop' };
+        const placementCache = new Map();
+        const round = (value) => Math.round(value * 100) / 100;
+        const toRect = (rect) => ({ left: round(rect.left), top: round(rect.top), width: round(rect.width), height: round(rect.height) });
+        const escapeHtml = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+        const escapeSelector = (value) => window.CSS?.escape ? window.CSS.escape(String(value)) : String(value).replace(/["\\]/g, '\\$&');
+        const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+        const getFieldDescriptor = (field) => ({ fieldId: field.dataset.studioField || '', scope: field.dataset.studioFieldScope || 'block', path: field.dataset.studioFieldPath || '', blockId: field.dataset.studioFieldBlockId || '', localized: field.dataset.studioFieldLocalized === 'true', kind: field.dataset.studioFieldKind || 'text' });
+        const readFieldValue = (field) => {
+          if (!(field instanceof HTMLElement)) return '';
+          const raw = field.textContent || '';
+          return field.dataset.studioFieldKind === 'text' ? raw.replace(/\s+/g, ' ').trim() : raw.replace(/\r\n/g, '\n').trim();
+        };
+        const postDesignEvent = (payload) => window.parent.postMessage({ type: 'studio:design-event', session, ...payload }, '*');
+        const ensureOverlayRoot = () => {
+          if (overlayRoot?.isConnected) return overlayRoot;
+          overlayRoot = document.createElement('div');
+          overlayRoot.className = 'studio-overlay-root';
+          document.body.appendChild(overlayRoot);
+          return overlayRoot;
+        };
+        const getVisibleBlocks = () => Array.from(document.querySelectorAll('[data-studio-block]'))
+          .filter((element) => element instanceof HTMLElement)
+          .map((element) => ({ element, id: element.dataset.studioBlockId || '', rect: element.getBoundingClientRect() }))
+          .filter((entry) => entry.id && entry.rect.width > 0 && entry.rect.height > 0)
+          .sort((a, b) => (a.rect.top - b.rect.top) || (a.rect.left - b.rect.left));
+        const cachePlacement = (block, breakpoint) => {
+          const key = `${block.dataset.studioBlockId || ''}:${breakpoint}`;
+          if (placementCache.has(key)) return;
+          placementCache.set(key, {
+            columnStart: block.style.getPropertyValue(`--${breakpoint}-grid-column-start`),
+            columnEnd: block.style.getPropertyValue(`--${breakpoint}-grid-column-end`),
+            rowStart: block.style.getPropertyValue(`--${breakpoint}-grid-row-start`),
+            rowEnd: block.style.getPropertyValue(`--${breakpoint}-grid-row-end`),
+          });
+        };
+        const restorePlacement = (block, breakpoint) => {
+          const key = `${block.dataset.studioBlockId || ''}:${breakpoint}`;
+          const cached = placementCache.get(key);
+          if (!cached) return;
+          [[`--${breakpoint}-grid-column-start`, cached.columnStart], [`--${breakpoint}-grid-column-end`, cached.columnEnd], [`--${breakpoint}-grid-row-start`, cached.rowStart], [`--${breakpoint}-grid-row-end`, cached.rowEnd]].forEach(([property, value]) => {
+            if (value) block.style.setProperty(property, value);
+            else block.style.removeProperty(property);
+          });
+          placementCache.delete(key);
+        };
+        const applyPlacementDraft = (block, draftEntry) => {
+          const breakpoint = draftEntry?.breakpoint || studioState.breakpoint || 'desktop';
+          if (!draftEntry?.placement) return restorePlacement(block, breakpoint);
+          cachePlacement(block, breakpoint);
+          block.style.setProperty(`--${breakpoint}-grid-column-start`, String(draftEntry.placement.x + 1));
+          block.style.setProperty(`--${breakpoint}-grid-column-end`, String(draftEntry.placement.x + draftEntry.placement.w + 1));
+          block.style.setProperty(`--${breakpoint}-grid-row-start`, String(draftEntry.placement.y + 1));
+          block.style.setProperty(`--${breakpoint}-grid-row-end`, String(draftEntry.placement.y + draftEntry.placement.h + 1));
+        };
+        const clampBox = (left, top, width, height, pad = 12) => ({ left: clamp(left, pad, Math.max(pad, window.innerWidth - width - pad)), top: clamp(top, pad, Math.max(pad, window.innerHeight - height - pad)), width, height });
+        const createOverlayButton = ({ text, className = '', left, top, dataset = {} }) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = `studio-overlay-chip${className ? ` ${className}` : ''}`;
+          button.style.left = `${left}px`;
+          button.style.top = `${top}px`;
+          Object.entries(dataset).forEach(([key, value]) => { button.dataset[key] = value; });
+          button.innerHTML = text;
+          return button;
+        };
+        const renderPopover = ({ left, top, title, html, dataset = {} }) => {
+          const popover = document.createElement('div');
+          const box = clampBox(left, top, 240, 48);
+          popover.className = 'studio-popover';
+          popover.style.left = `${box.left}px`;
+          popover.style.top = `${box.top}px`;
+          Object.entries(dataset).forEach(([key, value]) => { popover.dataset[key] = value; });
+          popover.innerHTML = `<div class="studio-popover__title">${escapeHtml(title)}</div>${html}`;
+          return popover;
+        };
+        const setHoveredBlock = (blockId) => {
+          if (hoveredBlockId === blockId) return;
+          hoveredBlockId = blockId;
+          Array.from(document.querySelectorAll('[data-studio-block]')).forEach((block) => {
+            if (!(block instanceof HTMLElement)) return;
+            block.classList.toggle('is-studio-hovered', (block.dataset.studioBlockId || '') === hoveredBlockId);
+          });
+          renderOverlay();
+        };
+        const closePopover = () => { popoverState = null; renderOverlay(); };
+        const focusFieldEnd = (field) => {
+          field.focus();
+          const selection = window.getSelection();
+          if (!selection) return;
+          const range = document.createRange();
+          range.selectNodeContents(field);
+          range.collapse(false);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        };
+        const teardownEditor = () => {
+          if (!editorState?.field?.isConnected) return void (editorState = null);
+          editorState.field.removeAttribute('contenteditable');
+          editorState.field.removeAttribute('spellcheck');
+          editorState.field.classList.remove('is-studio-editing');
+          editorState.field.classList.add('is-studio-edit-target');
+          editorState = null;
+          renderOverlay();
+          scheduleGeometry();
+        };
+        const cancelEditor = () => {
+          if (!editorState) return;
+          editorState.field.textContent = editorState.initialValue;
+          const descriptor = getFieldDescriptor(editorState.field);
+          teardownEditor();
+          postDesignEvent({ event: 'field-edit-cancel', ...descriptor });
+        };
+        const commitEditor = () => {
+          if (!editorState) return;
+          const descriptor = getFieldDescriptor(editorState.field);
+          const value = readFieldValue(editorState.field);
+          teardownEditor();
+          postDesignEvent({ event: 'field-edit-commit', ...descriptor, value });
+        };
+        const startEditor = (field) => {
+          if (!(field instanceof HTMLElement) || studioState.layoutMode) return;
+          const descriptor = getFieldDescriptor(field);
+          if (descriptor.kind === 'tech-tags') return postDesignEvent({ event: 'open-tech-dock', blockId: descriptor.blockId || '' });
+          if (editorState?.field === field) return;
+          if (editorState) commitEditor();
+          editorState = { field, descriptor, initialValue: readFieldValue(field) };
+          field.setAttribute('contenteditable', 'plaintext-only');
+          field.setAttribute('spellcheck', 'true');
+          field.classList.remove('is-studio-edit-target');
+          field.classList.add('is-studio-editing');
+          postDesignEvent({ event: 'field-edit-start', ...descriptor, value: editorState.initialValue });
+          focusFieldEnd(field);
+          renderOverlay();
+          scheduleGeometry();
+        };
+        const collectGeometry = () => {
+          const container = document.querySelector('.bento-container');
+          const containerRect = container?.getBoundingClientRect() || document.body.getBoundingClientRect();
+          const containerStyles = container ? window.getComputedStyle(container) : null;
+          const gapX = containerStyles ? Number.parseFloat(containerStyles.columnGap || containerStyles.gap || '0') : 0;
+          const gapY = containerStyles ? Number.parseFloat(containerStyles.rowGap || containerStyles.gap || '0') : 0;
+          const blocks = Array.from(document.querySelectorAll('[data-studio-block]')).map((element) => {
+            if (!(element instanceof HTMLElement)) return null;
+            const rect = element.getBoundingClientRect();
+            if (!rect.width || !rect.height) return null;
+            return { id: element.dataset.studioBlockId || '', type: element.dataset.studioBlockType || '', kind: element.dataset.studioBlockKind || 'core', enabled: element.dataset.studioBlockEnabled !== 'false', rect: toRect(rect) };
+          }).filter(Boolean);
+          const fields = Array.from(document.querySelectorAll('[data-studio-field]')).map((element) => {
+            if (!(element instanceof HTMLElement)) return null;
+            const rect = element.getBoundingClientRect();
+            if (!rect.width || !rect.height) return null;
+            return { id: element.dataset.studioField || '', scope: element.dataset.studioFieldScope || 'block', path: element.dataset.studioFieldPath || '', blockId: element.dataset.studioFieldBlockId || '', localized: element.dataset.studioFieldLocalized === 'true', kind: element.dataset.studioFieldKind || 'text', rect: toRect(rect) };
+          }).filter(Boolean);
+          window.parent.postMessage({ type: 'studio:design-geometry', session, blocks, fields, container: { rect: toRect(containerRect), gapX: round(gapX), gapY: round(gapY) }, viewport: { width: window.innerWidth, height: window.innerHeight, scrollX: round(window.scrollX), scrollY: round(window.scrollY) }, documentHeight: document.documentElement.scrollHeight }, '*');
+        };
+        const scheduleGeometry = () => {
+          window.cancelAnimationFrame(rafId);
+          rafId = window.requestAnimationFrame(() => {
+            renderOverlay();
+            collectGeometry();
+          });
+        };
+        const renderOverlay = () => {
+          const root = ensureOverlayRoot();
+          root.innerHTML = '';
+          document.body.classList.toggle('is-layout-mode', studioState.layoutMode);
+          if (!studioState.blocks.length) {
+            root.appendChild(createOverlayButton({ text: '+', className: 'studio-overlay-chip--icon studio-overlay-chip--accent', left: window.innerWidth / 2 - 17, top: Math.max(24, window.innerHeight / 2 - 17), dataset: { overlayAction: 'toggle-insert', atEnd: 'true' } }));
+          }
+          if (studioState.layoutMode) {
+            root.appendChild(createOverlayButton({ text: 'Layout mode', className: 'studio-layout-badge', left: clamp(window.innerWidth / 2 - 64, 12, window.innerWidth - 140), top: 18 }));
+          }
+          const blocks = getVisibleBlocks();
+          const selected = blocks.find((entry) => entry.id === studioState.selectedBlockId) || null;
+          const anchor = blocks.find((entry) => entry.id === (hoveredBlockId || studioState.selectedBlockId)) || null;
+          const last = blocks.reduce((current, entry) => (!current || entry.rect.bottom > current.rect.bottom ? entry : current), null);
+          if (selected) {
+            const actionX = clamp(selected.rect.right - 36, 12, window.innerWidth - 46);
+            const actionY = clamp(selected.rect.top + 12, 12, window.innerHeight - 46);
+            root.appendChild(createOverlayButton({ text: '...', className: 'studio-overlay-chip--icon', left: actionX, top: actionY, dataset: { overlayAction: 'toggle-block-menu', blockId: selected.id } }));
+            if (studioState.layoutMode) {
+              [
+                { mode: 'e', left: selected.rect.right - 8, top: selected.rect.top + selected.rect.height / 2 - 8 },
+                { mode: 's', left: selected.rect.left + selected.rect.width / 2 - 8, top: selected.rect.bottom - 8 },
+                { mode: 'se', left: selected.rect.right - 8, top: selected.rect.bottom - 8 },
+              ].forEach((handle) => {
+                const node = document.createElement('button');
+                node.type = 'button';
+                node.className = 'studio-layout-handle';
+                node.style.left = `${clamp(handle.left, 4, window.innerWidth - 20)}px`;
+                node.style.top = `${clamp(handle.top, 4, window.innerHeight - 20)}px`;
+                node.dataset.layoutHandle = handle.mode;
+                node.dataset.blockId = selected.id;
+                root.appendChild(node);
+              });
+            }
+          }
+          const insertTargets = [];
+          if (anchor) insertTargets.push({ atEnd: false, blockId: anchor.id, rect: anchor.rect });
+          if (last && (!anchor || anchor.id !== last.id)) insertTargets.push({ atEnd: true, blockId: last.id, rect: last.rect });
+          if (!anchor && !last && studioState.blocks.length) insertTargets.push({ atEnd: true, blockId: '', rect: { left: window.innerWidth / 2 - 17, width: 34, bottom: 80 } });
+          insertTargets.forEach((target) => {
+            const left = clamp(target.rect.left + target.rect.width / 2 - 17, 12, window.innerWidth - 46);
+            const top = clamp(target.rect.bottom + 10, 12, window.innerHeight - 46);
+            root.appendChild(createOverlayButton({ text: '+', className: 'studio-overlay-chip--icon studio-overlay-chip--accent', left, top, dataset: { overlayAction: 'toggle-insert', blockId: target.blockId || '', atEnd: target.atEnd ? 'true' : 'false' } }));
+          });
+          if (popoverState?.kind === 'insert') {
+            const target = popoverState.atEnd ? (last || anchor) : blocks.find((entry) => entry.id === popoverState.blockId);
+            const triggerLeft = target ? target.rect.left + target.rect.width / 2 - 17 : window.innerWidth / 2 - 17;
+            const triggerTop = target ? target.rect.bottom + 26 : window.innerHeight / 2 + 26;
+            const list = (studioState.palette || []).map((item) => `
+              <button type="button" data-overlay-action="insert-block" data-block-type="${escapeHtml(item.type)}" data-block-id="${escapeHtml(popoverState.blockId || '')}" data-at-end="${popoverState.atEnd ? 'true' : 'false'}"${item.disabled ? ' disabled' : ''}>
+                <span>${escapeHtml(item.label)}</span>
+                <span class="studio-popover__hint">${item.disabled ? 'Already on page' : 'Add'}</span>
+              </button>
+            `).join('');
+            root.appendChild(renderPopover({ left: triggerLeft - 102, top: triggerTop, title: 'Add block', html: `<div class="studio-popover__list">${list}</div>`, dataset: { popover: 'insert' } }));
+          }
+          if (popoverState?.kind === 'block' && selected) {
+            const triggerX = clamp(selected.rect.right - 32, 12, window.innerWidth - 46);
+            const triggerY = clamp(selected.rect.top + 56, 12, window.innerHeight - 180);
+            root.appendChild(renderPopover({ left: triggerX - 184, top: triggerY, title: selected.element.dataset.studioBlockType || 'Block', html: `
+              <div class="studio-popover__list">
+                <button type="button" data-overlay-action="open-block-settings" data-block-id="${escapeHtml(selected.id)}"><span>Block settings</span><span class="studio-popover__hint">Advanced</span></button>
+                <button type="button" data-overlay-action="toggle-block" data-block-id="${escapeHtml(selected.id)}"><span>${studioState.selectedBlock?.enabled === false ? 'Show block' : 'Hide block'}</span><span class="studio-popover__hint">Toggle</span></button>
+                <button type="button" data-overlay-action="toggle-layout-mode" data-block-id="${escapeHtml(selected.id)}"${studioState.canLayoutEdit ? '' : ' disabled'}><span>${studioState.layoutMode ? 'Exit layout mode' : 'Edit layout'}</span><span class="studio-popover__hint">${studioState.canLayoutEdit ? 'Move/resize' : 'Desktop only'}</span></button>
+                <button type="button" data-overlay-action="remove-block" data-block-id="${escapeHtml(selected.id)}"><span>Remove block</span><span class="studio-popover__hint">Delete</span></button>
+              </div>
+            `, dataset: { popover: 'block' } }));
+          }
+        };
+        const applyState = () => {
+          const blocksById = studioState.blocksById || {};
+          const placementDrafts = studioState.placementDrafts || {};
+          Array.from(document.querySelectorAll('[data-studio-block]')).forEach((block) => {
+            if (!(block instanceof HTMLElement)) return;
+            const blockId = block.dataset.studioBlockId || '';
+            const info = blocksById[blockId];
+            const selected = studioState.selectedBlockId === blockId;
+            block.classList.toggle('is-studio-selected', selected);
+            block.classList.toggle('is-studio-hidden', Boolean(studioState.blocks.length) && !info);
+            if (info) block.dataset.studioBlockEnabled = info.enabled ? 'true' : 'false';
+            applyPlacementDraft(block, placementDrafts[blockId]);
+          });
+          Array.from(document.querySelectorAll('[data-studio-field]')).forEach((field) => {
+            if (!(field instanceof HTMLElement)) return;
+            const block = field.closest('[data-studio-block]');
+            const selected = block?.dataset.studioBlockId === studioState.selectedBlockId;
+            const editable = selected && !studioState.layoutMode && !field.classList.contains('is-studio-editing');
+            field.classList.toggle('is-studio-edit-target', editable);
+          });
+          if (editorState?.field) {
+            const activeBlockId = editorState.descriptor.blockId || '';
+            if (studioState.layoutMode || (activeBlockId && activeBlockId !== studioState.selectedBlockId)) commitEditor();
+          }
+          if (popoverState?.kind === 'block' && studioState.selectedBlockId !== popoverState.blockId) popoverState = null;
+          renderOverlay();
+          scheduleGeometry();
+        };
+        const startInteraction = (event, blockId, mode) => {
+          if (!studioState.layoutMode) return;
+          event.preventDefault();
+          event.stopPropagation();
+          if (editorState) commitEditor();
+          interactionState = { blockId, mode };
+          postDesignEvent({ event: 'interaction-start', blockId, mode, clientX: event.clientX, clientY: event.clientY });
+        };
+        const moveInteraction = (event) => {
+          if (!interactionState) return;
+          postDesignEvent({ event: 'interaction-update', blockId: interactionState.blockId, mode: interactionState.mode, clientX: event.clientX, clientY: event.clientY });
+        };
+        const finishInteraction = (event, cancelled = false) => {
+          if (!interactionState) return;
+          postDesignEvent({ event: 'interaction-end', blockId: interactionState.blockId, mode: interactionState.mode, clientX: event.clientX, clientY: event.clientY, cancelled });
+          interactionState = null;
+        };
+        const preventPublishedInteraction = (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          if (target.closest('.studio-overlay-root')) return;
+          if (editorState?.field && editorState.field.contains(target)) return;
+          const block = target.closest('[data-studio-block]');
+          if (!block) return;
+          if (!target.closest('a, button, input, textarea, select, iframe, video, audio, [role="button"], [onclick], [data-studio-field]')) return;
+          event.preventDefault();
+        };
+        document.addEventListener('click', preventPublishedInteraction, true);
+        document.addEventListener('pointerdown', preventPublishedInteraction, true);
+        document.addEventListener('submit', preventPublishedInteraction, true);
+        document.addEventListener('pointermove', (event) => {
+          if (interactionState) return;
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          if (target.closest('.studio-overlay-root')) return;
+          const block = target.closest('[data-studio-block]');
+          setHoveredBlock(block?.dataset.studioBlockId || null);
+        });
+        document.addEventListener('click', (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          const overlayAction = target.closest('[data-overlay-action]');
+          if (overlayAction) {
+            event.preventDefault();
+            event.stopPropagation();
+            const action = overlayAction.dataset.overlayAction;
+            if (action === 'toggle-insert') {
+              const nextBlockId = overlayAction.dataset.blockId || '';
+              const nextAtEnd = overlayAction.dataset.atEnd === 'true';
+              const same = popoverState?.kind === 'insert' && popoverState.blockId === nextBlockId && popoverState.atEnd === nextAtEnd;
+              popoverState = same ? null : { kind: 'insert', blockId: nextBlockId, atEnd: nextAtEnd };
+              return renderOverlay();
+            }
+            if (action === 'insert-block') {
+              postDesignEvent({ event: 'insert-block', blockType: overlayAction.dataset.blockType || '', afterBlockId: overlayAction.dataset.atEnd === 'true' ? '' : (overlayAction.dataset.blockId || ''), atEnd: overlayAction.dataset.atEnd === 'true' });
+              popoverState = null;
+              return;
+            }
+            if (action === 'toggle-block-menu') {
+              const blockId = overlayAction.dataset.blockId || '';
+              popoverState = popoverState?.kind === 'block' && popoverState.blockId === blockId ? null : { kind: 'block', blockId };
+              return renderOverlay();
+            }
+            if (action === 'open-block-settings') {
+              postDesignEvent({ event: 'open-block-settings', blockId: overlayAction.dataset.blockId || '' });
+              popoverState = null;
+              return;
+            }
+            if (action === 'toggle-block') {
+              postDesignEvent({ event: 'block-action', blockId: overlayAction.dataset.blockId || '', action: 'toggle' });
+              popoverState = null;
+              return;
+            }
+            if (action === 'remove-block') {
+              postDesignEvent({ event: 'block-action', blockId: overlayAction.dataset.blockId || '', action: 'remove' });
+              popoverState = null;
+              return;
+            }
+            if (action === 'toggle-layout-mode') {
+              postDesignEvent({ event: 'toggle-layout-mode' });
+              popoverState = null;
+              return;
+            }
+          }
+          if (target.closest('.studio-popover')) return;
+          const field = target.closest('[data-studio-field]');
+          if (field instanceof HTMLElement) {
+            event.preventDefault();
+            event.stopPropagation();
+            const descriptor = getFieldDescriptor(field);
+            if (descriptor.blockId && descriptor.blockId !== studioState.selectedBlockId) {
+              postDesignEvent({ event: 'select-block', blockId: descriptor.blockId });
+              closePopover();
+              return;
+            }
+            startEditor(field);
+            closePopover();
+            return;
+          }
+          const block = target.closest('[data-studio-block]');
+          if (block instanceof HTMLElement) {
+            event.preventDefault();
+            event.stopPropagation();
+            postDesignEvent({ event: 'select-block', blockId: block.dataset.studioBlockId || '' });
+            closePopover();
+            return;
+          }
+          if (editorState) commitEditor();
+          closePopover();
+          postDesignEvent({ event: 'clear-selection' });
+        });
+        document.addEventListener('pointerdown', (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          const handle = target.closest('[data-layout-handle]');
+          if (handle) return startInteraction(event, handle.dataset.blockId || '', handle.dataset.layoutHandle || 'move');
+          if (!studioState.layoutMode || target.closest('.studio-overlay-root')) return;
+          const block = target.closest('[data-studio-block]');
+          if (!(block instanceof HTMLElement)) return;
+          const blockId = block.dataset.studioBlockId || '';
+          if (blockId !== studioState.selectedBlockId) return;
+          startInteraction(event, blockId, 'move');
+        });
+        document.addEventListener('input', (event) => {
+          if (!editorState || !(event.target instanceof HTMLElement) || event.target !== editorState.field) return;
+          postDesignEvent({ event: 'field-edit-input', ...getFieldDescriptor(editorState.field), value: readFieldValue(editorState.field) });
+          scheduleGeometry();
+        });
+        document.addEventListener('keydown', (event) => {
+          if (!editorState || !(event.target instanceof HTMLElement) || event.target !== editorState.field) return;
+          if (event.key === 'Escape') {
+            event.preventDefault();
+            return cancelEditor();
+          }
+          if (editorState.descriptor.kind !== 'textarea' && event.key === 'Enter') {
+            event.preventDefault();
+            commitEditor();
+          }
+        });
+        document.addEventListener('focusout', (event) => {
+          if (!editorState || !(event.target instanceof HTMLElement) || event.target !== editorState.field) return;
+          window.requestAnimationFrame(() => {
+            if (!editorState) return;
+            const active = document.activeElement;
+            if (active === editorState.field || editorState.field.contains(active)) return;
+            commitEditor();
+          });
+        }, true);
+        window.addEventListener('load', scheduleGeometry);
+        window.addEventListener('resize', scheduleGeometry);
+        window.addEventListener('scroll', scheduleGeometry, { passive: true });
+        window.addEventListener('pointermove', moveInteraction);
+        window.addEventListener('pointerup', (event) => finishInteraction(event, false));
+        window.addEventListener('pointercancel', (event) => finishInteraction(event, true));
+        window.addEventListener('message', (event) => {
+          if (event.source !== window.parent) return;
+          const payload = event.data;
+          if (!payload || payload.type !== 'studio:design-state' || payload.session !== session) return;
+          const blocks = Array.isArray(payload.blocks) ? payload.blocks : [];
+          studioState = { ...studioState, ...payload, blocks, blocksById: Object.fromEntries(blocks.map((block) => [block.id, block])), palette: Array.isArray(payload.palette) ? payload.palette : [], placementDrafts: payload.placementDrafts || {} };
+          applyState();
+        });
+        resizeObserver = new ResizeObserver(() => scheduleGeometry());
+        resizeObserver.observe(document.documentElement);
+        resizeObserver.observe(document.body);
+        mutationObserver = new MutationObserver(() => scheduleGeometry());
+        mutationObserver.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true });
+        document.fonts?.ready?.then(scheduleGeometry).catch(() => {});
+        renderOverlay();
+        scheduleGeometry();
+        window.addEventListener('beforeunload', () => {
+          window.cancelAnimationFrame(rafId);
+          resizeObserver?.disconnect();
+          mutationObserver?.disconnect();
+          overlayRoot?.remove();
+        });
+      })();
+    </script>}
   </body>
 </html>

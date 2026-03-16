@@ -99,6 +99,7 @@ export interface Props {
       };
     };
   };
+  studioMode?: "design" | "preview";
 }
 
 import atomConfig from "../atom.config.js";
@@ -114,7 +115,9 @@ import youtubeIcon from "../Assets/music_links assets/youtube.png?url";
 import soundcloudIcon from "../Assets/music_links assets/soundcloud.png?url";
 import bandcampIcon from "../Assets/music_links assets/bandcamp-logo.png?url";
 
-const { project } = Astro.props;
+const { project, studioMode = "preview" } = Astro.props;
+const isStudioDesign = studioMode === "design";
+const currentLang = Astro.url.searchParams.get("lang") === "en" ? "en" : "fr";
 
 // Handle case where no project is passed (for preview pages)
 if (!project || !project.data) {
@@ -139,15 +142,32 @@ const bento = {
 };
 const normalizedLayout = normalizeBentoLayout(bento);
 const cards = normalizedLayout.cards;
-const layoutBlocks = normalizedLayout.blocks.filter((block) => block.enabled !== false);
+const layoutBlocks = normalizedLayout.blocks;
+const enabledBlocks = layoutBlocks.filter((block) => block.enabled !== false);
 const blockByType = new Map(layoutBlocks.map((block) => [block.type, block]));
+const enabledBlockTypes = new Set(enabledBlocks.map((block) => block.type));
+
+const STUDIO_CORE_BLOCKS = new Set([
+  "hero",
+  "stats",
+  "actions",
+  "tech",
+  "process",
+  "gallery",
+  "challenges",
+  "results",
+]);
 
 function hasBlock(type) {
-  return blockByType.has(type);
+  return isStudioDesign ? blockByType.has(type) : enabledBlockTypes.has(type);
 }
 
 function getBlockVariant(type) {
   return blockByType.get(type)?.variant || "default";
+}
+
+function isBlockEnabled(type) {
+  return blockByType.get(type)?.enabled !== false;
 }
 
 function styleObjectToString(styleObject) {
@@ -160,6 +180,45 @@ function getBlockStyle(type) {
   const block = blockByType.get(type);
   if (!block) return undefined;
   return styleObjectToString(getResponsivePlacementVariables(block));
+}
+
+function studioBlockAttrs(type) {
+  if (!isStudioDesign) return {};
+  const block = blockByType.get(type);
+  if (!block) return {};
+  return {
+    "data-studio-block": block.id,
+    "data-studio-block-id": block.id,
+    "data-studio-block-type": type,
+    "data-studio-block-kind": STUDIO_CORE_BLOCKS.has(type) ? "core" : "legacy",
+    "data-studio-block-enabled": block.enabled !== false ? "true" : "false",
+  };
+}
+
+function studioFieldAttrs({
+  blockType = "",
+  path = "",
+  scope = "block",
+  kind = "text",
+  localized = true,
+}) {
+  if (!isStudioDesign || !path) return {};
+  const block = blockType ? blockByType.get(blockType) : null;
+  const blockId = block?.id || "";
+  return {
+    "data-studio-field": `${scope}:${blockId || "meta"}:${path}`,
+    "data-studio-field-scope": scope,
+    "data-studio-field-path": path,
+    "data-studio-field-block-id": blockId,
+    "data-studio-field-kind": kind,
+    "data-studio-field-localized": localized ? "true" : "false",
+  };
+}
+
+function getStudioText(value, fallback = "") {
+  if (typeof value === "string") return value || fallback;
+  if (!value || typeof value !== "object") return fallback;
+  return value[currentLang] || value.fr || value.en || fallback;
 }
 
 const isWideSampler = getBlockVariant("sampler") === "wide";
@@ -382,6 +441,48 @@ function inferPlatform(text?: string, url?: string): string {
   if (u.includes("youtube") || u.includes("youtu.be")) return "youtube";
   if (u.includes("soundcloud")) return "soundcloud";
   return "";
+}
+
+function getStudioLegacyLabel(type: string): string {
+  switch (type) {
+    case "musicLinks":
+      return currentLang === "en" ? "Music Links" : "Liens musicaux";
+    case "video":
+      return currentLang === "en" ? "Video" : "Vidéo";
+    case "spotify":
+      return "Spotify";
+    case "soundcloud":
+      return "SoundCloud";
+    case "audio":
+      return currentLang === "en" ? "Audio Capsule" : "Capsule Audio";
+    case "sampler":
+      return currentLang === "en" ? "Sample Player" : "Lecteur de Samples";
+    case "fmod":
+      return "FMOD";
+    default:
+      return type;
+  }
+}
+
+function getStudioLegacySummary(type: string): string {
+  switch (type) {
+    case "musicLinks":
+      return `${bento.musicLinks?.items?.length || 0} ${currentLang === "en" ? "links" : "liens"}`;
+    case "video":
+      return bento.video?.url ? (currentLang === "en" ? "Embedded media placeholder" : "Emplacement media intégré") : (currentLang === "en" ? "No source configured" : "Aucune source configurée");
+    case "spotify":
+      return bento.spotify?.url ? (currentLang === "en" ? "Embed kept compact in design mode" : "Embed compact en mode design") : (currentLang === "en" ? "No source configured" : "Aucune source configurée");
+    case "soundcloud":
+      return bento.soundcloud?.url ? (currentLang === "en" ? "Embed kept compact in design mode" : "Embed compact en mode design") : (currentLang === "en" ? "No source configured" : "Aucune source configurée");
+    case "audio":
+      return `${bento.audio?.tracks?.length || 0} ${currentLang === "en" ? "tracks" : "pistes"}`;
+    case "sampler":
+      return `${bento.sampler?.samplePool?.length || 0} ${currentLang === "en" ? "samples" : "samples"}`;
+    case "fmod":
+      return `${bento.fmod?.events?.length || 0} ${currentLang === "en" ? "events" : "événements"}`;
+    default:
+      return currentLang === "en" ? "Compact placeholder" : "Placeholder compact";
+  }
 }
 
 // Build gallery and hero assets automatically from a folder when provided
@@ -868,6 +969,76 @@ const accentColorRgbDark =
   .layout-block {
     grid-column: var(--desktop-grid-column-start) / var(--desktop-grid-column-end);
     grid-row: var(--desktop-grid-row-start) / var(--desktop-grid-row-end);
+  }
+
+  .project-bento.studio-design-mode .bento-card,
+  .project-bento.studio-design-mode .bento-card.animate-in {
+    transform: none;
+    opacity: 1;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      opacity 160ms ease;
+  }
+
+  .project-bento.studio-design-mode .bento-card:hover {
+    transform: none;
+  }
+
+  .project-bento.studio-design-mode .bento-card::before,
+  .project-bento.studio-design-mode .hero-card:hover .hero-bg,
+  .project-bento.studio-design-mode .gallery-hero:hover,
+  .project-bento.studio-design-mode .gallery-thumb:hover {
+    transform: none;
+  }
+
+  .project-bento.studio-design-mode [data-studio-block-enabled="false"] {
+    opacity: 0.48;
+    filter: saturate(0.8);
+  }
+
+  .project-bento.studio-design-mode .studio-legacy-card {
+    display: grid;
+    align-content: start;
+    gap: 0.9rem;
+    min-height: 100%;
+    border-style: dashed;
+    border-color: rgba(var(--accent-color-rgb), 0.24);
+    background:
+      radial-gradient(circle at 18% 18%, rgba(var(--accent-color-rgb), 0.12), transparent 36%),
+      linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9));
+  }
+
+  html[data-theme="dark"] .project-bento.studio-design-mode .studio-legacy-card {
+    background:
+      radial-gradient(circle at 18% 18%, rgba(var(--accent-color-rgb), 0.16), transparent 36%),
+      linear-gradient(160deg, rgba(17, 24, 39, 0.94), rgba(15, 23, 42, 0.88));
+    border-color: rgba(var(--accent-color-rgb), 0.3);
+  }
+
+  .project-bento.studio-design-mode .studio-legacy-badge {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid rgba(var(--accent-color-rgb), 0.24);
+    background: rgba(var(--accent-color-rgb), 0.1);
+    color: var(--accent-color);
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .project-bento.studio-design-mode .studio-legacy-summary {
+    margin: 0;
+    color: rgba(15, 23, 42, 0.68);
+    line-height: 1.55;
+  }
+
+  html[data-theme="dark"] .project-bento.studio-design-mode .studio-legacy-summary {
+    color: rgba(226, 232, 240, 0.72);
   }
 
   /* Simple scale animation when cards become visible */
@@ -3054,7 +3225,7 @@ const accentColorRgbDark =
 </style>
 
 <div
-  class={`project-bento ${hasCustomDarkAccent ? "has-custom-dark-accent" : ""}`}
+  class={`project-bento ${hasCustomDarkAccent ? "has-custom-dark-accent" : ""} ${isStudioDesign ? "studio-design-mode" : ""}`}
 >
   <div class="bento-container">
     <script
@@ -3065,14 +3236,18 @@ const accentColorRgbDark =
     <!-- Hero Card - Main banner with project info -->
     {
       hasBlock("hero") && (
-        <div class="bento-card layout-block hero-card" style={`${getBlockStyle("hero")}; ${heroStyle}`}>
+        <div
+          class="bento-card layout-block hero-card"
+          style={`${getBlockStyle("hero")}; ${heroStyle}`}
+          {...studioBlockAttrs("hero")}
+        >
           <div class="hero-bg">
             {assets.heroIsVideo ? (
               <video
                 class="hero-bg-video"
                 src={finalHeroUrl}
                 poster={assets.heroThumbnail}
-                autoplay
+                autoplay={!isStudioDesign}
                 muted
                 loop
                 playsinline
@@ -3099,8 +3274,12 @@ const accentColorRgbDark =
                 loading="lazy"
               />
             )}
-            <h1 class="hero-title">{data.title}</h1>
-            <p class="hero-description">{data.description}</p>
+            <h1 class="hero-title" {...studioFieldAttrs({ blockType: "hero", scope: "meta", path: "meta.title", kind: "text" })}>
+              {data.title}
+            </h1>
+            <p class="hero-description" {...studioFieldAttrs({ blockType: "hero", scope: "meta", path: "meta.description", kind: "textarea" })}>
+              {data.description}
+            </p>
           </div>
         </div>
       )
@@ -3110,7 +3289,18 @@ const accentColorRgbDark =
 
     <!-- Music Links (takes first slot; hides Stats when enabled) -->
     {
-      hasBlock("musicLinks") && hasMusicLinks && (
+      hasBlock("musicLinks") &&
+      (isStudioDesign ? (
+        <div
+          class="bento-card layout-block studio-legacy-card"
+          style={getBlockStyle("musicLinks")}
+          {...studioBlockAttrs("musicLinks")}
+        >
+          <span class="studio-legacy-badge">Legacy</span>
+          <h3 class="card-title">{getStudioLegacyLabel("musicLinks")}</h3>
+          <p class="studio-legacy-summary">{getStudioLegacySummary("musicLinks")}</p>
+        </div>
+      ) : hasMusicLinks ? (
         <div class="bento-card layout-block music-links-card" style={getBlockStyle("musicLinks")}>
           <h3 class="card-title">
             {typeof bento.musicLinks?.title === "object"
@@ -3151,13 +3341,17 @@ const accentColorRgbDark =
             })}
           </div>
         </div>
-      )
+      ) : null)
     }
 
     <!-- Quick Stats -->
     {
       !hasMusicLinks && hasBlock("stats") && bento.stats && (
-        <div class="bento-card layout-block stats-card" style={getBlockStyle("stats")}>
+        <div
+          class="bento-card layout-block stats-card"
+          style={getBlockStyle("stats")}
+          {...studioBlockAttrs("stats")}
+        >
           <h3 class="card-title">
             {typeof bento.stats?.title === "object"
               ? bento.stats.title[
@@ -3173,10 +3367,20 @@ const accentColorRgbDark =
                   : "Infos Projet")}
           </h3>
           <div class="stats-grid">
-            {bento.stats.map((stat) => (
+            {bento.stats.map((stat, index) => (
               <div class="stat-item">
-                <span class="stat-value">{stat.value}</span>
-                <span class="stat-label">{stat.label}</span>
+                <span
+                  class="stat-value"
+                  {...studioFieldAttrs({ blockType: "stats", path: `content.items.${index}.value`, localized: false, kind: "text" })}
+                >
+                  {stat.value}
+                </span>
+                <span
+                  class="stat-label"
+                  {...studioFieldAttrs({ blockType: "stats", path: `content.items.${index}.label`, kind: "text" })}
+                >
+                  {stat.label}
+                </span>
               </div>
             ))}
           </div>
@@ -3187,8 +3391,12 @@ const accentColorRgbDark =
     <!-- Action Buttons -->
     {
       hasBlock("actions") && bento.actions && (
-        <div class="bento-card layout-block actions-card" style={getBlockStyle("actions")}>
-          <h3 class="card-title">
+        <div
+          class="bento-card layout-block actions-card"
+          style={getBlockStyle("actions")}
+          {...studioBlockAttrs("actions")}
+        >
+          <h3 class="card-title" {...studioFieldAttrs({ blockType: "actions", path: "content.title", kind: "text" })}>
             {typeof bento.actions?.title === "object"
               ? bento.actions.title[
                   Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
@@ -3208,11 +3416,13 @@ const accentColorRgbDark =
               target="_blank"
               class="action-btn primary"
             >
-              {typeof bento.actions.primary.text === "object"
-                ? bento.actions.primary.text[
-                    Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
-                  ] || bento.actions.primary.text.fr
-                : bento.actions.primary.text}
+              <span {...studioFieldAttrs({ blockType: "actions", path: "content.primary.text", kind: "text" })}>
+                {typeof bento.actions.primary.text === "object"
+                  ? bento.actions.primary.text[
+                      Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                    ] || bento.actions.primary.text.fr
+                  : bento.actions.primary.text}
+              </span>
             </a>
           )}
           {bento.actions.secondary && (
@@ -3224,11 +3434,13 @@ const accentColorRgbDark =
                   : undefined
               }
             >
-              {typeof bento.actions.secondary.text === "object"
-                ? bento.actions.secondary.text[
-                    Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
-                  ] || bento.actions.secondary.text.fr
-                : bento.actions.secondary.text}
+              <span {...studioFieldAttrs({ blockType: "actions", path: "content.secondary.text", kind: "text" })}>
+                {typeof bento.actions.secondary.text === "object"
+                  ? bento.actions.secondary.text[
+                      Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                    ] || bento.actions.secondary.text.fr
+                  : bento.actions.secondary.text}
+              </span>
             </button>
           )}
         </div>
@@ -3238,8 +3450,12 @@ const accentColorRgbDark =
     <!-- Technology Stack -->
     {
       hasBlock("tech") && (
-        <div class="bento-card layout-block tech-card" style={getBlockStyle("tech")}>
-          <h3 class="card-title">
+        <div
+          class="bento-card layout-block tech-card"
+          style={getBlockStyle("tech")}
+          {...studioBlockAttrs("tech")}
+        >
+          <h3 class="card-title" {...studioFieldAttrs({ blockType: "tech", path: "content.title", kind: "text" })}>
             {typeof bento.tech?.title === "object"
               ? bento.tech.title[
                   Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
@@ -3258,7 +3474,7 @@ const accentColorRgbDark =
               ? "Tools and technologies used"
               : "Outils et technologies utilisés"}
           </p>
-          <div class="tech-grid">
+          <div class="tech-grid" {...studioFieldAttrs({ blockType: "tech", scope: "meta", path: "meta.tech", localized: false, kind: "tech-tags" })}>
             {data.tech.map((tech) => (
               <span class="tech-pill">{tech}</span>
             ))}
@@ -3269,7 +3485,18 @@ const accentColorRgbDark =
 
     <!-- Spotify Card - Conditional positioning based on tech card -->
     {
-      hasBlock("spotify") && bento.spotify && (
+      hasBlock("spotify") &&
+      (isStudioDesign ? (
+        <div
+          class="bento-card layout-block studio-legacy-card"
+          style={getBlockStyle("spotify")}
+          {...studioBlockAttrs("spotify")}
+        >
+          <span class="studio-legacy-badge">Legacy</span>
+          <h3 class="card-title">{getStudioLegacyLabel("spotify")}</h3>
+          <p class="studio-legacy-summary">{getStudioLegacySummary("spotify")}</p>
+        </div>
+      ) : bento.spotify ? (
         <div class="bento-card layout-block spotify-card" style={getBlockStyle("spotify")}>
           {getSpotifyEmbedUrl(bento.spotify.url) ? (
             <iframe
@@ -3292,12 +3519,23 @@ const accentColorRgbDark =
             </div>
           )}
         </div>
-      )
+      ) : null)
     }
 
     <!-- SoundCloud Card - Small and Large size variants -->
     {
-      hasBlock("soundcloud") && bento.soundcloud && (
+      hasBlock("soundcloud") &&
+      (isStudioDesign ? (
+        <div
+          class="bento-card layout-block studio-legacy-card"
+          style={getBlockStyle("soundcloud")}
+          {...studioBlockAttrs("soundcloud")}
+        >
+          <span class="studio-legacy-badge">Legacy</span>
+          <h3 class="card-title">{getStudioLegacyLabel("soundcloud")}</h3>
+          <p class="studio-legacy-summary">{getStudioLegacySummary("soundcloud")}</p>
+        </div>
+      ) : bento.soundcloud ? (
         <div class="bento-card layout-block soundcloud-card" style={getBlockStyle("soundcloud")}>
           {getSoundCloudEmbedUrl(bento.soundcloud.url) ? (
             <iframe
@@ -3321,14 +3559,18 @@ const accentColorRgbDark =
             </div>
           )}
         </div>
-      )
+      ) : null)
     }
 
     <!-- Development Process -->
     {
       hasBlock("process") && bento.process && (
-        <div class="bento-card layout-block process-card" style={getBlockStyle("process")}>
-          <h3 class="card-title">
+        <div
+          class="bento-card layout-block process-card"
+          style={getBlockStyle("process")}
+          {...studioBlockAttrs("process")}
+        >
+          <h3 class="card-title" {...studioFieldAttrs({ blockType: "process", path: "content.title", kind: "text" })}>
             {typeof bento.process?.title === "object"
               ? bento.process.title[
                   Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
@@ -3343,7 +3585,7 @@ const accentColorRgbDark =
                   : "Processus")}
           </h3>
           {bento.process.subtitle && (
-            <p class="card-subtitle">
+            <p class="card-subtitle" {...studioFieldAttrs({ blockType: "process", path: "content.subtitle", kind: "text" })}>
               {typeof bento.process.subtitle === "object"
                 ? bento.process.subtitle[
                     Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
@@ -3355,7 +3597,7 @@ const accentColorRgbDark =
             {bento.process.steps.map((step, index) => (
               <li class="process-item">
                 <span class="process-number">{index + 1}</span>
-                <span class="process-text">
+                <span class="process-text" {...studioFieldAttrs({ blockType: "process", path: `content.steps.${index}`, kind: "textarea" })}>
                   {typeof step === "object"
                     ? step[
                         Astro.url.searchParams.get("lang") === "en"
@@ -3373,7 +3615,18 @@ const accentColorRgbDark =
 
     <!-- Video Card - Conditional positioning based on process card -->
     {
-      hasBlock("video") && bento.video && (
+      hasBlock("video") &&
+      (isStudioDesign ? (
+        <div
+          class="bento-card layout-block studio-legacy-card"
+          style={getBlockStyle("video")}
+          {...studioBlockAttrs("video")}
+        >
+          <span class="studio-legacy-badge">Legacy</span>
+          <h3 class="card-title">{getStudioLegacyLabel("video")}</h3>
+          <p class="studio-legacy-summary">{getStudioLegacySummary("video")}</p>
+        </div>
+      ) : bento.video ? (
         <div class="bento-card layout-block video-card" style={getBlockStyle("video")}>
           {getVideoEmbedUrl(bento.video.url) ? (
             <iframe
@@ -3420,14 +3673,18 @@ const accentColorRgbDark =
             <p class="video-description">{bento.video.description}</p>
           )}
         </div>
-      )
+      ) : null)
     }
 
     <!-- Gallery -->
     {
       hasBlock("gallery") && galleryImages && galleryImages.length > 0 && (
-        <div class="bento-card layout-block gallery-card" style={getBlockStyle("gallery")}>
-          <h3 class="card-title">
+        <div
+          class="bento-card layout-block gallery-card"
+          style={getBlockStyle("gallery")}
+          {...studioBlockAttrs("gallery")}
+        >
+          <h3 class="card-title" {...studioFieldAttrs({ blockType: "gallery", path: "content.title", kind: "text" })}>
             {typeof bento.gallery?.title === "object"
               ? bento.gallery.title[
                   Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
@@ -3456,7 +3713,7 @@ const accentColorRgbDark =
                     src={galleryImages[0].src}
                     muted
                     loop
-                    autoplay
+                    autoplay={!isStudioDesign}
                     playsinline
                     loading="lazy"
                     style="width: 100%; height: 100%; object-fit: cover;"
@@ -3494,7 +3751,7 @@ const accentColorRgbDark =
                         src={image.src}
                         muted
                         loop
-                        autoplay
+                        autoplay={!isStudioDesign}
                         playsinline
                         loading="lazy"
                         style="width: 100%; height: 100%; object-fit: cover;"
@@ -3523,8 +3780,12 @@ const accentColorRgbDark =
     <!-- Technical Challenges -->
     {
       hasBlock("challenges") && bento.challenges && (
-        <div class="bento-card layout-block challenges-card" style={getBlockStyle("challenges")}>
-          <h3 class="card-title">
+        <div
+          class="bento-card layout-block challenges-card"
+          style={getBlockStyle("challenges")}
+          {...studioBlockAttrs("challenges")}
+        >
+          <h3 class="card-title" {...studioFieldAttrs({ blockType: "challenges", path: "content.title", kind: "text" })}>
             {typeof bento.challenges?.title === "object"
               ? bento.challenges.title[
                   Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
@@ -3539,7 +3800,7 @@ const accentColorRgbDark =
                   : "Défis Clés")}
           </h3>
           {bento.challenges.subtitle && (
-            <p class="card-subtitle">
+            <p class="card-subtitle" {...studioFieldAttrs({ blockType: "challenges", path: "content.subtitle", kind: "text" })}>
               {typeof bento.challenges.subtitle === "object"
                 ? bento.challenges.subtitle[
                     Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
@@ -3549,9 +3810,9 @@ const accentColorRgbDark =
           )}
 
           <ul class="challenges-list">
-            {bento.challenges.items.map((challenge) => (
+            {bento.challenges.items.map((challenge, index) => (
               <li class="challenge-item">
-                <div class="challenge-title">
+                <div class="challenge-title" {...studioFieldAttrs({ blockType: "challenges", path: `content.items.${index}.title`, kind: "text" })}>
                   {typeof challenge.title === "object"
                     ? challenge.title[
                         Astro.url.searchParams.get("lang") === "en"
@@ -3560,7 +3821,7 @@ const accentColorRgbDark =
                       ] || challenge.title.fr
                     : challenge.title}
                 </div>
-                <div class="challenge-text">
+                <div class="challenge-text" {...studioFieldAttrs({ blockType: "challenges", path: `content.items.${index}.description`, kind: "textarea" })}>
                   {typeof challenge.description === "object"
                     ? challenge.description[
                         Astro.url.searchParams.get("lang") === "en"
@@ -3579,8 +3840,12 @@ const accentColorRgbDark =
     <!-- Results & Impact -->
     {
       hasBlock("results") && bento.results && (
-        <div class="bento-card layout-block results-card" style={getBlockStyle("results")}>
-          <h3 class="card-title">
+        <div
+          class="bento-card layout-block results-card"
+          style={getBlockStyle("results")}
+          {...studioBlockAttrs("results")}
+        >
+          <h3 class="card-title" {...studioFieldAttrs({ blockType: "results", path: "content.title", kind: "text" })}>
             {typeof bento.results?.title === "object"
               ? bento.results.title[
                   Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
@@ -3595,14 +3860,23 @@ const accentColorRgbDark =
                   : "Résultats")}
           </h3>
           {bento.results.subtitle && (
-            <p class="card-subtitle">{bento.results.subtitle}</p>
+            <p class="card-subtitle" {...studioFieldAttrs({ blockType: "results", path: "content.subtitle", kind: "text" })}>
+              {bento.results.subtitle}
+            </p>
           )}
 
           <ul class="results-list">
-            {bento.results.items.map((result) => (
+            {bento.results.items.map((result, index) => (
               <li class="results-item">
-                <span class="results-icon">{result.icon}</span>
-                <span class="results-text">{result.text}</span>
+                <span
+                  class="results-icon"
+                  {...studioFieldAttrs({ blockType: "results", path: `content.items.${index}.icon`, localized: false, kind: "text" })}
+                >
+                  {result.icon}
+                </span>
+                <span class="results-text" {...studioFieldAttrs({ blockType: "results", path: `content.items.${index}.text`, kind: "textarea" })}>
+                  {result.text}
+                </span>
               </li>
             ))}
           </ul>
@@ -3612,7 +3886,23 @@ const accentColorRgbDark =
 
     <!-- Audio Player Card - New Design -->
     {
-      hasBlock("audio") && bento.audio && (
+      hasBlock("audio") &&
+      (isStudioDesign ? (
+        <div
+          class:list={[
+            "bento-card",
+            "layout-block",
+            "studio-legacy-card",
+            { "studio-block-disabled": !isBlockEnabled("audio") },
+          ]}
+          style={getBlockStyle("audio")}
+          {...studioBlockAttrs("audio")}
+        >
+          <span class="studio-legacy-badge">Legacy</span>
+          <h3 class="card-title">{getStudioLegacyLabel("audio")}</h3>
+          <p class="studio-legacy-summary">{getStudioLegacySummary("audio")}</p>
+        </div>
+      ) : bento.audio ? (
         <div
           class:list={[
             "bento-card",
@@ -3755,12 +4045,23 @@ const accentColorRgbDark =
             </div>
           </div>
         </div>
-      )
+      ) : null)
     }
 
     {/* FMOD Interactive Player Card */}
     {
-      hasBlock("fmod") && bento.fmod && (
+      hasBlock("fmod") &&
+      (isStudioDesign ? (
+        <div
+          class="bento-card layout-block studio-legacy-card"
+          style={getBlockStyle("fmod")}
+          {...studioBlockAttrs("fmod")}
+        >
+          <span class="studio-legacy-badge">Legacy</span>
+          <h3 class="card-title">{getStudioLegacyLabel("fmod")}</h3>
+          <p class="studio-legacy-summary">{getStudioLegacySummary("fmod")}</p>
+        </div>
+      ) : bento.fmod ? (
         <div
           class:list={["bento-card", "layout-block", "fmod-card"]}
           style={getBlockStyle("fmod")}
@@ -3855,12 +4156,28 @@ const accentColorRgbDark =
             </div>
           )}
         </div>
-      )
+      ) : null)
     }
 
     {/* Sample Player Card */}
     {
-      hasBlock("sampler") && bento.sampler && (
+      hasBlock("sampler") &&
+      (isStudioDesign ? (
+        <div
+          class:list={[
+            "bento-card",
+            "layout-block",
+            "studio-legacy-card",
+            { "studio-block-disabled": !isBlockEnabled("sampler") },
+          ]}
+          style={getBlockStyle("sampler")}
+          {...studioBlockAttrs("sampler")}
+        >
+          <span class="studio-legacy-badge">Legacy</span>
+          <h3 class="card-title">{getStudioLegacyLabel("sampler")}</h3>
+          <p class="studio-legacy-summary">{getStudioLegacySummary("sampler")}</p>
+        </div>
+      ) : bento.sampler ? (
         <div
           class:list={[
             "bento-card",
@@ -3944,12 +4261,14 @@ const accentColorRgbDark =
             </div>
           </div>
         </div>
-      )
+      ) : null)
     }
   </div>
 </div>
 
-<script is:inline>
+{
+  !isStudioDesign && (
+    <script is:inline>
   // PLACEHOLDER: Tone.js is temporary - will be replaced with custom OGG audio files
   // See docs/history/PHASE_LOGS.md Phase 3C for audio architecture plan
   // Note: Using is:inline to ensure single global scope for all ProjectBento instances
@@ -4766,7 +5085,9 @@ const accentColorRgbDark =
   } // Close the functions wrapper
 
   // No shimmer animation â€" simplified glass for clarity
-</script>
+    </script>
+  )
+}
 
 <script
   is:inline

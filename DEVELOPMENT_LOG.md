@@ -114,3 +114,15 @@ Each entry MUST follow this strict 2-bullet structure (MAX 1 sentence per bullet
 ## [2026-03-12] - Local Project Studio v1
 - **Action**: Added a local `/studio` builder with preset creation, direct Markdown/frontmatter save APIs, shared block/orbit normalization utilities, and deterministic homepage electron placement so new projects can be created and appear on the atom without hand-coding new files.
 - **Bug/Lesson**: **Bug**: Studio-generated YAML let implicit scalars turn `bento.stats[].value` into a number and `date` into an invalid empty string. **Fix**: Added save-time normalization and safer YAML serialization in `src/studio/server/project-files.js`. **Lesson**: Builder output must be schema-valid before Astro content reloads, and YAML implicit typing should never be trusted.
+
+## [2026-03-13] - Studio V2 Baseline Rebuild
+- **Action**: Replaced `/studio` with a Studio V2 builder built around `studio-document`, `studio-canvas`, `studio-app`, normalized server load/save APIs, and published-preview parity.
+- **Bug/Lesson**: **Bug**: Dynamic canvas cards initially missed their route CSS because the DOM was injected after Astro style scoping. **Fix**: Switched the Studio route styles to global so canvas cards and resize handles receive the intended styling. **Lesson**: Dynamically injected editor surfaces cannot rely on scoped route CSS unless the styling strategy is designed for it.
+
+## [2026-03-16] - Studio V2 Save Hardening And Fresh-Agent Handoff
+- **Action**: Fixed Studio save serialization for empty action URLs, repaired invalid test content, and added fresh-agent continuity artifacts plus a ready-to-paste Studio V2 handoff prompt.
+- **Bug/Lesson**: **Bug**: `bento.actions.primary.url` was being omitted when blank, which broke the content collection schema on save. **Fix**: Studio export and frontmatter normalization now preserve required action URLs as empty strings. **Lesson**: Legacy mirror fields must remain schema-valid even when Studio treats a value as visually optional.
+
+## [2026-03-16] - Studio V2 Page-First Canvas Reset
+- **Action**: Reworked `/studio` into a page-first editor with a floating corner menu, transient project/block sheets, iframe-native contextual `+` insertion, and an explicit Layout mode instead of permanent shell chrome.
+- **Bug/Lesson**: **Bug**: Persistent bars and rail-based move controls made the preview-backed canvas harder to understand than the published page. **Fix**: Moved editing affordances onto the real iframe surface and hid layout controls behind a dedicated mode. **Lesson**: For visual builders, the default state must read like the final page, not like editor scaffolding.
