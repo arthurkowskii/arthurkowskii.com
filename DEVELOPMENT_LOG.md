@@ -122,3 +122,7 @@ Each entry MUST follow this strict 2-bullet structure (MAX 1 sentence per bullet
 ## [2026-03-16] - Studio V2 Sidebar And Save Context
 - **Action**: Added URL-backed Studio project state, preserved transient client UI across save hydration, compacted the sidebar with a sticky current-project summary and searchable switcher, and moved body markdown behind a nested collapse.
 - **Bug/Lesson**: **Bug**: Saving could drop Studio back onto the first file after Astro refresh and reset client-only editor state. **Fix**: Stored the active file in `?project=` and restored save-time UI state locally so save/reload stays on the same project instead of losing context.
+
+## [2026-03-16] - Studio Minimum Height Alignment
+- **Action**: Aligned studio profile constraints with published profile by reducing `minH` from 2 to 1 rows for stats, musicLinks, video, spotify, actions, tech, process, and results blocks in `src/utils/block-registry.js`.
+- **Bug/Lesson**: **Bug**: Studio cards had minimum 2-row height (148px) while published rendered at 1-row (74px), preventing users from resizing cards down to match the published layout. **Fix**: Changed `minH: 2` to `minH: 1` in studio profile for 8 block types. **Lesson**: Studio and published profiles should have matching constraints to ensure WYSIWYG editing experience.

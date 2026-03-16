@@ -185,10 +185,10 @@ bento:
         variant: default
         placement:
           desktop:
-            x: 4
+            x: 0
             y: 2
             w: 4
-            h: 1
+            h: 2
           tablet:
             x: 4
             y: 4
@@ -207,6 +207,35 @@ bento:
           description:
             fr: "L'album complet disponible sur Spotify avec tous les morceaux et interludes"
             en: Complete album available on Spotify with all tracks and interludes
+      -
+        id: video-1
+        type: video
+        enabled: true
+        variant: default
+        placement:
+          desktop:
+            x: 4
+            y: 2
+            w: 4
+            h: 2
+          tablet:
+            x: 0
+            y: 8
+            w: 4
+            h: 2
+          mobile:
+            x: 0
+            y: 17
+            w: 4
+            h: 2
+        content:
+          title:
+            fr: "LE SUPER MEGA SHOW (COURT-METRAGE DE L'ALBUM)"
+            en: "THE SUPER MEGA SHOW (SHORT FILM FROM THE ALBUM)"
+          url: "https://youtu.be/GtoGUcY1K1Y?si=XI7niHdCjUYA1L8s"
+          description:
+            fr: "À SUIVRE dans l'album LE SUPER MEGA SHOW !, disponible sur toutes les plateformes. Vous pouvez soutenir et acheter l'album à PRIX LIBRE sur Bandcamp pour soutenir les prochains projets."
+            en: "TO BE CONTINUED in THE SUPER MEGA SHOW! album, available on all platforms. You can support and buy the album at FREE PRICE on Bandcamp to support upcoming projects."
       -
         id: gallery-1
         type: gallery
@@ -385,35 +414,6 @@ bento:
               text:
                 fr: "Une sortie physique en cassette, pour suivre la direction artistique de l'album à 50 exemplaires."
                 en: "A physical cassette release, following the album's artistic direction in 50 copies."
-      -
-        id: video-1
-        type: video
-        enabled: true
-        variant: default
-        placement:
-          desktop:
-            x: 0
-            y: 8
-            w: 4
-            h: 2
-          tablet:
-            x: 0
-            y: 8
-            w: 4
-            h: 2
-          mobile:
-            x: 0
-            y: 17
-            w: 4
-            h: 2
-        content:
-          title:
-            fr: "LE SUPER MEGA SHOW (COURT-METRAGE DE L'ALBUM)"
-            en: "THE SUPER MEGA SHOW (SHORT FILM FROM THE ALBUM)"
-          url: "https://youtu.be/GtoGUcY1K1Y?si=XI7niHdCjUYA1L8s"
-          description:
-            fr: "À SUIVRE dans l'album LE SUPER MEGA SHOW !, disponible sur toutes les plateformes. Vous pouvez soutenir et acheter l'album à PRIX LIBRE sur Bandcamp pour soutenir les prochains projets."
-            en: "TO BE CONTINUED in THE SUPER MEGA SHOW! album, available on all platforms. You can support and buy the album at FREE PRICE on Bandcamp to support upcoming projects."
       -
         id: challenges-1
         type: challenges
@@ -599,6 +599,14 @@ bento:
     description:
       fr: "L'album complet disponible sur Spotify avec tous les morceaux et interludes"
       en: Complete album available on Spotify with all tracks and interludes
+  video:
+    title:
+      fr: "LE SUPER MEGA SHOW (COURT-METRAGE DE L'ALBUM)"
+      en: "THE SUPER MEGA SHOW (SHORT FILM FROM THE ALBUM)"
+    url: "https://youtu.be/GtoGUcY1K1Y?si=XI7niHdCjUYA1L8s"
+    description:
+      fr: "À SUIVRE dans l'album LE SUPER MEGA SHOW !, disponible sur toutes les plateformes. Vous pouvez soutenir et acheter l'album à PRIX LIBRE sur Bandcamp pour soutenir les prochains projets."
+      en: "TO BE CONTINUED in THE SUPER MEGA SHOW! album, available on all platforms. You can support and buy the album at FREE PRICE on Bandcamp to support upcoming projects."
   gallery:
     title:
       fr: Galerie
@@ -693,14 +701,6 @@ bento:
         text:
           fr: "Une sortie physique en cassette, pour suivre la direction artistique de l'album à 50 exemplaires."
           en: "A physical cassette release, following the album's artistic direction in 50 copies."
-  video:
-    title:
-      fr: "LE SUPER MEGA SHOW (COURT-METRAGE DE L'ALBUM)"
-      en: "THE SUPER MEGA SHOW (SHORT FILM FROM THE ALBUM)"
-    url: "https://youtu.be/GtoGUcY1K1Y?si=XI7niHdCjUYA1L8s"
-    description:
-      fr: "À SUIVRE dans l'album LE SUPER MEGA SHOW !, disponible sur toutes les plateformes. Vous pouvez soutenir et acheter l'album à PRIX LIBRE sur Bandcamp pour soutenir les prochains projets."
-      en: "TO BE CONTINUED in THE SUPER MEGA SHOW! album, available on all platforms. You can support and buy the album at FREE PRICE on Bandcamp to support upcoming projects."
   challenges:
     title:
       fr: "Défis Principaux"
@@ -762,6 +762,9 @@ bento:
 # LE SUPER MEGA SHOW !
 
 Un projet tentaculaire mêlant musique, narration et cinéma, né d'une collaboration fusionnelle avec Benoit Grimmiaux. Une immersion dans un talk-show rétro-futuriste où la réalité se fragmente au rythme des interludes.
+
+
+
 
 
 
