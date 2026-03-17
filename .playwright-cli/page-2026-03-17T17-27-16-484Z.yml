@@ -1,0 +1,88 @@
+- generic [ref=e3]:
+  - generic:
+    - generic:
+      - heading "FMOD Boss Demo" [level=1]
+      - paragraph: Démonstration interactive de l'implémentation audio dynamique avec FMOD via web API.
+  - generic:
+    - heading "Infos Projet" [level=3]
+    - generic:
+      - generic:
+        - generic: FMOD
+        - text: ENGINE
+      - generic:
+        - generic: WEB
+        - text: PLATFORM
+  - generic:
+    - heading "Technologie" [level=3]
+    - paragraph: Outils et technologies utilisés
+    - generic:
+      - generic: FMOD
+      - generic: Web API
+      - generic: JavaScript
+  - generic:
+    - heading "Processus" [level=3]
+    - list:
+      - listitem:
+        - generic: "1"
+        - generic: Exportation des banques FMOD depuis l'éditeur Desktop
+      - listitem:
+        - generic: "2"
+        - generic: Intégration de l'API HTML5 (fmodstudio.wasm/.js)
+      - listitem:
+        - generic: "3"
+        - generic: Chargement asynchrone des banques dans le système de fichiers virtuel (Emscripten)
+      - listitem:
+        - generic: "4"
+        - generic: Contrôle en temps réel des événements et paramètres
+  - generic:
+    - generic:
+      - generic:
+        - generic: BOSS BATTLE
+        - generic: Interactive audio demo - Control the battle with action buttons
+    - generic:
+      - generic: Press ▶️ Play to start the interactive audio experience
+      - generic:
+        - generic:
+          - img
+        - generic:
+          - generic:
+            - generic: Boss Core Integrity
+            - generic: 100%
+        - generic:
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+          - generic:
+            - img
+    - generic:
+      - generic:
+        - button "⚡ Attack Core -40 HP 💥 Purge Swarm Eliminate Mobs" [disabled]:
+          - generic:
+            - generic: ⚡
+            - generic: Attack Core
+            - generic: "-40 HP"
+          - generic:
+            - generic: 💥
+            - generic: Purge Swarm
+            - generic: Eliminate Mobs
+        - button "🔮 Overdrive Special Phase" [disabled]:
+          - generic: 🔮
+          - generic: Overdrive
+          - generic: Special Phase
+      - generic:
+        - button "▶️ Initiate" [disabled]:
+          - generic: ▶️
+          - text: Initiate
+        - button "⏹️ Abort" [disabled]:
+          - generic: ⏹️
+          - text: Abort
+        - button "🔄 Reboot" [disabled]:
+          - generic: 🔄
+          - text: Reboot

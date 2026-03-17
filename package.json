@@ -7,6 +7,7 @@
     "build": "astro build && npm run validate-build",
     "build:only": "astro build",
     "build:prod": "cross-env NODE_ENV=production astro build && npm run validate-build",
+    "sync:fmod-boss": "node scripts/sync-fmod-banks.mjs",
     "validate-build": "node scripts/validate-build.js",
     "preview": "astro preview",
     "astro": "astro",

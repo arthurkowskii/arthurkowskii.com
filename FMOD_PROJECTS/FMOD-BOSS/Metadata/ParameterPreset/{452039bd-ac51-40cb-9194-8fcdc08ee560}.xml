@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{452039bd-ac51-40cb-9194-8fcdc08ee560}">
+		<property name="name">
+			<value>region</value>
+		</property>
+		<relationship name="folder">
+			<destination>{3c2eb435-3b48-4e01-948c-5307f6151c3f}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{c5660259-e0bc-4d68-b980-450f937c8df8}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{c5660259-e0bc-4d68-b980-450f937c8df8}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>3</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>boss_phase</value>
+			<value>flash_mob</value>
+			<value>special</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

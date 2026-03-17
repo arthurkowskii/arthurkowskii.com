@@ -1,4 +1,7 @@
 ---
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+
 // Bento Grid project template - modern, content-focused layout
 export interface Props {
   project: {
@@ -153,6 +156,30 @@ const cards = {
   results: true,
   ...bento.cards,
 };
+
+function getFmodBankVersion(folder, banks) {
+  if (!folder || !Array.isArray(banks) || banks.length === 0) return "";
+
+  try {
+    const versionHash = createHash("sha256");
+    banks.forEach((bankFile) => {
+      const bankUrl = new URL(
+        `../../public/fmod/${folder}/${bankFile}`,
+        import.meta.url,
+      );
+      versionHash.update(bankFile);
+      versionHash.update(readFileSync(bankUrl));
+    });
+    return versionHash.digest("hex").slice(0, 12);
+  } catch {
+    return "";
+  }
+}
+
+const fmodBankVersion =
+  cards.fmod && bento.fmod
+    ? getFmodBankVersion(bento.fmod.folder, bento.fmod.banks || [])
+    : "";
 
 const isWideSampler = cards.sampler && !cards.audio;
 const isWideAudio = cards.audio && !cards.sampler;
@@ -1805,7 +1832,8 @@ const accentColorRgbDark =
     border-color: rgba(234, 179, 8, 0.3);
   }
 
-  .fmod-phase-indicator[data-phase="phase1"] {
+  .fmod-phase-indicator[data-phase="phase1"],
+  .fmod-phase-indicator[data-phase="bossphase"] {
     background: rgba(34, 197, 94, 0.1);
     border-color: rgba(34, 197, 94, 0.3);
   }
@@ -4585,6 +4613,8 @@ const accentColorRgbDark =
             data-fmod-banks={JSON.stringify(bento.fmod.banks || [])}
             data-fmod-events={JSON.stringify(bento.fmod.events || [])}
             data-fmod-parameters={JSON.stringify(bento.fmod.parameters || [])}
+            data-fmod-bank-version={fmodBankVersion}
+            data-fmod-intro-duration={bento.fmod.introDuration ?? 0}
           >
             {/* Phase Indicator - Prominent at top with full description */}
             <div class="fmod-game-header">
@@ -4726,6 +4756,7 @@ const accentColorRgbDark =
             data-fmod-banks={JSON.stringify(bento.fmod.banks || [])}
             data-fmod-events={JSON.stringify(bento.fmod.events || [])}
             data-fmod-parameters={JSON.stringify(bento.fmod.parameters || [])}
+            data-fmod-bank-version={fmodBankVersion}
           >
             <div class="fmod-header">
               <h3 class="card-title">
@@ -6315,11 +6346,13 @@ const accentColorRgbDark =
           const folder = card.dataset.fmodFolder || "";
           const banks = JSON.parse(card.dataset.fmodBanks || "[]");
           const paramDefs = JSON.parse(card.dataset.fmodParameters || "[]");
+          const bankVersion = card.dataset.fmodBankVersion || "";
 
           let studioSystem = null;
           let coreSystem = null;
           let eventInstances = new Map();
           let isInitialized = false;
+          let gameModeCleanup = null;
 
           function updateStatus(state, msg) {
             if (!statusBadge) return;
@@ -6335,12 +6368,15 @@ const accentColorRgbDark =
 
             banks.forEach((bankFile) => {
               const url = `${baseUrl}${bankFile}`;
+              const versionedUrl = bankVersion
+                ? `${url}?v=${encodeURIComponent(bankVersion)}`
+                : url;
               const path = `/${bankFile}`;
-              console.log(`Preloading bank: ${url} to ${path}`);
+              console.log(`Preloading bank: ${versionedUrl} to ${path}`);
               window.FMOD.FS_createPreloadedFile(
                 "/",
                 bankFile,
-                url,
+                versionedUrl,
                 true,
                 false,
               );
@@ -6424,6 +6460,13 @@ const accentColorRgbDark =
           }
 
           function shutdownFmod() {
+            if (typeof gameModeCleanup === "function") {
+              try {
+                gameModeCleanup();
+              } catch {}
+              gameModeCleanup = null;
+            }
+
             if (!isInitialized || !studioSystem) return;
 
             // Stop all instances
@@ -6544,6 +6587,7 @@ const accentColorRgbDark =
             const phaseIndicator = card.querySelector(".fmod-phase-indicator");
             const phaseLabel = phaseIndicator?.querySelector(".phase-label");
             const phaseDesc = phaseIndicator?.querySelector(".phase-desc");
+            const sceneWrapper = card.querySelector(".fmod-scene");
             
             // New card-based health displays
             const bossHealthFill = card.querySelector(".fmod-boss-card .health-fill");
@@ -6563,14 +6607,386 @@ const accentColorRgbDark =
             const resetBtn = card.querySelector(".fmod-game-controls .reset-btn");
             
             const hiddenSliders = card.querySelectorAll(".fmod-hidden-params input");
+            const introDuration =
+              Number.parseFloat(card.dataset.fmodIntroDuration || "0") || 0;
+            const mobParamName = "is_mobKilled";
+            const regionParamName = "region";
+            const flashMobActionStates = {
+              INACTIVE: "inactive",
+              PURGE_READY: "purge_ready",
+              PURGED_LOCKED: "purged_locked",
+            };
+            const regionStates = {
+              0: {
+                phase: "bossphase",
+                label: "BOSS PHASE",
+                description: "FMOD is in the main boss phase",
+              },
+              1: {
+                phase: "flashmob",
+                label: "FLASH MOB",
+                description: "FMOD is in the Flash Mob region",
+              },
+              2: {
+                phase: "special",
+                label: "SPECIAL",
+                description: "FMOD is in the Special region",
+              },
+            };
+            let introTimer = null;
+            let introCountdown = 0;
+            let fmodPoller = null;
+            const eventParameterIds = new WeakMap();
             
-            // Game state - simplified, no timers or automatic transitions
-            let gameState = {
-              bossHealth: 100,
-              playerHealth: 100,
-              isMobKilled: 1, // 1 = mob killed/no mob, 0 = mob alive
-              isSpecial: 0,   // 1 = special mode on, 0 = off
-              isPlaying: false
+            function createInitialGameState() {
+              return {
+                bossHealth: 100,
+                playerHealth: 100,
+                region: 0,      // 0 = boss_phase, 1 = flash_mob, 2 = special
+                isMobKilled: 1, // 1 = mob killed/no mob, 0 = mob alive
+                flashMobActionState: flashMobActionStates.INACTIVE,
+                isSpecial: 0,   // 1 = special mode on, 0 = off
+                isPlaying: false
+              };
+            }
+
+            let gameState = createInitialGameState();
+
+            function setStatus(message) {
+              if (gameStatus) gameStatus.textContent = message;
+            }
+
+            function setPhaseState(phase, label, description) {
+              if (phaseIndicator) phaseIndicator.dataset.phase = phase;
+              if (phaseLabel) phaseLabel.textContent = label;
+              if (phaseDesc) phaseDesc.textContent = description;
+            }
+
+            function syncSceneState() {
+              if (!sceneWrapper) return;
+              sceneWrapper.classList.toggle("is-playing", gameState.isPlaying);
+              sceneWrapper.classList.toggle(
+                "swarm-active",
+                gameState.isPlaying &&
+                  gameState.flashMobActionState ===
+                    flashMobActionStates.PURGE_READY,
+              );
+            }
+
+            function setFlashMobActionState(nextState, options = {}) {
+              const {
+                statusMessage = "",
+                syncMobParam = false,
+              } = options;
+              const nextMobKilled =
+                nextState === flashMobActionStates.PURGE_READY ? 0 : 1;
+              const stateChanged =
+                gameState.flashMobActionState !== nextState ||
+                gameState.isMobKilled !== nextMobKilled;
+
+              gameState.flashMobActionState = nextState;
+              gameState.isMobKilled = nextMobKilled;
+
+              if (syncMobParam) {
+                applyParameterToSystemAndInstances(mobParamName, nextMobKilled);
+              }
+
+              syncSceneState();
+              updateToggleButtons();
+              syncLivePhaseState();
+
+              if (statusMessage && stateChanged) {
+                setStatus(statusMessage);
+              }
+            }
+
+            function enterFlashMobRegion(
+              statusMessage = "Flash Mob detected - Purge Swarm is now available",
+            ) {
+              if (!gameState.isPlaying) return;
+              setFlashMobActionState(flashMobActionStates.PURGE_READY, {
+                statusMessage,
+                syncMobParam: true,
+              });
+            }
+
+            function lockFlashMobAfterPurge(
+              statusMessage = "Swarm purged - Waiting for Flash Mob to end",
+            ) {
+              if (!gameState.isPlaying) return;
+              setFlashMobActionState(flashMobActionStates.PURGED_LOCKED, {
+                statusMessage,
+                syncMobParam: true,
+              });
+            }
+
+            function exitFlashMobRegion(
+              statusMessage = "Flash Mob ended - Attack Core restored",
+            ) {
+              setFlashMobActionState(flashMobActionStates.INACTIVE, {
+                statusMessage,
+                syncMobParam: true,
+              });
+            }
+
+            function getRegionState(regionValue) {
+              const normalizedRegion = Math.round(regionValue);
+              return regionStates[normalizedRegion] || regionStates[0];
+            }
+
+            function cacheTrackedParameterIds(instance, eventPath) {
+              if (
+                !instance ||
+                !eventPath ||
+                !studioSystem ||
+                !isInitialized
+              ) {
+                return;
+              }
+
+              const outval = {};
+              const result = studioSystem.getEvent(eventPath, outval);
+              if (result !== FMOD.OK) return;
+
+              const eventDescription = outval.val;
+              if (
+                !eventDescription ||
+                typeof eventDescription.getParameterDescriptionByName !== "function"
+              ) {
+                return;
+              }
+
+              const parameterIds = {};
+              [
+                ["region", regionParamName],
+                ["mob", mobParamName],
+                ["special", "isSpecial"],
+              ].forEach(([key, paramName]) => {
+                try {
+                  const parameterDescription = {};
+                  const descriptionResult =
+                    eventDescription.getParameterDescriptionByName(
+                      paramName,
+                      parameterDescription,
+                    );
+
+                  if (descriptionResult === FMOD.OK && parameterDescription.id) {
+                    parameterIds[key] = parameterDescription.id;
+                  }
+                } catch {}
+              });
+
+              eventParameterIds.set(instance, parameterIds);
+            }
+
+            function readTrackedParameterValue(
+              instance,
+              key,
+              paramName,
+              options = {},
+            ) {
+              const { preferFinal = false } = options;
+              const parameterIds = eventParameterIds.get(instance) || {};
+              const current = {};
+              const final = {};
+              let result = null;
+
+              if (
+                parameterIds[key] &&
+                typeof instance?.getParameterByID === "function"
+              ) {
+                try {
+                  result = instance.getParameterByID(
+                    parameterIds[key],
+                    current,
+                    final,
+                  );
+                } catch {}
+              }
+
+              if (
+                result !== FMOD.OK &&
+                typeof instance?.getParameterByName === "function"
+              ) {
+                try {
+                  result = instance.getParameterByName(
+                    paramName,
+                    current,
+                    final,
+                  );
+                } catch {}
+              }
+
+              if (
+                result !== FMOD.OK &&
+                studioSystem &&
+                typeof studioSystem.getParameterByName === "function"
+              ) {
+                try {
+                  result = studioSystem.getParameterByName(
+                    paramName,
+                    current,
+                    final,
+                  );
+                } catch {}
+              }
+
+              if (result !== FMOD.OK) return null;
+
+              const liveValue = preferFinal
+                ? final.val !== undefined
+                  ? final.val
+                  : current.val
+                : current.val !== undefined
+                  ? current.val
+                  : final.val;
+              if (liveValue === undefined) return null;
+
+              return Math.round(liveValue);
+            }
+
+            function syncLivePhaseState() {
+              if (!gameState.isPlaying) return;
+
+              if (introCountdown > 0) {
+                setPhaseState(
+                  "intro",
+                  "INTRO",
+                  `Action buttons unlock in ${introCountdown}s`,
+                );
+                return;
+              }
+
+              const regionState = getRegionState(gameState.region);
+              setPhaseState(
+                regionState.phase,
+                regionState.label,
+                regionState.description,
+              );
+            }
+
+            function applyParameterToSystemAndInstances(paramName, value) {
+              if (!studioSystem || !isInitialized) return;
+
+              studioSystem.setParameterByName(paramName, value, true);
+              eventInstances.forEach((instance) => {
+                try {
+                  instance.setParameterByName(paramName, value, true);
+                } catch {}
+              });
+            }
+
+            function stopIntroCountdown() {
+              if (introTimer) {
+                window.clearInterval(introTimer);
+                introTimer = null;
+              }
+              introCountdown = 0;
+            }
+
+            function stopFmodPolling() {
+              if (fmodPoller) {
+                window.clearInterval(fmodPoller);
+                fmodPoller = null;
+              }
+            }
+
+            function startFmodPolling(instance) {
+              stopFmodPolling();
+
+              fmodPoller = window.setInterval(() => {
+                if (!gameState.isPlaying || !instance || !studioSystem || !isInitialized) {
+                  return;
+                }
+
+                const nextRegion = readTrackedParameterValue(
+                  instance,
+                  "region",
+                  regionParamName,
+                  { preferFinal: true },
+                );
+                if (nextRegion !== null) {
+                  if (nextRegion !== gameState.region) {
+                    const wasFlashMobRegion = gameState.region === 1;
+                    const isFlashMobRegion = nextRegion === 1;
+                    gameState.region = nextRegion;
+                    if (!wasFlashMobRegion && isFlashMobRegion) {
+                      enterFlashMobRegion();
+                    } else if (wasFlashMobRegion && !isFlashMobRegion) {
+                      exitFlashMobRegion();
+                    } else {
+                      syncLivePhaseState();
+                    }
+                  }
+                }
+
+                const nextSpecial = readTrackedParameterValue(
+                  instance,
+                  "special",
+                  "isSpecial",
+                );
+                if (nextSpecial !== null) {
+                  if (nextSpecial !== gameState.isSpecial) {
+                    gameState.isSpecial = nextSpecial;
+                    updateToggleButtons();
+                    syncLivePhaseState();
+                    setStatus(
+                      nextSpecial === 1
+                        ? "Overdrive activated"
+                        : gameState.flashMobActionState ===
+                            flashMobActionStates.PURGE_READY
+                          ? "Flash Mob active - Purge Swarm is now available"
+                          : gameState.flashMobActionState ===
+                              flashMobActionStates.PURGED_LOCKED
+                            ? "Swarm purged - Waiting for Flash Mob to end"
+                          : "Overdrive ended",
+                    );
+                  }
+                }
+              }, 200);
+            }
+
+            function startIntroCountdown() {
+              stopIntroCountdown();
+
+              if (introDuration <= 0) {
+                setButtonStates(true);
+                updateToggleButtons();
+                syncLivePhaseState();
+                setStatus("Audio playing - Use buttons to control parameters");
+                return;
+              }
+
+              introCountdown = Math.max(1, Math.ceil(introDuration));
+              setButtonStates(false);
+              syncLivePhaseState();
+              setStatus(`Intro playing - controls unlock in ${introCountdown}s`);
+
+              introTimer = window.setInterval(() => {
+                if (!gameState.isPlaying) {
+                  stopIntroCountdown();
+                  return;
+                }
+
+                introCountdown = Math.max(0, introCountdown - 1);
+
+                if (introCountdown > 0) {
+                  syncLivePhaseState();
+                  setStatus(`Intro playing - controls unlock in ${introCountdown}s`);
+                  return;
+                }
+
+                stopIntroCountdown();
+                setButtonStates(true);
+                updateToggleButtons();
+                syncLivePhaseState();
+                setStatus("Audio playing - Use buttons to control parameters");
+              }, 1000);
+            }
+
+            gameModeCleanup = () => {
+              stopIntroCountdown();
+              stopFmodPolling();
             };
             
             function updateHealthBars() {
@@ -6594,16 +7010,8 @@ const accentColorRgbDark =
               if (playerHealthValueLegacy) playerHealthValueLegacy.textContent = playerPercent;
               
               // Update FMOD parameters (both global and local on instances)
-              if (studioSystem && isInitialized) {
-                studioSystem.setParameterByName("BOSS_HEALTH", gameState.bossHealth, true);
-                studioSystem.setParameterByName("PLAYER_HEALTH", gameState.playerHealth, true);
-                eventInstances.forEach((instance) => {
-                  try {
-                    instance.setParameterByName("BOSS_HEALTH", gameState.bossHealth, true);
-                    instance.setParameterByName("PLAYER_HEALTH", gameState.playerHealth, true);
-                  } catch {}
-                });
-              }
+              applyParameterToSystemAndInstances("BOSS_HEALTH", gameState.bossHealth);
+              applyParameterToSystemAndInstances("PLAYER_HEALTH", gameState.playerHealth);
               
               // Update hidden sliders
               hiddenSliders.forEach(slider => {
@@ -6626,11 +7034,23 @@ const accentColorRgbDark =
                   }
                 }
                 if (action === "attack") {
-                  // Switch button mode if boss is low and mob is alive
-                  if (gameState.bossHealth <= 60 && gameState.isMobKilled === 0) {
-                    btn.classList.add("purge-ready");
+                  const isFlashMobActionActive =
+                    gameState.flashMobActionState !==
+                    flashMobActionStates.INACTIVE;
+                  const isPurgedLocked =
+                    gameState.flashMobActionState ===
+                    flashMobActionStates.PURGED_LOCKED;
+
+                  btn.classList.toggle("purge-ready", isFlashMobActionActive);
+
+                  if (!gameState.isPlaying || introCountdown > 0) {
+                    return;
+                  }
+
+                  if (isPurgedLocked) {
+                    btn.setAttribute("disabled", "true");
                   } else {
-                    btn.classList.remove("purge-ready");
+                    btn.removeAttribute("disabled");
                   }
                 }
               });
@@ -6646,30 +7066,24 @@ const accentColorRgbDark =
               });
             }
             
-            function resetGame() {
-              gameState = {
-                bossHealth: 100,
-                playerHealth: 100,
-                isMobKilled: 1,
-                isSpecial: 0,
-                isPlaying: false
-              };
+            function resetGame(options = {}) {
+              const {
+                stopMode = FMOD.STUDIO_STOP_ALLOWFADEOUT,
+                statusMessage = "Press Play to start",
+                phase = "waiting",
+                phaseLabelText = "BOSS BATTLE",
+                phaseDescText = "Interactive audio demo - Control the battle with action buttons",
+              } = options;
+
+              stopIntroCountdown();
+              stopFmodPolling();
+              gameState = createInitialGameState();
               
               // Reset FMOD parameters (both global and local on instances)
-              if (studioSystem && isInitialized) {
-                studioSystem.setParameterByName("BOSS_HEALTH", 100, true);
-                studioSystem.setParameterByName("PLAYER_HEALTH", 100, true);
-                studioSystem.setParameterByName("is_mobKilled", 1, true);
-                studioSystem.setParameterByName("isSpecial", 0, true);
-                eventInstances.forEach((instance) => {
-                  try {
-                    instance.setParameterByName("BOSS_HEALTH", 100, true);
-                    instance.setParameterByName("PLAYER_HEALTH", 100, true);
-                    instance.setParameterByName("is_mobKilled", 1, true);
-                    instance.setParameterByName("isSpecial", 0, true);
-                  } catch {}
-                });
-              }
+              applyParameterToSystemAndInstances("BOSS_HEALTH", 100);
+              applyParameterToSystemAndInstances("PLAYER_HEALTH", 100);
+              applyParameterToSystemAndInstances(mobParamName, 1);
+              applyParameterToSystemAndInstances("isSpecial", 0);
               
               // Update UI
               const sceneWrapper = card.querySelector('.fmod-scene');
@@ -6677,10 +7091,13 @@ const accentColorRgbDark =
               
               updateHealthBars();
               updateToggleButtons();
+              syncSceneState();
               
               // Stop all events
               eventInstances.forEach((instance) => {
-                instance.stop(FMOD.STUDIO_STOP_ALLOWFADEOUT);
+                try {
+                  instance.stop(stopMode);
+                } catch {}
               });
               
               setButtonStates(false);
@@ -6691,6 +7108,8 @@ const accentColorRgbDark =
               if (gameStatus) gameStatus.textContent = "Press ▶️ Play to start";
               if (phaseLabel) phaseLabel.textContent = "BOSS BATTLE";
               if (phaseDesc) phaseDesc.textContent = "Interactive audio demo - Control the battle with action buttons";
+              setStatus(statusMessage);
+              setPhaseState(phase, phaseLabelText, phaseDescText);
             }
             
             // Action button handlers - direct parameter control
@@ -6700,22 +7119,21 @@ const accentColorRgbDark =
                 
                 switch(action) {
                   case "attack":
-                    if (gameState.isMobKilled === 0) {
+                    if (
+                      gameState.flashMobActionState ===
+                      flashMobActionStates.PURGED_LOCKED
+                    ) {
+                      setStatus("Swarm already purged - Waiting for Flash Mob to end");
+                      break;
+                    }
+
+                    if (
+                      gameState.flashMobActionState ===
+                      flashMobActionStates.PURGE_READY
+                    ) {
                       // PURGE MODE: Execute purge logic instead of attack
-                      gameState.isMobKilled = 1;
-                      
-                      if (studioSystem && isInitialized) {
-                        studioSystem.setParameterByName("is_mobKilled", gameState.isMobKilled, true);
-                        eventInstances.forEach((instance) => {
-                          try { instance.setParameterByName("is_mobKilled", gameState.isMobKilled, true); } catch {}
-                        });
-                      }
-                      
-                      const sceneWrapper = card.closest('.fmod-scene') || card.querySelector('.fmod-scene');
-                      if (sceneWrapper) sceneWrapper.classList.remove('swarm-active');
-                      
-                      updateToggleButtons();
-                      
+                      lockFlashMobAfterPurge();
+
                       if (gameStatus) gameStatus.textContent = "💀 Swarm Purged!";
                       break;
                     }
@@ -6724,24 +7142,11 @@ const accentColorRgbDark =
                     // Reduce boss health by 40 points, clamp to 0
                     gameState.bossHealth = Math.max(0, gameState.bossHealth - 40);
                     
-                    // Automatically spawn mobs (Flash Mob Phase) when health drops to 60 or below
-                    if (gameState.bossHealth <= 60 && gameState.isMobKilled === 1) {
-                      gameState.isMobKilled = 0; // Spawn mobs
-                      const sceneWrapper = card.closest('.fmod-scene') || card.querySelector('.fmod-scene');
-                      if (sceneWrapper) sceneWrapper.classList.add('swarm-active');
-                      
-                      if (studioSystem && isInitialized) {
-                        studioSystem.setParameterByName("is_mobKilled", gameState.isMobKilled, true);
-                        eventInstances.forEach((instance) => {
-                          try { instance.setParameterByName("is_mobKilled", gameState.isMobKilled, true); } catch {}
-                        });
-                      }
-                    }
-                    
                     updateToggleButtons();
                     updateHealthBars();
+                    syncLivePhaseState();
                     
-                    const bossContainer = document.querySelector('.fmod-boss-container');
+                    const bossContainer = card.querySelector('.fmod-boss-container');
                     if (bossContainer) {
                       bossContainer.classList.add('damage-flash');
                       setTimeout(() => bossContainer.classList.remove('damage-flash'), 300);
@@ -6750,11 +7155,12 @@ const accentColorRgbDark =
                     if (gameStatus) {
                       gameStatus.textContent = `⚔️ Attack! Boss health: ${gameState.bossHealth}%`;
                     }
-                    if (gameState.bossHealth <= 60) {
-                       const btn = card.querySelector('.attack-btn');
-                       if (btn) btn.classList.add('pulse-damage');
-                       setTimeout(() => { if (btn) btn.classList.remove('pulse-damage') }, 150);
-                    }
+                    setStatus(`Attack landed - Boss health: ${gameState.bossHealth}%`);
+                    const attackBtn = card.querySelector('.attack-btn');
+                    if (attackBtn) attackBtn.classList.add('pulse-damage');
+                    setTimeout(() => {
+                      if (attackBtn) attackBtn.classList.remove('pulse-damage');
+                    }, 150);
                     break;
                     
                   case "special":
@@ -6762,17 +7168,11 @@ const accentColorRgbDark =
                     gameState.isSpecial = gameState.isSpecial === 0 ? 1 : 0;
                     
                     // Update FMOD (both global and local on instances)
-                    if (studioSystem && isInitialized) {
-                      studioSystem.setParameterByName("isSpecial", gameState.isSpecial, true);
-                      eventInstances.forEach((instance) => {
-                        try {
-                          instance.setParameterByName("isSpecial", gameState.isSpecial, true);
-                        } catch {}
-                      });
-                    }
+                    applyParameterToSystemAndInstances("isSpecial", gameState.isSpecial);
                     
                     // Update UI
                     updateToggleButtons();
+                    syncLivePhaseState();
                     
                     if (gameStatus) {
                       const state = gameState.isSpecial === 1 ? "ACTIVATED" : "DEACTIVATED";
@@ -6811,40 +7211,31 @@ const accentColorRgbDark =
                 }
                 
                 if (instance) {
+                  stopIntroCountdown();
+                  stopFmodPolling();
+                  gameState = createInitialGameState();
+                  gameState.isPlaying = true;
+                  cacheTrackedParameterIds(instance, eventPath);
+
                   // Set initial parameters on both system and instance
-                  studioSystem.setParameterByName("BOSS_HEALTH", 100, true);
-                  studioSystem.setParameterByName("PLAYER_HEALTH", 100, true);
-                  studioSystem.setParameterByName("is_mobKilled", 1, true);
-                  studioSystem.setParameterByName("isSpecial", 0, true);
-                  
-                  // Also set on instance for local parameters
-                  try {
-                    instance.setParameterByName("BOSS_HEALTH", 100, true);
-                    instance.setParameterByName("PLAYER_HEALTH", 100, true);
-                    instance.setParameterByName("is_mobKilled", 1, true);
-                    instance.setParameterByName("isSpecial", 0, true);
-                  } catch {}
+                  applyParameterToSystemAndInstances("BOSS_HEALTH", 100);
+                  applyParameterToSystemAndInstances("PLAYER_HEALTH", 100);
+                  applyParameterToSystemAndInstances(mobParamName, 1);
+                  applyParameterToSystemAndInstances("isSpecial", 0);
                   
                   instance.start();
-                  gameState.isPlaying = true;
+                  startFmodPolling(instance);
                   
                   // Visual update
-                  const sceneWrapper = card.closest('.fmod-scene') || card.querySelector('.fmod-scene');
-                  if (sceneWrapper) {
-                    sceneWrapper.classList.add('is-playing');
-                    sceneWrapper.classList.remove('swarm-active');
-                  }
+                  updateHealthBars();
+                  updateToggleButtons();
+                  syncSceneState();
                   
                   playBtn.setAttribute("disabled", "true");
                   if (stopBtn) stopBtn.removeAttribute("disabled");
                   if (resetBtn) resetBtn.removeAttribute("disabled");
-                  
-                  setButtonStates(true);
-                  updateToggleButtons();
-                  
-                  if (gameStatus) gameStatus.textContent = "Audio playing - Use buttons to control parameters";
-                  if (phaseLabel) phaseLabel.textContent = "ACTIVE";
-                  if (phaseDesc) phaseDesc.textContent = "FMOD parameters responding to your actions";
+
+                  startIntroCountdown();
                 }
               });
             }
@@ -6852,21 +7243,13 @@ const accentColorRgbDark =
             // Stop button
             if (stopBtn) {
               stopBtn.addEventListener("click", () => {
-                eventInstances.forEach((instance) => {
-                  instance.stop(FMOD.STUDIO_STOP_ALLOWFADEOUT);
+                resetGame({
+                  stopMode: FMOD.STUDIO_STOP_ALLOWFADEOUT,
+                  statusMessage: "Audio stopped",
+                  phase: "waiting",
+                  phaseLabelText: "STOPPED",
+                  phaseDescText: "Press Play to start a fresh run",
                 });
-                gameState.isPlaying = false;
-                
-                // Visual Update
-                const sceneWrapper = card.closest('.fmod-scene') || card.querySelector('.fmod-scene');
-                if (sceneWrapper) sceneWrapper.classList.remove('is-playing', 'swarm-active');
-                
-                stopBtn.setAttribute("disabled", "true");
-                if (playBtn) playBtn.removeAttribute("disabled");
-                setButtonStates(false);
-                if (gameStatus) gameStatus.textContent = "Audio stopped";
-                if (phaseLabel) phaseLabel.textContent = "STOPPED";
-                if (phaseDesc) phaseDesc.textContent = "Press Play to resume";
               });
             }
             
@@ -6878,13 +7261,19 @@ const accentColorRgbDark =
             }
             
             // Initial state
-            setButtonStates(true);
+            setButtonStates(false);
             if (playBtn) playBtn.removeAttribute("disabled");
             if (stopBtn) stopBtn.setAttribute("disabled", "true");
             if (resetBtn) resetBtn.setAttribute("disabled", "true");
             updateHealthBars();
             updateToggleButtons();
-            if (gameStatus) gameStatus.textContent = "Click buttons to test FMOD parameters";
+            syncSceneState();
+            setStatus("Press Play to start the interactive audio experience");
+            setPhaseState(
+              "waiting",
+              "BOSS BATTLE",
+              "Interactive audio demo - Control the battle with action buttons",
+            );
           }
 
           // Load WASM Engine

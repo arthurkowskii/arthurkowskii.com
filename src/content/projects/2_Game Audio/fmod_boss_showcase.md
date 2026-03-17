@@ -82,7 +82,7 @@ bento:
       - name:
           fr: "Thème du Boss"
           en: "Boss Theme"
-        path: "event:/v1"
+        path: "event:/mus_BOSS"
     parameters:
       - name: "BOSS_HEALTH"
         label:
@@ -92,7 +92,7 @@ bento:
         max: 100
         step: 1
         default: 100
-      - name: "is_MobKilled"
+      - name: "is_mobKilled"
         label:
           fr: "Mob Tué"
           en: "Mob Killed"
