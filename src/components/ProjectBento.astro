@@ -1,4 +1,4 @@
-﻿---
+---
 // Bento Grid project template - modern, content-focused layout
 export interface Props {
   project: {
@@ -1600,7 +1600,7 @@ const accentColorRgbDark =
 
   /* FMOD Interactive Card */
   .fmod-card {
-    grid-column: 1 / 9; /* Matching audio card default width */
+    grid-column: 1 / 13; /* Matching audio card default width */
     grid-row: 7; /* Adjust properly relative to other cards */
     padding: 2.25rem;
     border-radius: 24px;
@@ -1860,61 +1860,86 @@ const accentColorRgbDark =
     margin-top: 0.25rem;
   }
 
-  /* New Battle Cards Layout */
-  .fmod-battle-cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+  /* Massive Arena Scene Layout */
+  .fmod-scene {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(10px);
     margin: 1rem 0;
   }
 
-  .fmod-card-entity {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 16px;
-    padding: 1.25rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  html[data-theme="dark"] .fmod-scene {
+    background: rgba(20, 20, 25, 0.6);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* Boss Arena & SVG Aesthetics */
+  .fmod-boss-container {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-  }
-
-  html[data-theme="dark"] .fmod-card-entity {
-    background: rgba(30, 30, 35, 0.9);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  .fmod-card-entity .entity-header {
-    display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    position: relative;
+    padding: 2rem;
+    border-radius: 16px;
+    background: radial-gradient(circle at center, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
   }
 
-  html[data-theme="dark"] .fmod-card-entity .entity-header {
-    border-bottom-color: rgba(255, 255, 255, 0.1);
+  .boss-svg-wrapper {
+    width: 200px;
+    height: 200px;
+    margin-bottom: 1rem;
+    animation: boss-idle 4s ease-in-out infinite;
   }
 
-  .fmod-card-entity .entity-avatar {
-    font-size: 2rem;
-    line-height: 1;
+  .boss-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 15px rgba(244, 63, 94, 0.3));
+    transition: filter 0.3s ease, transform 0.1s ease;
+    opacity: 0;
+    transform: translateY(-200px) scale(0.5);
   }
 
-  .fmod-card-entity .entity-name {
-    font-weight: 700;
-    font-size: 1.1rem;
-    letter-spacing: 0.05em;
-    color: #1a1a1a;
+  .fmod-scene.is-playing .boss-svg {
+    animation: boss-intro 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+               boss-idle 4s ease-in-out infinite alternate 1s;
   }
 
-  html[data-theme="dark"] .fmod-card-entity .entity-name {
-    color: #fafafa;
+  @keyframes boss-intro {
+    to { 
+      opacity: 1; 
+      transform: translateY(0px) scale(1);
+    }
+  }
+
+  @keyframes boss-idle {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-10px) scale(1); }
+  }
+
+  @keyframes damageFlash {
+    0% { filter: brightness(1) sepia(0) hue-rotate(0deg) saturate(1); transform: scale(1); }
+    50% { filter: brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(5); transform: scale(0.95); }
+    100% { filter: brightness(1) sepia(0) hue-rotate(0deg) saturate(1); transform: scale(1); }
+  }
+
+  .fmod-boss-container.damage-flash .boss-svg {
+    animation: damageFlash 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .entity-health-section {
+    width: 100%;
+    max-width: 400px;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    z-index: 2;
   }
 
   .health-bar-container {
@@ -1925,345 +1950,328 @@ const accentColorRgbDark =
 
   .health-label {
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #666;
+    letter-spacing: 0.1em;
+    color: #4b5563;
   }
 
   html[data-theme="dark"] .health-label {
-    color: #aaa;
+    color: #9ca3af;
   }
 
   .health-value-display {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #1a1a1a;
-  }
-
-  html[data-theme="dark"] .health-value-display {
-    color: #fafafa;
+    font-size: 1.1rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
   }
 
   .health-bar.modern {
     width: 100%;
-    height: 16px;
-    background: rgba(0, 0, 0, 0.08);
-    border-radius: 99px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  html[data-theme="dark"] .health-bar.modern {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .health-bar.modern .health-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #fbbf24, #f59e0b, #d97706);
-    border-radius: 99px;
-    transition: width 0.3s ease;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-
-  /* Legacy styles kept for compatibility */
-  .fmod-battle-arena {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.5rem;
-    background: rgba(0, 0, 0, 0.03);
-    border-radius: 16px;
-    margin: 1rem 0;
-  }
-
-  html[data-theme="dark"] .fmod-battle-arena {
-    background: rgba(0, 0, 0, 0.2);
-  }
-
-  .fmod-entity {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex: 1;
-  }
-
-  .fmod-boss {
-    justify-content: flex-start;
-  }
-
-  .fmod-player {
-    justify-content: flex-end;
-    text-align: right;
-  }
-
-  .entity-avatar {
-    font-size: 3rem;
-    line-height: 1;
-  }
-
-  .entity-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .entity-name {
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: 0.05em;
-  }
-
-  .health-bar {
-    width: 120px;
     height: 12px;
     background: rgba(0, 0, 0, 0.1);
     border-radius: 99px;
     overflow: hidden;
     position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  html[data-theme="dark"] .health-bar {
-    background: rgba(255, 255, 255, 0.1);
+  html[data-theme="dark"] .health-bar.modern {
+    background: rgba(255, 255, 255, 0.05);
   }
 
   .health-fill {
     height: 100%;
-    background: linear-gradient(90deg, #22c55e, #16a34a);
+    background: linear-gradient(90deg, #f43f5e, #e11d48);
     border-radius: 99px;
-    transition: width 0.3s ease;
+    width: 0% !important; /* visually override inline style before play */
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
   }
 
-  .fmod-boss .health-fill {
-    background: linear-gradient(90deg, #f97316, #ea580c);
+  .fmod-scene.is-playing .health-fill {
+    width: var(--actual-health, 100%) !important;
+    animation: health-intro 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
   }
 
-  .health-value {
-    font-size: 0.85rem;
-    font-weight: 600;
-    opacity: 0.8;
+  @keyframes health-intro {
+    0% { width: 0% !important; }
+    100% { width: var(--actual-health, 100%) !important; }
   }
 
-  .fmod-vs {
-    font-size: 1.5rem;
-    font-weight: 800;
-    opacity: 0.3;
-    letter-spacing: 0.1em;
-  }
-
-  .boss-shield {
+  /* Orbiting Mobs Container */
+  .fmod-mobs-container {
     position: absolute;
     top: 50%;
     left: 50%;
+    width: 300px;
+    height: 300px;
     transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 1;
+  }
+  
+  /* Swarm Active Phase (Scaling In) */
+  .fmod-scene.swarm-active .fmod-mobs-container {
+    opacity: 1;
+  }
+
+  .fmod-scene.swarm-active .mob-svg-wrapper {
+    animation: mob-enter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: calc(var(--mob-index) * 0.08s);
+  }
+
+  @keyframes mob-enter {
+    0% {
+      opacity: 0;
+      transform: rotate(calc(var(--mob-index) * 60deg)) translateY(130px) rotate(calc(var(--mob-index) * -60deg)) scale(0);
+    }
+    60% {
+      opacity: 1;
+      transform: rotate(calc(var(--mob-index) * 60deg)) translateY(130px) rotate(calc(var(--mob-index) * -60deg)) scale(1.2);
+    }
+    100% {
+      opacity: 1;
+      transform: rotate(calc(var(--mob-index) * 60deg)) translateY(130px) rotate(calc(var(--mob-index) * -60deg)) scale(1);
+    }
+  }
+
+  /* Swarm Death Phase (Bursting Out) */
+  .fmod-scene:not(.swarm-active) .mob-svg-wrapper {
+    animation: mob-die 0.6s cubic-bezier(0.8, 0, 0.2, 1) forwards;
+    animation-delay: calc((5 - var(--mob-index)) * 0.05s); /* Stagger explosion */
+  }
+
+  @keyframes mob-die {
+    0% {
+      opacity: 1;
+      transform: rotate(calc(var(--mob-index) * 60deg)) translateY(130px) rotate(calc(var(--mob-index) * -60deg)) scale(1);
+      filter: brightness(1) blur(0px);
+    }
+    40% {
+      opacity: 0.8;
+      transform: rotate(calc(var(--mob-index) * 60deg)) translateY(130px) rotate(calc(var(--mob-index) * -60deg)) scale(1.3);
+      filter: brightness(2) blur(2px);
+    }
+    100% {
+      opacity: 0;
+      transform: rotate(calc(var(--mob-index) * 60deg)) translateY(200px) rotate(calc(var(--mob-index) * -60deg)) scale(0);
+      filter: brightness(3) blur(8px);
+    }
+  }
+
+  .mob-svg {
+    width: 100%;
+    height: 100%;
+    animation: mob-float 3s infinite ease-in-out alternate;
+    animation-delay: calc(var(--mob-index) * 0.2s);
+  }
+
+  @keyframes mob-float {
+    from { transform: translateY(0); }
+    to { transform: translateY(-8px); }
+  }
+
+  /* Dashboard Controls */
+  .fmod-dashboard {
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 16px;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    background: rgba(168, 85, 247, 0.9);
-    border-radius: 12px;
-    color: white;
-    animation: shield-pulse 1.5s infinite;
+    gap: 1.5rem;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
   }
 
-  @keyframes shield-pulse {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -50%) scale(1.05); }
-  }
-
-  .shield-icon {
-    font-size: 2rem;
-  }
-
-  .shield-text {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-align: center;
-  }
-
-  .fmod-boss {
-    position: relative;
-  }
-
-  .fmod-special-timer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2));
-    border: 2px solid rgba(251, 191, 36, 0.5);
-    border-radius: 12px;
-    margin-bottom: 1rem;
-  }
-
-  .special-icon {
-    font-size: 1.5rem;
-  }
-
-  .special-text {
-    font-weight: 700;
-    color: rgba(180, 83, 9, 1);
-  }
-
-  .special-countdown {
-    font-size: 1.2rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    background: rgba(251, 191, 36, 0.3);
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
+  html[data-theme="dark"] .fmod-dashboard {
+    background: rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
   }
 
   .fmod-action-bar {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
 
   .fmod-action-btn {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 1rem 0.5rem;
-    border: none;
+    padding: 1.25rem 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.5);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4));
     cursor: pointer;
-    transition: all 0.2s ease;
-    border: 2px solid transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
   }
 
   html[data-theme="dark"] .fmod-action-btn {
-    background: rgba(255, 255, 255, 0.05);
+    background: linear-gradient(145deg, rgba(40, 40, 45, 0.8), rgba(20, 20, 25, 0.8));
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .fmod-action-btn.attack-btn:not(:disabled):active,
+  .fmod-action-btn.attack-btn.pulse-damage {
+     transform: scale(0.95);
   }
 
   .fmod-action-btn:disabled {
-    opacity: 0.4;
+    opacity: 0.5;
     cursor: not-allowed;
-    filter: grayscale(0.8);
+    filter: grayscale(1);
   }
 
   .fmod-action-btn:not(:disabled):hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-color: var(--accent-color);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   }
 
-  .fmod-action-btn.flashmob-active:not(:disabled) {
-    animation: btn-flashmob 0.8s infinite;
-    border-color: rgba(168, 85, 247, 0.8);
-    background: rgba(168, 85, 247, 0.1);
+  html[data-theme="dark"] .fmod-action-btn:not(:disabled):hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   }
 
-  @keyframes btn-flashmob {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(168, 85, 247, 0); }
-    50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
-  }
-
-  .fmod-action-btn[data-action="special"]:not(:disabled):hover {
+  .fmod-action-btn.special-btn.active {
     border-color: rgba(251, 191, 36, 0.8);
-    background: rgba(251, 191, 36, 0.1);
+    background: rgba(251, 191, 36, 0.15);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
   }
 
-  .fmod-action-btn[data-action="special"].active {
-    border-color: rgba(251, 191, 36, 0.8);
-    background: rgba(251, 191, 36, 0.2);
-    box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+  .fmod-action-btn.attack-btn.purge-ready:not(:disabled) {
+    animation: purge-unlocked 1.5s infinite;
+    border-color: rgba(168, 85, 247, 0.6);
   }
 
-  .fmod-action-btn[data-action="killmob"].active {
-    border-color: rgba(168, 85, 247, 0.8);
-    background: rgba(168, 85, 247, 0.2);
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+  @keyframes purge-unlocked {
+    0%, 100% { box-shadow: 0 0 0 rgba(168, 85, 247, 0); }
+    50% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
+  }
+
+  /* Purge Mode Overlays */
+  .purge-visuals {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .attack-visuals {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .fmod-action-btn.attack-btn.purge-ready .attack-visuals {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+
+  .fmod-action-btn.attack-btn.purge-ready .purge-visuals {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .btn-glaze {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transform: skewX(-20deg);
+    transition: 0s;
+  }
+
+  .fmod-action-btn:not(:disabled):hover .btn-glaze {
+    left: 200%;
+    transition: 0.6s ease-in-out;
+  }
+
+  html[data-theme="dark"] .btn-glaze {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   }
 
   .btn-icon {
-    font-size: 1.75rem;
+    font-size: 2rem;
     line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
   }
 
   .btn-label {
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
   .btn-hint {
     font-size: 0.65rem;
-    opacity: 0.6;
+    opacity: 0.7;
     font-weight: 500;
-    margin-top: -0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
 
   .fmod-game-status {
     text-align: center;
-    padding: 0.75rem;
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 8px;
-    font-size: 0.9rem;
-    opacity: 0.9;
-    margin-bottom: 1rem;
-  }
-
-  html[data-theme="dark"] .fmod-game-status {
-    background: rgba(255, 255, 255, 0.05);
+    padding: 0.75rem 1.5rem;
+    background: rgba(var(--accent-color-rgb), 0.1);
+    border: 1px solid rgba(var(--accent-color-rgb), 0.2);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--accent-color);
   }
 
   .fmod-game-controls {
     display: flex;
     justify-content: center;
-    gap: 0.75rem;
+    gap: 1rem;
+    margin-top: 0.5rem;
   }
 
   .fmod-game-controls .fmod-btn {
-    padding: 0.75rem 1.25rem;
+    padding: 0.75rem 1.5rem;
     font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 99px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .reset-btn {
-    background: rgba(107, 114, 128, 0.2);
+    background: rgba(107, 114, 128, 0.1);
     color: inherit;
   }
 
   .reset-btn:not(:disabled):hover {
-    background: rgba(107, 114, 128, 0.3);
+    background: rgba(107, 114, 128, 0.2);
   }
 
   @media (max-width: 899px) {
     .fmod-card {
       grid-column: 1 / 9;
     }
-
     .fmod-action-bar {
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    .fmod-battle-cards {
       grid-template-columns: 1fr;
-    }
-
-    .fmod-battle-arena {
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .fmod-vs {
-      order: -1;
-    }
-
-    .health-bar {
-      width: 100px;
-    }
-
-    .health-bar.modern {
-      width: 100%;
     }
   }
 
@@ -4586,78 +4594,114 @@ const accentColorRgbDark =
               </div>
             </div>
 
-            {/* Two Side-by-Side Cards */}
-            <div class="fmod-battle-cards">
-              {/* BOSS Card */}
-              <div class="fmod-card-entity fmod-boss-card">
-                <div class="entity-header">
-                  <span class="entity-avatar">👹</span>
-                  <span class="entity-name">BOSS</span>
+            {/* Massive Arena Scene Layout */}
+            <div class="fmod-scene">
+              {/* Status Message (Moved to top of scene for visibility) */}
+              <div class="fmod-game-status">
+                Press ▶️ Play to start the interactive audio experience
+              </div>
+
+              {/* Boss Arena */}
+              <div class="fmod-boss-container fmod-card-entity fmod-boss-card">
+                <div class="boss-svg-wrapper">
+                  <svg class="boss-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <linearGradient id="bossBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#3b0764" />
+                        <stop offset="100%" stop-color="#1e1b4b" />
+                      </linearGradient>
+                      <linearGradient id="bossEyeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#f43f5e" />
+                        <stop offset="100%" stop-color="#fb7185" />
+                      </linearGradient>
+                      <filter id="bossGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="8" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                      </filter>
+                    </defs>
+                    <g filter="url(#bossGlow)">
+                      {/* Body */}
+                      <path d="M50 80 Q100 20 150 80 L180 150 Q100 180 20 150 Z" fill="url(#bossBodyGrad)" />
+                      {/* Floating crystals */}
+                      <polygon points="30,60 40,40 50,60 40,80" fill="#a855f7" opacity="0.8" />
+                      <polygon points="170,60 160,40 150,60 160,80" fill="#a855f7" opacity="0.8" />
+                      {/* Eye / Core */}
+                      <circle cx="100" cy="100" r="25" fill="#f43f5e" />
+                      <circle cx="100" cy="100" r="10" fill="#fef08a" />
+                      <path d="M70 70 Q100 50 130 70 M80 130 Q100 150 120 130" stroke="#f43f5e" stroke-width="6" fill="none" stroke-linecap="round" />
+                    </g>
+                  </svg>
                 </div>
+                
                 <div class="entity-health-section">
                   <div class="health-bar-container">
-                    <div class="health-label">Health</div>
+                    <div class="health-label">Boss Core Integrity</div>
                     <div class="health-value-display">100%</div>
                   </div>
                   <div class="health-bar modern">
                     <div class="health-fill" style="width: 100%"></div>
                   </div>
                 </div>
+
+                {/* Orbiting Mobs Container */}
+                <div class="fmod-mobs-container">
+                  {[...Array(6)].map((_, i) => (
+                    <div class="mob-svg-wrapper" style={{ "--mob-index": i }}>
+                      <svg class="mob-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                          <filter id="mobGlow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                          </filter>
+                        </defs>
+                        <g filter="url(#mobGlow)">
+                          <polygon points="50,20 80,60 50,80 20,60" fill="#10b981" />
+                          <circle cx="50" cy="50" r="8" fill="#34d399" />
+                        </g>
+                      </svg>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Dashboard Controls */}
+            <div class="fmod-dashboard">
+              {/* Action Bar */}
+              <div class="fmod-action-bar">
+                <button class="fmod-action-btn attack-btn" data-action="attack" disabled>
+                  <div class="attack-visuals">
+                    <span class="btn-icon">⚡</span>
+                    <span class="btn-label">Attack Core</span>
+                    <span class="btn-hint">-40 HP</span>
+                  </div>
+                  <div class="purge-visuals">
+                    <span class="btn-icon">💥</span>
+                    <span class="btn-label">Purge Swarm</span>
+                    <span class="btn-hint">Eliminate Mobs</span>
+                  </div>
+                  <div class="btn-glaze"></div>
+                </button>
+                <button class="fmod-action-btn special-btn" data-action="special" disabled>
+                  <span class="btn-icon">🔮</span>
+                  <span class="btn-label">Overdrive</span>
+                  <span class="btn-hint">Special Phase</span>
+                  <div class="btn-glaze"></div>
+                </button>
               </div>
 
-              {/* PLAYER Card */}
-              <div class="fmod-card-entity fmod-player-card">
-                <div class="entity-header">
-                  <span class="entity-avatar">🛡️</span>
-                  <span class="entity-name">PLAYER</span>
-                </div>
-                <div class="entity-health-section">
-                  <div class="health-bar-container">
-                    <div class="health-label">Health</div>
-                    <div class="health-value-display">100%</div>
-                  </div>
-                  <div class="health-bar modern">
-                    <div class="health-fill" style="width: 100%"></div>
-                  </div>
-                </div>
+              {/* Game Controls */}
+              <div class="fmod-game-controls">
+                <button class="fmod-btn play-btn" data-action="play" disabled>
+                  <span class="ctrl-icon">▶️</span> Initiate
+                </button>
+                <button class="fmod-btn stop-btn" data-action="stop" disabled>
+                  <span class="ctrl-icon">⏹️</span> Abort
+                </button>
+                <button class="fmod-btn reset-btn" data-action="reset" disabled>
+                  <span class="ctrl-icon">🔄</span> Reboot
+                </button>
               </div>
-            </div>
-
-            {/* Action Bar - 3 Buttons Only */}
-            <div class="fmod-action-bar">
-              <button class="fmod-action-btn" data-action="attack" disabled>
-                <span class="btn-icon">⚔️</span>
-                <span class="btn-label">Attack</span>
-                <span class="btn-hint">-40 HP</span>
-              </button>
-              <button class="fmod-action-btn" data-action="special" disabled>
-                <span class="btn-icon">🔥</span>
-                <span class="btn-label">Special</span>
-                <span class="btn-hint">Toggle</span>
-              </button>
-              <button class="fmod-action-btn" data-action="killmob" disabled>
-                <span class="btn-icon">💀</span>
-                <span class="btn-label">Kill Mob</span>
-                <span class="btn-hint">Toggle</span>
-              </button>
-            </div>
-
-            {/* Status Message */}
-            <div class="fmod-game-status">
-              Press ▶️ Play to start the interactive audio experience
-            </div>
-
-            {/* Game Controls */}
-            <div class="fmod-game-controls">
-              <button class="fmod-btn play-btn" data-action="play" disabled>
-                ▶️ Play
-              </button>
-              <button class="fmod-btn stop-btn" data-action="stop" disabled>
-                ⏹️ Stop
-              </button>
-              <button class="fmod-btn reset-btn" data-action="reset" disabled>
-                🔄 Reset
-              </button>
             </div>
 
             {/* Hidden parameters for FMOD */}
@@ -6533,8 +6577,12 @@ const accentColorRgbDark =
               const bossPercent = `${gameState.bossHealth}%`;
               const playerPercent = `${gameState.playerHealth}%`;
               
+              
               // Update new card displays
-              if (bossHealthFill) bossHealthFill.style.width = bossPercent;
+              if (bossHealthFill) {
+                bossHealthFill.style.width = bossPercent;
+                bossHealthFill.style.setProperty('--actual-health', bossPercent);
+              }
               if (bossHealthValue) bossHealthValue.textContent = bossPercent;
               if (playerHealthFill) playerHealthFill.style.width = playerPercent;
               if (playerHealthValue) playerHealthValue.textContent = playerPercent;
@@ -6545,10 +6593,16 @@ const accentColorRgbDark =
               if (playerHealthBarLegacy) playerHealthBarLegacy.style.width = playerPercent;
               if (playerHealthValueLegacy) playerHealthValueLegacy.textContent = playerPercent;
               
-              // Update FMOD parameters
+              // Update FMOD parameters (both global and local on instances)
               if (studioSystem && isInitialized) {
                 studioSystem.setParameterByName("BOSS_HEALTH", gameState.bossHealth, true);
                 studioSystem.setParameterByName("PLAYER_HEALTH", gameState.playerHealth, true);
+                eventInstances.forEach((instance) => {
+                  try {
+                    instance.setParameterByName("BOSS_HEALTH", gameState.bossHealth, true);
+                    instance.setParameterByName("PLAYER_HEALTH", gameState.playerHealth, true);
+                  } catch {}
+                });
               }
               
               // Update hidden sliders
@@ -6571,13 +6625,12 @@ const accentColorRgbDark =
                     btn.querySelector(".btn-hint").textContent = "OFF";
                   }
                 }
-                if (action === "killmob") {
-                  if (gameState.isMobKilled === 1) {
-                    btn.classList.add("active");
-                    btn.querySelector(".btn-hint").textContent = "Killed";
+                if (action === "attack") {
+                  // Switch button mode if boss is low and mob is alive
+                  if (gameState.bossHealth <= 60 && gameState.isMobKilled === 0) {
+                    btn.classList.add("purge-ready");
                   } else {
-                    btn.classList.remove("active");
-                    btn.querySelector(".btn-hint").textContent = "Alive";
+                    btn.classList.remove("purge-ready");
                   }
                 }
               });
@@ -6602,15 +6655,26 @@ const accentColorRgbDark =
                 isPlaying: false
               };
               
-              // Reset FMOD parameters
+              // Reset FMOD parameters (both global and local on instances)
               if (studioSystem && isInitialized) {
                 studioSystem.setParameterByName("BOSS_HEALTH", 100, true);
                 studioSystem.setParameterByName("PLAYER_HEALTH", 100, true);
                 studioSystem.setParameterByName("is_mobKilled", 1, true);
                 studioSystem.setParameterByName("isSpecial", 0, true);
+                eventInstances.forEach((instance) => {
+                  try {
+                    instance.setParameterByName("BOSS_HEALTH", 100, true);
+                    instance.setParameterByName("PLAYER_HEALTH", 100, true);
+                    instance.setParameterByName("is_mobKilled", 1, true);
+                    instance.setParameterByName("isSpecial", 0, true);
+                  } catch {}
+                });
               }
               
               // Update UI
+              const sceneWrapper = card.querySelector('.fmod-scene');
+              if (sceneWrapper) sceneWrapper.classList.remove('is-playing', 'swarm-active');
+              
               updateHealthBars();
               updateToggleButtons();
               
@@ -6636,12 +6700,60 @@ const accentColorRgbDark =
                 
                 switch(action) {
                   case "attack":
+                    if (gameState.isMobKilled === 0) {
+                      // PURGE MODE: Execute purge logic instead of attack
+                      gameState.isMobKilled = 1;
+                      
+                      if (studioSystem && isInitialized) {
+                        studioSystem.setParameterByName("is_mobKilled", gameState.isMobKilled, true);
+                        eventInstances.forEach((instance) => {
+                          try { instance.setParameterByName("is_mobKilled", gameState.isMobKilled, true); } catch {}
+                        });
+                      }
+                      
+                      const sceneWrapper = card.closest('.fmod-scene') || card.querySelector('.fmod-scene');
+                      if (sceneWrapper) sceneWrapper.classList.remove('swarm-active');
+                      
+                      updateToggleButtons();
+                      
+                      if (gameStatus) gameStatus.textContent = "💀 Swarm Purged!";
+                      break;
+                    }
+
+                    // NORMAL ATTACK MODE
                     // Reduce boss health by 40 points, clamp to 0
                     gameState.bossHealth = Math.max(0, gameState.bossHealth - 40);
+                    
+                    // Automatically spawn mobs (Flash Mob Phase) when health drops to 60 or below
+                    if (gameState.bossHealth <= 60 && gameState.isMobKilled === 1) {
+                      gameState.isMobKilled = 0; // Spawn mobs
+                      const sceneWrapper = card.closest('.fmod-scene') || card.querySelector('.fmod-scene');
+                      if (sceneWrapper) sceneWrapper.classList.add('swarm-active');
+                      
+                      if (studioSystem && isInitialized) {
+                        studioSystem.setParameterByName("is_mobKilled", gameState.isMobKilled, true);
+                        eventInstances.forEach((instance) => {
+                          try { instance.setParameterByName("is_mobKilled", gameState.isMobKilled, true); } catch {}
+                        });
+                      }
+                    }
+                    
+                    updateToggleButtons();
                     updateHealthBars();
+                    
+                    const bossContainer = document.querySelector('.fmod-boss-container');
+                    if (bossContainer) {
+                      bossContainer.classList.add('damage-flash');
+                      setTimeout(() => bossContainer.classList.remove('damage-flash'), 300);
+                    }
                     
                     if (gameStatus) {
                       gameStatus.textContent = `⚔️ Attack! Boss health: ${gameState.bossHealth}%`;
+                    }
+                    if (gameState.bossHealth <= 60) {
+                       const btn = card.querySelector('.attack-btn');
+                       if (btn) btn.classList.add('pulse-damage');
+                       setTimeout(() => { if (btn) btn.classList.remove('pulse-damage') }, 150);
                     }
                     break;
                     
@@ -6649,9 +6761,14 @@ const accentColorRgbDark =
                     // Toggle isSpecial parameter between 0 and 1
                     gameState.isSpecial = gameState.isSpecial === 0 ? 1 : 0;
                     
-                    // Update FMOD
+                    // Update FMOD (both global and local on instances)
                     if (studioSystem && isInitialized) {
                       studioSystem.setParameterByName("isSpecial", gameState.isSpecial, true);
+                      eventInstances.forEach((instance) => {
+                        try {
+                          instance.setParameterByName("isSpecial", gameState.isSpecial, true);
+                        } catch {}
+                      });
                     }
                     
                     // Update UI
@@ -6660,24 +6777,6 @@ const accentColorRgbDark =
                     if (gameStatus) {
                       const state = gameState.isSpecial === 1 ? "ACTIVATED" : "DEACTIVATED";
                       gameStatus.textContent = `🔥 Special mode ${state}`;
-                    }
-                    break;
-                    
-                  case "killmob":
-                    // Toggle is_mobKilled parameter between 0 and 1
-                    gameState.isMobKilled = gameState.isMobKilled === 1 ? 0 : 1;
-                    
-                    // Update FMOD
-                    if (studioSystem && isInitialized) {
-                      studioSystem.setParameterByName("is_mobKilled", gameState.isMobKilled, true);
-                    }
-                    
-                    // Update UI
-                    updateToggleButtons();
-                    
-                    if (gameStatus) {
-                      const state = gameState.isMobKilled === 1 ? "killed" : "respawned";
-                      gameStatus.textContent = `💀 Mob ${state}`;
                     }
                     break;
                 }
@@ -6712,14 +6811,29 @@ const accentColorRgbDark =
                 }
                 
                 if (instance) {
-                  // Set initial parameters
+                  // Set initial parameters on both system and instance
                   studioSystem.setParameterByName("BOSS_HEALTH", 100, true);
                   studioSystem.setParameterByName("PLAYER_HEALTH", 100, true);
                   studioSystem.setParameterByName("is_mobKilled", 1, true);
                   studioSystem.setParameterByName("isSpecial", 0, true);
                   
+                  // Also set on instance for local parameters
+                  try {
+                    instance.setParameterByName("BOSS_HEALTH", 100, true);
+                    instance.setParameterByName("PLAYER_HEALTH", 100, true);
+                    instance.setParameterByName("is_mobKilled", 1, true);
+                    instance.setParameterByName("isSpecial", 0, true);
+                  } catch {}
+                  
                   instance.start();
                   gameState.isPlaying = true;
+                  
+                  // Visual update
+                  const sceneWrapper = card.closest('.fmod-scene') || card.querySelector('.fmod-scene');
+                  if (sceneWrapper) {
+                    sceneWrapper.classList.add('is-playing');
+                    sceneWrapper.classList.remove('swarm-active');
+                  }
                   
                   playBtn.setAttribute("disabled", "true");
                   if (stopBtn) stopBtn.removeAttribute("disabled");
@@ -6742,6 +6856,11 @@ const accentColorRgbDark =
                   instance.stop(FMOD.STUDIO_STOP_ALLOWFADEOUT);
                 });
                 gameState.isPlaying = false;
+                
+                // Visual Update
+                const sceneWrapper = card.closest('.fmod-scene') || card.querySelector('.fmod-scene');
+                if (sceneWrapper) sceneWrapper.classList.remove('is-playing', 'swarm-active');
+                
                 stopBtn.setAttribute("disabled", "true");
                 if (playBtn) playBtn.removeAttribute("disabled");
                 setButtonStates(false);
@@ -6759,13 +6878,13 @@ const accentColorRgbDark =
             }
             
             // Initial state
-            setButtonStates(false);
+            setButtonStates(true);
             if (playBtn) playBtn.removeAttribute("disabled");
             if (stopBtn) stopBtn.setAttribute("disabled", "true");
             if (resetBtn) resetBtn.setAttribute("disabled", "true");
             updateHealthBars();
             updateToggleButtons();
-            if (gameStatus) gameStatus.textContent = "Press ▶️ Play to start";
+            if (gameStatus) gameStatus.textContent = "Click buttons to test FMOD parameters";
           }
 
           // Load WASM Engine

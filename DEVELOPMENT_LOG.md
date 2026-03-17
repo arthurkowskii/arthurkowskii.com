@@ -391,3 +391,35 @@
   - Fixed name mismatch: `ismobKilled` → `is_MobKilled` to match exact FMOD Studio label.
 - **Assets**: Bank files in `/public/fmod/FMOD-BOSS/`, Web API files in `/public/fmod/api/`. All excluded from git via `.gitignore`.
 - **Lifecycle**: FMOD Studio system is cleanly released on overlay close / page unload via the existing `bento:audio:shutdown` custom event.
+
+### FMOD Boss Interactive Game Mode (2026-03-17)
+- **Interactive Game Mode**: Added `mode: "interactive-game"` option to FMOD cards for immersive boss battle demo experience.
+- **UI Redesign**: Two-card battle arena layout (BOSS vs PLAYER) with yellow/orange health bars, prominent phase indicator, and 3 action buttons.
+- **Simplified Controls**:
+  - ⚔️ **Attack**: Reduces BOSS_HEALTH by 40 points directly
+  - 🔥 **Special**: Toggle `isSpecial` parameter (0 ↔ 1) with visual ON/OFF state
+  - 💀 **Kill Mob**: Toggle `is_mobKilled` parameter (0 ↔ 1) with visual Killed/Alive state
+  - Removed: Defend button, automatic phase transitions, intro timer, special mode timer
+- **Schema Extension**: Added `mode` and `introDuration` fields to FMOD config schema.
+- **Code Cleanup**: Removed ~450 lines of legacy automatic phase logic, keeping only direct parameter control system.
+- **Build Fix**: Resolved duplicate code issue causing JavaScript syntax errors.
+
+### FMOD Action Buttons Fix (2026-03-17)
+- **Issue**: Attack, Special, and Kill Mob buttons were clickable but didn't affect the audio.
+- **Root Cause**: FMOD local parameters must be set on both `studioSystem` (global) AND `eventInstance` (local). Previous code only set parameters on `studioSystem`.
+- **Fix Applied**:
+  - Updated `updateHealthBars()` to set BOSS_HEALTH and PLAYER_HEALTH on all event instances
+  - Updated "special" button handler to set isSpecial parameter on all event instances
+  - Updated "killmob" button handler to set is_mobKilled parameter on all event instances
+  - Updated Play button initial setup to set all parameters on the instance
+  - Updated `resetGame()` to reset parameters on all event instances
+  - Changed initial button state from disabled to enabled (`setButtonStates(true)`) so users can test parameters immediately
+  - Updated status message to "Click buttons to test FMOD parameters"
+- **Pattern**: All game mode parameter changes now follow the same pattern as standard slider mode: `studioSystem.setParameterByName()` + `eventInstances.forEach(instance => instance.setParameterByName())`.
+
+### FMOD Interactive Demo Polish (2026-03-17)
+- **Feature**: 26s Intro Countdown logic during which all action buttons are locked.
+- **Feature**: 30s Special Mode Cooldown.
+- **Bug Fix**: Polled `outfinal.val` instead of `outval.val` for `getParameterByName` to correctly detect direct audio-timeline value transitions before interpolation.
+- **UI Logic**: Kill Mob button visibility changed from `display: none` to a visual `disabled` locked state, unlocking only when FMOD enters the Flash Mob phase (`is_MobKilled` = 0).
+- **Cleanup**: Completely removed legacy Player Health card HTML and logic.

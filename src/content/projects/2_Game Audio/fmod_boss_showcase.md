@@ -92,14 +92,6 @@ bento:
         max: 100
         step: 1
         default: 100
-      - name: "PLAYER_HEALTH"
-        label:
-          fr: "Santé du Joueur"
-          en: "Player Health"
-        min: 0
-        max: 100
-        step: 1
-        default: 100
       - name: "is_MobKilled"
         label:
           fr: "Mob Tué"
