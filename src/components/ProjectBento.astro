@@ -1778,9 +1778,492 @@ const accentColorRgbDark =
     cursor: not-allowed;
   }
 
+  /* FMOD Game Mode Styles */
+  .fmod-game-mode {
+    min-height: 500px;
+  }
+
+  .fmod-game-header {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .fmod-phase-indicator {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    background: rgba(var(--accent-color-rgb), 0.1);
+    border: 2px solid rgba(var(--accent-color-rgb), 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .fmod-phase-indicator[data-phase="intro"] {
+    background: rgba(234, 179, 8, 0.1);
+    border-color: rgba(234, 179, 8, 0.3);
+  }
+
+  .fmod-phase-indicator[data-phase="phase1"] {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+  }
+
+  .fmod-phase-indicator[data-phase="phase2"] {
+    background: rgba(249, 115, 22, 0.1);
+    border-color: rgba(249, 115, 22, 0.3);
+  }
+
+  .fmod-phase-indicator[data-phase="phase3"] {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .fmod-phase-indicator[data-phase="flashmob"] {
+    background: rgba(168, 85, 247, 0.15);
+    border-color: rgba(168, 85, 247, 0.5);
+    animation: flashmob-pulse 1s infinite;
+  }
+
+  .fmod-phase-indicator[data-phase="special"] {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2));
+    border-color: rgba(251, 191, 36, 0.5);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+  }
+
+  .fmod-phase-indicator[data-phase="win"] {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2));
+    border-color: rgba(34, 197, 94, 0.5);
+  }
+
+  @keyframes flashmob-pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(168, 85, 247, 0); }
+    50% { transform: scale(1.02); box-shadow: 0 0 20px rgba(168, 85, 247, 0.3); }
+  }
+
+  .phase-label {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .phase-desc {
+    font-size: 0.8rem;
+    opacity: 0.8;
+  }
+
+  .phase-timer {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    margin-top: 0.25rem;
+  }
+
+  /* New Battle Cards Layout */
+  .fmod-battle-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .fmod-card-entity {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  html[data-theme="dark"] .fmod-card-entity {
+    background: rgba(30, 30, 35, 0.9);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .fmod-card-entity .entity-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  html[data-theme="dark"] .fmod-card-entity .entity-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .fmod-card-entity .entity-avatar {
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  .fmod-card-entity .entity-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    color: #1a1a1a;
+  }
+
+  html[data-theme="dark"] .fmod-card-entity .entity-name {
+    color: #fafafa;
+  }
+
+  .entity-health-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .health-bar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .health-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #666;
+  }
+
+  html[data-theme="dark"] .health-label {
+    color: #aaa;
+  }
+
+  .health-value-display {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+
+  html[data-theme="dark"] .health-value-display {
+    color: #fafafa;
+  }
+
+  .health-bar.modern {
+    width: 100%;
+    height: 16px;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  html[data-theme="dark"] .health-bar.modern {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .health-bar.modern .health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #fbbf24, #f59e0b, #d97706);
+    border-radius: 99px;
+    transition: width 0.3s ease;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  /* Legacy styles kept for compatibility */
+  .fmod-battle-arena {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 16px;
+    margin: 1rem 0;
+  }
+
+  html[data-theme="dark"] .fmod-battle-arena {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .fmod-entity {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+  }
+
+  .fmod-boss {
+    justify-content: flex-start;
+  }
+
+  .fmod-player {
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  .entity-avatar {
+    font-size: 3rem;
+    line-height: 1;
+  }
+
+  .entity-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .entity-name {
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .health-bar {
+    width: 120px;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  html[data-theme="dark"] .health-bar {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    border-radius: 99px;
+    transition: width 0.3s ease;
+  }
+
+  .fmod-boss .health-fill {
+    background: linear-gradient(90deg, #f97316, #ea580c);
+  }
+
+  .health-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0.8;
+  }
+
+  .fmod-vs {
+    font-size: 1.5rem;
+    font-weight: 800;
+    opacity: 0.3;
+    letter-spacing: 0.1em;
+  }
+
+  .boss-shield {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(168, 85, 247, 0.9);
+    border-radius: 12px;
+    color: white;
+    animation: shield-pulse 1.5s infinite;
+  }
+
+  @keyframes shield-pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.05); }
+  }
+
+  .shield-icon {
+    font-size: 2rem;
+  }
+
+  .shield-text {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .fmod-boss {
+    position: relative;
+  }
+
+  .fmod-special-timer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2));
+    border: 2px solid rgba(251, 191, 36, 0.5);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+  }
+
+  .special-icon {
+    font-size: 1.5rem;
+  }
+
+  .special-text {
+    font-weight: 700;
+    color: rgba(180, 83, 9, 1);
+  }
+
+  .special-countdown {
+    font-size: 1.2rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    background: rgba(251, 191, 36, 0.3);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+  }
+
+  .fmod-action-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .fmod-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 0.5rem;
+    border: none;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+  }
+
+  html[data-theme="dark"] .fmod-action-btn {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .fmod-action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(0.8);
+  }
+
+  .fmod-action-btn:not(:disabled):hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent-color);
+  }
+
+  .fmod-action-btn.flashmob-active:not(:disabled) {
+    animation: btn-flashmob 0.8s infinite;
+    border-color: rgba(168, 85, 247, 0.8);
+    background: rgba(168, 85, 247, 0.1);
+  }
+
+  @keyframes btn-flashmob {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(168, 85, 247, 0); }
+    50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+  }
+
+  .fmod-action-btn[data-action="special"]:not(:disabled):hover {
+    border-color: rgba(251, 191, 36, 0.8);
+    background: rgba(251, 191, 36, 0.1);
+  }
+
+  .fmod-action-btn[data-action="special"].active {
+    border-color: rgba(251, 191, 36, 0.8);
+    background: rgba(251, 191, 36, 0.2);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+  }
+
+  .fmod-action-btn[data-action="killmob"].active {
+    border-color: rgba(168, 85, 247, 0.8);
+    background: rgba(168, 85, 247, 0.2);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+  }
+
+  .btn-icon {
+    font-size: 1.75rem;
+    line-height: 1;
+  }
+
+  .btn-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .btn-hint {
+    font-size: 0.65rem;
+    opacity: 0.6;
+    font-weight: 500;
+    margin-top: -0.25rem;
+  }
+
+  .fmod-game-status {
+    text-align: center;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+  }
+
+  html[data-theme="dark"] .fmod-game-status {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .fmod-game-controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .fmod-game-controls .fmod-btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  .reset-btn {
+    background: rgba(107, 114, 128, 0.2);
+    color: inherit;
+  }
+
+  .reset-btn:not(:disabled):hover {
+    background: rgba(107, 114, 128, 0.3);
+  }
+
   @media (max-width: 899px) {
     .fmod-card {
       grid-column: 1 / 9;
+    }
+
+    .fmod-action-bar {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .fmod-battle-cards {
+      grid-template-columns: 1fr;
+    }
+
+    .fmod-battle-arena {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .fmod-vs {
+      order: -1;
+    }
+
+    .health-bar {
+      width: 100px;
+    }
+
+    .health-bar.modern {
+      width: 100%;
     }
   }
 
@@ -4087,99 +4570,206 @@ const accentColorRgbDark =
     {/* FMOD Interactive Player Card */}
     {
       cards.fmod && bento.fmod && (
-        <div
-          class:list={["bento-card", "fmod-card"]}
-          data-fmod-folder={bento.fmod.folder}
-          data-fmod-banks={JSON.stringify(bento.fmod.banks || [])}
-          data-fmod-events={JSON.stringify(bento.fmod.events || [])}
-          data-fmod-parameters={JSON.stringify(bento.fmod.parameters || [])}
-        >
-          <div class="fmod-header">
-            <h3 class="card-title">
-              {typeof bento.fmod.title === "object"
-                ? bento.fmod.title[
-                    Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
-                  ] || bento.fmod.title.fr
-                : bento.fmod.title || "FMOD Interactive"}
-            </h3>
-            {bento.fmod.description && (
-              <p class="card-subtitle">
-                {typeof bento.fmod.description === "object"
-                  ? bento.fmod.description[
-                      Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
-                    ] || bento.fmod.description.fr
-                  : bento.fmod.description}
-              </p>
-            )}
-            <div class="fmod-status badge-initializing">
-              Initialisation du moteur...
+        bento.fmod.mode === "interactive-game" ? (
+          <div
+            class:list={["bento-card", "fmod-card", "fmod-game-mode"]}
+            data-fmod-folder={bento.fmod.folder}
+            data-fmod-banks={JSON.stringify(bento.fmod.banks || [])}
+            data-fmod-events={JSON.stringify(bento.fmod.events || [])}
+            data-fmod-parameters={JSON.stringify(bento.fmod.parameters || [])}
+          >
+            {/* Phase Indicator - Prominent at top with full description */}
+            <div class="fmod-game-header">
+              <div class="fmod-phase-indicator" data-phase="waiting">
+                <span class="phase-label">BOSS BATTLE</span>
+                <span class="phase-desc">Interactive audio demo - Control the battle with action buttons</span>
+              </div>
             </div>
-          </div>
 
-          <div class="fmod-events">
-            {bento.fmod.events?.map((evt, index) => (
-              <div class="fmod-event-row" data-event-path={evt.path}>
-                <span class="fmod-event-name">
-                  {typeof evt.name === "object"
-                    ? evt.name[
-                        Astro.url.searchParams.get("lang") === "en"
-                          ? "en"
-                          : "fr"
-                      ] || evt.name.fr
-                    : evt.name}
-                </span>
-                <div class="fmod-controls">
-                  <button class="fmod-btn play-btn" data-action="play" disabled>
-                    Play
-                  </button>
-                  <button class="fmod-btn stop-btn" data-action="stop" disabled>
-                    Stop
-                  </button>
+            {/* Two Side-by-Side Cards */}
+            <div class="fmod-battle-cards">
+              {/* BOSS Card */}
+              <div class="fmod-card-entity fmod-boss-card">
+                <div class="entity-header">
+                  <span class="entity-avatar">👹</span>
+                  <span class="entity-name">BOSS</span>
+                </div>
+                <div class="entity-health-section">
+                  <div class="health-bar-container">
+                    <div class="health-label">Health</div>
+                    <div class="health-value-display">100%</div>
+                  </div>
+                  <div class="health-bar modern">
+                    <div class="health-fill" style="width: 100%"></div>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {bento.fmod.parameters && bento.fmod.parameters.length > 0 && (
-            <div class="fmod-parameters">
-              <h4 class="fmod-section-title">Paramètres Dynamiques</h4>
-              {bento.fmod.parameters.map((param) => (
-                <div class="fmod-param-row">
-                  <div class="fmod-param-header">
-                    <label for={`fmod-param-${param.name}`}>
-                      {param.label
-                        ? typeof param.label === "object"
-                          ? param.label[
-                              Astro.url.searchParams.get("lang") === "en"
-                                ? "en"
-                                : "fr"
-                            ] || param.label.fr
-                          : param.label
-                        : param.name}
-                    </label>
-                    <span
-                      class="fmod-param-value"
-                      id={`fmod-val-${param.name}`}
-                    >
-                      {param.default}
-                    </span>
+              {/* PLAYER Card */}
+              <div class="fmod-card-entity fmod-player-card">
+                <div class="entity-header">
+                  <span class="entity-avatar">🛡️</span>
+                  <span class="entity-name">PLAYER</span>
+                </div>
+                <div class="entity-health-section">
+                  <div class="health-bar-container">
+                    <div class="health-label">Health</div>
+                    <div class="health-value-display">100%</div>
                   </div>
-                  <input
-                    type="range"
-                    id={`fmod-param-${param.name}`}
-                    class="fmod-slider"
-                    min={param.min}
-                    max={param.max}
-                    step={param.step}
-                    value={param.default}
-                    data-param-name={param.name}
-                    disabled
-                  />
+                  <div class="health-bar modern">
+                    <div class="health-fill" style="width: 100%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Bar - 3 Buttons Only */}
+            <div class="fmod-action-bar">
+              <button class="fmod-action-btn" data-action="attack" disabled>
+                <span class="btn-icon">⚔️</span>
+                <span class="btn-label">Attack</span>
+                <span class="btn-hint">-40 HP</span>
+              </button>
+              <button class="fmod-action-btn" data-action="special" disabled>
+                <span class="btn-icon">🔥</span>
+                <span class="btn-label">Special</span>
+                <span class="btn-hint">Toggle</span>
+              </button>
+              <button class="fmod-action-btn" data-action="killmob" disabled>
+                <span class="btn-icon">💀</span>
+                <span class="btn-label">Kill Mob</span>
+                <span class="btn-hint">Toggle</span>
+              </button>
+            </div>
+
+            {/* Status Message */}
+            <div class="fmod-game-status">
+              Press ▶️ Play to start the interactive audio experience
+            </div>
+
+            {/* Game Controls */}
+            <div class="fmod-game-controls">
+              <button class="fmod-btn play-btn" data-action="play" disabled>
+                ▶️ Play
+              </button>
+              <button class="fmod-btn stop-btn" data-action="stop" disabled>
+                ⏹️ Stop
+              </button>
+              <button class="fmod-btn reset-btn" data-action="reset" disabled>
+                🔄 Reset
+              </button>
+            </div>
+
+            {/* Hidden parameters for FMOD */}
+            <div class="fmod-hidden-params" style="display: none;">
+              {bento.fmod.parameters?.map((param) => (
+                <input
+                  type="range"
+                  id={`fmod-param-${param.name}`}
+                  data-param-name={param.name}
+                  min={param.min}
+                  max={param.max}
+                  step={param.step}
+                  value={param.default}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div
+            class:list={["bento-card", "fmod-card"]}
+            data-fmod-folder={bento.fmod.folder}
+            data-fmod-banks={JSON.stringify(bento.fmod.banks || [])}
+            data-fmod-events={JSON.stringify(bento.fmod.events || [])}
+            data-fmod-parameters={JSON.stringify(bento.fmod.parameters || [])}
+          >
+            <div class="fmod-header">
+              <h3 class="card-title">
+                {typeof bento.fmod.title === "object"
+                  ? bento.fmod.title[
+                      Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                    ] || bento.fmod.title.fr
+                  : bento.fmod.title || "FMOD Interactive"}
+              </h3>
+              {bento.fmod.description && (
+                <p class="card-subtitle">
+                  {typeof bento.fmod.description === "object"
+                    ? bento.fmod.description[
+                        Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
+                      ] || bento.fmod.description.fr
+                    : bento.fmod.description}
+                </p>
+              )}
+              <div class="fmod-status badge-initializing">
+                Initialisation du moteur...
+              </div>
+            </div>
+
+            <div class="fmod-events">
+              {bento.fmod.events?.map((evt, index) => (
+                <div class="fmod-event-row" data-event-path={evt.path}>
+                  <span class="fmod-event-name">
+                    {typeof evt.name === "object"
+                      ? evt.name[
+                          Astro.url.searchParams.get("lang") === "en"
+                            ? "en"
+                            : "fr"
+                        ] || evt.name.fr
+                      : evt.name}
+                  </span>
+                  <div class="fmod-controls">
+                    <button class="fmod-btn play-btn" data-action="play" disabled>
+                      Play
+                    </button>
+                    <button class="fmod-btn stop-btn" data-action="stop" disabled>
+                      Stop
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
-          )}
-        </div>
+
+            {bento.fmod.parameters && bento.fmod.parameters.length > 0 && (
+              <div class="fmod-parameters">
+                <h4 class="fmod-section-title">Paramètres Dynamiques</h4>
+                {bento.fmod.parameters.map((param) => (
+                  <div class="fmod-param-row">
+                    <div class="fmod-param-header">
+                      <label for={`fmod-param-${param.name}`}>
+                        {param.label
+                          ? typeof param.label === "object"
+                            ? param.label[
+                                Astro.url.searchParams.get("lang") === "en"
+                                  ? "en"
+                                  : "fr"
+                              ] || param.label.fr
+                            : param.label
+                          : param.name}
+                      </label>
+                      <span
+                        class="fmod-param-value"
+                        id={`fmod-val-${param.name}`}
+                      >
+                        {param.default}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      id={`fmod-param-${param.name}`}
+                      class="fmod-slider"
+                      min={param.min}
+                      max={param.max}
+                      step={param.step}
+                      value={param.default}
+                      data-param-name={param.name}
+                      disabled
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )
       )
     }
 
@@ -5813,6 +6403,17 @@ const accentColorRgbDark =
           window.addEventListener("pagehide", () => shutdownFmod());
 
           function enableControls() {
+            // Check if this is game mode
+            const isGameMode = card.classList.contains("fmod-game-mode");
+            
+            if (isGameMode) {
+              enableGameModeControls();
+            } else {
+              enableStandardControls();
+            }
+          }
+          
+          function enableStandardControls() {
             // Param Sliders
             paramSliders.forEach((slider) => {
               slider.removeAttribute("disabled");
@@ -5892,6 +6493,279 @@ const accentColorRgbDark =
                 playBtn.removeAttribute("disabled");
               });
             });
+          }
+          
+          function enableGameModeControls() {
+            const gameStatus = card.querySelector(".fmod-game-status");
+            const phaseIndicator = card.querySelector(".fmod-phase-indicator");
+            const phaseLabel = phaseIndicator?.querySelector(".phase-label");
+            const phaseDesc = phaseIndicator?.querySelector(".phase-desc");
+            
+            // New card-based health displays
+            const bossHealthFill = card.querySelector(".fmod-boss-card .health-fill");
+            const bossHealthValue = card.querySelector(".fmod-boss-card .health-value-display");
+            const playerHealthFill = card.querySelector(".fmod-player-card .health-fill");
+            const playerHealthValue = card.querySelector(".fmod-player-card .health-value-display");
+            
+            // Legacy selectors for backwards compatibility
+            const bossHealthBarLegacy = card.querySelector(".fmod-boss .health-fill");
+            const bossHealthValueLegacy = card.querySelector(".fmod-boss .health-value");
+            const playerHealthBarLegacy = card.querySelector(".fmod-player .health-fill");
+            const playerHealthValueLegacy = card.querySelector(".fmod-player .health-value");
+            
+            const actionBtns = card.querySelectorAll(".fmod-action-btn");
+            const playBtn = card.querySelector(".fmod-game-controls .play-btn");
+            const stopBtn = card.querySelector(".fmod-game-controls .stop-btn");
+            const resetBtn = card.querySelector(".fmod-game-controls .reset-btn");
+            
+            const hiddenSliders = card.querySelectorAll(".fmod-hidden-params input");
+            
+            // Game state - simplified, no timers or automatic transitions
+            let gameState = {
+              bossHealth: 100,
+              playerHealth: 100,
+              isMobKilled: 1, // 1 = mob killed/no mob, 0 = mob alive
+              isSpecial: 0,   // 1 = special mode on, 0 = off
+              isPlaying: false
+            };
+            
+            function updateHealthBars() {
+              const bossPercent = `${gameState.bossHealth}%`;
+              const playerPercent = `${gameState.playerHealth}%`;
+              
+              // Update new card displays
+              if (bossHealthFill) bossHealthFill.style.width = bossPercent;
+              if (bossHealthValue) bossHealthValue.textContent = bossPercent;
+              if (playerHealthFill) playerHealthFill.style.width = playerPercent;
+              if (playerHealthValue) playerHealthValue.textContent = playerPercent;
+              
+              // Update legacy displays (if they exist)
+              if (bossHealthBarLegacy) bossHealthBarLegacy.style.width = bossPercent;
+              if (bossHealthValueLegacy) bossHealthValueLegacy.textContent = bossPercent;
+              if (playerHealthBarLegacy) playerHealthBarLegacy.style.width = playerPercent;
+              if (playerHealthValueLegacy) playerHealthValueLegacy.textContent = playerPercent;
+              
+              // Update FMOD parameters
+              if (studioSystem && isInitialized) {
+                studioSystem.setParameterByName("BOSS_HEALTH", gameState.bossHealth, true);
+                studioSystem.setParameterByName("PLAYER_HEALTH", gameState.playerHealth, true);
+              }
+              
+              // Update hidden sliders
+              hiddenSliders.forEach(slider => {
+                const name = slider.dataset.paramName;
+                if (name === "BOSS_HEALTH") slider.value = gameState.bossHealth;
+                if (name === "PLAYER_HEALTH") slider.value = gameState.playerHealth;
+              });
+            }
+            
+            function updateToggleButtons() {
+              actionBtns.forEach(btn => {
+                const action = btn.dataset.action;
+                if (action === "special") {
+                  if (gameState.isSpecial === 1) {
+                    btn.classList.add("active");
+                    btn.querySelector(".btn-hint").textContent = "ON";
+                  } else {
+                    btn.classList.remove("active");
+                    btn.querySelector(".btn-hint").textContent = "OFF";
+                  }
+                }
+                if (action === "killmob") {
+                  if (gameState.isMobKilled === 1) {
+                    btn.classList.add("active");
+                    btn.querySelector(".btn-hint").textContent = "Killed";
+                  } else {
+                    btn.classList.remove("active");
+                    btn.querySelector(".btn-hint").textContent = "Alive";
+                  }
+                }
+              });
+            }
+            
+            function setButtonStates(enabled) {
+              actionBtns.forEach(btn => {
+                if (enabled) {
+                  btn.removeAttribute("disabled");
+                } else {
+                  btn.setAttribute("disabled", "true");
+                }
+              });
+            }
+            
+            function resetGame() {
+              gameState = {
+                bossHealth: 100,
+                playerHealth: 100,
+                isMobKilled: 1,
+                isSpecial: 0,
+                isPlaying: false
+              };
+              
+              // Reset FMOD parameters
+              if (studioSystem && isInitialized) {
+                studioSystem.setParameterByName("BOSS_HEALTH", 100, true);
+                studioSystem.setParameterByName("PLAYER_HEALTH", 100, true);
+                studioSystem.setParameterByName("is_mobKilled", 1, true);
+                studioSystem.setParameterByName("isSpecial", 0, true);
+              }
+              
+              // Update UI
+              updateHealthBars();
+              updateToggleButtons();
+              
+              // Stop all events
+              eventInstances.forEach((instance) => {
+                instance.stop(FMOD.STUDIO_STOP_ALLOWFADEOUT);
+              });
+              
+              setButtonStates(false);
+              if (playBtn) playBtn.removeAttribute("disabled");
+              if (stopBtn) stopBtn.setAttribute("disabled", "true");
+              if (resetBtn) resetBtn.setAttribute("disabled", "true");
+              
+              if (gameStatus) gameStatus.textContent = "Press ▶️ Play to start";
+              if (phaseLabel) phaseLabel.textContent = "BOSS BATTLE";
+              if (phaseDesc) phaseDesc.textContent = "Interactive audio demo - Control the battle with action buttons";
+            }
+            
+            // Action button handlers - direct parameter control
+            actionBtns.forEach(btn => {
+              btn.addEventListener("click", () => {
+                const action = btn.dataset.action;
+                
+                switch(action) {
+                  case "attack":
+                    // Reduce boss health by 40 points, clamp to 0
+                    gameState.bossHealth = Math.max(0, gameState.bossHealth - 40);
+                    updateHealthBars();
+                    
+                    if (gameStatus) {
+                      gameStatus.textContent = `⚔️ Attack! Boss health: ${gameState.bossHealth}%`;
+                    }
+                    break;
+                    
+                  case "special":
+                    // Toggle isSpecial parameter between 0 and 1
+                    gameState.isSpecial = gameState.isSpecial === 0 ? 1 : 0;
+                    
+                    // Update FMOD
+                    if (studioSystem && isInitialized) {
+                      studioSystem.setParameterByName("isSpecial", gameState.isSpecial, true);
+                    }
+                    
+                    // Update UI
+                    updateToggleButtons();
+                    
+                    if (gameStatus) {
+                      const state = gameState.isSpecial === 1 ? "ACTIVATED" : "DEACTIVATED";
+                      gameStatus.textContent = `🔥 Special mode ${state}`;
+                    }
+                    break;
+                    
+                  case "killmob":
+                    // Toggle is_mobKilled parameter between 0 and 1
+                    gameState.isMobKilled = gameState.isMobKilled === 1 ? 0 : 1;
+                    
+                    // Update FMOD
+                    if (studioSystem && isInitialized) {
+                      studioSystem.setParameterByName("is_mobKilled", gameState.isMobKilled, true);
+                    }
+                    
+                    // Update UI
+                    updateToggleButtons();
+                    
+                    if (gameStatus) {
+                      const state = gameState.isMobKilled === 1 ? "killed" : "respawned";
+                      gameStatus.textContent = `💀 Mob ${state}`;
+                    }
+                    break;
+                }
+              });
+            });
+            
+            // Play button (start the game)
+            if (playBtn) {
+              playBtn.removeAttribute("disabled");
+              
+              playBtn.addEventListener("click", () => {
+                if (!studioSystem || !isInitialized) return;
+                
+                const eventPath = card.dataset.fmodEvents ? 
+                  JSON.parse(card.dataset.fmodEvents)[0]?.path : null;
+                
+                if (!eventPath) return;
+                
+                // Create and start event instance
+                let instance = eventInstances.get(eventPath);
+                if (!instance) {
+                  let outval = {};
+                  let result = studioSystem.getEvent(eventPath, outval);
+                  if (result === FMOD.OK) {
+                    let eventDesc = outval.val;
+                    result = eventDesc.createInstance(outval);
+                    if (result === FMOD.OK) {
+                      instance = outval.val;
+                      eventInstances.set(eventPath, instance);
+                    }
+                  }
+                }
+                
+                if (instance) {
+                  // Set initial parameters
+                  studioSystem.setParameterByName("BOSS_HEALTH", 100, true);
+                  studioSystem.setParameterByName("PLAYER_HEALTH", 100, true);
+                  studioSystem.setParameterByName("is_mobKilled", 1, true);
+                  studioSystem.setParameterByName("isSpecial", 0, true);
+                  
+                  instance.start();
+                  gameState.isPlaying = true;
+                  
+                  playBtn.setAttribute("disabled", "true");
+                  if (stopBtn) stopBtn.removeAttribute("disabled");
+                  if (resetBtn) resetBtn.removeAttribute("disabled");
+                  
+                  setButtonStates(true);
+                  updateToggleButtons();
+                  
+                  if (gameStatus) gameStatus.textContent = "Audio playing - Use buttons to control parameters";
+                  if (phaseLabel) phaseLabel.textContent = "ACTIVE";
+                  if (phaseDesc) phaseDesc.textContent = "FMOD parameters responding to your actions";
+                }
+              });
+            }
+            
+            // Stop button
+            if (stopBtn) {
+              stopBtn.addEventListener("click", () => {
+                eventInstances.forEach((instance) => {
+                  instance.stop(FMOD.STUDIO_STOP_ALLOWFADEOUT);
+                });
+                gameState.isPlaying = false;
+                stopBtn.setAttribute("disabled", "true");
+                if (playBtn) playBtn.removeAttribute("disabled");
+                setButtonStates(false);
+                if (gameStatus) gameStatus.textContent = "Audio stopped";
+                if (phaseLabel) phaseLabel.textContent = "STOPPED";
+                if (phaseDesc) phaseDesc.textContent = "Press Play to resume";
+              });
+            }
+            
+            // Reset button
+            if (resetBtn) {
+              resetBtn.addEventListener("click", () => {
+                resetGame();
+              });
+            }
+            
+            // Initial state
+            setButtonStates(false);
+            if (playBtn) playBtn.removeAttribute("disabled");
+            if (stopBtn) stopBtn.setAttribute("disabled", "true");
+            if (resetBtn) resetBtn.setAttribute("disabled", "true");
+            updateHealthBars();
+            updateToggleButtons();
+            if (gameStatus) gameStatus.textContent = "Press ▶️ Play to start";
           }
 
           // Load WASM Engine

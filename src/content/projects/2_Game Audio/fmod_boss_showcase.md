@@ -72,6 +72,8 @@ bento:
     description:
       fr: "Testez l'implémentation audio directement dans votre navigateur. Utilisez les curseurs ci-dessous pour modifier les paramètres FMOD en temps réel."
       en: "Test the audio implementation directly in your browser. Use the sliders below to modify FMOD parameters in real-time."
+    mode: "interactive-game"
+    introDuration: 26.5
     folder: "FMOD-BOSS"
     banks:
       - "Master.bank"

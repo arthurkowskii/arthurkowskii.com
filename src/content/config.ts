@@ -128,6 +128,8 @@ const projectsCollection = defineCollection({
       fmod: z.object({
         title: BilingualString.default('FMOD Interactive Player'),
         description: BilingualStringOptional,
+        mode: z.enum(['standard', 'interactive-game']).default('standard'), // Display mode
+        introDuration: z.number().default(26.5), // Duration of intro phase in seconds (for game mode)
         folder: z.string(), // Folder inside public/fmod containing the banks
         banks: z.array(z.string()), // e.g., ["Master.bank", "Master.strings.bank"]
         events: z.array(z.object({
