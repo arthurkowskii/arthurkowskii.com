@@ -162,7 +162,10 @@ const DEFAULT_SAMPLER_CONFIG = {
 
 // Bento configuration with defaults
 const bento = data.bento || {};
-const currentLang = Astro.url.searchParams.get("lang") === "en" ? "en" : "fr";
+const currentLang =
+  Astro.currentLocale === "en" || Astro.url.pathname.startsWith("/en/")
+    ? "en"
+    : "fr";
 
 function resolveLocalizedText(
   value: string | { fr?: string; en?: string } | undefined,
@@ -234,6 +237,158 @@ const fmodMobLayout = [
   { x: "77%", y: "53%", scale: 0.7, rotation: 8 },
   { x: "90%", y: "69%", scale: 0.74, rotation: 14 },
 ] as const;
+const fmodGameUi =
+  currentLang === "en"
+    ? {
+        heading: "Drive the boss in real time",
+        phaseKicker: "Phase",
+        controlsKicker: "Combat controls",
+        phaseLabels: {
+          waiting: "Ready",
+          intro: "Intro",
+          stopped: "Stopped",
+          bossphase: "Boss",
+          flashmob: "Swarm",
+          special: "Special",
+        },
+        phaseDescriptions: {
+          waiting:
+            "Start the demo to load the banks. Combat controls unlock after the intro.",
+          stopped:
+            "Audio is stopped. Start the demo to begin again.",
+          bossphase:
+            "Main boss layer is live. Damage Boss sends -40 to BOSS_HEALTH.",
+          flashmob:
+            "Swarm phase is live. Damage Boss becomes Purge Swarm until the mob layer is cleared.",
+          special:
+            "The special layer is live. Toggle it at any time while the run is active.",
+        },
+        status: {
+          loading: "Loading FMOD banks...",
+          ready: "Ready",
+          errorAudio: "Audio system error",
+          errorInit: "Initialization error",
+          apiMissing: "API not found (404)",
+          idle:
+            "Start Demo loads the banks. Combat controls unlock after the intro.",
+          live:
+            "Audio is live. Use the controls to test transitions and parameter states.",
+          intro: "Intro playing. Combat controls unlock in {seconds}s.",
+          flashmobReady:
+            "Swarm phase detected. Purge Swarm is now available.",
+          flashmobLocked:
+            "Swarm cleared. Waiting for the shield phase to end.",
+          flashmobEnded: "Swarm phase ended. Damage Boss is restored.",
+          specialOn: "Special layer enabled.",
+          specialOff: "Special layer disabled.",
+          alreadyPurged:
+            "Swarm already cleared. Wait for the shield phase to end.",
+          attack: "Damage sent. Boss integrity is now {value}%.",
+          playerDown: "Player health set to 0%.",
+          stopped: "Audio stopped. Start Demo to begin again.",
+        },
+        controls: {
+          startKicker: "Banks + event",
+          start: "Start Demo",
+          liveKicker: "Live run",
+          live: "Demo Live",
+          stop: "Stop Audio",
+          reset: "Reset Run",
+          attack: "Damage Boss",
+          attackHint: "Send -40 to BOSS_HEALTH",
+          purge: "Purge Swarm",
+          purgeHint: "Clear the shield-linked mob layer",
+          special: "Special Layer",
+          specialHint: "Toggle isSpecial live",
+          specialHintActive: "Special layer active",
+          locked: "Locked",
+          killPlayer: "Set HP To 0",
+        },
+        labels: {
+          bossHealth: "Boss integrity",
+          bossTitle: "Encounter Core",
+          liveTarget: "Live target",
+          player: "Player",
+          playerHealth: "Player integrity",
+          liveEvent: "Live event",
+        },
+      }
+    : {
+        heading: "Pilotez le boss en temps reel",
+        phaseKicker: "Phase",
+        controlsKicker: "Controles du combat",
+        phaseLabels: {
+          waiting: "Pret",
+          intro: "Intro",
+          stopped: "Arret",
+          bossphase: "Boss",
+          flashmob: "Essaim",
+          special: "Special",
+        },
+        phaseDescriptions: {
+          waiting:
+            "Lancez la demo pour charger les banques. Les actions se debloquent apres l'intro.",
+          stopped:
+            "L'audio est stoppe. Relancez la demo pour recommencer.",
+          bossphase:
+            "La couche principale est active. Toucher le boss envoie -40 a BOSS_HEALTH.",
+          flashmob:
+            "La phase essaim est active. Toucher le boss devient Purger l'essaim tant que la couche de mobs reste en place.",
+          special:
+            "La couche speciale est active. Vous pouvez la couper ou la relancer a tout moment.",
+        },
+        status: {
+          loading: "Chargement des banques FMOD...",
+          ready: "Pret",
+          errorAudio: "Erreur systeme audio",
+          errorInit: "Erreur d'initialisation",
+          apiMissing: "API introuvable (404)",
+          idle:
+            "Lancer la demo charge les banques. Les actions se debloquent apres l'intro.",
+          live:
+            "L'audio est live. Utilisez les controles pour tester les transitions et les parametres.",
+          intro: "Intro en cours. Les actions se debloquent dans {seconds}s.",
+          flashmobReady:
+            "Phase essaim detectee. Purger l'essaim est disponible.",
+          flashmobLocked:
+            "Essaim purge. Attendez la fin de la phase essaim.",
+          flashmobEnded:
+            "Phase essaim terminee. Toucher le boss revient.",
+          specialOn: "Couche speciale activee.",
+          specialOff: "Couche speciale coupee.",
+          alreadyPurged:
+            "L'essaim est deja purge. Attendez la fin de la phase essaim.",
+          attack:
+            "Impact envoye. L'integrite du boss est maintenant a {value}%.",
+          playerDown: "Les HP du joueur sont passes a 0%.",
+          stopped: "Audio stoppe. Relancez la demo pour recommencer.",
+        },
+        controls: {
+          startKicker: "Banques + event",
+          start: "Lancer la demo",
+          liveKicker: "Run live",
+          live: "Demo live",
+          stop: "Stopper l'audio",
+          reset: "Reinitialiser",
+          attack: "Toucher le boss",
+          attackHint: "Envoie -40 sur BOSS_HEALTH",
+          purge: "Purger l'essaim",
+          purgeHint: "Nettoie la couche de mobs liee au bouclier",
+          special: "Couche speciale",
+          specialHint: "Bascule isSpecial en direct",
+          specialHintActive: "Couche speciale active",
+          locked: "Verrouille",
+          killPlayer: "HP a 0",
+        },
+        labels: {
+          bossHealth: "Integrite du boss",
+          bossTitle: "Noyau du boss",
+          liveTarget: "Cible live",
+          player: "Joueur",
+          playerHealth: "Integrite du joueur",
+          liveEvent: "Evenement live",
+        },
+      };
 
 // Merge sampler config with defaults if enabled
 if (cards.sampler) {
@@ -1779,7 +1934,13 @@ const accentColorRgbDark =
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease,
+      color 0.2s ease,
+      opacity 0.2s ease;
     border: none;
   }
 
@@ -2750,6 +2911,729 @@ const accentColorRgbDark =
     }
     .fmod-action-bar {
       grid-template-columns: 1fr;
+    }
+  }
+
+  .fmod-card.fmod-game-mode {
+    --fmod-shell-bg:
+      radial-gradient(circle at 12% 0%, rgba(var(--accent-color-rgb), 0.16), transparent 34%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 248, 251, 0.92));
+    --fmod-shell-border: rgba(15, 23, 42, 0.08);
+    --fmod-shell-shadow:
+      0 32px 75px rgba(15, 23, 42, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    --fmod-shell-text: #0f172a;
+    --fmod-shell-muted: rgba(51, 65, 85, 0.82);
+    --fmod-chip-bg: rgba(var(--accent-color-rgb), 0.12);
+    --fmod-chip-border: rgba(var(--accent-color-rgb), 0.22);
+    --fmod-chip-text: var(--accent-color);
+    --fmod-stage-bg:
+      radial-gradient(circle at 50% 12%, rgba(var(--accent-color-rgb), 0.12), transparent 28%),
+      radial-gradient(circle at 50% 78%, rgba(var(--accent-color-rgb), 0.14), transparent 34%),
+      linear-gradient(180deg, rgba(247, 240, 235, 0.95) 0%, rgba(233, 238, 243, 0.94) 54%, rgba(220, 226, 234, 0.96) 100%);
+    --fmod-stage-border: rgba(15, 23, 42, 0.08);
+    --fmod-stage-overlay: #0f172a;
+    --fmod-stage-muted: rgba(51, 65, 85, 0.78);
+    --fmod-stage-grid: rgba(15, 23, 42, 0.05);
+    --fmod-stage-vignette: rgba(15, 23, 42, 0.16);
+    --fmod-hud-bg:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(244, 247, 251, 0.7));
+    --fmod-hud-border: rgba(15, 23, 42, 0.08);
+    --fmod-health-track-boss:
+      linear-gradient(180deg, rgba(73, 48, 53, 0.18), rgba(15, 23, 42, 0.1));
+    --fmod-health-track-player: rgba(15, 23, 42, 0.12);
+    --fmod-floor-shadow:
+      radial-gradient(circle, rgba(var(--accent-color-rgb), 0.18) 0%, rgba(var(--accent-color-rgb), 0.06) 34%, transparent 72%),
+      radial-gradient(circle, rgba(15, 23, 42, 0.18) 0%, transparent 76%);
+    --fmod-dock-bg:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(241, 245, 249, 0.9));
+    --fmod-dock-border: rgba(15, 23, 42, 0.1);
+    --fmod-dock-text: #0f172a;
+    --fmod-dock-muted: rgba(51, 65, 85, 0.78);
+    --fmod-dock-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      0 20px 40px rgba(15, 23, 42, 0.08);
+    --fmod-action-bg:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(235, 241, 247, 0.94));
+    --fmod-action-border: rgba(15, 23, 42, 0.12);
+    --fmod-action-text: #0f172a;
+    --fmod-action-muted: rgba(51, 65, 85, 0.8);
+    --fmod-action-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      0 12px 24px rgba(15, 23, 42, 0.06);
+    --fmod-action-disabled-bg:
+      linear-gradient(180deg, rgba(237, 242, 248, 0.98), rgba(228, 235, 242, 0.96));
+    --fmod-action-disabled-border: rgba(148, 163, 184, 0.34);
+    --fmod-action-disabled-text: rgba(71, 85, 105, 0.9);
+    --fmod-action-pill-bg: rgba(15, 23, 42, 0.1);
+    --fmod-action-pill-text: rgba(51, 65, 85, 0.88);
+    --fmod-secondary-bg:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(241, 245, 249, 0.9));
+    --fmod-secondary-border: rgba(15, 23, 42, 0.12);
+    --fmod-secondary-text: #0f172a;
+    --fmod-secondary-hover-border: rgba(var(--accent-color-rgb), 0.26);
+    --fmod-start-shadow:
+      0 18px 34px rgba(var(--accent-color-rgb), 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    position: relative;
+    overflow: hidden;
+    padding: clamp(1.15rem, 2vw, 1.6rem);
+    border-radius: 28px;
+    gap: 1.15rem;
+    background: var(--fmod-shell-bg);
+    border: 1px solid var(--fmod-shell-border);
+    box-shadow: var(--fmod-shell-shadow);
+    color: var(--fmod-shell-text);
+  }
+
+  html[data-theme="dark"] .fmod-card.fmod-game-mode {
+    --fmod-shell-bg:
+      radial-gradient(circle at 18% -4%, rgba(var(--accent-color-rgb), 0.2), transparent 34%),
+      linear-gradient(160deg, rgba(7, 9, 13, 0.92), rgba(15, 17, 24, 0.96));
+    --fmod-shell-border: rgba(255, 255, 255, 0.07);
+    --fmod-shell-shadow:
+      0 35px 80px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    --fmod-shell-text: #f8fafc;
+    --fmod-shell-muted: rgba(226, 232, 240, 0.74);
+    --fmod-chip-bg: rgba(var(--accent-color-rgb), 0.18);
+    --fmod-chip-border: rgba(var(--accent-color-rgb), 0.38);
+    --fmod-chip-text: #ffffff;
+    --fmod-stage-bg:
+      radial-gradient(circle at 50% 12%, rgba(var(--accent-color-rgb), 0.16), transparent 28%),
+      radial-gradient(circle at 50% 78%, rgba(var(--accent-color-rgb), 0.12), transparent 32%),
+      linear-gradient(180deg, rgba(52, 46, 49, 0.94) 0%, rgba(29, 32, 39, 0.97) 54%, rgba(17, 20, 27, 0.98) 100%);
+    --fmod-stage-border: rgba(255, 255, 255, 0.08);
+    --fmod-stage-overlay: rgba(248, 250, 252, 0.92);
+    --fmod-stage-muted: rgba(226, 232, 240, 0.76);
+    --fmod-stage-grid: rgba(255, 255, 255, 0.035);
+    --fmod-stage-vignette: rgba(0, 0, 0, 0.28);
+    --fmod-hud-bg:
+      linear-gradient(180deg, rgba(20, 24, 31, 0.74), rgba(13, 16, 22, 0.74));
+    --fmod-hud-border: rgba(255, 255, 255, 0.08);
+    --fmod-health-track-boss:
+      linear-gradient(180deg, rgba(18, 21, 29, 0.86), rgba(8, 10, 14, 0.94));
+    --fmod-health-track-player: rgba(10, 13, 18, 0.7);
+    --fmod-floor-shadow:
+      radial-gradient(circle, rgba(var(--accent-color-rgb), 0.22) 0%, rgba(var(--accent-color-rgb), 0.08) 32%, transparent 72%),
+      radial-gradient(circle, rgba(0, 0, 0, 0.46) 0%, transparent 76%);
+    --fmod-dock-bg:
+      linear-gradient(180deg, rgba(12, 14, 20, 0.96), rgba(8, 10, 14, 0.98));
+    --fmod-dock-border: rgba(255, 255, 255, 0.08);
+    --fmod-dock-text: #f8fafc;
+    --fmod-dock-muted: rgba(226, 232, 240, 0.74);
+    --fmod-dock-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 20px 48px rgba(0, 0, 0, 0.26);
+    --fmod-action-bg:
+      linear-gradient(180deg, rgba(25, 28, 36, 0.98), rgba(11, 14, 19, 0.98));
+    --fmod-action-border: rgba(255, 255, 255, 0.08);
+    --fmod-action-text: #f8fafc;
+    --fmod-action-muted: rgba(226, 232, 240, 0.76);
+    --fmod-action-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 16px 26px rgba(0, 0, 0, 0.24);
+    --fmod-action-disabled-bg:
+      linear-gradient(180deg, rgba(30, 34, 42, 0.92), rgba(15, 18, 24, 0.96));
+    --fmod-action-disabled-border: rgba(148, 163, 184, 0.26);
+    --fmod-action-disabled-text: rgba(203, 213, 225, 0.72);
+    --fmod-action-pill-bg: rgba(255, 255, 255, 0.08);
+    --fmod-action-pill-text: rgba(226, 232, 240, 0.78);
+    --fmod-secondary-bg: rgba(255, 255, 255, 0.05);
+    --fmod-secondary-border: rgba(255, 255, 255, 0.08);
+    --fmod-secondary-text: #f8fafc;
+    --fmod-secondary-hover-border: rgba(var(--accent-color-rgb), 0.34);
+    --fmod-start-shadow:
+      0 20px 40px rgba(var(--accent-color-rgb), 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    background: var(--fmod-shell-bg);
+    border: 1px solid var(--fmod-shell-border);
+    box-shadow: var(--fmod-shell-shadow);
+    color: var(--fmod-shell-text);
+  }
+
+  .fmod-card.fmod-game-mode::before,
+  .fmod-card.fmod-game-mode::after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+    pointer-events: none;
+  }
+
+  .fmod-card.fmod-game-mode::before {
+    width: 360px;
+    height: 360px;
+    inset: -180px auto auto -110px;
+    background: radial-gradient(circle, rgba(var(--accent-color-rgb), 0.22), transparent 68%);
+    filter: blur(18px);
+    opacity: 0.9;
+  }
+
+  .fmod-card.fmod-game-mode::after {
+    width: 220px;
+    height: 220px;
+    inset: auto -60px -90px auto;
+    background: radial-gradient(circle, rgba(var(--accent-color-rgb), 0.15), transparent 70%);
+    filter: blur(28px);
+    opacity: 0.7;
+  }
+
+  .fmod-card.fmod-game-mode > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-game-header {
+    margin-bottom: 0;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-header-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.85rem 1rem;
+    align-items: start;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-header-copy,
+  .fmod-card.fmod-game-mode .fmod-controls-copy {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-header-copy {
+    gap: 0.55rem;
+    min-width: 0;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-card-badge {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.38rem 0.72rem;
+    border-radius: 999px;
+    border: 1px solid var(--fmod-chip-border);
+    background: var(--fmod-chip-bg);
+    color: var(--fmod-chip-text);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-card-title {
+    margin: 0;
+    max-width: 13ch;
+    font-size: clamp(1.38rem, 2.2vw, 1.9rem);
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+    color: var(--fmod-shell-text);
+    text-wrap: balance;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-phase-copy {
+    align-items: flex-start;
+    justify-content: center;
+    min-width: 126px;
+    gap: 0.18rem;
+    padding: 0.72rem 0.86rem;
+    border-radius: 18px;
+    border: 1px solid var(--fmod-dock-border);
+    background: var(--fmod-dock-bg);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      0 10px 20px rgba(15, 23, 42, 0.08);
+    text-align: left;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-phase-kicker,
+  .fmod-card.fmod-game-mode .fmod-controls-kicker,
+  .fmod-card.fmod-game-mode .ctrl-kicker,
+  .fmod-card.fmod-game-mode .health-label,
+  .fmod-card.fmod-game-mode .fmod-boss-readout-label {
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-phase-kicker {
+    color: var(--fmod-shell-muted);
+  }
+
+  .fmod-card.fmod-game-mode .phase-label {
+    font-size: clamp(1rem, 1.6vw, 1.18rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-transform: none;
+    text-shadow: none;
+    color: var(--fmod-shell-text);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-header-actions {
+    display: grid;
+    grid-template-columns: minmax(124px, auto) minmax(212px, 252px);
+    gap: 0.75rem;
+    align-items: stretch;
+    justify-content: end;
+  }
+
+  .fmod-card.fmod-game-mode .badge-initializing {
+    background: rgba(234, 179, 8, 0.16);
+    color: #ca8a04;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+  }
+
+  html[data-theme="dark"] .fmod-card.fmod-game-mode .badge-initializing {
+    background: rgba(234, 179, 8, 0.2);
+    color: #facc15;
+  }
+
+  .fmod-card.fmod-game-mode .badge-ready {
+    background: rgba(22, 163, 74, 0.14);
+    color: #15803d;
+    border: 1px solid rgba(22, 163, 74, 0.28);
+  }
+
+  html[data-theme="dark"] .fmod-card.fmod-game-mode .badge-ready {
+    color: #4ade80;
+    background: rgba(22, 163, 74, 0.2);
+  }
+
+  .fmod-card.fmod-game-mode .badge-error {
+    background: rgba(220, 38, 38, 0.12);
+    color: #b91c1c;
+    border: 1px solid rgba(220, 38, 38, 0.24);
+  }
+
+  html[data-theme="dark"] .fmod-card.fmod-game-mode .badge-error {
+    color: #f87171;
+    background: rgba(220, 38, 38, 0.18);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn,
+  .fmod-card.fmod-game-mode .fmod-game-controls .fmod-btn,
+  .fmod-card.fmod-game-mode .fmod-player-kill-btn {
+    border-radius: 20px;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn {
+    min-height: 64px;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.18rem;
+    padding: 0.82rem 1rem;
+    border: 1px solid rgba(var(--accent-color-rgb), 0.34);
+    background:
+      linear-gradient(180deg, rgba(var(--accent-color-rgb), 0.92), rgba(var(--accent-color-rgb), 0.72));
+    box-shadow: var(--fmod-start-shadow);
+    color: var(--on-accent);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-kicker {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-label {
+    font-size: 1.02rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 24px 42px rgba(var(--accent-color-rgb), 0.32),
+      inset 0 1px 0 rgba(255, 255, 255, 0.26);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn[disabled] {
+    opacity: 0.78;
+    cursor: wait;
+    filter: saturate(0.78);
+    box-shadow:
+      0 14px 24px rgba(var(--accent-color-rgb), 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn.is-running {
+    background:
+      linear-gradient(180deg, rgba(14, 165, 233, 0.92), rgba(8, 145, 178, 0.78));
+    border-color: rgba(103, 232, 249, 0.34);
+    cursor: default;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage {
+    border-radius: 26px;
+    border: 1px solid var(--fmod-stage-border);
+    background: var(--fmod-stage-bg);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      0 18px 34px rgba(15, 23, 42, 0.12);
+  }
+
+  html[data-theme="dark"] .fmod-card.fmod-game-mode .fmod-stage {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 24px 46px rgba(0, 0, 0, 0.28);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage::before {
+    background:
+      linear-gradient(90deg, var(--fmod-stage-grid) 1px, transparent 1px),
+      linear-gradient(180deg, var(--fmod-stage-grid) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.5;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage::after {
+    background:
+      radial-gradient(circle at 50% 24%, rgba(255, 255, 255, 0.08), transparent 24%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 26%, var(--fmod-stage-vignette) 100%);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-phase-copy[data-phase="intro"] {
+    border-color: rgba(234, 179, 8, 0.3);
+    background:
+      linear-gradient(180deg, rgba(234, 179, 8, 0.14), rgba(255, 255, 255, 0.02)),
+      var(--fmod-dock-bg);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-phase-copy[data-phase="bossphase"] {
+    border-color: rgba(var(--accent-color-rgb), 0.3);
+    background:
+      linear-gradient(180deg, rgba(var(--accent-color-rgb), 0.14), rgba(255, 255, 255, 0.02)),
+      var(--fmod-dock-bg);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-phase-copy[data-phase="flashmob"] {
+    border-color: rgba(168, 85, 247, 0.34);
+    background:
+      linear-gradient(180deg, rgba(168, 85, 247, 0.14), rgba(255, 255, 255, 0.02)),
+      var(--fmod-dock-bg);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      0 10px 22px rgba(168, 85, 247, 0.1);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-phase-copy[data-phase="special"] {
+    border-color: rgba(251, 191, 36, 0.34);
+    background:
+      linear-gradient(180deg, rgba(251, 191, 36, 0.16), rgba(255, 255, 255, 0.02)),
+      var(--fmod-dock-bg);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage-boss-hud,
+  .fmod-card.fmod-game-mode .fmod-stage-player-hud {
+    gap: 0.55rem;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage-boss-head,
+  .fmod-card.fmod-game-mode .fmod-stage-player-hud,
+  .fmod-card.fmod-game-mode .fmod-boss-readout {
+    padding: 0.8rem 0.95rem;
+    border-radius: 18px;
+    background: var(--fmod-hud-bg);
+    border: 1px solid var(--fmod-hud-border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage-boss-head {
+    padding-bottom: 0.75rem;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage-boss-hud .health-bar.modern {
+    background: var(--fmod-health-track-boss);
+    border: 1px solid var(--fmod-hud-border);
+    box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.18);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage-boss-title,
+  .fmod-card.fmod-game-mode .fmod-stage-player-title,
+  .fmod-card.fmod-game-mode .fmod-stage-boss-status,
+  .fmod-card.fmod-game-mode .fmod-stage-player-status,
+  .fmod-card.fmod-game-mode .fmod-boss-readout-value {
+    color: var(--fmod-stage-overlay);
+  }
+
+  .fmod-card.fmod-game-mode .health-label,
+  .fmod-card.fmod-game-mode .fmod-boss-readout-label,
+  .fmod-card.fmod-game-mode .fmod-stage-boss-status {
+    color: var(--fmod-stage-muted);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage-player-hud {
+    width: min(30%, 288px);
+    gap: 0.7rem;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage-player-meta {
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.25rem;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage-player-title {
+    font-size: 0.98rem;
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-boss-readout {
+    gap: 0.3rem;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage-player-hud .health-bar.modern {
+    background: var(--fmod-health-track-player);
+    border: 1px solid var(--fmod-hud-border);
+    box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.18);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-stage-floor {
+    background: var(--fmod-floor-shadow);
+    opacity: 0.94;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-controls-panel {
+    gap: 0.85rem;
+    padding: 0.95rem 1rem 1rem;
+    border-radius: 24px;
+    background: var(--fmod-dock-bg);
+    border: 1px solid var(--fmod-dock-border);
+    box-shadow: var(--fmod-dock-shadow);
+    color: var(--fmod-dock-text);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-controls-meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.85rem 1rem;
+    align-items: center;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-controls-copy {
+    gap: 0.3rem;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-controls-kicker {
+    color: var(--fmod-dock-muted);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-controls-summary {
+    margin: 0;
+    max-width: 60ch;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--fmod-dock-text);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-action-bar {
+    gap: 0.8rem;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-action-btn {
+    min-height: 120px;
+    padding: 0.95rem 0.95rem 0.9rem;
+    border-radius: 18px;
+    border: 1px solid var(--fmod-action-border);
+    background: var(--fmod-action-bg);
+    box-shadow: var(--fmod-action-shadow);
+    color: var(--fmod-action-text);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-action-btn:disabled {
+    opacity: 1;
+    background: var(--fmod-action-disabled-bg);
+    border-color: var(--fmod-action-disabled-border);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-action-btn:not(:disabled):hover {
+    border-color: rgba(var(--accent-color-rgb), 0.28);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      0 18px 32px rgba(15, 23, 42, 0.12);
+  }
+
+  html[data-theme="dark"] .fmod-card.fmod-game-mode .fmod-action-btn:not(:disabled):hover {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 20px 34px rgba(0, 0, 0, 0.22);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-action-btn.attack-btn.purge-ready:not(:disabled) {
+    border-color: rgba(168, 85, 247, 0.4);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-action-btn.special-btn.active {
+    border-color: rgba(251, 191, 36, 0.45);
+    background:
+      linear-gradient(180deg, rgba(255, 247, 220, 0.92), rgba(252, 240, 191, 0.88));
+  }
+
+  html[data-theme="dark"] .fmod-card.fmod-game-mode .fmod-action-btn.special-btn.active {
+    background:
+      linear-gradient(180deg, rgba(73, 53, 16, 0.95), rgba(22, 18, 10, 0.98));
+  }
+
+  .fmod-card.fmod-game-mode .btn-pill {
+    position: absolute;
+    top: 0.78rem;
+    right: 0.78rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 66px;
+    padding: 0.24rem 0.52rem;
+    border-radius: 999px;
+    background: var(--fmod-action-pill-bg);
+    color: var(--fmod-action-pill-text);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-action-btn:disabled .btn-pill {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .fmod-card.fmod-game-mode .btn-hint {
+    color: var(--fmod-action-muted);
+  }
+
+  .fmod-card.fmod-game-mode .btn-label {
+    font-size: 1.08rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: var(--fmod-action-text);
+  }
+
+  .fmod-card.fmod-game-mode .btn-hint {
+    font-size: 0.9rem;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-action-btn:disabled .btn-label,
+  .fmod-card.fmod-game-mode .fmod-action-btn:disabled .btn-hint {
+    color: var(--fmod-action-disabled-text);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-game-controls {
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-game-controls .fmod-btn {
+    min-height: 54px;
+    padding: 0.82rem 1rem;
+    border-radius: 16px;
+    border: 1px solid var(--fmod-secondary-border);
+    background: var(--fmod-secondary-bg);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      0 8px 16px rgba(15, 23, 42, 0.04);
+    color: var(--fmod-secondary-text);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-transform: none;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-game-controls .fmod-btn:disabled {
+    opacity: 1;
+    box-shadow: none;
+    color: var(--fmod-action-disabled-text);
+    cursor: not-allowed;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-game-controls .fmod-btn:not(:disabled):hover {
+    border-color: var(--fmod-secondary-hover-border);
+    transform: translateY(-1px);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-player-kill-btn {
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(239, 68, 68, 0.28);
+    background: linear-gradient(180deg, rgba(185, 28, 28, 0.92), rgba(127, 29, 29, 0.86));
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-btn:focus-visible,
+  .fmod-card.fmod-game-mode .fmod-action-btn:focus-visible,
+  .fmod-card.fmod-game-mode .fmod-player-kill-btn:focus-visible {
+    outline: 2px solid rgba(var(--accent-color-rgb), 0.5);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 4px rgba(var(--accent-color-rgb), 0.16);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-figure-fallback {
+    color: rgba(248, 250, 252, 0.8);
+  }
+
+  @media (max-width: 1180px) {
+    .fmod-card.fmod-game-mode .fmod-header-shell {
+      grid-template-columns: 1fr;
+    }
+
+    .fmod-card.fmod-game-mode .fmod-header-actions,
+    .fmod-card.fmod-game-mode .fmod-controls-meta {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fmod-card.fmod-game-mode .fmod-stage-player-hud {
+      width: min(40%, 290px);
+    }
+  }
+
+  @media (max-width: 899px) {
+    .fmod-card.fmod-game-mode {
+      padding: 1rem;
+    }
+
+    .fmod-card.fmod-game-mode .fmod-header-actions,
+    .fmod-card.fmod-game-mode .fmod-controls-meta,
+    .fmod-card.fmod-game-mode .fmod-action-bar,
+    .fmod-card.fmod-game-mode .fmod-game-controls {
+      grid-template-columns: 1fr;
+    }
+
+    .fmod-card.fmod-game-mode .fmod-start-btn {
+      min-height: 60px;
+    }
+
+    .fmod-card.fmod-game-mode .fmod-controls-summary {
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .fmod-card.fmod-game-mode .fmod-card-title {
+      max-width: none;
+      font-size: 1.4rem;
+    }
+
+    .fmod-card.fmod-game-mode .fmod-phase-copy,
+    .fmod-card.fmod-game-mode .fmod-stage-boss-head,
+    .fmod-card.fmod-game-mode .fmod-stage-player-hud,
+    .fmod-card.fmod-game-mode .fmod-boss-readout,
+    .fmod-card.fmod-game-mode .fmod-controls-panel {
+      border-radius: 18px;
+    }
+
+    .fmod-card.fmod-game-mode .btn-label {
+      font-size: 1.05rem;
     }
   }
 
@@ -5067,38 +5951,48 @@ const accentColorRgbDark =
             data-fmod-intro-duration={bento.fmod.introDuration ?? 0}
           >
             <div class="fmod-game-header">
-              <div class="fmod-phase-copy" data-phase="waiting">
-                <span class="fmod-phase-kicker">
-                  {resolveLocalizedText(
-                    bento.fmod.title,
-                    "FMOD Interactive Player",
-                  )}
-                </span>
-                <span class="phase-label">BOSS BATTLE</span>
-                <span class="phase-desc">
-                  Load the FMOD event to enter the encounter. During the intro, action buttons stay locked while the music establishes the arena.
-                </span>
-                <span class="fmod-phase-status">
-                  Press Initiate to start the interactive audio encounter.
-                </span>
+              <div class="fmod-header-shell">
+                <div class="fmod-header-copy">
+                  <span class="fmod-card-badge">
+                    {resolveLocalizedText(
+                      bento.fmod.title,
+                      "FMOD Interactive Player",
+                    )}
+                  </span>
+                  <h3 class="fmod-card-title">{fmodGameUi.heading}</h3>
+                </div>
+
+                <div class="fmod-header-actions">
+                  <div class="fmod-phase-copy" data-phase="waiting">
+                    <span class="fmod-phase-kicker">{fmodGameUi.phaseKicker}</span>
+                    <span class="phase-label">
+                      {fmodGameUi.phaseLabels.waiting}
+                    </span>
+                  </div>
+
+                  <button class="fmod-btn fmod-start-btn play-btn" type="button" disabled>
+                    <span class="ctrl-kicker">{fmodGameUi.controls.startKicker}</span>
+                    <span class="ctrl-label">{fmodGameUi.controls.start}</span>
+                  </button>
+                </div>
               </div>
             </div>
 
             <div class="fmod-scene">
               <div class="fmod-stage">
-                <div class="fmod-stage-boss-hud" data-reveal="pending">
+                <div class="fmod-stage-boss-hud" data-reveal="live">
                   <div class="fmod-stage-boss-head">
                     <div class="fmod-stage-boss-copy">
-                      <span class="health-label">Boss integrity</span>
-                      <span class="fmod-stage-boss-title">Encounter Core</span>
+                      <span class="health-label">{fmodGameUi.labels.bossHealth}</span>
+                      <span class="fmod-stage-boss-title">{fmodGameUi.labels.bossTitle}</span>
                     </div>
                     <div class="fmod-stage-boss-readout">
-                      <span class="fmod-stage-boss-status">Live target</span>
-                      <span class="health-value-display">0%</span>
+                      <span class="fmod-stage-boss-status">{fmodGameUi.labels.liveTarget}</span>
+                      <span class="health-value-display">100%</span>
                     </div>
                   </div>
                   <div class="health-bar modern">
-                    <div class="health-fill" style="width: 0%"></div>
+                    <div class="health-fill" style="width: 100%"></div>
                   </div>
                 </div>
 
@@ -5112,6 +6006,8 @@ const accentColorRgbDark =
                           alt="Player render"
                           loading="lazy"
                           decoding="async"
+                          width="992"
+                          height="1000"
                         />
                       ) : (
                         <div class="fmod-figure-fallback">PLAYER</div>
@@ -5121,13 +6017,16 @@ const accentColorRgbDark =
                 </div>
 
                 <div class="fmod-stage-player-hud">
-                  <span class="fmod-stage-player-title">Player</span>
+                  <div class="fmod-stage-player-meta">
+                    <span class="health-label">{fmodGameUi.labels.playerHealth}</span>
+                    <span class="fmod-stage-player-title">{fmodGameUi.labels.player}</span>
+                  </div>
                   <div class="health-bar modern">
                     <div class="health-fill" style="width: 100%"></div>
                   </div>
                   <div class="fmod-player-actions">
                     <button class="fmod-player-kill-btn" type="button" data-action="kill-player">
-                      Kill Player
+                      {fmodGameUi.controls.killPlayer}
                     </button>
                   </div>
                 </div>
@@ -5142,6 +6041,8 @@ const accentColorRgbDark =
                           alt="Boss render"
                           loading="lazy"
                           decoding="async"
+                          width="758"
+                          height="1200"
                         />
                       ) : (
                         <div class="fmod-figure-fallback">BOSS</div>
@@ -5150,7 +6051,7 @@ const accentColorRgbDark =
                   </div>
 
                   <div class="fmod-boss-readout">
-                    <span class="fmod-boss-readout-label">Live event</span>
+                    <span class="fmod-boss-readout-label">{fmodGameUi.labels.liveEvent}</span>
                     <span class="fmod-boss-readout-value">event:/mus_BOSS</span>
                   </div>
 
@@ -5174,6 +6075,8 @@ const accentColorRgbDark =
                               alt=""
                               loading="lazy"
                               decoding="async"
+                              width="320"
+                              height="320"
                             />
                           ) : (
                             <div class="fmod-figure-fallback fmod-figure-fallback-mob">
@@ -5191,37 +6094,40 @@ const accentColorRgbDark =
             </div>
 
             <div class="fmod-controls-panel">
-              <div class="fmod-action-bar">
-                <button class="fmod-action-btn attack-btn" data-action="attack" disabled>
-                  <div class="attack-visuals">
-                    <span class="btn-kicker">Primary action</span>
-                    <span class="btn-label">Attack Core</span>
-                    <span class="btn-hint">Lower BOSS_HEALTH by 40</span>
-                  </div>
-                  <div class="purge-visuals">
-                    <span class="btn-kicker">Primary action</span>
-                    <span class="btn-label">Purge Swarm</span>
-                    <span class="btn-hint">Clear the shield-linked mobs</span>
-                  </div>
-                  <div class="btn-glaze"></div>
-                </button>
-                <button class="fmod-action-btn special-btn" data-action="special" disabled>
-                  <span class="btn-kicker">Persistent toggle</span>
-                  <span class="btn-label">Overdrive</span>
-                  <span class="btn-hint">Enable or disable special mode</span>
-                  <div class="btn-glaze"></div>
-                </button>
+              <div class="fmod-controls-meta">
+                <div class="fmod-controls-copy">
+                  <span class="fmod-controls-kicker">{fmodGameUi.controlsKicker}</span>
+                  <p class="fmod-controls-summary">{fmodGameUi.status.idle}</p>
+                </div>
+
+                <div class="fmod-game-controls">
+                  <button class="fmod-btn stop-btn" type="button" data-action="stop" disabled>
+                    <span class="ctrl-label">{fmodGameUi.controls.stop}</span>
+                  </button>
+                  <button class="fmod-btn reset-btn" type="button" data-action="reset" disabled>
+                    <span class="ctrl-label">{fmodGameUi.controls.reset}</span>
+                  </button>
+                </div>
               </div>
 
-              <div class="fmod-game-controls">
-                <button class="fmod-btn play-btn" data-action="play" disabled>
-                  <span class="ctrl-label">Initiate</span>
+              <div class="fmod-action-bar">
+                <button class="fmod-action-btn attack-btn" type="button" data-action="attack" disabled>
+                  <span class="btn-pill" aria-hidden="true">{fmodGameUi.controls.locked}</span>
+                  <div class="attack-visuals">
+                    <span class="btn-label">{fmodGameUi.controls.attack}</span>
+                    <span class="btn-hint">{fmodGameUi.controls.attackHint}</span>
+                  </div>
+                  <div class="purge-visuals">
+                    <span class="btn-label">{fmodGameUi.controls.purge}</span>
+                    <span class="btn-hint">{fmodGameUi.controls.purgeHint}</span>
+                  </div>
+                  <div class="btn-glaze"></div>
                 </button>
-                <button class="fmod-btn stop-btn" data-action="stop" disabled>
-                  <span class="ctrl-label">Abort</span>
-                </button>
-                <button class="fmod-btn reset-btn" data-action="reset" disabled>
-                  <span class="ctrl-label">Reboot</span>
+                <button class="fmod-action-btn special-btn" type="button" data-action="special" disabled>
+                  <span class="btn-pill" aria-hidden="true">{fmodGameUi.controls.locked}</span>
+                  <span class="btn-label">{fmodGameUi.controls.special}</span>
+                  <span class="btn-hint">{fmodGameUi.controls.specialHint}</span>
+                  <div class="btn-glaze"></div>
                 </button>
               </div>
             </div>
@@ -6806,8 +7712,15 @@ const accentColorRgbDark =
   }
 </script>
 
-<script is:inline>
+<script is:inline define:vars={{ FMOD_GAME_UI: fmodGameUi }}>
   // FMOD Web API Integration
+
+  function formatFmodText(template, vars = {}) {
+    return String(template || "").replace(/\{(\w+)\}/g, (_, key) =>
+      vars[key] !== undefined ? vars[key] : "",
+    );
+  }
+
   function initFmodCards() {
     const fmodCards = document.querySelectorAll(".fmod-card");
     if (fmodCards.length === 0) return;
@@ -6829,6 +7742,7 @@ const accentColorRgbDark =
           card.dataset.fmodReady = "true";
 
           const statusBadge = card.querySelector(".fmod-status");
+          const controlsSummary = card.querySelector(".fmod-controls-summary");
           const paramSliders = card.querySelectorAll(".fmod-slider");
           const paramValues = card.querySelectorAll(".fmod-param-value");
           const eventRows = card.querySelectorAll(".fmod-event-row");
@@ -6845,10 +7759,16 @@ const accentColorRgbDark =
           let gameModeCleanup = null;
 
           function updateStatus(state, msg) {
-            if (!statusBadge) return;
-            statusBadge.className = `fmod-status badge-${state}`;
-            statusBadge.textContent = msg;
+            if (statusBadge) {
+              statusBadge.className = `fmod-status badge-${state}`;
+              statusBadge.textContent = msg;
+            }
+            if (controlsSummary) {
+              controlsSummary.textContent = msg;
+            }
           }
+
+          updateStatus("initializing", FMOD_GAME_UI.status.loading);
 
           // 1. Initialize FMOD Module and File System
           function prerun() {
@@ -6881,7 +7801,7 @@ const accentColorRgbDark =
             let result = window.FMOD.Studio_System_Create(outval);
             if (result !== window.FMOD.OK) {
               console.error("FMOD Studio System Create error", result);
-              updateStatus("error", "Erreur systÃƒÆ’Ã‚Â¨me audio");
+              updateStatus("error", FMOD_GAME_UI.status.errorAudio);
               return;
             }
             studioSystem = outval.val;
@@ -6916,7 +7836,7 @@ const accentColorRgbDark =
             );
             if (result !== window.FMOD.OK) {
               console.error("FMOD Studio Init error", result);
-              updateStatus("error", "Erreur initialisation");
+              updateStatus("error", FMOD_GAME_UI.status.errorInit);
               return;
             }
 
@@ -6935,7 +7855,7 @@ const accentColorRgbDark =
             });
 
             isInitialized = true;
-            updateStatus("ready", "PrÃƒÆ’Ã‚Âªt");
+            updateStatus("ready", FMOD_GAME_UI.status.ready);
             enableControls();
 
             // Start engine update loop
@@ -7073,15 +7993,14 @@ const accentColorRgbDark =
           }
           
           function enableGameModeControls() {
-            const phaseStatus = card.querySelector(".fmod-phase-status");
             const phaseIndicator = card.querySelector(".fmod-phase-copy");
             const phaseLabel = phaseIndicator?.querySelector(".phase-label");
-            const phaseDesc = phaseIndicator?.querySelector(".phase-desc");
             const sceneWrapper = card.querySelector(".fmod-scene");
             const stageBoss = card.querySelector(".fmod-stage .fmod-boss-container");
             const bossHud = card.querySelector(".fmod-stage-boss-hud");
             const playerHud = card.querySelector(".fmod-stage-player-hud");
             const controlsPanel = card.querySelector(".fmod-controls-panel");
+            const controlsSummary = controlsPanel?.querySelector(".fmod-controls-summary");
             const bossHealthFill = bossHud?.querySelector(".health-fill");
             const bossHealthValue = bossHud?.querySelector(".health-value-display");
             const playerHealthFill = playerHud?.querySelector(".health-fill");
@@ -7090,9 +8009,11 @@ const accentColorRgbDark =
             const actionBtns = controlsPanel?.querySelectorAll(".fmod-action-btn") || [];
             const attackBtn = controlsPanel?.querySelector(".attack-btn");
             const specialBtn = controlsPanel?.querySelector(".special-btn");
-            const playBtn = controlsPanel?.querySelector(".play-btn");
-            const stopBtn = controlsPanel?.querySelector(".stop-btn");
-            const resetBtn = controlsPanel?.querySelector(".reset-btn");
+            const playBtn = card.querySelector(".fmod-header-actions .play-btn");
+            const playBtnLabel = playBtn?.querySelector(".ctrl-label");
+            const playBtnKicker = playBtn?.querySelector(".ctrl-kicker");
+            const stopBtn = card.querySelector(".fmod-game-controls .stop-btn");
+            const resetBtn = card.querySelector(".fmod-game-controls .reset-btn");
             const hiddenSliders = card.querySelectorAll(".fmod-hidden-params input");
             const introDuration =
               Number.parseFloat(card.dataset.fmodIntroDuration || "0") || 0;
@@ -7103,12 +8024,10 @@ const accentColorRgbDark =
             const bossRevealDelayMs = 14000;
             const bossRevealDurationMs = 4000;
             const phaseDescriptions = {
-              waiting:
-                "Load the FMOD event to enter the encounter. During the intro, action buttons stay locked while the music establishes the arena.",
-              stopped:
-                "The run is halted. Press Initiate to load a fresh encounter from the beginning.",
+              waiting: FMOD_GAME_UI.phaseDescriptions.waiting,
+              stopped: FMOD_GAME_UI.phaseDescriptions.stopped,
               intro: (seconds) =>
-                `Intro is still playing. Combat controls unlock in ${seconds}s while FMOD completes the opening section.`,
+                formatFmodText(FMOD_GAME_UI.status.intro, { seconds }),
             };
             const flashMobActionStates = {
               INACTIVE: "inactive",
@@ -7118,21 +8037,18 @@ const accentColorRgbDark =
             const regionStates = {
               0: {
                 phase: "bossphase",
-                label: "BOSS PHASE",
-                description:
-                  "Main boss phase. The shield is down and the primary action attacks BOSS_HEALTH directly.",
+                label: FMOD_GAME_UI.phaseLabels.bossphase,
+                description: FMOD_GAME_UI.phaseDescriptions.bossphase,
               },
               1: {
                 phase: "flashmob",
-                label: "FLASH MOB",
-                description:
-                  "Activated between boss phases. The boss enables a shield linked to spawned mobs. The shield remains active while at least one mob is alive. Once all mobs are eliminated (is_mobKilled = TRUE), the shield is removed and the next boss phase begins.",
+                label: FMOD_GAME_UI.phaseLabels.flashmob,
+                description: FMOD_GAME_UI.phaseDescriptions.flashmob,
               },
               2: {
                 phase: "special",
-                label: "SPECIAL",
-                description:
-                  "Special region engaged. FMOD moves into the special layer while Overdrive remains available as a live toggle.",
+                label: FMOD_GAME_UI.phaseLabels.special,
+                description: FMOD_GAME_UI.phaseDescriptions.special,
               },
             };
             let introTimer = null;
@@ -7144,6 +8060,36 @@ const accentColorRgbDark =
             let bossHudState = "pending";
             const eventParameterIds = new WeakMap();
             const primaryControlBtns = Array.from(actionBtns);
+
+            function updateControlsSummary(message = FMOD_GAME_UI.status.idle) {
+              if (controlsSummary) controlsSummary.textContent = message;
+            }
+
+            function setPlayButtonState(state) {
+              if (!playBtn) return;
+
+              playBtn.classList.toggle("is-running", state === "running");
+
+              if (playBtnLabel) {
+                playBtnLabel.textContent =
+                  state === "running"
+                    ? FMOD_GAME_UI.controls.live
+                    : FMOD_GAME_UI.controls.start;
+              }
+
+              if (playBtnKicker) {
+                playBtnKicker.textContent =
+                  state === "running"
+                    ? FMOD_GAME_UI.controls.liveKicker
+                    : FMOD_GAME_UI.controls.startKicker;
+              }
+
+              if (state === "ready") {
+                playBtn.removeAttribute("disabled");
+              } else {
+                playBtn.setAttribute("disabled", "true");
+              }
+            }
 
             function createInitialGameState() {
               return {
@@ -7160,13 +8106,12 @@ const accentColorRgbDark =
             let gameState = createInitialGameState();
 
             function setStatus(message) {
-              if (phaseStatus) phaseStatus.textContent = message;
+              updateControlsSummary(message);
             }
 
-            function setPhaseState(phase, label, description) {
+            function setPhaseState(phase, label) {
               if (phaseIndicator) phaseIndicator.dataset.phase = phase;
               if (phaseLabel) phaseLabel.textContent = label;
-              if (phaseDesc) phaseDesc.textContent = description;
             }
 
             function syncSceneState() {
@@ -7313,7 +8258,7 @@ const accentColorRgbDark =
             }
 
             function enterFlashMobRegion(
-              statusMessage = "Flash Mob detected. Purge Swarm is now available.",
+              statusMessage = FMOD_GAME_UI.status.flashmobReady,
             ) {
               if (!gameState.isPlaying) return;
               setFlashMobActionState(flashMobActionStates.PURGE_READY, {
@@ -7323,7 +8268,7 @@ const accentColorRgbDark =
             }
 
             function lockFlashMobAfterPurge(
-              statusMessage = "Swarm purged. Waiting for the Flash Mob section to end.",
+              statusMessage = FMOD_GAME_UI.status.flashmobLocked,
             ) {
               if (!gameState.isPlaying) return;
               setFlashMobActionState(flashMobActionStates.PURGED_LOCKED, {
@@ -7333,7 +8278,7 @@ const accentColorRgbDark =
             }
 
             function exitFlashMobRegion(
-              statusMessage = "Flash Mob ended. Attack Core is restored.",
+              statusMessage = FMOD_GAME_UI.status.flashmobEnded,
             ) {
               setFlashMobActionState(flashMobActionStates.INACTIVE, {
                 statusMessage,
@@ -7458,7 +8403,7 @@ const accentColorRgbDark =
               if (introCountdown > 0) {
                 setPhaseState(
                   "intro",
-                  "INTRO",
+                  FMOD_GAME_UI.phaseLabels.intro,
                   phaseDescriptions.intro(introCountdown),
                 );
                 return;
@@ -7538,14 +8483,14 @@ const accentColorRgbDark =
                   syncLivePhaseState();
                   setStatus(
                     nextSpecial === 1
-                      ? "Overdrive activated. The special layer is now active."
+                      ? FMOD_GAME_UI.status.specialOn
                       : gameState.flashMobActionState ===
                             flashMobActionStates.PURGE_READY
-                        ? "Flash Mob active. Purge Swarm is now available."
+                        ? FMOD_GAME_UI.status.flashmobReady
                         : gameState.flashMobActionState ===
                               flashMobActionStates.PURGED_LOCKED
-                          ? "Swarm purged. Waiting for the Flash Mob section to end."
-                          : "Overdrive disabled.",
+                          ? FMOD_GAME_UI.status.flashmobLocked
+                          : FMOD_GAME_UI.status.specialOff,
                   );
                 }
               }, 200);
@@ -7558,14 +8503,19 @@ const accentColorRgbDark =
                 setButtonStates(true);
                 updateToggleButtons();
                 syncLivePhaseState();
-                setStatus("Audio is live. Use the controls to drive the encounter.");
+                setStatus(FMOD_GAME_UI.status.live);
+                updateControlsSummary(FMOD_GAME_UI.status.live);
                 return;
               }
 
               introCountdown = Math.max(1, Math.ceil(introDuration));
               setButtonStates(false);
               syncLivePhaseState();
-              setStatus(`Intro playing. Controls unlock in ${introCountdown}s.`);
+              setStatus(
+                formatFmodText(FMOD_GAME_UI.status.intro, {
+                  seconds: introCountdown,
+                }),
+              );
 
               introTimer = window.setInterval(() => {
                 if (!gameState.isPlaying) {
@@ -7577,7 +8527,11 @@ const accentColorRgbDark =
 
                 if (introCountdown > 0) {
                   syncLivePhaseState();
-                  setStatus(`Intro playing. Controls unlock in ${introCountdown}s.`);
+                  setStatus(
+                    formatFmodText(FMOD_GAME_UI.status.intro, {
+                      seconds: introCountdown,
+                    }),
+                  );
                   return;
                 }
 
@@ -7585,7 +8539,8 @@ const accentColorRgbDark =
                 setButtonStates(true);
                 updateToggleButtons();
                 syncLivePhaseState();
-                setStatus("Audio is live. Use the controls to drive the encounter.");
+                setStatus(FMOD_GAME_UI.status.live);
+                updateControlsSummary(FMOD_GAME_UI.status.live);
               }, 1000);
             }
 
@@ -7626,8 +8581,8 @@ const accentColorRgbDark =
                 if (specialHint) {
                   specialHint.textContent =
                     gameState.isSpecial === 1
-                      ? "Special mode enabled"
-                      : "Enable or disable special mode";
+                      ? FMOD_GAME_UI.controls.specialHintActive
+                      : FMOD_GAME_UI.controls.specialHint;
                 }
               }
 
@@ -7636,8 +8591,12 @@ const accentColorRgbDark =
                   gameState.flashMobActionState !== flashMobActionStates.INACTIVE;
                 const isPurgedLocked =
                   gameState.flashMobActionState === flashMobActionStates.PURGED_LOCKED;
+                const attackHint = attackBtn.querySelector(".attack-visuals .btn-hint");
+                const purgeHint = attackBtn.querySelector(".purge-visuals .btn-hint");
 
                 attackBtn.classList.toggle("purge-ready", isFlashMobActionActive);
+                if (attackHint) attackHint.textContent = FMOD_GAME_UI.controls.attackHint;
+                if (purgeHint) purgeHint.textContent = FMOD_GAME_UI.controls.purgeHint;
 
                 if (!gameState.isPlaying || introCountdown > 0) {
                   return;
@@ -7664,9 +8623,9 @@ const accentColorRgbDark =
             function resetGame(options = {}) {
               const {
                 stopMode = FMOD.STUDIO_STOP_ALLOWFADEOUT,
-                statusMessage = "Press Initiate to start the interactive audio encounter.",
+                statusMessage = FMOD_GAME_UI.status.idle,
                 phase = "waiting",
-                phaseLabelText = "BOSS BATTLE",
+                phaseLabelText = FMOD_GAME_UI.phaseLabels.waiting,
                 phaseDescText = phaseDescriptions.waiting,
               } = options;
 
@@ -7674,6 +8633,7 @@ const accentColorRgbDark =
               stopFmodPolling();
               clearBossIntroAnimation({ reset: true });
               gameState = createInitialGameState();
+              setBossHudState("live");
 
               applyParameterToSystemAndInstances("BOSS_HEALTH", 100);
               applyParameterToSystemAndInstances("PLAYER_HEALTH", 100);
@@ -7691,11 +8651,12 @@ const accentColorRgbDark =
               });
 
               setButtonStates(false);
-              if (playBtn) playBtn.removeAttribute("disabled");
+              setPlayButtonState("ready");
               if (stopBtn) stopBtn.setAttribute("disabled", "true");
               if (resetBtn) resetBtn.setAttribute("disabled", "true");
 
               setStatus(statusMessage);
+              updateControlsSummary(statusMessage);
               setPhaseState(phase, phaseLabelText, phaseDescText);
             }
 
@@ -7709,7 +8670,7 @@ const accentColorRgbDark =
                       gameState.flashMobActionState ===
                       flashMobActionStates.PURGED_LOCKED
                     ) {
-                      setStatus("Swarm already purged. Waiting for the Flash Mob section to end.");
+                      setStatus(FMOD_GAME_UI.status.alreadyPurged);
                       break;
                     }
 
@@ -7735,7 +8696,9 @@ const accentColorRgbDark =
                     }
 
                     setStatus(
-                      `Attack landed. Boss integrity is now ${gameState.bossHealth}%.`,
+                      formatFmodText(FMOD_GAME_UI.status.attack, {
+                        value: gameState.bossHealth,
+                      }),
                     );
                     if (attackBtn) {
                       attackBtn.classList.add("pulse-damage");
@@ -7754,8 +8717,8 @@ const accentColorRgbDark =
                     syncLivePhaseState();
                     setStatus(
                       gameState.isSpecial === 1
-                        ? "Overdrive enabled. The special layer is active."
-                        : "Overdrive disabled.",
+                        ? FMOD_GAME_UI.status.specialOn
+                        : FMOD_GAME_UI.status.specialOff,
                     );
                     break;
                 }
@@ -7768,12 +8731,12 @@ const accentColorRgbDark =
                 updateHealthBars();
                 updateToggleButtons();
                 syncLivePhaseState();
-                setStatus("Player integrity dropped to 0%.");
+                setStatus(FMOD_GAME_UI.status.playerDown);
               });
             }
 
             if (playBtn) {
-              playBtn.removeAttribute("disabled");
+              setPlayButtonState("ready");
 
               playBtn.addEventListener("click", () => {
                 if (!studioSystem || !isInitialized) return;
@@ -7817,7 +8780,7 @@ const accentColorRgbDark =
                   updateToggleButtons();
                   syncSceneState();
 
-                  playBtn.setAttribute("disabled", "true");
+                  setPlayButtonState("running");
                   if (stopBtn) stopBtn.removeAttribute("disabled");
                   if (resetBtn) resetBtn.removeAttribute("disabled");
 
@@ -7830,9 +8793,9 @@ const accentColorRgbDark =
               stopBtn.addEventListener("click", () => {
                 resetGame({
                   stopMode: FMOD.STUDIO_STOP_ALLOWFADEOUT,
-                  statusMessage: "Audio stopped. Press Initiate to start again.",
+                  statusMessage: FMOD_GAME_UI.status.stopped,
                   phase: "waiting",
-                  phaseLabelText: "STOPPED",
+                  phaseLabelText: FMOD_GAME_UI.phaseLabels.stopped,
                   phaseDescText: phaseDescriptions.stopped,
                 });
               });
@@ -7845,15 +8808,21 @@ const accentColorRgbDark =
             }
 
             setButtonStates(false);
-            if (playBtn) playBtn.removeAttribute("disabled");
+            setPlayButtonState("ready");
             if (stopBtn) stopBtn.setAttribute("disabled", "true");
             if (resetBtn) resetBtn.setAttribute("disabled", "true");
             clearBossIntroAnimation({ reset: true });
+            setBossHudState("live");
             updateHealthBars();
             updateToggleButtons();
             syncSceneState();
-            setStatus("Press Initiate to start the interactive audio encounter.");
-            setPhaseState("waiting", "BOSS BATTLE", phaseDescriptions.waiting);
+            setStatus(FMOD_GAME_UI.status.idle);
+            updateControlsSummary(FMOD_GAME_UI.status.idle);
+            setPhaseState(
+              "waiting",
+              FMOD_GAME_UI.phaseLabels.waiting,
+              phaseDescriptions.waiting,
+            );
           }
           // Load WASM Engine
           // Load WASM Engine
@@ -7883,7 +8852,7 @@ const accentColorRgbDark =
               }
             };
             script.onerror = () =>
-              updateStatus("error", "API non trouvÃƒÆ’Ã‚Â©e (404)");
+              updateStatus("error", FMOD_GAME_UI.status.apiMissing);
             document.body.appendChild(script);
           } else {
             // Already loaded globally, just run local init logic if it hasn't fired yet
