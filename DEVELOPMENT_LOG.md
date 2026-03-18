@@ -444,3 +444,26 @@
 - **Status**:
   - Functional state is now in much better shape and the FMOD encounter reads more like a game HUD.
   - The frontend still needs a **major visual polish pass** before it can be considered visually finished; current work should be treated as a strong structural base, not final art direction.
+
+### FMOD Boss Card Simplification Pass (2026-03-18)
+- **Direction Change**:
+  - Simplified the FMOD interactive-game card into a flatter bento layout instead of a stacked HUD/dashboard.
+  - Chosen polish direction: `Compact Command Header` + `Theme-Native Arena`.
+  - Removed the separate engine-status block so the card reads as a portfolio item first and an interaction demo second.
+- **Header / Hierarchy**:
+  - Collapsed the top area into a shallow strip: badge + title on the left, compact phase chip and primary `Start Demo` CTA on the right.
+  - Kept the long explanatory copy only in the lower controls dock to avoid duplicate messaging.
+  - Reduced the overall vertical footprint so the scene begins higher on the card.
+- **Theme Treatment**:
+  - Reworked the scene tokens so the arena matches the active theme instead of staying permanently black.
+  - Light mode now uses a warm neutral surface family; dark mode uses a deeper neutral version of the same family.
+  - HUD chips, boss floor glow, and control cards were retuned to feel like overlays on the same surface system.
+- **Controls / State**:
+  - Simplified the secondary controls visually while keeping runtime behavior unchanged.
+  - Remapped FMOD runtime status messages into the lower summary surface and removed dependencies on the old top status block.
+  - Kept the phase indicator as a compact chip and preserved intro/live/attack/special/stop/reset flows.
+- **Verification**:
+  - `npm run build` passes after the simplification pass.
+  - Verified FR and EN output on the direct project route.
+  - Verified the homepage overlay rendering in both light and dark themes.
+  - Confirmed the simplified card reads cleaner and more cohesive with the rest of the bento system.

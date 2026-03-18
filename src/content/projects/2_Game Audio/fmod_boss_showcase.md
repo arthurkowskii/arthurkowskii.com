@@ -6,8 +6,8 @@ altTitle:
   fr: "FMOD Boss"
   en: "FMOD Boss"
 description:
-  fr: "Démonstration interactive de l'implémentation audio dynamique avec FMOD via web API."
-  en: "Interactive demonstration of dynamic audio implementation with FMOD via web API."
+  fr: "Voici un système audio de combat de boss réalisé avec FMOD lors d'un projet scolaire, vous pouvez directement essayer l'implémentation sans quitter ce portfolio. Contexte : combat de boss dark fantasy, entièrement composé avec de la musique adaptative pilotée par des paramètres de gameplay."
+  en: "This is boss fight audio system made with FMOD during a school project, here you can directly try the implementation without leaving this portfolio. Context : dark fantasy boss fight, scored entirely with adaptive music driven by gameplay parameters."
 tech: ["FMOD", "Web API", "JavaScript"]
 status: "completed"
 date: 2026-02-21
@@ -16,16 +16,19 @@ useBentoLayout: true
 # Bento Layout Configuration
 bento:
   # Accent color theme
-  accentColor: "#f3522c"
+  accentColor: "#e42a00"
+
+  # Centralized assets folder for hero/logo images
+  assetsFolder: "/src/content/projects/2_Game Audio/Assets_Boss"
 
   # Card visibility toggles
   cards:
     hero: true
     stats: true
     fmod: true
-    actions: false
-    tech: true
-    process: true
+    tech: false
+    actions: true
+    process: false
     gallery: false
     challenges: false
     results: false
@@ -45,9 +48,9 @@ bento:
   # Project stats
   stats:
     - value: "FMOD"
-      label: "ENGINE"
-    - value: "WEB"
-      label: "PLATFORM"
+      label: "IMPLEMENTATION"
+    - value: "REAPER"
+      label: "COMPOSITION"
 
   # Process steps
   process:
@@ -63,6 +66,23 @@ bento:
         en: "Asynchronous loading of banks into the virtual file system (Emscripten)"
       - fr: "Contrôle en temps réel des événements et paramètres"
         en: "Real-time control of events and parameters"
+
+  # Action buttons
+  actions:
+    title:
+      fr: "Liens"
+      en: "Links"
+    primary:
+      text:
+        fr: "📽️ Regarder la DEMO"
+        en: "📽️ Watch the DEMO"
+      url: "https://youtu.be/dXkrb0iK0wM?si=ZK8lNY4IzBlz_ZuP"
+    secondary:
+      text:
+        fr: "⬇️ Télécharger le projet source FMOD"
+        en: "⬇️ Download the FMOD source project"
+      url: "https://drive.google.com/file/d/1kgkZ3VlRkiE_1NIYSUuTSrf43hViifxg/view?usp=sharing"
+    
 
   # FMOD Interactive Player configuration
   fmod:

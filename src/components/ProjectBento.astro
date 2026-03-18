@@ -2324,11 +2324,6 @@ const accentColorRgbDark =
     z-index: 6;
   }
 
-  .fmod-actor-frame {
-    width: 100%;
-    filter: drop-shadow(-16px 16px 24px rgba(0, 0, 0, 0.38));
-  }
-
   .fmod-boss-figure {
     width: 100%;
     max-width: 290px;
@@ -2389,32 +2384,6 @@ const accentColorRgbDark =
 
   .fmod-boss-container.damage-flash .fmod-boss-sprite {
     animation: damage-flash 0.24s ease;
-  }
-
-  .fmod-boss-readout {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.2rem;
-    padding: 0.6rem 0.85rem;
-    border-radius: 14px;
-    background: rgba(7, 7, 11, 0.68);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    z-index: 5;
-  }
-
-  .fmod-boss-readout-label {
-    font-size: 0.58rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.46);
-  }
-
-  .fmod-boss-readout-value {
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: rgba(248, 250, 252, 0.9);
   }
 
   .fmod-mobs-container {
@@ -2576,12 +2545,10 @@ const accentColorRgbDark =
   .fmod-action-btn {
     position: relative;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-start;
-    min-height: 116px;
-    gap: 0.38rem;
-    padding: 1rem 1rem 0.95rem;
+    align-items: center;
+    min-height: 122px;
+    gap: 0.7rem;
+    padding: 0.92rem 0.95rem 0.9rem;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 18px;
@@ -2628,16 +2595,16 @@ const accentColorRgbDark =
   .attack-visuals,
   .purge-visuals {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.38rem;
-    transition: opacity 0.24s ease, transform 0.24s ease;
+    align-items: center;
+    gap: 0.72rem;
+    width: 100%;
+    transition: opacity 0.24s ease, transform 0.24s ease, filter 0.24s ease;
   }
 
   .purge-visuals {
     position: absolute;
-    inset: 1rem;
-    justify-content: flex-end;
+    inset: 0.92rem 0.95rem 0.9rem;
+    justify-content: center;
     opacity: 0;
     transform: translateY(10px);
     pointer-events: none;
@@ -2653,6 +2620,32 @@ const accentColorRgbDark =
     transform: translateY(0);
   }
 
+  .btn-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.22rem;
+    min-width: 0;
+  }
+
+  .btn-icon {
+    flex-shrink: 0;
+    width: 2.55rem;
+    height: 2.55rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.95);
+    transition: transform 0.22s ease, background-color 0.22s ease, box-shadow 0.22s ease;
+  }
+
+  .btn-icon svg {
+    width: 1.32rem;
+    height: 1.32rem;
+  }
+
   .btn-kicker {
     font-size: 0.66rem;
     font-weight: 700;
@@ -2664,15 +2657,68 @@ const accentColorRgbDark =
   .btn-label {
     font-size: 1.05rem;
     font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    text-transform: none;
     color: #f8fafc;
+    line-height: 1.1;
   }
 
   .btn-hint {
-    font-size: 0.82rem;
-    line-height: 1.45;
+    font-size: 0.84rem;
+    line-height: 1.35;
     color: rgba(226, 232, 240, 0.72);
+  }
+
+  .btn-lock-overlay {
+    position: absolute;
+    inset: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.44rem;
+    border-radius: inherit;
+    background: rgba(4, 8, 16, 0.44);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    color: rgba(226, 232, 240, 0.88);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+    z-index: 3;
+  }
+
+  .btn-lock-icon {
+    width: 1.12rem;
+    height: 1.12rem;
+  }
+
+  .fmod-action-btn:disabled .btn-lock-overlay {
+    opacity: 1;
+  }
+
+  .fmod-action-btn:not(:disabled):hover .btn-icon {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow:
+      0 10px 18px rgba(0, 0, 0, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+
+  .fmod-action-btn.special-btn.active .btn-icon {
+    animation: special-icon-glow 1.8s ease-in-out infinite;
+  }
+
+  @keyframes special-icon-glow {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.07);
+    }
   }
 
   .btn-glaze {
@@ -2965,8 +3011,12 @@ const accentColorRgbDark =
       linear-gradient(180deg, rgba(237, 242, 248, 0.98), rgba(228, 235, 242, 0.96));
     --fmod-action-disabled-border: rgba(148, 163, 184, 0.34);
     --fmod-action-disabled-text: rgba(71, 85, 105, 0.9);
-    --fmod-action-pill-bg: rgba(15, 23, 42, 0.1);
-    --fmod-action-pill-text: rgba(51, 65, 85, 0.88);
+    --fmod-action-icon-bg: rgba(15, 23, 42, 0.08);
+    --fmod-action-icon-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      0 8px 16px rgba(15, 23, 42, 0.08);
+    --fmod-action-lock-bg: rgba(226, 232, 240, 0.38);
+    --fmod-action-lock-text: rgba(15, 23, 42, 0.82);
     --fmod-secondary-bg:
       linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(241, 245, 249, 0.9));
     --fmod-secondary-border: rgba(15, 23, 42, 0.12);
@@ -3037,8 +3087,12 @@ const accentColorRgbDark =
       linear-gradient(180deg, rgba(30, 34, 42, 0.92), rgba(15, 18, 24, 0.96));
     --fmod-action-disabled-border: rgba(148, 163, 184, 0.26);
     --fmod-action-disabled-text: rgba(203, 213, 225, 0.72);
-    --fmod-action-pill-bg: rgba(255, 255, 255, 0.08);
-    --fmod-action-pill-text: rgba(226, 232, 240, 0.78);
+    --fmod-action-icon-bg: rgba(255, 255, 255, 0.08);
+    --fmod-action-icon-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 8px 16px rgba(0, 0, 0, 0.22);
+    --fmod-action-lock-bg: rgba(15, 23, 42, 0.46);
+    --fmod-action-lock-text: rgba(226, 232, 240, 0.9);
     --fmod-secondary-bg: rgba(255, 255, 255, 0.05);
     --fmod-secondary-border: rgba(255, 255, 255, 0.08);
     --fmod-secondary-text: #f8fafc;
@@ -3089,7 +3143,7 @@ const accentColorRgbDark =
 
   .fmod-card.fmod-game-mode .fmod-header-shell {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: max-content minmax(0, 1fr);
     gap: 0.85rem 1rem;
     align-items: start;
   }
@@ -3134,7 +3188,9 @@ const accentColorRgbDark =
   .fmod-card.fmod-game-mode .fmod-phase-copy {
     align-items: flex-start;
     justify-content: center;
-    min-width: 126px;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
     gap: 0.18rem;
     padding: 0.72rem 0.86rem;
     border-radius: 18px;
@@ -3149,8 +3205,7 @@ const accentColorRgbDark =
   .fmod-card.fmod-game-mode .fmod-phase-kicker,
   .fmod-card.fmod-game-mode .fmod-controls-kicker,
   .fmod-card.fmod-game-mode .ctrl-kicker,
-  .fmod-card.fmod-game-mode .health-label,
-  .fmod-card.fmod-game-mode .fmod-boss-readout-label {
+  .fmod-card.fmod-game-mode .health-label {
     font-size: 0.64rem;
     font-weight: 700;
     letter-spacing: 0.16em;
@@ -3172,11 +3227,13 @@ const accentColorRgbDark =
   }
 
   .fmod-card.fmod-game-mode .fmod-header-actions {
-    display: grid;
-    grid-template-columns: minmax(124px, auto) minmax(212px, 252px);
+    display: flex;
     gap: 0.75rem;
     align-items: stretch;
-    justify-content: end;
+    justify-content: flex-end;
+    justify-self: stretch;
+    width: 100%;
+    min-width: 0;
   }
 
   .fmod-card.fmod-game-mode .badge-initializing {
@@ -3213,22 +3270,58 @@ const accentColorRgbDark =
   }
 
   .fmod-card.fmod-game-mode .fmod-start-btn,
-  .fmod-card.fmod-game-mode .fmod-game-controls .fmod-btn,
   .fmod-card.fmod-game-mode .fmod-player-kill-btn {
     border-radius: 20px;
   }
 
   .fmod-card.fmod-game-mode .fmod-start-btn {
-    min-height: 64px;
-    align-items: flex-start;
+    flex: 0 0 auto;
+    min-height: 66px;
+    align-items: center;
     justify-content: center;
-    gap: 0.18rem;
-    padding: 0.82rem 1rem;
+    gap: 0.72rem;
+    padding: 0.8rem 0.95rem;
     border: 1px solid rgba(var(--accent-color-rgb), 0.34);
     background:
       linear-gradient(180deg, rgba(var(--accent-color-rgb), 0.92), rgba(var(--accent-color-rgb), 0.72));
     box-shadow: var(--fmod-start-shadow);
     color: var(--on-accent);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    flex-shrink: 0;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-icon svg {
+    width: 1.18rem;
+    height: 1.18rem;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-icon-stop {
+    display: none;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn.is-running .ctrl-icon-play {
+    display: none;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn.is-running .ctrl-icon-stop {
+    display: block;
   }
 
   .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-kicker {
@@ -3260,9 +3353,19 @@ const accentColorRgbDark =
 
   .fmod-card.fmod-game-mode .fmod-start-btn.is-running {
     background:
-      linear-gradient(180deg, rgba(14, 165, 233, 0.92), rgba(8, 145, 178, 0.78));
-    border-color: rgba(103, 232, 249, 0.34);
-    cursor: default;
+      linear-gradient(180deg, rgba(220, 38, 38, 0.92), rgba(127, 29, 29, 0.82));
+    border-color: rgba(252, 165, 165, 0.38);
+    cursor: pointer;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn.is-running .ctrl-icon {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn.is-running:not(:disabled):hover {
+    box-shadow:
+      0 24px 42px rgba(220, 38, 38, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.24);
   }
 
   .fmod-card.fmod-game-mode .fmod-stage {
@@ -3330,9 +3433,7 @@ const accentColorRgbDark =
     gap: 0.55rem;
   }
 
-  .fmod-card.fmod-game-mode .fmod-stage-boss-head,
-  .fmod-card.fmod-game-mode .fmod-stage-player-hud,
-  .fmod-card.fmod-game-mode .fmod-boss-readout {
+  .fmod-card.fmod-game-mode .fmod-stage-boss-head {
     padding: 0.8rem 0.95rem;
     border-radius: 18px;
     background: var(--fmod-hud-bg);
@@ -3354,13 +3455,11 @@ const accentColorRgbDark =
   .fmod-card.fmod-game-mode .fmod-stage-boss-title,
   .fmod-card.fmod-game-mode .fmod-stage-player-title,
   .fmod-card.fmod-game-mode .fmod-stage-boss-status,
-  .fmod-card.fmod-game-mode .fmod-stage-player-status,
-  .fmod-card.fmod-game-mode .fmod-boss-readout-value {
+  .fmod-card.fmod-game-mode .fmod-stage-player-status {
     color: var(--fmod-stage-overlay);
   }
 
   .fmod-card.fmod-game-mode .health-label,
-  .fmod-card.fmod-game-mode .fmod-boss-readout-label,
   .fmod-card.fmod-game-mode .fmod-stage-boss-status {
     color: var(--fmod-stage-muted);
   }
@@ -3368,6 +3467,12 @@ const accentColorRgbDark =
   .fmod-card.fmod-game-mode .fmod-stage-player-hud {
     width: min(30%, 288px);
     gap: 0.7rem;
+    padding: 0.2rem 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .fmod-card.fmod-game-mode .fmod-stage-player-meta {
@@ -3380,10 +3485,6 @@ const accentColorRgbDark =
     font-size: 0.98rem;
     letter-spacing: 0.04em;
     text-transform: none;
-  }
-
-  .fmod-card.fmod-game-mode .fmod-boss-readout {
-    gap: 0.3rem;
   }
 
   .fmod-card.fmod-game-mode .fmod-stage-player-hud .health-bar.modern {
@@ -3409,8 +3510,8 @@ const accentColorRgbDark =
 
   .fmod-card.fmod-game-mode .fmod-controls-meta {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.85rem 1rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
     align-items: center;
   }
 
@@ -3435,8 +3536,8 @@ const accentColorRgbDark =
   }
 
   .fmod-card.fmod-game-mode .fmod-action-btn {
-    min-height: 120px;
-    padding: 0.95rem 0.95rem 0.9rem;
+    min-height: 122px;
+    padding: 0.92rem 0.95rem 0.9rem;
     border-radius: 18px;
     border: 1px solid var(--fmod-action-border);
     background: var(--fmod-action-bg);
@@ -3480,34 +3581,30 @@ const accentColorRgbDark =
       linear-gradient(180deg, rgba(73, 53, 16, 0.95), rgba(22, 18, 10, 0.98));
   }
 
-  .fmod-card.fmod-game-mode .btn-pill {
-    position: absolute;
-    top: 0.78rem;
-    right: 0.78rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 66px;
-    padding: 0.24rem 0.52rem;
-    border-radius: 999px;
-    background: var(--fmod-action-pill-bg);
-    color: var(--fmod-action-pill-text);
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    opacity: 0;
-    transform: translateY(-4px);
-    transition: opacity 0.18s ease, transform 0.18s ease;
-  }
-
-  .fmod-card.fmod-game-mode .fmod-action-btn:disabled .btn-pill {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
   .fmod-card.fmod-game-mode .btn-hint {
     color: var(--fmod-action-muted);
+  }
+
+  .fmod-card.fmod-game-mode .btn-copy {
+    gap: 0.26rem;
+  }
+
+  .fmod-card.fmod-game-mode .btn-icon {
+    background: var(--fmod-action-icon-bg);
+    box-shadow: var(--fmod-action-icon-shadow);
+    color: var(--fmod-action-text);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-action-btn.attack-btn.purge-ready .btn-icon {
+    color: #8b5cf6;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-action-btn.special-btn.active .btn-icon {
+    color: #b45309;
+  }
+
+  html[data-theme="dark"] .fmod-card.fmod-game-mode .fmod-action-btn.special-btn.active .btn-icon {
+    color: #fbbf24;
   }
 
   .fmod-card.fmod-game-mode .btn-label {
@@ -3527,37 +3624,9 @@ const accentColorRgbDark =
     color: var(--fmod-action-disabled-text);
   }
 
-  .fmod-card.fmod-game-mode .fmod-game-controls {
-    grid-template-columns: repeat(2, minmax(150px, 1fr));
-    gap: 0.75rem;
-  }
-
-  .fmod-card.fmod-game-mode .fmod-game-controls .fmod-btn {
-    min-height: 54px;
-    padding: 0.82rem 1rem;
-    border-radius: 16px;
-    border: 1px solid var(--fmod-secondary-border);
-    background: var(--fmod-secondary-bg);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.55),
-      0 8px 16px rgba(15, 23, 42, 0.04);
-    color: var(--fmod-secondary-text);
-    font-size: 0.95rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    text-transform: none;
-  }
-
-  .fmod-card.fmod-game-mode .fmod-game-controls .fmod-btn:disabled {
-    opacity: 1;
-    box-shadow: none;
-    color: var(--fmod-action-disabled-text);
-    cursor: not-allowed;
-  }
-
-  .fmod-card.fmod-game-mode .fmod-game-controls .fmod-btn:not(:disabled):hover {
-    border-color: var(--fmod-secondary-hover-border);
-    transform: translateY(-1px);
+  .fmod-card.fmod-game-mode .btn-lock-overlay {
+    background: var(--fmod-action-lock-bg);
+    color: var(--fmod-action-lock-text);
   }
 
   .fmod-card.fmod-game-mode .fmod-player-kill-btn {
@@ -3582,14 +3651,9 @@ const accentColorRgbDark =
     color: rgba(248, 250, 252, 0.8);
   }
 
-  @media (max-width: 1180px) {
+  @media (max-width: 899px) {
     .fmod-card.fmod-game-mode .fmod-header-shell {
       grid-template-columns: 1fr;
-    }
-
-    .fmod-card.fmod-game-mode .fmod-header-actions,
-    .fmod-card.fmod-game-mode .fmod-controls-meta {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .fmod-card.fmod-game-mode .fmod-stage-player-hud {
@@ -3602,10 +3666,13 @@ const accentColorRgbDark =
       padding: 1rem;
     }
 
-    .fmod-card.fmod-game-mode .fmod-header-actions,
+    .fmod-card.fmod-game-mode .fmod-header-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
     .fmod-card.fmod-game-mode .fmod-controls-meta,
-    .fmod-card.fmod-game-mode .fmod-action-bar,
-    .fmod-card.fmod-game-mode .fmod-game-controls {
+    .fmod-card.fmod-game-mode .fmod-action-bar {
       grid-template-columns: 1fr;
     }
 
@@ -3627,7 +3694,6 @@ const accentColorRgbDark =
     .fmod-card.fmod-game-mode .fmod-phase-copy,
     .fmod-card.fmod-game-mode .fmod-stage-boss-head,
     .fmod-card.fmod-game-mode .fmod-stage-player-hud,
-    .fmod-card.fmod-game-mode .fmod-boss-readout,
     .fmod-card.fmod-game-mode .fmod-controls-panel {
       border-radius: 18px;
     }
@@ -5971,8 +6037,38 @@ const accentColorRgbDark =
                   </div>
 
                   <button class="fmod-btn fmod-start-btn play-btn" type="button" disabled>
-                    <span class="ctrl-kicker">{fmodGameUi.controls.startKicker}</span>
-                    <span class="ctrl-label">{fmodGameUi.controls.start}</span>
+                    <span class="ctrl-icon" aria-hidden="true">
+                      <svg
+                        class="ctrl-icon-play"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M8 5.25V18.75L18.5 12L8 5.25Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      <svg
+                        class="ctrl-icon-stop"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          x="6.5"
+                          y="6.5"
+                          width="11"
+                          height="11"
+                          rx="2"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </span>
+                    <span class="ctrl-copy">
+                      <span class="ctrl-kicker">{fmodGameUi.controls.startKicker}</span>
+                      <span class="ctrl-label">{fmodGameUi.controls.start}</span>
+                    </span>
                   </button>
                 </div>
               </div>
@@ -5997,23 +6093,21 @@ const accentColorRgbDark =
                 </div>
 
                 <div class="fmod-stage-player">
-                  <div class="fmod-actor-frame">
-                    {
-                      fmodImages.player ? (
-                        <img
-                          class="fmod-actor-image fmod-player-sprite"
-                          src={fmodImages.player}
-                          alt="Player render"
-                          loading="lazy"
-                          decoding="async"
-                          width="992"
-                          height="1000"
-                        />
-                      ) : (
-                        <div class="fmod-figure-fallback">PLAYER</div>
-                      )
-                    }
-                  </div>
+                  {
+                    fmodImages.player ? (
+                      <img
+                        class="fmod-actor-image fmod-player-sprite"
+                        src={fmodImages.player}
+                        alt="Player render"
+                        loading="lazy"
+                        decoding="async"
+                        width="992"
+                        height="1000"
+                      />
+                    ) : (
+                      <div class="fmod-figure-fallback">PLAYER</div>
+                    )
+                  }
                 </div>
 
                 <div class="fmod-stage-player-hud">
@@ -6048,11 +6142,6 @@ const accentColorRgbDark =
                         <div class="fmod-figure-fallback">BOSS</div>
                       )
                     }
-                  </div>
-
-                  <div class="fmod-boss-readout">
-                    <span class="fmod-boss-readout-label">{fmodGameUi.labels.liveEvent}</span>
-                    <span class="fmod-boss-readout-value">event:/mus_BOSS</span>
                   </div>
 
                   <div class="fmod-mobs-container" aria-hidden="true">
@@ -6099,34 +6188,131 @@ const accentColorRgbDark =
                   <span class="fmod-controls-kicker">{fmodGameUi.controlsKicker}</span>
                   <p class="fmod-controls-summary">{fmodGameUi.status.idle}</p>
                 </div>
-
-                <div class="fmod-game-controls">
-                  <button class="fmod-btn stop-btn" type="button" data-action="stop" disabled>
-                    <span class="ctrl-label">{fmodGameUi.controls.stop}</span>
-                  </button>
-                  <button class="fmod-btn reset-btn" type="button" data-action="reset" disabled>
-                    <span class="ctrl-label">{fmodGameUi.controls.reset}</span>
-                  </button>
-                </div>
               </div>
 
               <div class="fmod-action-bar">
                 <button class="fmod-action-btn attack-btn" type="button" data-action="attack" disabled>
-                  <span class="btn-pill" aria-hidden="true">{fmodGameUi.controls.locked}</span>
                   <div class="attack-visuals">
-                    <span class="btn-label">{fmodGameUi.controls.attack}</span>
-                    <span class="btn-hint">{fmodGameUi.controls.attackHint}</span>
+                    <span class="btn-icon" aria-hidden="true">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M5 18.5L6.4 20L12 14.4L9.6 12L5 16.6V18.5Z"
+                          fill="currentColor"
+                        />
+                        <path
+                          d="M11.1 10.5L13.5 12.9L18.1 8.3L15.7 5.9L11.1 10.5Z"
+                          fill="currentColor"
+                        />
+                        <path
+                          d="M14.2 4.4L19.6 9.8L21 8.4L15.6 3L14.2 4.4Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </span>
+                    <span class="btn-copy">
+                      <span class="btn-label">{fmodGameUi.controls.attack}</span>
+                      <span class="btn-hint">{fmodGameUi.controls.attackHint}</span>
+                    </span>
                   </div>
                   <div class="purge-visuals">
-                    <span class="btn-label">{fmodGameUi.controls.purge}</span>
-                    <span class="btn-hint">{fmodGameUi.controls.purgeHint}</span>
+                    <span class="btn-icon" aria-hidden="true">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M7.5 4H16.5L20 8.2L12 20L4 8.2L7.5 4Z"
+                          stroke="currentColor"
+                          stroke-width="1.7"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M4 8.2H20"
+                          stroke="currentColor"
+                          stroke-width="1.7"
+                          stroke-linecap="round"
+                        />
+                      </svg>
+                    </span>
+                    <span class="btn-copy">
+                      <span class="btn-label">{fmodGameUi.controls.purge}</span>
+                      <span class="btn-hint">{fmodGameUi.controls.purgeHint}</span>
+                    </span>
                   </div>
+                  <span class="btn-lock-overlay" aria-hidden="true">
+                    <svg
+                      class="btn-lock-icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M7 10V7.5C7 4.9 9.1 2.8 11.7 2.8C14.3 2.8 16.4 4.9 16.4 7.5V10"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                      <rect
+                        x="5"
+                        y="10"
+                        width="14"
+                        height="11"
+                        rx="2.5"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                      />
+                    </svg>
+                    <span>{fmodGameUi.controls.locked}</span>
+                  </span>
                   <div class="btn-glaze"></div>
                 </button>
                 <button class="fmod-action-btn special-btn" type="button" data-action="special" disabled>
-                  <span class="btn-pill" aria-hidden="true">{fmodGameUi.controls.locked}</span>
-                  <span class="btn-label">{fmodGameUi.controls.special}</span>
-                  <span class="btn-hint">{fmodGameUi.controls.specialHint}</span>
+                  <span class="btn-icon" aria-hidden="true">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M12 2.5L14.7 8.2L20.9 9.1L16.4 13.5L17.5 19.7L12 16.7L6.5 19.7L7.6 13.5L3.1 9.1L9.3 8.2L12 2.5Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </span>
+                  <span class="btn-copy">
+                    <span class="btn-label">{fmodGameUi.controls.special}</span>
+                    <span class="btn-hint">{fmodGameUi.controls.specialHint}</span>
+                  </span>
+                  <span class="btn-lock-overlay" aria-hidden="true">
+                    <svg
+                      class="btn-lock-icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M7 10V7.5C7 4.9 9.1 2.8 11.7 2.8C14.3 2.8 16.4 4.9 16.4 7.5V10"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                      <rect
+                        x="5"
+                        y="10"
+                        width="14"
+                        height="11"
+                        rx="2.5"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                      />
+                    </svg>
+                    <span>{fmodGameUi.controls.locked}</span>
+                  </span>
                   <div class="btn-glaze"></div>
                 </button>
               </div>
@@ -8012,8 +8198,6 @@ const accentColorRgbDark =
             const playBtn = card.querySelector(".fmod-header-actions .play-btn");
             const playBtnLabel = playBtn?.querySelector(".ctrl-label");
             const playBtnKicker = playBtn?.querySelector(".ctrl-kicker");
-            const stopBtn = card.querySelector(".fmod-game-controls .stop-btn");
-            const resetBtn = card.querySelector(".fmod-game-controls .reset-btn");
             const hiddenSliders = card.querySelectorAll(".fmod-hidden-params input");
             const introDuration =
               Number.parseFloat(card.dataset.fmodIntroDuration || "0") || 0;
@@ -8073,7 +8257,7 @@ const accentColorRgbDark =
               if (playBtnLabel) {
                 playBtnLabel.textContent =
                   state === "running"
-                    ? FMOD_GAME_UI.controls.live
+                    ? FMOD_GAME_UI.controls.stop
                     : FMOD_GAME_UI.controls.start;
               }
 
@@ -8084,11 +8268,11 @@ const accentColorRgbDark =
                     : FMOD_GAME_UI.controls.startKicker;
               }
 
-              if (state === "ready") {
-                playBtn.removeAttribute("disabled");
-              } else {
-                playBtn.setAttribute("disabled", "true");
-              }
+              playBtn.setAttribute(
+                "aria-pressed",
+                state === "running" ? "true" : "false",
+              );
+              playBtn.removeAttribute("disabled");
             }
 
             function createInitialGameState() {
@@ -8652,8 +8836,6 @@ const accentColorRgbDark =
 
               setButtonStates(false);
               setPlayButtonState("ready");
-              if (stopBtn) stopBtn.setAttribute("disabled", "true");
-              if (resetBtn) resetBtn.setAttribute("disabled", "true");
 
               setStatus(statusMessage);
               updateControlsSummary(statusMessage);
@@ -8739,6 +8921,17 @@ const accentColorRgbDark =
               setPlayButtonState("ready");
 
               playBtn.addEventListener("click", () => {
+                if (gameState.isPlaying) {
+                  resetGame({
+                    stopMode: FMOD.STUDIO_STOP_ALLOWFADEOUT,
+                    statusMessage: FMOD_GAME_UI.status.stopped,
+                    phase: "waiting",
+                    phaseLabelText: FMOD_GAME_UI.phaseLabels.stopped,
+                    phaseDescText: phaseDescriptions.stopped,
+                  });
+                  return;
+                }
+
                 if (!studioSystem || !isInitialized) return;
 
                 const eventPath = card.dataset.fmodEvents
@@ -8781,36 +8974,14 @@ const accentColorRgbDark =
                   syncSceneState();
 
                   setPlayButtonState("running");
-                  if (stopBtn) stopBtn.removeAttribute("disabled");
-                  if (resetBtn) resetBtn.removeAttribute("disabled");
 
                   startIntroCountdown();
                 }
               });
             }
 
-            if (stopBtn) {
-              stopBtn.addEventListener("click", () => {
-                resetGame({
-                  stopMode: FMOD.STUDIO_STOP_ALLOWFADEOUT,
-                  statusMessage: FMOD_GAME_UI.status.stopped,
-                  phase: "waiting",
-                  phaseLabelText: FMOD_GAME_UI.phaseLabels.stopped,
-                  phaseDescText: phaseDescriptions.stopped,
-                });
-              });
-            }
-
-            if (resetBtn) {
-              resetBtn.addEventListener("click", () => {
-                resetGame();
-              });
-            }
-
             setButtonStates(false);
             setPlayButtonState("ready");
-            if (stopBtn) stopBtn.setAttribute("disabled", "true");
-            if (resetBtn) resetBtn.setAttribute("disabled", "true");
             clearBossIntroAnimation({ reset: true });
             setBossHudState("live");
             updateHealthBars();
