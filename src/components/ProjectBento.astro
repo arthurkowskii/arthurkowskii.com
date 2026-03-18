@@ -19,7 +19,10 @@ export interface Props {
           musicLinks?: boolean;
           video?: boolean;
           spotify?: boolean;
+          sampler?: boolean;
+          soundcloud?: boolean;
           audio?: boolean;
+          fmod?: boolean;
           actions?: boolean;
           tech?: boolean;
           process?: boolean;
@@ -92,6 +95,31 @@ export interface Props {
             duration?: string;
           }>;
         };
+        fmod?: {
+          title?: string | { fr: string; en: string };
+          description?: string | { fr: string; en: string };
+          mode?: "standard" | "interactive-game";
+          introDuration?: number;
+          images?: {
+            boss: string;
+            player: string;
+            mob: string;
+          };
+          folder: string;
+          banks: string[];
+          events: Array<{
+            name: string | { fr: string; en: string };
+            path: string;
+          }>;
+          parameters?: Array<{
+            name: string;
+            label?: string | { fr: string; en: string };
+            min: number;
+            max: number;
+            step?: number;
+            default: number;
+          }>;
+        };
         sampler?: {
           title?: string | { fr: string; en: string };
           description?: string | { fr: string; en: string };
@@ -134,6 +162,17 @@ const DEFAULT_SAMPLER_CONFIG = {
 
 // Bento configuration with defaults
 const bento = data.bento || {};
+const currentLang = Astro.url.searchParams.get("lang") === "en" ? "en" : "fr";
+
+function resolveLocalizedText(
+  value: string | { fr?: string; en?: string } | undefined,
+  fallback = "",
+) {
+  if (!value) return fallback;
+  if (typeof value === "string") return value;
+  return value[currentLang] || value.fr || value.en || fallback;
+}
+
 const cards = {
   hero: true,
   stats: true,
@@ -142,6 +181,8 @@ const cards = {
   spotify: false,
   audio: true,
   sampler: false,
+  soundcloud: false,
+  fmod: false,
   actions: true,
   tech: true,
   process: true,
@@ -184,6 +225,15 @@ const fmodBankVersion =
 const isWideSampler = cards.sampler && !cards.audio;
 const isWideAudio = cards.audio && !cards.sampler;
 const numPads = isWideSampler ? 8 : 4;
+const fmodImages = bento.fmod?.images || {};
+const fmodMobLayout = [
+  { x: "10%", y: "69%", scale: 0.74, rotation: -14 },
+  { x: "23%", y: "52%", scale: 0.68, rotation: -7 },
+  { x: "38%", y: "73%", scale: 0.82, rotation: -2 },
+  { x: "62%", y: "73%", scale: 0.82, rotation: 2 },
+  { x: "77%", y: "53%", scale: 0.7, rotation: 8 },
+  { x: "90%", y: "69%", scale: 0.74, rotation: 14 },
+] as const;
 
 // Merge sampler config with defaults if enabled
 if (cards.sampler) {
@@ -296,7 +346,7 @@ function getVideoEmbedUrl(url) {
 
 function generateVideoTitle(url, locale = "fr") {
   const videoInfo = extractVideoId(url);
-  if (!videoInfo) return locale === "en" ? "Video" : "Vidéo";
+  if (!videoInfo) return locale === "en" ? "Video" : "VidÃƒÆ’Ã‚Â©o";
 
   if (videoInfo.platform === "youtube") {
     return locale === "en" ? "Watch on YouTube" : "Voir sur YouTube";
@@ -1807,320 +1857,558 @@ const accentColorRgbDark =
 
   /* FMOD Game Mode Styles */
   .fmod-game-mode {
-    min-height: 500px;
+    min-height: 740px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(var(--accent-color-rgb), 0.18), transparent 35%),
+      linear-gradient(180deg, #17161b 0%, #0a0a0e 100%);
+    border: 1px solid rgba(var(--accent-color-rgb), 0.58);
+    border-radius: 28px;
+    box-shadow:
+      0 28px 70px rgba(0, 0, 0, 0.42),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    overflow: hidden;
   }
 
   .fmod-game-header {
-    text-align: center;
-    margin-bottom: 1rem;
+    position: relative;
+    z-index: 2;
+    margin-bottom: 0;
   }
 
-  .fmod-phase-indicator {
-    display: inline-flex;
+  .fmod-phase-copy {
+    display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    background: rgba(var(--accent-color-rgb), 0.1);
-    border: 2px solid rgba(var(--accent-color-rgb), 0.3);
-    transition: all 0.3s ease;
+    gap: 0.7rem;
+    width: 100%;
+    padding: 1rem 1.15rem 1.05rem;
+    border-radius: 20px;
+    border: 1px solid rgba(var(--accent-color-rgb), 0.24);
+    background:
+      linear-gradient(180deg, rgba(35, 20, 23, 0.92), rgba(14, 12, 18, 0.96)),
+      radial-gradient(circle at 50% 0%, rgba(var(--accent-color-rgb), 0.12), transparent 70%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    text-align: center;
   }
 
-  .fmod-phase-indicator[data-phase="intro"] {
-    background: rgba(234, 179, 8, 0.1);
-    border-color: rgba(234, 179, 8, 0.3);
+  .fmod-phase-status {
+    padding-top: 0.7rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: rgba(248, 250, 252, 0.92);
   }
 
-  .fmod-phase-indicator[data-phase="phase1"],
-  .fmod-phase-indicator[data-phase="bossphase"] {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: rgba(34, 197, 94, 0.3);
+  .fmod-phase-kicker {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.48);
   }
 
-  .fmod-phase-indicator[data-phase="phase2"] {
-    background: rgba(249, 115, 22, 0.1);
-    border-color: rgba(249, 115, 22, 0.3);
+  .fmod-phase-copy[data-phase="intro"] {
+    border-color: rgba(234, 179, 8, 0.34);
+    background:
+      linear-gradient(180deg, rgba(52, 37, 13, 0.92), rgba(14, 12, 18, 0.96)),
+      radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.15), transparent 72%);
   }
 
-  .fmod-phase-indicator[data-phase="phase3"] {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.3);
+  .fmod-phase-copy[data-phase="bossphase"] {
+    border-color: rgba(var(--accent-color-rgb), 0.34);
+    background:
+      linear-gradient(180deg, rgba(56, 22, 22, 0.92), rgba(14, 12, 18, 0.96)),
+      radial-gradient(circle at 50% 0%, rgba(var(--accent-color-rgb), 0.16), transparent 72%);
   }
 
-  .fmod-phase-indicator[data-phase="flashmob"] {
-    background: rgba(168, 85, 247, 0.15);
-    border-color: rgba(168, 85, 247, 0.5);
-    animation: flashmob-pulse 1s infinite;
+  .fmod-phase-copy[data-phase="flashmob"] {
+    border-color: rgba(168, 85, 247, 0.38);
+    background:
+      linear-gradient(180deg, rgba(43, 22, 61, 0.92), rgba(14, 12, 18, 0.96)),
+      radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.18), transparent 72%);
+    animation: flashmob-pulse 1.2s ease-in-out infinite;
   }
 
-  .fmod-phase-indicator[data-phase="special"] {
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2));
-    border-color: rgba(251, 191, 36, 0.5);
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+  .fmod-phase-copy[data-phase="special"] {
+    border-color: rgba(251, 191, 36, 0.42);
+    background:
+      linear-gradient(180deg, rgba(56, 41, 12, 0.92), rgba(14, 12, 18, 0.96)),
+      radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.18), transparent 72%);
+    box-shadow: 0 0 22px rgba(251, 191, 36, 0.12);
   }
 
-  .fmod-phase-indicator[data-phase="win"] {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2));
-    border-color: rgba(34, 197, 94, 0.5);
+  .fmod-phase-copy[data-phase="win"] {
+    border-color: rgba(16, 185, 129, 0.4);
+    background:
+      linear-gradient(180deg, rgba(18, 54, 43, 0.92), rgba(14, 12, 18, 0.96)),
+      radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.16), transparent 72%);
   }
 
   @keyframes flashmob-pulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(168, 85, 247, 0); }
-    50% { transform: scale(1.02); box-shadow: 0 0 20px rgba(168, 85, 247, 0.3); }
-  }
-
-  .phase-label {
-    font-size: 1.1rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-  }
-
-  .phase-desc {
-    font-size: 0.8rem;
-    opacity: 0.8;
-  }
-
-  .phase-timer {
-    font-size: 1.5rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    margin-top: 0.25rem;
-  }
-
-  /* Massive Arena Scene Layout */
-  .fmod-scene {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 20px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-    backdrop-filter: blur(10px);
-    margin: 1rem 0;
-  }
-
-  html[data-theme="dark"] .fmod-scene {
-    background: rgba(20, 20, 25, 0.6);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  /* Boss Arena & SVG Aesthetics */
-  .fmod-boss-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    padding: 2rem;
-    border-radius: 16px;
-    background: radial-gradient(circle at center, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
-  }
-
-  .boss-svg-wrapper {
-    width: 200px;
-    height: 200px;
-    margin-bottom: 1rem;
-    animation: boss-idle 4s ease-in-out infinite;
-  }
-
-  .boss-svg {
-    width: 100%;
-    height: 100%;
-    filter: drop-shadow(0 0 15px rgba(244, 63, 94, 0.3));
-    transition: filter 0.3s ease, transform 0.1s ease;
-    opacity: 0;
-    transform: translateY(-200px) scale(0.5);
-  }
-
-  .fmod-scene.is-playing .boss-svg {
-    animation: boss-intro 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
-               boss-idle 4s ease-in-out infinite alternate 1s;
-  }
-
-  @keyframes boss-intro {
-    to { 
-      opacity: 1; 
-      transform: translateY(0px) scale(1);
+    0%,
+    100% {
+      transform: translateY(0);
+      box-shadow: 0 0 0 rgba(168, 85, 247, 0);
+    }
+    50% {
+      transform: translateY(-2px);
+      box-shadow: 0 0 26px rgba(168, 85, 247, 0.16);
     }
   }
 
-  @keyframes boss-idle {
-    0%, 100% { transform: translateY(0px) scale(1); }
-    50% { transform: translateY(-10px) scale(1); }
+  .phase-label {
+    font-size: clamp(1.55rem, 2.9vw, 2.35rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #f8fafc;
+    text-shadow: 0 0 22px rgba(255, 255, 255, 0.12);
   }
 
-  @keyframes damageFlash {
-    0% { filter: brightness(1) sepia(0) hue-rotate(0deg) saturate(1); transform: scale(1); }
-    50% { filter: brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(5); transform: scale(0.95); }
-    100% { filter: brightness(1) sepia(0) hue-rotate(0deg) saturate(1); transform: scale(1); }
+  .phase-desc {
+    font-size: 0.92rem;
+    line-height: 1.58;
+    color: rgba(226, 232, 240, 0.82);
+    max-width: 56ch;
   }
 
-  .fmod-boss-container.damage-flash .boss-svg {
-    animation: damageFlash 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  .fmod-scene {
+    margin: 0;
+    margin-top: 0.1rem;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
   }
 
-  .entity-health-section {
-    width: 100%;
-    max-width: 400px;
+  .fmod-stage {
+    position: relative;
+    min-height: clamp(390px, 46vw, 540px);
+    overflow: hidden;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background:
+      radial-gradient(circle at 50% 18%, rgba(var(--accent-color-rgb), 0.24), transparent 28%),
+      linear-gradient(180deg, rgba(48, 16, 20, 0.88) 0%, rgba(17, 13, 18, 0.96) 58%, rgba(8, 8, 12, 0.98) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 22px 44px rgba(0, 0, 0, 0.4);
+    isolation: isolate;
+  }
+
+  .fmod-stage::before,
+  .fmod-stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .fmod-stage::before {
+    background:
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.26;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.9));
+  }
+
+  .fmod-stage::after {
+    background:
+      radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.07), transparent 24%),
+      linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.24));
+  }
+
+  .fmod-scene.special-active .fmod-stage {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 0 0 1px rgba(251, 191, 36, 0.28),
+      0 22px 52px rgba(251, 191, 36, 0.12);
+  }
+
+  .fmod-stage-boss-hud {
+    position: absolute;
+    top: clamp(0.95rem, 1.8vw, 1.25rem);
+    left: 50%;
+    width: min(96%, 1280px);
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
+    padding: 0;
+    transform: translateX(-50%);
     z-index: 2;
   }
 
-  .health-bar-container {
+  .fmod-stage-boss-hud[data-reveal="pending"] {
+    opacity: 0.88;
+  }
+
+  .fmod-stage-boss-hud[data-reveal="filling"] {
+    opacity: 1;
+  }
+
+  .fmod-stage-boss-hud[data-reveal="live"] {
+    opacity: 1;
+  }
+
+  .fmod-stage-boss-head,
+  .fmod-stage-player-meta,
+  .fmod-stage-player-readout {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    gap: 0.9rem;
+  }
+
+  .fmod-stage-boss-copy,
+  .fmod-stage-player-copy,
+  .fmod-stage-boss-readout {
+    display: flex;
+    flex-direction: column;
+    gap: 0.18rem;
+    min-width: 0;
+  }
+
+  .fmod-stage-boss-head {
+    padding: 0 1.2rem;
   }
 
   .health-label {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 700;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #4b5563;
+    color: rgba(255, 255, 255, 0.56);
   }
 
-  html[data-theme="dark"] .health-label {
-    color: #9ca3af;
-  }
-
-  .health-value-display {
-    font-size: 1.1rem;
+  .fmod-stage-boss-title,
+  .fmod-stage-player-title {
+    font-size: 1.02rem;
     font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #f8fafc;
+  }
+
+  .fmod-stage-boss-status,
+  .fmod-stage-player-status {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(226, 232, 240, 0.72);
+    text-align: right;
+  }
+
+  .fmod-stage-boss-hud .health-value-display,
+  .fmod-stage-player-hud .health-value-display {
     font-variant-numeric: tabular-nums;
+    color: #f8fafc;
+  }
+
+  .fmod-stage-boss-hud .health-value-display {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 0.95;
+    text-shadow: 0 0 18px rgba(255, 177, 79, 0.22);
+  }
+
+  .fmod-stage-player,
+  .fmod-boss-container {
+    position: absolute;
+    bottom: 1.1rem;
+    will-change: transform, opacity;
+  }
+
+  .fmod-stage-player {
+    left: clamp(0.9rem, 3vw, 1.8rem);
+    width: min(29%, 220px);
+    z-index: 3;
+    opacity: 0.9;
+    transform: translate3d(-10px, 18px, 0) scale(0.96);
+    transition: transform 0.45s ease, opacity 0.45s ease;
+  }
+
+  .fmod-boss-container {
+    left: 50%;
+    width: min(32%, 290px);
+    transform: translateX(-50%) scale(0.94);
+    transform-origin: 50% 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+    z-index: 4;
+  }
+
+  .fmod-scene.is-playing .fmod-stage-player {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .fmod-stage-player-hud {
+    position: absolute;
+    left: clamp(7rem, 16vw, 13rem);
+    bottom: clamp(1rem, 2vw, 1.5rem);
+    width: min(28%, 260px);
+    display: flex;
+    flex-direction: column;
+    gap: 0.48rem;
+    padding: 0;
+    z-index: 6;
+  }
+
+  .fmod-actor-frame {
+    width: 100%;
+    filter: drop-shadow(-16px 16px 24px rgba(0, 0, 0, 0.38));
+  }
+
+  .fmod-boss-figure {
+    width: 100%;
+    max-width: 290px;
+    transform-origin: 50% 94%;
+    filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.42));
+  }
+
+  .fmod-actor-image,
+  .mob-sprite,
+  .fmod-portrait-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .fmod-player-sprite {
+    transform-origin: 50% 90%;
+  }
+
+  .fmod-boss-sprite {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.9);
+    transition: opacity 0.5s ease, transform 0.7s cubic-bezier(0.2, 0.85, 0.25, 1);
+  }
+
+  .fmod-scene.is-playing .fmod-boss-sprite {
+    opacity: 1;
+    transform: translateY(0) scale(0.9);
+    animation: boss-idle 4.8s ease-in-out infinite 0.9s;
+  }
+
+  @keyframes boss-idle {
+    0%,
+    100% {
+      transform: translateY(0) scale(0.9);
+    }
+    50% {
+      transform: translateY(-4px) scale(0.915);
+    }
+  }
+
+  @keyframes damage-flash {
+    0% {
+      filter: brightness(1) saturate(1);
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      filter: brightness(1.24) saturate(1.28);
+      transform: translateY(3px) scale(0.975);
+    }
+    100% {
+      filter: brightness(1) saturate(1);
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .fmod-boss-container.damage-flash .fmod-boss-sprite {
+    animation: damage-flash 0.24s ease;
+  }
+
+  .fmod-boss-readout {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: 14px;
+    background: rgba(7, 7, 11, 0.68);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 5;
+  }
+
+  .fmod-boss-readout-label {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.46);
+  }
+
+  .fmod-boss-readout-value {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: rgba(248, 250, 252, 0.9);
+  }
+
+  .fmod-mobs-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .mob-sprite-wrapper {
+    position: absolute;
+    top: var(--mob-y);
+    left: var(--mob-x);
+    width: clamp(52px, 8vw, 92px);
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(26px) scale(calc(var(--mob-scale) * 0.62)) rotate(var(--mob-rotation));
+    transition:
+      opacity 0.32s ease,
+      transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+      filter 0.32s ease;
+    transition-delay: calc(var(--mob-index) * 40ms);
+    filter: drop-shadow(0 14px 16px rgba(0, 0, 0, 0.26));
+  }
+
+  .fmod-scene.swarm-active .mob-sprite-wrapper {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(var(--mob-scale)) rotate(var(--mob-rotation));
+    filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.34));
+  }
+
+  .mob-sprite {
+    animation: mob-bob 2.8s ease-in-out infinite;
+    animation-delay: calc(var(--mob-index) * 0.16s);
+  }
+
+  @keyframes mob-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-7px);
+    }
+  }
+
+  .fmod-stage-floor {
+    position: absolute;
+    left: 50%;
+    bottom: -60px;
+    width: min(78%, 620px);
+    height: 180px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, rgba(var(--accent-color-rgb), 0.28) 0%, rgba(var(--accent-color-rgb), 0.08) 28%, transparent 72%),
+      radial-gradient(circle, rgba(0, 0, 0, 0.72) 0%, transparent 74%);
+    z-index: 1;
   }
 
   .health-bar.modern {
     width: 100%;
-    height: 12px;
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 99px;
-    overflow: hidden;
+    height: 14px;
     position: relative;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  html[data-theme="dark"] .health-bar.modern {
-    background: rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.34);
   }
 
   .health-fill {
     height: 100%;
-    background: linear-gradient(90deg, #f43f5e, #e11d48);
-    border-radius: 99px;
-    width: 0% !important; /* visually override inline style before play */
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
-  }
-
-  .fmod-scene.is-playing .health-fill {
-    width: var(--actual-health, 100%) !important;
-    animation: health-intro 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-  }
-
-  @keyframes health-intro {
-    0% { width: 0% !important; }
-    100% { width: var(--actual-health, 100%) !important; }
-  }
-
-  /* Orbiting Mobs Container */
-  .fmod-mobs-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300px;
-    height: 300px;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    z-index: 1;
-  }
-  
-  /* Swarm Active Phase (Scaling In) */
-  .fmod-scene.swarm-active .fmod-mobs-container {
-    opacity: 1;
-  }
-
-  .fmod-scene.swarm-active .mob-svg-wrapper {
-    animation: mob-enter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    animation-delay: calc(var(--mob-index) * 0.08s);
-  }
-
-  @keyframes mob-enter {
-    0% {
-      opacity: 0;
-      transform: rotate(calc(var(--mob-index) * 60deg)) translateY(130px) rotate(calc(var(--mob-index) * -60deg)) scale(0);
-    }
-    60% {
-      opacity: 1;
-      transform: rotate(calc(var(--mob-index) * 60deg)) translateY(130px) rotate(calc(var(--mob-index) * -60deg)) scale(1.2);
-    }
-    100% {
-      opacity: 1;
-      transform: rotate(calc(var(--mob-index) * 60deg)) translateY(130px) rotate(calc(var(--mob-index) * -60deg)) scale(1);
-    }
-  }
-
-  /* Swarm Death Phase (Bursting Out) */
-  .fmod-scene:not(.swarm-active) .mob-svg-wrapper {
-    animation: mob-die 0.6s cubic-bezier(0.8, 0, 0.2, 1) forwards;
-    animation-delay: calc((5 - var(--mob-index)) * 0.05s); /* Stagger explosion */
-  }
-
-  @keyframes mob-die {
-    0% {
-      opacity: 1;
-      transform: rotate(calc(var(--mob-index) * 60deg)) translateY(130px) rotate(calc(var(--mob-index) * -60deg)) scale(1);
-      filter: brightness(1) blur(0px);
-    }
-    40% {
-      opacity: 0.8;
-      transform: rotate(calc(var(--mob-index) * 60deg)) translateY(130px) rotate(calc(var(--mob-index) * -60deg)) scale(1.3);
-      filter: brightness(2) blur(2px);
-    }
-    100% {
-      opacity: 0;
-      transform: rotate(calc(var(--mob-index) * 60deg)) translateY(200px) rotate(calc(var(--mob-index) * -60deg)) scale(0);
-      filter: brightness(3) blur(8px);
-    }
-  }
-
-  .mob-svg {
     width: 100%;
-    height: 100%;
-    animation: mob-float 3s infinite ease-in-out alternate;
-    animation-delay: calc(var(--mob-index) * 0.2s);
+    border-radius: 999px;
+    transition: none;
   }
 
-  @keyframes mob-float {
-    from { transform: translateY(0); }
-    to { transform: translateY(-8px); }
+  .health-fill.is-intro-filling {
+    transition: width var(--boss-intro-duration, 900ms) cubic-bezier(0.2, 0.85, 0.25, 1);
   }
 
-  /* Dashboard Controls */
-  .fmod-dashboard {
-    background: rgba(255, 255, 255, 0.4);
-    border-radius: 16px;
-    padding: 1.5rem;
+  .fmod-stage-boss-hud .health-bar.modern {
+    height: 18px;
+    background:
+      linear-gradient(180deg, rgba(17, 13, 18, 0.88), rgba(7, 7, 10, 0.96));
+    border: 0;
+    box-shadow:
+      inset 0 3px 10px rgba(0, 0, 0, 0.5),
+      0 0 28px rgba(243, 82, 44, 0.08);
+  }
+
+  .fmod-stage-boss-hud .health-bar.modern::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    opacity: 0;
+    transform: translateX(-120%);
+    pointer-events: none;
+  }
+
+  .fmod-stage-boss-hud[data-reveal="filling"] .health-bar.modern::after {
+    opacity: 1;
+    animation: boss-hud-scan 1.15s linear infinite;
+  }
+
+  @keyframes boss-hud-scan {
+    from {
+      transform: translateX(-120%);
+    }
+    to {
+      transform: translateX(140%);
+    }
+  }
+
+  .fmod-stage-boss-hud .health-fill {
+    background: linear-gradient(90deg, #ffb14f, #f3522c 62%, #d9411d 100%);
+    box-shadow:
+      0 0 16px rgba(243, 82, 44, 0.28),
+      0 0 28px rgba(243, 82, 44, 0.14);
+  }
+
+  .fmod-stage-player-hud .health-bar.modern {
+    height: 12px;
+    border: 0;
+    background: rgba(12, 18, 28, 0.78);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.46);
+  }
+
+  .fmod-stage-player-hud .health-fill {
+    background: linear-gradient(90deg, #67e8f9, #22d3ee 60%, #0891b2 100%);
+    box-shadow: 0 0 16px rgba(34, 211, 238, 0.24);
+  }
+
+  .fmod-stage-player-hud .fmod-stage-player-title {
+    font-size: 0.86rem;
+    letter-spacing: 0.16em;
+    text-shadow: 0 0 14px rgba(34, 211, 238, 0.18);
+  }
+
+  .fmod-controls-panel {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
-  }
-
-  html[data-theme="dark"] .fmod-dashboard {
-    background: rgba(0, 0, 0, 0.2);
-    box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+    gap: 1rem;
+    padding: 1rem 1.05rem 1.1rem;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(18, 18, 24, 0.96), rgba(8, 8, 12, 0.98));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
 
   .fmod-action-bar {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
   }
 
@@ -2128,172 +2416,334 @@ const accentColorRgbDark =
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 1.25rem 0.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.4));
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    justify-content: flex-end;
+    align-items: flex-start;
+    min-height: 116px;
+    gap: 0.38rem;
+    padding: 1rem 1rem 0.95rem;
     overflow: hidden;
-  }
-
-  html[data-theme="dark"] .fmod-action-btn {
-    background: linear-gradient(145deg, rgba(40, 40, 45, 0.8), rgba(20, 20, 25, 0.8));
-    border-color: rgba(255, 255, 255, 0.05);
-  }
-
-  .fmod-action-btn.attack-btn:not(:disabled):active,
-  .fmod-action-btn.attack-btn.pulse-damage {
-     transform: scale(0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(31, 31, 38, 0.98), rgba(13, 13, 18, 0.98));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
   }
 
   .fmod-action-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.42;
     cursor: not-allowed;
-    filter: grayscale(1);
   }
 
   .fmod-action-btn:not(:disabled):hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    border-color: rgba(var(--accent-color-rgb), 0.38);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      0 18px 24px rgba(0, 0, 0, 0.24);
   }
 
-  html[data-theme="dark"] .fmod-action-btn:not(:disabled):hover {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-  }
-
-  .fmod-action-btn.special-btn.active {
-    border-color: rgba(251, 191, 36, 0.8);
-    background: rgba(251, 191, 36, 0.15);
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+  .fmod-action-btn.attack-btn.pulse-damage {
+    transform: scale(0.98);
   }
 
   .fmod-action-btn.attack-btn.purge-ready:not(:disabled) {
-    animation: purge-unlocked 1.5s infinite;
-    border-color: rgba(168, 85, 247, 0.6);
+    border-color: rgba(168, 85, 247, 0.46);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      0 0 0 1px rgba(168, 85, 247, 0.18),
+      0 16px 22px rgba(0, 0, 0, 0.22);
   }
 
-  @keyframes purge-unlocked {
-    0%, 100% { box-shadow: 0 0 0 rgba(168, 85, 247, 0); }
-    50% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
+  .fmod-action-btn.special-btn.active {
+    border-color: rgba(251, 191, 36, 0.55);
+    background: linear-gradient(180deg, rgba(73, 53, 16, 0.95), rgba(22, 18, 10, 0.98));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      0 0 0 1px rgba(251, 191, 36, 0.18),
+      0 18px 24px rgba(0, 0, 0, 0.24);
   }
 
-  /* Purge Mode Overlays */
+  .attack-visuals,
+  .purge-visuals {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.38rem;
+    transition: opacity 0.24s ease, transform 0.24s ease;
+  }
+
   .purge-visuals {
     position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+    inset: 1rem;
+    justify-content: flex-end;
     opacity: 0;
-    transform: scale(0.9);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(10px);
     pointer-events: none;
-    z-index: 2;
-  }
-
-  .attack-visuals {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .fmod-action-btn.attack-btn.purge-ready .attack-visuals {
     opacity: 0;
-    transform: scale(1.1);
+    transform: translateY(-10px);
   }
 
   .fmod-action-btn.attack-btn.purge-ready .purge-visuals {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0);
+  }
+
+  .btn-kicker {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.42);
+  }
+
+  .btn-label {
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #f8fafc;
+  }
+
+  .btn-hint {
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: rgba(226, 232, 240, 0.72);
   }
 
   .btn-glaze {
     position: absolute;
-    top: 0;
-    left: -100%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    transform: skewX(-20deg);
-    transition: 0s;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 18%, rgba(255, 255, 255, 0.08) 50%, transparent 82%);
+    transform: translateX(-120%);
+    transition: transform 0.55s ease;
+    pointer-events: none;
   }
 
   .fmod-action-btn:not(:disabled):hover .btn-glaze {
-    left: 200%;
-    transition: 0.6s ease-in-out;
-  }
-
-  html[data-theme="dark"] .btn-glaze {
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  }
-
-  .btn-icon {
-    font-size: 2rem;
-    line-height: 1;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-  }
-
-  .btn-label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .btn-hint {
-    font-size: 0.65rem;
-    opacity: 0.7;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  .fmod-game-status {
-    text-align: center;
-    padding: 0.75rem 1.5rem;
-    background: rgba(var(--accent-color-rgb), 0.1);
-    border: 1px solid rgba(var(--accent-color-rgb), 0.2);
-    border-radius: 12px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--accent-color);
+    transform: translateX(120%);
   }
 
   .fmod-game-controls {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.85rem;
   }
 
   .fmod-game-controls .fmod-btn {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border-radius: 99px;
+    min-height: 58px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.72rem;
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: none;
+  }
+
+  .fmod-game-controls .play-btn {
+    background: linear-gradient(180deg, rgba(var(--accent-color-rgb), 0.36), rgba(var(--accent-color-rgb), 0.18));
+  }
+
+  .fmod-game-controls .stop-btn {
+    background: linear-gradient(180deg, rgba(153, 27, 27, 0.36), rgba(63, 14, 14, 0.24));
+  }
+
+  .fmod-game-controls .reset-btn {
+    background: linear-gradient(180deg, rgba(71, 85, 105, 0.36), rgba(20, 26, 38, 0.22));
+  }
+
+  .fmod-game-controls .fmod-btn:not(:disabled):hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .fmod-player-actions {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 0.05rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .fmod-player-kill-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.64rem 0.88rem;
+    border-radius: 999px;
+    border: 1px solid rgba(239, 68, 68, 0.28);
+    background:
+      linear-gradient(180deg, rgba(120, 23, 23, 0.46), rgba(55, 13, 13, 0.58));
+    color: #fee2e2;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 10px 24px rgba(0, 0, 0, 0.22);
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+  }
+
+  .fmod-player-kill-btn:not(:disabled):hover {
+    transform: translateY(-1px);
+    border-color: rgba(248, 113, 113, 0.38);
+    background:
+      linear-gradient(180deg, rgba(148, 26, 26, 0.56), rgba(73, 15, 15, 0.7));
+  }
+
+  .fmod-figure-fallback {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(var(--accent-color-rgb), 0.16), rgba(255, 255, 255, 0.04));
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(248, 250, 252, 0.72);
   }
 
-  .reset-btn {
-    background: rgba(107, 114, 128, 0.1);
-    color: inherit;
+  .fmod-figure-fallback-mob {
+    border-radius: 999px;
   }
 
-  .reset-btn:not(:disabled):hover {
-    background: rgba(107, 114, 128, 0.2);
+  @media (max-width: 1180px) {
+    .fmod-stage-boss-hud {
+      top: 0.95rem;
+      width: calc(100% - 1.8rem);
+    }
+
+    .fmod-stage-player {
+      width: min(33%, 210px);
+    }
+
+    .fmod-stage-player-hud {
+      left: clamp(6.25rem, 17vw, 11rem);
+      width: min(40%, 290px);
+    }
+
+    .fmod-boss-container {
+      width: min(38%, 260px);
+      transform: translateX(-50%) scale(0.92);
+    }
   }
 
+  @media (max-width: 899px) {
+    .fmod-action-bar,
+    .fmod-game-controls {
+      grid-template-columns: 1fr;
+    }
+
+    .fmod-stage {
+      min-height: 420px;
+    }
+
+    .fmod-stage-boss-hud {
+      top: 0.85rem;
+      width: calc(100% - 1.4rem);
+    }
+
+    .fmod-stage-player {
+      width: min(34%, 180px);
+      left: 0.85rem;
+      bottom: 0.8rem;
+    }
+
+    .fmod-stage-player-hud {
+      left: calc(34% + 1rem);
+      right: 0.85rem;
+      bottom: 0.95rem;
+      width: auto;
+      max-width: 270px;
+    }
+
+    .fmod-boss-container {
+      width: min(52%, 250px);
+      bottom: 0.95rem;
+      transform: translateX(-50%) scale(0.9);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .fmod-game-mode {
+      border-radius: 22px;
+      padding: 0.9rem;
+    }
+
+    .fmod-stage {
+      min-height: 390px;
+    }
+
+    .fmod-stage-boss-hud {
+      top: 0.7rem;
+      width: calc(100% - 1rem);
+    }
+
+    .fmod-stage-boss-head {
+      align-items: flex-start;
+      padding: 0 0.55rem;
+    }
+
+    .fmod-stage-boss-hud .health-value-display {
+      font-size: 1.25rem;
+    }
+
+    .fmod-stage-player {
+      width: 36%;
+      left: 0.5rem;
+    }
+
+    .fmod-boss-container {
+      width: 60%;
+      bottom: 0.8rem;
+      transform: translateX(-50%) scale(0.88);
+    }
+
+    .fmod-stage-player-hud {
+      left: calc(36% + 0.7rem);
+      right: 0.5rem;
+      bottom: 0.8rem;
+      max-width: none;
+      gap: 0.45rem;
+    }
+
+    .fmod-stage-player-title,
+    .fmod-stage-boss-title {
+      font-size: 0.88rem;
+    }
+
+    .health-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fmod-game-mode *,
+    .fmod-game-mode *::before,
+    .fmod-game-mode *::after {
+      animation: none !important;
+      transition-duration: 0.01ms !important;
+      transition-delay: 0ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
   @media (max-width: 899px) {
     .fmod-card {
       grid-column: 1 / 9;
@@ -4029,11 +4479,11 @@ const accentColorRgbDark =
                 bento.actions.title.fr ||
                 (Astro.url.searchParams.get("lang") === "en"
                   ? "Experience"
-                  : "Expérience")
+                  : "ExpÃƒÆ’Ã‚Â©rience")
               : bento.actions?.title ||
                 (Astro.url.searchParams.get("lang") === "en"
                   ? "Experience"
-                  : "Expérience")}
+                  : "ExpÃƒÆ’Ã‚Â©rience")}
           </h3>
           {bento.actions.primary && (
             <a
@@ -4091,7 +4541,7 @@ const accentColorRgbDark =
           <p class="card-subtitle">
             {Astro.url.searchParams.get("lang") === "en"
               ? "Tools and technologies used"
-              : "Outils et technologies utilisés"}
+              : "Outils et technologies utilisÃƒÆ’Ã‚Â©s"}
           </p>
           <div class="tech-grid">
             {data.tech.map((tech) => (
@@ -4379,11 +4829,11 @@ const accentColorRgbDark =
                 bento.challenges.title.fr ||
                 (Astro.url.searchParams.get("lang") === "en"
                   ? "Key Challenges"
-                  : "Défis Clés")
+                  : "DÃƒÆ’Ã‚Â©fis ClÃƒÆ’Ã‚Â©s")
               : bento.challenges?.title ||
                 (Astro.url.searchParams.get("lang") === "en"
                   ? "Key Challenges"
-                  : "Défis Clés")}
+                  : "DÃƒÆ’Ã‚Â©fis ClÃƒÆ’Ã‚Â©s")}
           </h3>
           {bento.challenges.subtitle && (
             <p class="card-subtitle">
@@ -4435,11 +4885,11 @@ const accentColorRgbDark =
                 bento.results.title.fr ||
                 (Astro.url.searchParams.get("lang") === "en"
                   ? "Results"
-                  : "Résultats")
+                  : "RÃƒÆ’Ã‚Â©sultats")
               : bento.results?.title ||
                 (Astro.url.searchParams.get("lang") === "en"
                   ? "Results"
-                  : "Résultats")}
+                  : "RÃƒÆ’Ã‚Â©sultats")}
           </h3>
           {bento.results.subtitle && (
             <p class="card-subtitle">{bento.results.subtitle}</p>
@@ -4479,7 +4929,7 @@ const accentColorRgbDark =
               <p class="audio-heading">
                 {Astro.url.searchParams.get("lang") === "en"
                   ? "Play a random track from this project"
-                  : "Jouer une piste aléatoire de ce projet"}
+                  : "Jouer une piste alÃƒÆ’Ã‚Â©atoire de ce projet"}
               </p>
             </div>
 
@@ -4616,125 +5066,166 @@ const accentColorRgbDark =
             data-fmod-bank-version={fmodBankVersion}
             data-fmod-intro-duration={bento.fmod.introDuration ?? 0}
           >
-            {/* Phase Indicator - Prominent at top with full description */}
             <div class="fmod-game-header">
-              <div class="fmod-phase-indicator" data-phase="waiting">
+              <div class="fmod-phase-copy" data-phase="waiting">
+                <span class="fmod-phase-kicker">
+                  {resolveLocalizedText(
+                    bento.fmod.title,
+                    "FMOD Interactive Player",
+                  )}
+                </span>
                 <span class="phase-label">BOSS BATTLE</span>
-                <span class="phase-desc">Interactive audio demo - Control the battle with action buttons</span>
+                <span class="phase-desc">
+                  Load the FMOD event to enter the encounter. During the intro, action buttons stay locked while the music establishes the arena.
+                </span>
+                <span class="fmod-phase-status">
+                  Press Initiate to start the interactive audio encounter.
+                </span>
               </div>
             </div>
 
-            {/* Massive Arena Scene Layout */}
             <div class="fmod-scene">
-              {/* Status Message (Moved to top of scene for visibility) */}
-              <div class="fmod-game-status">
-                Press ▶️ Play to start the interactive audio experience
-              </div>
-
-              {/* Boss Arena */}
-              <div class="fmod-boss-container fmod-card-entity fmod-boss-card">
-                <div class="boss-svg-wrapper">
-                  <svg class="boss-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                      <linearGradient id="bossBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#3b0764" />
-                        <stop offset="100%" stop-color="#1e1b4b" />
-                      </linearGradient>
-                      <linearGradient id="bossEyeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#f43f5e" />
-                        <stop offset="100%" stop-color="#fb7185" />
-                      </linearGradient>
-                      <filter id="bossGlow" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="8" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                      </filter>
-                    </defs>
-                    <g filter="url(#bossGlow)">
-                      {/* Body */}
-                      <path d="M50 80 Q100 20 150 80 L180 150 Q100 180 20 150 Z" fill="url(#bossBodyGrad)" />
-                      {/* Floating crystals */}
-                      <polygon points="30,60 40,40 50,60 40,80" fill="#a855f7" opacity="0.8" />
-                      <polygon points="170,60 160,40 150,60 160,80" fill="#a855f7" opacity="0.8" />
-                      {/* Eye / Core */}
-                      <circle cx="100" cy="100" r="25" fill="#f43f5e" />
-                      <circle cx="100" cy="100" r="10" fill="#fef08a" />
-                      <path d="M70 70 Q100 50 130 70 M80 130 Q100 150 120 130" stroke="#f43f5e" stroke-width="6" fill="none" stroke-linecap="round" />
-                    </g>
-                  </svg>
-                </div>
-                
-                <div class="entity-health-section">
-                  <div class="health-bar-container">
-                    <div class="health-label">Boss Core Integrity</div>
-                    <div class="health-value-display">100%</div>
+              <div class="fmod-stage">
+                <div class="fmod-stage-boss-hud" data-reveal="pending">
+                  <div class="fmod-stage-boss-head">
+                    <div class="fmod-stage-boss-copy">
+                      <span class="health-label">Boss integrity</span>
+                      <span class="fmod-stage-boss-title">Encounter Core</span>
+                    </div>
+                    <div class="fmod-stage-boss-readout">
+                      <span class="fmod-stage-boss-status">Live target</span>
+                      <span class="health-value-display">0%</span>
+                    </div>
                   </div>
+                  <div class="health-bar modern">
+                    <div class="health-fill" style="width: 0%"></div>
+                  </div>
+                </div>
+
+                <div class="fmod-stage-player">
+                  <div class="fmod-actor-frame">
+                    {
+                      fmodImages.player ? (
+                        <img
+                          class="fmod-actor-image fmod-player-sprite"
+                          src={fmodImages.player}
+                          alt="Player render"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        <div class="fmod-figure-fallback">PLAYER</div>
+                      )
+                    }
+                  </div>
+                </div>
+
+                <div class="fmod-stage-player-hud">
+                  <span class="fmod-stage-player-title">Player</span>
                   <div class="health-bar modern">
                     <div class="health-fill" style="width: 100%"></div>
                   </div>
+                  <div class="fmod-player-actions">
+                    <button class="fmod-player-kill-btn" type="button" data-action="kill-player">
+                      Kill Player
+                    </button>
+                  </div>
                 </div>
 
-                {/* Orbiting Mobs Container */}
-                <div class="fmod-mobs-container">
-                  {[...Array(6)].map((_, i) => (
-                    <div class="mob-svg-wrapper" style={{ "--mob-index": i }}>
-                      <svg class="mob-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                          <filter id="mobGlow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="3" result="blur" />
-                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                          </filter>
-                        </defs>
-                        <g filter="url(#mobGlow)">
-                          <polygon points="50,20 80,60 50,80 20,60" fill="#10b981" />
-                          <circle cx="50" cy="50" r="8" fill="#34d399" />
-                        </g>
-                      </svg>
-                    </div>
-                  ))}
+                <div class="fmod-boss-container">
+                  <div class="fmod-boss-figure">
+                    {
+                      fmodImages.boss ? (
+                        <img
+                          class="fmod-actor-image fmod-boss-sprite"
+                          src={fmodImages.boss}
+                          alt="Boss render"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        <div class="fmod-figure-fallback">BOSS</div>
+                      )
+                    }
+                  </div>
+
+                  <div class="fmod-boss-readout">
+                    <span class="fmod-boss-readout-label">Live event</span>
+                    <span class="fmod-boss-readout-value">event:/mus_BOSS</span>
+                  </div>
+
+                  <div class="fmod-mobs-container" aria-hidden="true">
+                    {fmodMobLayout.map((mob, i) => (
+                      <div
+                        class="mob-sprite-wrapper"
+                        style={{
+                          "--mob-index": i,
+                          "--mob-x": mob.x,
+                          "--mob-y": mob.y,
+                          "--mob-scale": mob.scale,
+                          "--mob-rotation": `${mob.rotation}deg`,
+                        }}
+                      >
+                        {
+                          fmodImages.mob ? (
+                            <img
+                              class="mob-sprite"
+                              src={fmodImages.mob}
+                              alt=""
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : (
+                            <div class="fmod-figure-fallback fmod-figure-fallback-mob">
+                              MOB
+                            </div>
+                          )
+                        }
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
+                <div class="fmod-stage-floor"></div>
               </div>
             </div>
 
-            {/* Dashboard Controls */}
-            <div class="fmod-dashboard">
-              {/* Action Bar */}
+            <div class="fmod-controls-panel">
               <div class="fmod-action-bar">
                 <button class="fmod-action-btn attack-btn" data-action="attack" disabled>
                   <div class="attack-visuals">
-                    <span class="btn-icon">⚡</span>
+                    <span class="btn-kicker">Primary action</span>
                     <span class="btn-label">Attack Core</span>
-                    <span class="btn-hint">-40 HP</span>
+                    <span class="btn-hint">Lower BOSS_HEALTH by 40</span>
                   </div>
                   <div class="purge-visuals">
-                    <span class="btn-icon">💥</span>
+                    <span class="btn-kicker">Primary action</span>
                     <span class="btn-label">Purge Swarm</span>
-                    <span class="btn-hint">Eliminate Mobs</span>
+                    <span class="btn-hint">Clear the shield-linked mobs</span>
                   </div>
                   <div class="btn-glaze"></div>
                 </button>
                 <button class="fmod-action-btn special-btn" data-action="special" disabled>
-                  <span class="btn-icon">🔮</span>
+                  <span class="btn-kicker">Persistent toggle</span>
                   <span class="btn-label">Overdrive</span>
-                  <span class="btn-hint">Special Phase</span>
+                  <span class="btn-hint">Enable or disable special mode</span>
                   <div class="btn-glaze"></div>
                 </button>
               </div>
 
-              {/* Game Controls */}
               <div class="fmod-game-controls">
                 <button class="fmod-btn play-btn" data-action="play" disabled>
-                  <span class="ctrl-icon">▶️</span> Initiate
+                  <span class="ctrl-label">Initiate</span>
                 </button>
                 <button class="fmod-btn stop-btn" data-action="stop" disabled>
-                  <span class="ctrl-icon">⏹️</span> Abort
+                  <span class="ctrl-label">Abort</span>
                 </button>
                 <button class="fmod-btn reset-btn" data-action="reset" disabled>
-                  <span class="ctrl-icon">🔄</span> Reboot
+                  <span class="ctrl-label">Reboot</span>
                 </button>
               </div>
             </div>
 
-            {/* Hidden parameters for FMOD */}
             <div class="fmod-hidden-params" style="display: none;">
               {bento.fmod.parameters?.map((param) => (
                 <input
@@ -4748,8 +5239,7 @@ const accentColorRgbDark =
                 />
               ))}
             </div>
-          </div>
-        ) : (
+          </div>        ) : (
           <div
             class:list={["bento-card", "fmod-card"]}
             data-fmod-folder={bento.fmod.folder}
@@ -4806,7 +5296,7 @@ const accentColorRgbDark =
 
             {bento.fmod.parameters && bento.fmod.parameters.length > 0 && (
               <div class="fmod-parameters">
-                <h4 class="fmod-section-title">Paramètres Dynamiques</h4>
+                <h4 class="fmod-section-title">ParamÃƒÆ’Ã‚Â¨tres Dynamiques</h4>
                 {bento.fmod.parameters.map((param) => (
                   <div class="fmod-param-row">
                     <div class="fmod-param-header">
@@ -4916,7 +5406,7 @@ const accentColorRgbDark =
                 aria-label={
                   Astro.url.searchParams.get("lang") === "en"
                     ? "Regenerate samples"
-                    : "Régénérer les samples"
+                    : "RÃƒÆ’Ã‚Â©gÃƒÆ’Ã‚Â©nÃƒÆ’Ã‚Â©rer les samples"
                 }
               >
                 <svg
@@ -5057,7 +5547,7 @@ const accentColorRgbDark =
           // PLACEHOLDER: Audio will be replaced with custom OGG files + Web Audio API
           // Only create audio objects when actually needed (defer until user interaction)
           console.log(
-            "ðŸŽµ Bento Animation System initialized (audio deferred until user interaction)",
+            "ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€šÃ‚Âµ Bento Animation System initialized (audio deferred until user interaction)",
           );
           this.isInitialized = true;
         } catch (error) {
@@ -5111,12 +5601,12 @@ const accentColorRgbDark =
       }
 
       async startAnimation() {
-        console.log("ðŸŽµ startAnimation() called", {
+        console.log("ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€šÃ‚Âµ startAnimation() called", {
           isPlaying: this.isPlaying,
         });
 
         if (this.isPlaying) {
-          console.log("ðŸŽµ Already playing, returning early");
+          console.log("ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€šÃ‚Âµ Already playing, returning early");
           return;
         }
         this.isPlaying = true;
@@ -5140,10 +5630,10 @@ const accentColorRgbDark =
           : [];
 
         console.log(
-          `ðŸŽµ Starting bento animation for ${cards.length} cards (audio: ${this.config.audio?.enabled})`,
+          `ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€šÃ‚Âµ Starting bento animation for ${cards.length} cards (audio: ${this.config.audio?.enabled})`,
         );
         console.log(
-          `ðŸŽµ Visible project:`,
+          `ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€šÃ‚Âµ Visible project:`,
           visibleBentoProject?.dataset?.projectSlug || "none",
         );
 
@@ -5163,7 +5653,7 @@ const accentColorRgbDark =
       }
 
       reset() {
-        console.log("ðŸŽµ reset() called");
+        console.log("ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€šÃ‚Âµ reset() called");
         // Reset ALL bento cards (since we're closing/switching projects)
         const cards = document.querySelectorAll("#bento-content .bento-card");
         cards.forEach((card) => {
@@ -5641,7 +6131,7 @@ const accentColorRgbDark =
 
     // Main animation function with perfect audio sync
     async function animateBentoCards() {
-      console.log("ðŸŽµ animateBentoCards() called", {
+      console.log("ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€šÃ‚Âµ animateBentoCards() called", {
         hasSystem: !!window.bentoAnimationSystem,
         isPlaying: window.bentoAnimationSystem?.isPlaying,
         stack: new Error().stack,
@@ -5657,7 +6147,7 @@ const accentColorRgbDark =
 
       // Extra safety: prevent multiple calls
       if (window.bentoAnimationSystem.isPlaying) {
-        console.log("ðŸŽµ Animation already playing, skipping...");
+        console.log("ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€šÃ‚Âµ Animation already playing, skipping...");
         return;
       }
 
@@ -5666,7 +6156,7 @@ const accentColorRgbDark =
 
     // Reset function for overlay close
     function resetBentoCards() {
-      console.log("ðŸŽµ resetBentoCards() called globally");
+      console.log("ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸Ãƒâ€¦Ã‚Â½Ãƒâ€šÃ‚Âµ resetBentoCards() called globally");
       if (bentoAnimationSystem) {
         window.bentoAnimationSystem.reset();
       }
@@ -5702,7 +6192,7 @@ const accentColorRgbDark =
     window.__bentoFunctionsInitialized = true;
   } // Close the functions wrapper
 
-  // No shimmer animation â€" simplified glass for clarity
+  // No shimmer animation ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬" simplified glass for clarity
 </script>
 
 <script
@@ -6391,7 +6881,7 @@ const accentColorRgbDark =
             let result = window.FMOD.Studio_System_Create(outval);
             if (result !== window.FMOD.OK) {
               console.error("FMOD Studio System Create error", result);
-              updateStatus("error", "Erreur système audio");
+              updateStatus("error", "Erreur systÃƒÆ’Ã‚Â¨me audio");
               return;
             }
             studioSystem = outval.val;
@@ -6445,7 +6935,7 @@ const accentColorRgbDark =
             });
 
             isInitialized = true;
-            updateStatus("ready", "Prêt");
+            updateStatus("ready", "PrÃƒÆ’Ã‚Âªt");
             enableControls();
 
             // Start engine update loop
@@ -6583,34 +7073,43 @@ const accentColorRgbDark =
           }
           
           function enableGameModeControls() {
-            const gameStatus = card.querySelector(".fmod-game-status");
-            const phaseIndicator = card.querySelector(".fmod-phase-indicator");
+            const phaseStatus = card.querySelector(".fmod-phase-status");
+            const phaseIndicator = card.querySelector(".fmod-phase-copy");
             const phaseLabel = phaseIndicator?.querySelector(".phase-label");
             const phaseDesc = phaseIndicator?.querySelector(".phase-desc");
             const sceneWrapper = card.querySelector(".fmod-scene");
-            
-            // New card-based health displays
-            const bossHealthFill = card.querySelector(".fmod-boss-card .health-fill");
-            const bossHealthValue = card.querySelector(".fmod-boss-card .health-value-display");
-            const playerHealthFill = card.querySelector(".fmod-player-card .health-fill");
-            const playerHealthValue = card.querySelector(".fmod-player-card .health-value-display");
-            
-            // Legacy selectors for backwards compatibility
-            const bossHealthBarLegacy = card.querySelector(".fmod-boss .health-fill");
-            const bossHealthValueLegacy = card.querySelector(".fmod-boss .health-value");
-            const playerHealthBarLegacy = card.querySelector(".fmod-player .health-fill");
-            const playerHealthValueLegacy = card.querySelector(".fmod-player .health-value");
-            
-            const actionBtns = card.querySelectorAll(".fmod-action-btn");
-            const playBtn = card.querySelector(".fmod-game-controls .play-btn");
-            const stopBtn = card.querySelector(".fmod-game-controls .stop-btn");
-            const resetBtn = card.querySelector(".fmod-game-controls .reset-btn");
-            
+            const stageBoss = card.querySelector(".fmod-stage .fmod-boss-container");
+            const bossHud = card.querySelector(".fmod-stage-boss-hud");
+            const playerHud = card.querySelector(".fmod-stage-player-hud");
+            const controlsPanel = card.querySelector(".fmod-controls-panel");
+            const bossHealthFill = bossHud?.querySelector(".health-fill");
+            const bossHealthValue = bossHud?.querySelector(".health-value-display");
+            const playerHealthFill = playerHud?.querySelector(".health-fill");
+            const playerHealthValue = playerHud?.querySelector(".health-value-display");
+            const playerKillBtn = playerHud?.querySelector(".fmod-player-kill-btn");
+            const actionBtns = controlsPanel?.querySelectorAll(".fmod-action-btn") || [];
+            const attackBtn = controlsPanel?.querySelector(".attack-btn");
+            const specialBtn = controlsPanel?.querySelector(".special-btn");
+            const playBtn = controlsPanel?.querySelector(".play-btn");
+            const stopBtn = controlsPanel?.querySelector(".stop-btn");
+            const resetBtn = controlsPanel?.querySelector(".reset-btn");
             const hiddenSliders = card.querySelectorAll(".fmod-hidden-params input");
             const introDuration =
               Number.parseFloat(card.dataset.fmodIntroDuration || "0") || 0;
+            const prefersReducedMotion =
+              window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false;
             const mobParamName = "is_mobKilled";
             const regionParamName = "region";
+            const bossRevealDelayMs = 14000;
+            const bossRevealDurationMs = 4000;
+            const phaseDescriptions = {
+              waiting:
+                "Load the FMOD event to enter the encounter. During the intro, action buttons stay locked while the music establishes the arena.",
+              stopped:
+                "The run is halted. Press Initiate to load a fresh encounter from the beginning.",
+              intro: (seconds) =>
+                `Intro is still playing. Combat controls unlock in ${seconds}s while FMOD completes the opening section.`,
+            };
             const flashMobActionStates = {
               INACTIVE: "inactive",
               PURGE_READY: "purge_ready",
@@ -6620,40 +7119,48 @@ const accentColorRgbDark =
               0: {
                 phase: "bossphase",
                 label: "BOSS PHASE",
-                description: "FMOD is in the main boss phase",
+                description:
+                  "Main boss phase. The shield is down and the primary action attacks BOSS_HEALTH directly.",
               },
               1: {
                 phase: "flashmob",
                 label: "FLASH MOB",
-                description: "FMOD is in the Flash Mob region",
+                description:
+                  "Activated between boss phases. The boss enables a shield linked to spawned mobs. The shield remains active while at least one mob is alive. Once all mobs are eliminated (is_mobKilled = TRUE), the shield is removed and the next boss phase begins.",
               },
               2: {
                 phase: "special",
                 label: "SPECIAL",
-                description: "FMOD is in the Special region",
+                description:
+                  "Special region engaged. FMOD moves into the special layer while Overdrive remains available as a live toggle.",
               },
             };
             let introTimer = null;
             let introCountdown = 0;
             let fmodPoller = null;
+            let bossIntroDelayTimer = null;
+            let bossIntroFinalizeTimer = null;
+            let bossValueAnimationFrame = null;
+            let bossHudState = "pending";
             const eventParameterIds = new WeakMap();
-            
+            const primaryControlBtns = Array.from(actionBtns);
+
             function createInitialGameState() {
               return {
                 bossHealth: 100,
                 playerHealth: 100,
-                region: 0,      // 0 = boss_phase, 1 = flash_mob, 2 = special
-                isMobKilled: 1, // 1 = mob killed/no mob, 0 = mob alive
+                region: 0,
+                isMobKilled: 1,
                 flashMobActionState: flashMobActionStates.INACTIVE,
-                isSpecial: 0,   // 1 = special mode on, 0 = off
-                isPlaying: false
+                isSpecial: 0,
+                isPlaying: false,
               };
             }
 
             let gameState = createInitialGameState();
 
             function setStatus(message) {
-              if (gameStatus) gameStatus.textContent = message;
+              if (phaseStatus) phaseStatus.textContent = message;
             }
 
             function setPhaseState(phase, label, description) {
@@ -6668,16 +7175,121 @@ const accentColorRgbDark =
               sceneWrapper.classList.toggle(
                 "swarm-active",
                 gameState.isPlaying &&
-                  gameState.flashMobActionState ===
-                    flashMobActionStates.PURGE_READY,
+                  gameState.flashMobActionState === flashMobActionStates.PURGE_READY,
+              );
+              sceneWrapper.classList.toggle(
+                "special-active",
+                gameState.isPlaying && gameState.isSpecial === 1,
               );
             }
 
+            function setBossHudState(nextState) {
+              bossHudState = nextState;
+              if (bossHud) {
+                bossHud.dataset.reveal = nextState;
+              }
+            }
+
+            function clearBossIntroAnimation(options = {}) {
+              const { reset = false } = options;
+
+              if (bossIntroDelayTimer) {
+                window.clearTimeout(bossIntroDelayTimer);
+                bossIntroDelayTimer = null;
+              }
+              if (bossIntroFinalizeTimer) {
+                window.clearTimeout(bossIntroFinalizeTimer);
+                bossIntroFinalizeTimer = null;
+              }
+              if (bossValueAnimationFrame) {
+                window.cancelAnimationFrame(bossValueAnimationFrame);
+                bossValueAnimationFrame = null;
+              }
+
+              if (!bossHealthFill) return;
+
+              bossHealthFill.classList.remove("is-intro-filling");
+
+              if (reset) {
+                setBossHudState("pending");
+                bossHealthFill.style.removeProperty("--boss-intro-duration");
+                bossHealthFill.style.width = "0%";
+                if (bossHealthValue) bossHealthValue.textContent = "0%";
+              }
+            }
+
+            function animateBossValue(targetValue, duration) {
+              if (!bossHealthValue || prefersReducedMotion) {
+                if (bossHealthValue) bossHealthValue.textContent = `${targetValue}%`;
+                return;
+              }
+
+              const startTime = window.performance.now();
+              bossHealthValue.textContent = "0%";
+
+              const frame = (now) => {
+                const progress = Math.min((now - startTime) / duration, 1);
+                const easedProgress = 1 - Math.pow(1 - progress, 3);
+                bossHealthValue.textContent = `${Math.round(targetValue * easedProgress)}%`;
+
+                if (progress < 1) {
+                  bossValueAnimationFrame = window.requestAnimationFrame(frame);
+                  return;
+                }
+
+                bossValueAnimationFrame = null;
+                bossHealthValue.textContent = `${targetValue}%`;
+              };
+
+              bossValueAnimationFrame = window.requestAnimationFrame(frame);
+            }
+
+            function animateBossIntroFill(targetValue) {
+              if (!bossHealthFill) return;
+
+              clearBossIntroAnimation();
+              setBossHudState("filling");
+
+              const introDurationMs = prefersReducedMotion ? 80 : bossRevealDurationMs;
+              bossHealthFill.classList.remove("is-intro-filling");
+              bossHealthFill.style.width = "0%";
+              bossHealthFill.style.setProperty(
+                "--boss-intro-duration",
+                `${introDurationMs}ms`,
+              );
+              bossHealthFill.getBoundingClientRect();
+
+              animateBossValue(targetValue, introDurationMs);
+
+              window.requestAnimationFrame(() => {
+                bossHealthFill.classList.add("is-intro-filling");
+                bossHealthFill.style.width = `${targetValue}%`;
+              });
+
+              bossIntroFinalizeTimer = window.setTimeout(() => {
+                bossHealthFill.classList.remove("is-intro-filling");
+                setBossHudState("live");
+                bossHealthFill.style.width = `${gameState.bossHealth}%`;
+                if (bossHealthValue) {
+                  bossHealthValue.textContent = `${gameState.bossHealth}%`;
+                }
+                bossIntroFinalizeTimer = null;
+              }, introDurationMs + 80);
+            }
+
+            function scheduleBossIntroFill() {
+              clearBossIntroAnimation({ reset: true });
+              if (!gameState.isPlaying) return;
+
+              bossIntroDelayTimer = window.setTimeout(() => {
+                bossIntroDelayTimer = null;
+                if (!gameState.isPlaying) return;
+                animateBossIntroFill(gameState.bossHealth);
+              }, bossRevealDelayMs);
+            }
+
             function setFlashMobActionState(nextState, options = {}) {
-              const {
-                statusMessage = "",
-                syncMobParam = false,
-              } = options;
+              const { statusMessage = "", syncMobParam = false } = options;
               const nextMobKilled =
                 nextState === flashMobActionStates.PURGE_READY ? 0 : 1;
               const stateChanged =
@@ -6701,7 +7313,7 @@ const accentColorRgbDark =
             }
 
             function enterFlashMobRegion(
-              statusMessage = "Flash Mob detected - Purge Swarm is now available",
+              statusMessage = "Flash Mob detected. Purge Swarm is now available.",
             ) {
               if (!gameState.isPlaying) return;
               setFlashMobActionState(flashMobActionStates.PURGE_READY, {
@@ -6711,7 +7323,7 @@ const accentColorRgbDark =
             }
 
             function lockFlashMobAfterPurge(
-              statusMessage = "Swarm purged - Waiting for Flash Mob to end",
+              statusMessage = "Swarm purged. Waiting for the Flash Mob section to end.",
             ) {
               if (!gameState.isPlaying) return;
               setFlashMobActionState(flashMobActionStates.PURGED_LOCKED, {
@@ -6721,7 +7333,7 @@ const accentColorRgbDark =
             }
 
             function exitFlashMobRegion(
-              statusMessage = "Flash Mob ended - Attack Core restored",
+              statusMessage = "Flash Mob ended. Attack Core is restored.",
             ) {
               setFlashMobActionState(flashMobActionStates.INACTIVE, {
                 statusMessage,
@@ -6735,12 +7347,7 @@ const accentColorRgbDark =
             }
 
             function cacheTrackedParameterIds(instance, eventPath) {
-              if (
-                !instance ||
-                !eventPath ||
-                !studioSystem ||
-                !isInitialized
-              ) {
+              if (!instance || !eventPath || !studioSystem || !isInitialized) {
                 return;
               }
 
@@ -6852,7 +7459,7 @@ const accentColorRgbDark =
                 setPhaseState(
                   "intro",
                   "INTRO",
-                  `Action buttons unlock in ${introCountdown}s`,
+                  phaseDescriptions.intro(introCountdown),
                 );
                 return;
               }
@@ -6905,18 +7512,17 @@ const accentColorRgbDark =
                   regionParamName,
                   { preferFinal: true },
                 );
-                if (nextRegion !== null) {
-                  if (nextRegion !== gameState.region) {
-                    const wasFlashMobRegion = gameState.region === 1;
-                    const isFlashMobRegion = nextRegion === 1;
-                    gameState.region = nextRegion;
-                    if (!wasFlashMobRegion && isFlashMobRegion) {
-                      enterFlashMobRegion();
-                    } else if (wasFlashMobRegion && !isFlashMobRegion) {
-                      exitFlashMobRegion();
-                    } else {
-                      syncLivePhaseState();
-                    }
+                if (nextRegion !== null && nextRegion !== gameState.region) {
+                  const wasFlashMobRegion = gameState.region === 1;
+                  const isFlashMobRegion = nextRegion === 1;
+                  gameState.region = nextRegion;
+
+                  if (!wasFlashMobRegion && isFlashMobRegion) {
+                    enterFlashMobRegion();
+                  } else if (wasFlashMobRegion && !isFlashMobRegion) {
+                    exitFlashMobRegion();
+                  } else {
+                    syncLivePhaseState();
                   }
                 }
 
@@ -6925,23 +7531,22 @@ const accentColorRgbDark =
                   "special",
                   "isSpecial",
                 );
-                if (nextSpecial !== null) {
-                  if (nextSpecial !== gameState.isSpecial) {
-                    gameState.isSpecial = nextSpecial;
-                    updateToggleButtons();
-                    syncLivePhaseState();
-                    setStatus(
-                      nextSpecial === 1
-                        ? "Overdrive activated"
-                        : gameState.flashMobActionState ===
+                if (nextSpecial !== null && nextSpecial !== gameState.isSpecial) {
+                  gameState.isSpecial = nextSpecial;
+                  updateToggleButtons();
+                  syncSceneState();
+                  syncLivePhaseState();
+                  setStatus(
+                    nextSpecial === 1
+                      ? "Overdrive activated. The special layer is now active."
+                      : gameState.flashMobActionState ===
                             flashMobActionStates.PURGE_READY
-                          ? "Flash Mob active - Purge Swarm is now available"
-                          : gameState.flashMobActionState ===
+                        ? "Flash Mob active. Purge Swarm is now available."
+                        : gameState.flashMobActionState ===
                               flashMobActionStates.PURGED_LOCKED
-                            ? "Swarm purged - Waiting for Flash Mob to end"
-                          : "Overdrive ended",
-                    );
-                  }
+                          ? "Swarm purged. Waiting for the Flash Mob section to end."
+                          : "Overdrive disabled.",
+                  );
                 }
               }, 200);
             }
@@ -6953,14 +7558,14 @@ const accentColorRgbDark =
                 setButtonStates(true);
                 updateToggleButtons();
                 syncLivePhaseState();
-                setStatus("Audio playing - Use buttons to control parameters");
+                setStatus("Audio is live. Use the controls to drive the encounter.");
                 return;
               }
 
               introCountdown = Math.max(1, Math.ceil(introDuration));
               setButtonStates(false);
               syncLivePhaseState();
-              setStatus(`Intro playing - controls unlock in ${introCountdown}s`);
+              setStatus(`Intro playing. Controls unlock in ${introCountdown}s.`);
 
               introTimer = window.setInterval(() => {
                 if (!gameState.isPlaying) {
@@ -6972,7 +7577,7 @@ const accentColorRgbDark =
 
                 if (introCountdown > 0) {
                   syncLivePhaseState();
-                  setStatus(`Intro playing - controls unlock in ${introCountdown}s`);
+                  setStatus(`Intro playing. Controls unlock in ${introCountdown}s.`);
                   return;
                 }
 
@@ -6980,84 +7585,74 @@ const accentColorRgbDark =
                 setButtonStates(true);
                 updateToggleButtons();
                 syncLivePhaseState();
-                setStatus("Audio playing - Use buttons to control parameters");
+                setStatus("Audio is live. Use the controls to drive the encounter.");
               }, 1000);
             }
 
             gameModeCleanup = () => {
               stopIntroCountdown();
               stopFmodPolling();
+              clearBossIntroAnimation({ reset: true });
             };
-            
+
             function updateHealthBars() {
               const bossPercent = `${gameState.bossHealth}%`;
               const playerPercent = `${gameState.playerHealth}%`;
-              
-              
-              // Update new card displays
-              if (bossHealthFill) {
-                bossHealthFill.style.width = bossPercent;
-                bossHealthFill.style.setProperty('--actual-health', bossPercent);
+
+              if (bossHudState === "live") {
+                if (bossHealthFill) bossHealthFill.style.width = bossPercent;
+                if (bossHealthValue) bossHealthValue.textContent = bossPercent;
+              } else if (bossHudState === "pending") {
+                if (bossHealthFill) bossHealthFill.style.width = "0%";
+                if (bossHealthValue) bossHealthValue.textContent = "0%";
               }
-              if (bossHealthValue) bossHealthValue.textContent = bossPercent;
               if (playerHealthFill) playerHealthFill.style.width = playerPercent;
               if (playerHealthValue) playerHealthValue.textContent = playerPercent;
-              
-              // Update legacy displays (if they exist)
-              if (bossHealthBarLegacy) bossHealthBarLegacy.style.width = bossPercent;
-              if (bossHealthValueLegacy) bossHealthValueLegacy.textContent = bossPercent;
-              if (playerHealthBarLegacy) playerHealthBarLegacy.style.width = playerPercent;
-              if (playerHealthValueLegacy) playerHealthValueLegacy.textContent = playerPercent;
-              
-              // Update FMOD parameters (both global and local on instances)
+
               applyParameterToSystemAndInstances("BOSS_HEALTH", gameState.bossHealth);
               applyParameterToSystemAndInstances("PLAYER_HEALTH", gameState.playerHealth);
-              
-              // Update hidden sliders
-              hiddenSliders.forEach(slider => {
+
+              hiddenSliders.forEach((slider) => {
                 const name = slider.dataset.paramName;
                 if (name === "BOSS_HEALTH") slider.value = gameState.bossHealth;
                 if (name === "PLAYER_HEALTH") slider.value = gameState.playerHealth;
               });
             }
-            
+
             function updateToggleButtons() {
-              actionBtns.forEach(btn => {
-                const action = btn.dataset.action;
-                if (action === "special") {
-                  if (gameState.isSpecial === 1) {
-                    btn.classList.add("active");
-                    btn.querySelector(".btn-hint").textContent = "ON";
-                  } else {
-                    btn.classList.remove("active");
-                    btn.querySelector(".btn-hint").textContent = "OFF";
-                  }
+              if (specialBtn) {
+                const specialHint = specialBtn.querySelector(".btn-hint");
+                specialBtn.classList.toggle("active", gameState.isSpecial === 1);
+                if (specialHint) {
+                  specialHint.textContent =
+                    gameState.isSpecial === 1
+                      ? "Special mode enabled"
+                      : "Enable or disable special mode";
                 }
-                if (action === "attack") {
-                  const isFlashMobActionActive =
-                    gameState.flashMobActionState !==
-                    flashMobActionStates.INACTIVE;
-                  const isPurgedLocked =
-                    gameState.flashMobActionState ===
-                    flashMobActionStates.PURGED_LOCKED;
+              }
 
-                  btn.classList.toggle("purge-ready", isFlashMobActionActive);
+              if (attackBtn) {
+                const isFlashMobActionActive =
+                  gameState.flashMobActionState !== flashMobActionStates.INACTIVE;
+                const isPurgedLocked =
+                  gameState.flashMobActionState === flashMobActionStates.PURGED_LOCKED;
 
-                  if (!gameState.isPlaying || introCountdown > 0) {
-                    return;
-                  }
+                attackBtn.classList.toggle("purge-ready", isFlashMobActionActive);
 
-                  if (isPurgedLocked) {
-                    btn.setAttribute("disabled", "true");
-                  } else {
-                    btn.removeAttribute("disabled");
-                  }
+                if (!gameState.isPlaying || introCountdown > 0) {
+                  return;
                 }
-              });
+
+                if (isPurgedLocked) {
+                  attackBtn.setAttribute("disabled", "true");
+                } else {
+                  attackBtn.removeAttribute("disabled");
+                }
+              }
             }
-            
+
             function setButtonStates(enabled) {
-              actionBtns.forEach(btn => {
+              primaryControlBtns.forEach((btn) => {
                 if (enabled) {
                   btn.removeAttribute("disabled");
                 } else {
@@ -7065,65 +7660,56 @@ const accentColorRgbDark =
                 }
               });
             }
-            
+
             function resetGame(options = {}) {
               const {
                 stopMode = FMOD.STUDIO_STOP_ALLOWFADEOUT,
-                statusMessage = "Press Play to start",
+                statusMessage = "Press Initiate to start the interactive audio encounter.",
                 phase = "waiting",
                 phaseLabelText = "BOSS BATTLE",
-                phaseDescText = "Interactive audio demo - Control the battle with action buttons",
+                phaseDescText = phaseDescriptions.waiting,
               } = options;
 
               stopIntroCountdown();
               stopFmodPolling();
+              clearBossIntroAnimation({ reset: true });
               gameState = createInitialGameState();
-              
-              // Reset FMOD parameters (both global and local on instances)
+
               applyParameterToSystemAndInstances("BOSS_HEALTH", 100);
               applyParameterToSystemAndInstances("PLAYER_HEALTH", 100);
               applyParameterToSystemAndInstances(mobParamName, 1);
               applyParameterToSystemAndInstances("isSpecial", 0);
-              
-              // Update UI
-              const sceneWrapper = card.querySelector('.fmod-scene');
-              if (sceneWrapper) sceneWrapper.classList.remove('is-playing', 'swarm-active');
-              
+
               updateHealthBars();
               updateToggleButtons();
               syncSceneState();
-              
-              // Stop all events
+
               eventInstances.forEach((instance) => {
                 try {
                   instance.stop(stopMode);
                 } catch {}
               });
-              
+
               setButtonStates(false);
               if (playBtn) playBtn.removeAttribute("disabled");
               if (stopBtn) stopBtn.setAttribute("disabled", "true");
               if (resetBtn) resetBtn.setAttribute("disabled", "true");
-              
-              if (gameStatus) gameStatus.textContent = "Press ▶️ Play to start";
-              if (phaseLabel) phaseLabel.textContent = "BOSS BATTLE";
-              if (phaseDesc) phaseDesc.textContent = "Interactive audio demo - Control the battle with action buttons";
+
               setStatus(statusMessage);
               setPhaseState(phase, phaseLabelText, phaseDescText);
             }
-            
-            // Action button handlers - direct parameter control
-            actionBtns.forEach(btn => {
+
+            actionBtns.forEach((btn) => {
               btn.addEventListener("click", () => {
                 const action = btn.dataset.action;
-                
-                switch(action) {
+
+                switch (action) {
                   case "attack":
                     if (
                       gameState.flashMobActionState ===
                       flashMobActionStates.PURGED_LOCKED
                     ) {
-                      setStatus("Swarm already purged - Waiting for Flash Mob to end");
+                      setStatus("Swarm already purged. Waiting for the Flash Mob section to end.");
                       break;
                     }
 
@@ -7131,77 +7717,78 @@ const accentColorRgbDark =
                       gameState.flashMobActionState ===
                       flashMobActionStates.PURGE_READY
                     ) {
-                      // PURGE MODE: Execute purge logic instead of attack
                       lockFlashMobAfterPurge();
-
-                      if (gameStatus) gameStatus.textContent = "💀 Swarm Purged!";
                       break;
                     }
 
-                    // NORMAL ATTACK MODE
-                    // Reduce boss health by 40 points, clamp to 0
                     gameState.bossHealth = Math.max(0, gameState.bossHealth - 40);
-                    
-                    updateToggleButtons();
                     updateHealthBars();
-                    syncLivePhaseState();
-                    
-                    const bossContainer = card.querySelector('.fmod-boss-container');
-                    if (bossContainer) {
-                      bossContainer.classList.add('damage-flash');
-                      setTimeout(() => bossContainer.classList.remove('damage-flash'), 300);
-                    }
-                    
-                    if (gameStatus) {
-                      gameStatus.textContent = `⚔️ Attack! Boss health: ${gameState.bossHealth}%`;
-                    }
-                    setStatus(`Attack landed - Boss health: ${gameState.bossHealth}%`);
-                    const attackBtn = card.querySelector('.attack-btn');
-                    if (attackBtn) attackBtn.classList.add('pulse-damage');
-                    setTimeout(() => {
-                      if (attackBtn) attackBtn.classList.remove('pulse-damage');
-                    }, 150);
-                    break;
-                    
-                  case "special":
-                    // Toggle isSpecial parameter between 0 and 1
-                    gameState.isSpecial = gameState.isSpecial === 0 ? 1 : 0;
-                    
-                    // Update FMOD (both global and local on instances)
-                    applyParameterToSystemAndInstances("isSpecial", gameState.isSpecial);
-                    
-                    // Update UI
                     updateToggleButtons();
                     syncLivePhaseState();
-                    
-                    if (gameStatus) {
-                      const state = gameState.isSpecial === 1 ? "ACTIVATED" : "DEACTIVATED";
-                      gameStatus.textContent = `🔥 Special mode ${state}`;
+
+                    if (stageBoss) {
+                      stageBoss.classList.add("damage-flash");
+                      window.setTimeout(
+                        () => stageBoss.classList.remove("damage-flash"),
+                        260,
+                      );
                     }
+
+                    setStatus(
+                      `Attack landed. Boss integrity is now ${gameState.bossHealth}%.`,
+                    );
+                    if (attackBtn) {
+                      attackBtn.classList.add("pulse-damage");
+                      window.setTimeout(
+                        () => attackBtn.classList.remove("pulse-damage"),
+                        150,
+                      );
+                    }
+                    break;
+
+                  case "special":
+                    gameState.isSpecial = gameState.isSpecial === 0 ? 1 : 0;
+                    applyParameterToSystemAndInstances("isSpecial", gameState.isSpecial);
+                    updateToggleButtons();
+                    syncSceneState();
+                    syncLivePhaseState();
+                    setStatus(
+                      gameState.isSpecial === 1
+                        ? "Overdrive enabled. The special layer is active."
+                        : "Overdrive disabled.",
+                    );
                     break;
                 }
               });
             });
-            
-            // Play button (start the game)
+
+            if (playerKillBtn) {
+              playerKillBtn.addEventListener("click", () => {
+                gameState.playerHealth = 0;
+                updateHealthBars();
+                updateToggleButtons();
+                syncLivePhaseState();
+                setStatus("Player integrity dropped to 0%.");
+              });
+            }
+
             if (playBtn) {
               playBtn.removeAttribute("disabled");
-              
+
               playBtn.addEventListener("click", () => {
                 if (!studioSystem || !isInitialized) return;
-                
-                const eventPath = card.dataset.fmodEvents ? 
-                  JSON.parse(card.dataset.fmodEvents)[0]?.path : null;
-                
+
+                const eventPath = card.dataset.fmodEvents
+                  ? JSON.parse(card.dataset.fmodEvents)[0]?.path
+                  : null;
                 if (!eventPath) return;
-                
-                // Create and start event instance
+
                 let instance = eventInstances.get(eventPath);
                 if (!instance) {
-                  let outval = {};
+                  const outval = {};
                   let result = studioSystem.getEvent(eventPath, outval);
                   if (result === FMOD.OK) {
-                    let eventDesc = outval.val;
+                    const eventDesc = outval.val;
                     result = eventDesc.createInstance(outval);
                     if (result === FMOD.OK) {
                       instance = outval.val;
@@ -7209,28 +7796,27 @@ const accentColorRgbDark =
                     }
                   }
                 }
-                
+
                 if (instance) {
                   stopIntroCountdown();
                   stopFmodPolling();
+                  clearBossIntroAnimation({ reset: true });
                   gameState = createInitialGameState();
                   gameState.isPlaying = true;
                   cacheTrackedParameterIds(instance, eventPath);
 
-                  // Set initial parameters on both system and instance
                   applyParameterToSystemAndInstances("BOSS_HEALTH", 100);
                   applyParameterToSystemAndInstances("PLAYER_HEALTH", 100);
                   applyParameterToSystemAndInstances(mobParamName, 1);
                   applyParameterToSystemAndInstances("isSpecial", 0);
-                  
+
                   instance.start();
                   startFmodPolling(instance);
-                  
-                  // Visual update
                   updateHealthBars();
+                  scheduleBossIntroFill();
                   updateToggleButtons();
                   syncSceneState();
-                  
+
                   playBtn.setAttribute("disabled", "true");
                   if (stopBtn) stopBtn.removeAttribute("disabled");
                   if (resetBtn) resetBtn.removeAttribute("disabled");
@@ -7239,43 +7825,36 @@ const accentColorRgbDark =
                 }
               });
             }
-            
-            // Stop button
+
             if (stopBtn) {
               stopBtn.addEventListener("click", () => {
                 resetGame({
                   stopMode: FMOD.STUDIO_STOP_ALLOWFADEOUT,
-                  statusMessage: "Audio stopped",
+                  statusMessage: "Audio stopped. Press Initiate to start again.",
                   phase: "waiting",
                   phaseLabelText: "STOPPED",
-                  phaseDescText: "Press Play to start a fresh run",
+                  phaseDescText: phaseDescriptions.stopped,
                 });
               });
             }
-            
-            // Reset button
+
             if (resetBtn) {
               resetBtn.addEventListener("click", () => {
                 resetGame();
               });
             }
-            
-            // Initial state
+
             setButtonStates(false);
             if (playBtn) playBtn.removeAttribute("disabled");
             if (stopBtn) stopBtn.setAttribute("disabled", "true");
             if (resetBtn) resetBtn.setAttribute("disabled", "true");
+            clearBossIntroAnimation({ reset: true });
             updateHealthBars();
             updateToggleButtons();
             syncSceneState();
-            setStatus("Press Play to start the interactive audio experience");
-            setPhaseState(
-              "waiting",
-              "BOSS BATTLE",
-              "Interactive audio demo - Control the battle with action buttons",
-            );
+            setStatus("Press Initiate to start the interactive audio encounter.");
+            setPhaseState("waiting", "BOSS BATTLE", phaseDescriptions.waiting);
           }
-
           // Load WASM Engine
           // Load WASM Engine
           if (!window.document.getElementById("fmod-engine-script")) {
@@ -7304,7 +7883,7 @@ const accentColorRgbDark =
               }
             };
             script.onerror = () =>
-              updateStatus("error", "API non trouvée (404)");
+              updateStatus("error", "API non trouvÃƒÆ’Ã‚Â©e (404)");
             document.body.appendChild(script);
           } else {
             // Already loaded globally, just run local init logic if it hasn't fired yet

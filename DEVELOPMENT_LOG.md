@@ -423,3 +423,24 @@
 - **Bug Fix**: Polled `outfinal.val` instead of `outval.val` for `getParameterByName` to correctly detect direct audio-timeline value transitions before interpolation.
 - **UI Logic**: Kill Mob button visibility changed from `display: none` to a visual `disabled` locked state, unlocking only when FMOD enters the Flash Mob phase (`is_MobKilled` = 0).
 - **Cleanup**: Completely removed legacy Player Health card HTML and logic.
+
+### FMOD Boss Frontend HUD Redesign (2026-03-18)
+- **Schema + Content Extension**:
+  - Extended `src/content/config.ts` FMOD schema with optional `images` fields (`boss`, `player`, `mob`).
+  - Wired the FMOD boss showcase content to those images and served optimized public copies from `/public/fmod/FMOD-BOSS/images/`.
+- **Scene Redesign**:
+  - Replaced the old abstract FMOD boss card with an asset-driven arena inside `ProjectBento.astro`.
+  - Phase copy now lives in a single full-width header block instead of split nested panels.
+  - Boss, player, and Flash Mob visuals are now rendered directly in the stage using the imported cutout art.
+- **HUD / Interaction Pass**:
+  - Removed the separate boss/player health cards and moved health UI into the scene.
+  - Added in-scene `Kill Player` testing control wired to `PLAYER_HEALTH = 0` on both the Studio system and all active event instances.
+  - Boss health reveal now stays empty at event start, waits 14s, then fills over 4s before returning to normal live updates.
+  - Reset, stop, and cleanup paths now cancel pending boss reveal timers/animations correctly.
+- **Layout Iteration Notes**:
+  - Simplified the top status area and removed redundant nested boxes.
+  - Moved the boss health line back to the top of the stage and stripped the player HUD down to title + bar + `Kill Player`.
+  - Rebalanced sprite scale/placement and responsive HUD positioning across desktop/tablet/mobile breakpoints.
+- **Status**:
+  - Functional state is now in much better shape and the FMOD encounter reads more like a game HUD.
+  - The frontend still needs a **major visual polish pass** before it can be considered visually finished; current work should be treated as a strong structural base, not final art direction.

@@ -74,6 +74,10 @@ bento:
       en: "Test the audio implementation directly in your browser. Use the sliders below to modify FMOD parameters in real-time."
     mode: "interactive-game"
     introDuration: 26.5
+    images:
+      boss: "/fmod/FMOD-BOSS/images/boss.webp"
+      player: "/fmod/FMOD-BOSS/images/player.webp"
+      mob: "/fmod/FMOD-BOSS/images/mob.webp"
     folder: "FMOD-BOSS"
     banks:
       - "Master.bank"
