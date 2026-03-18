@@ -3025,6 +3025,16 @@ const accentColorRgbDark =
     --fmod-start-shadow:
       0 18px 34px rgba(var(--accent-color-rgb), 0.25),
       inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    --fmod-gate-shadow:
+      0 28px 58px rgba(var(--accent-color-rgb), 0.24),
+      0 18px 34px rgba(15, 23, 42, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    --fmod-gate-icon-bg: rgba(255, 255, 255, 0.2);
+    --fmod-gate-icon-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      0 10px 22px rgba(15, 23, 42, 0.12);
+    --fmod-gate-veil:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.18));
     position: relative;
     overflow: hidden;
     padding: clamp(1.15rem, 2vw, 1.6rem);
@@ -3100,6 +3110,16 @@ const accentColorRgbDark =
     --fmod-start-shadow:
       0 20px 40px rgba(var(--accent-color-rgb), 0.3),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    --fmod-gate-shadow:
+      0 30px 60px rgba(var(--accent-color-rgb), 0.26),
+      0 18px 36px rgba(0, 0, 0, 0.36),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    --fmod-gate-icon-bg: rgba(255, 255, 255, 0.16);
+    --fmod-gate-icon-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      0 10px 22px rgba(0, 0, 0, 0.22);
+    --fmod-gate-veil:
+      linear-gradient(180deg, rgba(8, 10, 14, 0.08), rgba(8, 10, 14, 0.24));
     background: var(--fmod-shell-bg);
     border: 1px solid var(--fmod-shell-border);
     box-shadow: var(--fmod-shell-shadow);
@@ -3135,6 +3155,60 @@ const accentColorRgbDark =
   .fmod-card.fmod-game-mode > * {
     position: relative;
     z-index: 1;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-game-surface {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    transform-origin: 50% 40%;
+    transition:
+      filter 360ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 240ms ease;
+  }
+
+  .fmod-card.fmod-game-mode[data-launch-state="loading"] .fmod-game-surface,
+  .fmod-card.fmod-game-mode[data-launch-state="gated"] .fmod-game-surface {
+    filter: blur(15px) saturate(0.82);
+    transform: scale(0.985);
+    opacity: 0.56;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-launch-gate {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1rem, 4vw, 2rem);
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 220ms ease,
+      visibility 220ms ease,
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-launch-gate::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+      radial-gradient(circle at 50% 44%, rgba(var(--accent-color-rgb), 0.16), transparent 28%),
+      var(--fmod-gate-veil);
+    pointer-events: none;
+  }
+
+  .fmod-card.fmod-game-mode[data-launch-state="live"] .fmod-launch-gate {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: scale(0.98);
   }
 
   .fmod-card.fmod-game-mode .fmod-game-header {
@@ -3274,7 +3348,7 @@ const accentColorRgbDark =
     border-radius: 20px;
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header {
     flex: 0 0 auto;
     min-height: 66px;
     align-items: center;
@@ -3288,14 +3362,14 @@ const accentColorRgbDark =
     color: var(--on-accent);
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-copy {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header .ctrl-copy {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     min-width: 0;
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-icon {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header .ctrl-icon {
     width: 2.2rem;
     height: 2.2rem;
     border-radius: 0.85rem;
@@ -3307,42 +3381,42 @@ const accentColorRgbDark =
     flex-shrink: 0;
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-icon svg {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header .ctrl-icon svg {
     width: 1.18rem;
     height: 1.18rem;
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-icon-stop {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header .ctrl-icon-stop {
     display: none;
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn.is-running .ctrl-icon-play {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header.is-running .ctrl-icon-play {
     display: none;
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn.is-running .ctrl-icon-stop {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header.is-running .ctrl-icon-stop {
     display: block;
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-kicker {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header .ctrl-kicker {
     color: rgba(255, 255, 255, 0.8);
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn .ctrl-label {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header .ctrl-label {
     font-size: 1.02rem;
     font-weight: 800;
     letter-spacing: 0.02em;
     text-transform: none;
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn:not(:disabled):hover {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header:not(:disabled):hover {
     transform: translateY(-2px);
     box-shadow:
       0 24px 42px rgba(var(--accent-color-rgb), 0.32),
       inset 0 1px 0 rgba(255, 255, 255, 0.26);
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn[disabled] {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header[disabled] {
     opacity: 0.78;
     cursor: wait;
     filter: saturate(0.78);
@@ -3351,21 +3425,90 @@ const accentColorRgbDark =
       inset 0 1px 0 rgba(255, 255, 255, 0.14);
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn.is-running {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header.is-running {
     background:
       linear-gradient(180deg, rgba(220, 38, 38, 0.92), rgba(127, 29, 29, 0.82));
     border-color: rgba(252, 165, 165, 0.38);
     cursor: pointer;
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn.is-running .ctrl-icon {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header.is-running .ctrl-icon {
     background: rgba(255, 255, 255, 0.14);
   }
 
-  .fmod-card.fmod-game-mode .fmod-start-btn.is-running:not(:disabled):hover {
+  .fmod-card.fmod-game-mode .fmod-start-btn--header.is-running:not(:disabled):hover {
     box-shadow:
       0 24px 42px rgba(220, 38, 38, 0.3),
       inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn--gate {
+    position: relative;
+    z-index: 1;
+    min-width: min(320px, 100%);
+    min-height: 154px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9rem;
+    padding: 1.3rem 1.5rem 1.4rem;
+    border-radius: 30px;
+    border: 1px solid rgba(var(--accent-color-rgb), 0.4);
+    background:
+      linear-gradient(180deg, rgba(var(--accent-color-rgb), 0.96), rgba(var(--accent-color-rgb), 0.8));
+    box-shadow: var(--fmod-gate-shadow);
+    color: var(--on-accent);
+    text-align: center;
+    pointer-events: auto;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn--gate:not(:disabled):hover {
+    transform: translateY(-4px) scale(1.012);
+    box-shadow:
+      0 34px 70px rgba(var(--accent-color-rgb), 0.3),
+      0 24px 40px rgba(15, 23, 42, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-start-btn--gate[disabled] {
+    cursor: wait;
+    opacity: 0.86;
+    filter: saturate(0.84);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-gate-icon {
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--fmod-gate-icon-bg);
+    box-shadow: var(--fmod-gate-icon-shadow);
+  }
+
+  .fmod-card.fmod-game-mode .fmod-gate-icon svg {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
+  .fmod-card.fmod-game-mode .fmod-gate-label {
+    display: block;
+    font-size: clamp(1.55rem, 2.3vw, 2rem);
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    line-height: 0.98;
+    text-transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fmod-card.fmod-game-mode .fmod-game-surface,
+    .fmod-card.fmod-game-mode .fmod-launch-gate,
+    .fmod-card.fmod-game-mode .fmod-start-btn--gate,
+    .fmod-card.fmod-game-mode .fmod-start-btn--header {
+      transition: none;
+    }
   }
 
   .fmod-card.fmod-game-mode .fmod-stage {
@@ -3676,8 +3819,14 @@ const accentColorRgbDark =
       grid-template-columns: 1fr;
     }
 
-    .fmod-card.fmod-game-mode .fmod-start-btn {
+    .fmod-card.fmod-game-mode .fmod-start-btn--header {
       min-height: 60px;
+    }
+
+    .fmod-card.fmod-game-mode .fmod-start-btn--gate {
+      min-width: min(280px, 100%);
+      min-height: 138px;
+      padding: 1.15rem 1.2rem 1.2rem;
     }
 
     .fmod-card.fmod-game-mode .fmod-controls-summary {
@@ -3696,6 +3845,16 @@ const accentColorRgbDark =
     .fmod-card.fmod-game-mode .fmod-stage-player-hud,
     .fmod-card.fmod-game-mode .fmod-controls-panel {
       border-radius: 18px;
+    }
+
+    .fmod-card.fmod-game-mode .fmod-start-btn--gate {
+      min-width: 100%;
+      min-height: 126px;
+      border-radius: 24px;
+    }
+
+    .fmod-card.fmod-game-mode .fmod-gate-label {
+      font-size: 1.4rem;
     }
 
     .fmod-card.fmod-game-mode .btn-label {
@@ -6015,307 +6174,336 @@ const accentColorRgbDark =
             data-fmod-parameters={JSON.stringify(bento.fmod.parameters || [])}
             data-fmod-bank-version={fmodBankVersion}
             data-fmod-intro-duration={bento.fmod.introDuration ?? 0}
+            data-launch-state="loading"
           >
-            <div class="fmod-game-header">
-              <div class="fmod-header-shell">
-                <div class="fmod-header-copy">
-                  <span class="fmod-card-badge">
-                    {resolveLocalizedText(
-                      bento.fmod.title,
-                      "FMOD Interactive Player",
-                    )}
-                  </span>
-                  <h3 class="fmod-card-title">{fmodGameUi.heading}</h3>
-                </div>
-
-                <div class="fmod-header-actions">
-                  <div class="fmod-phase-copy" data-phase="waiting">
-                    <span class="fmod-phase-kicker">{fmodGameUi.phaseKicker}</span>
-                    <span class="phase-label">
-                      {fmodGameUi.phaseLabels.waiting}
+            <div class="fmod-game-surface">
+              <div class="fmod-game-header">
+                <div class="fmod-header-shell">
+                  <div class="fmod-header-copy">
+                    <span class="fmod-card-badge">
+                      {resolveLocalizedText(
+                        bento.fmod.title,
+                        "FMOD Interactive Player",
+                      )}
                     </span>
+                    <h3 class="fmod-card-title">{fmodGameUi.heading}</h3>
                   </div>
 
-                  <button class="fmod-btn fmod-start-btn play-btn" type="button" disabled>
-                    <span class="ctrl-icon" aria-hidden="true">
+                  <div class="fmod-header-actions">
+                    <div class="fmod-phase-copy" data-phase="waiting">
+                      <span class="fmod-phase-kicker">{fmodGameUi.phaseKicker}</span>
+                      <span class="phase-label">
+                        {fmodGameUi.phaseLabels.waiting}
+                      </span>
+                    </div>
+
+                    <button
+                      class="fmod-btn fmod-start-btn fmod-start-btn--header play-btn"
+                      type="button"
+                      disabled
+                    >
+                      <span class="ctrl-icon" aria-hidden="true">
+                        <svg
+                          class="ctrl-icon-play"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M8 5.25V18.75L18.5 12L8 5.25Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                        <svg
+                          class="ctrl-icon-stop"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <rect
+                            x="6.5"
+                            y="6.5"
+                            width="11"
+                            height="11"
+                            rx="2"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </span>
+                      <span class="ctrl-copy">
+                        <span class="ctrl-kicker">{fmodGameUi.controls.startKicker}</span>
+                        <span class="ctrl-label">{fmodGameUi.controls.start}</span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="fmod-scene">
+                <div class="fmod-stage">
+                  <div class="fmod-stage-boss-hud" data-reveal="live">
+                    <div class="fmod-stage-boss-head">
+                      <div class="fmod-stage-boss-copy">
+                        <span class="health-label">{fmodGameUi.labels.bossHealth}</span>
+                        <span class="fmod-stage-boss-title">{fmodGameUi.labels.bossTitle}</span>
+                      </div>
+                      <div class="fmod-stage-boss-readout">
+                        <span class="fmod-stage-boss-status">{fmodGameUi.labels.liveTarget}</span>
+                        <span class="health-value-display">100%</span>
+                      </div>
+                    </div>
+                    <div class="health-bar modern">
+                      <div class="health-fill" style="width: 100%"></div>
+                    </div>
+                  </div>
+
+                  <div class="fmod-stage-player">
+                    {
+                      fmodImages.player ? (
+                        <img
+                          class="fmod-actor-image fmod-player-sprite"
+                          src={fmodImages.player}
+                          alt="Player render"
+                          loading="lazy"
+                          decoding="async"
+                          width="992"
+                          height="1000"
+                        />
+                      ) : (
+                        <div class="fmod-figure-fallback">PLAYER</div>
+                      )
+                    }
+                  </div>
+
+                  <div class="fmod-stage-player-hud">
+                    <div class="fmod-stage-player-meta">
+                      <span class="health-label">{fmodGameUi.labels.playerHealth}</span>
+                      <span class="fmod-stage-player-title">{fmodGameUi.labels.player}</span>
+                    </div>
+                    <div class="health-bar modern">
+                      <div class="health-fill" style="width: 100%"></div>
+                    </div>
+                    <div class="fmod-player-actions">
+                      <button class="fmod-player-kill-btn" type="button" data-action="kill-player">
+                        {fmodGameUi.controls.killPlayer}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="fmod-boss-container">
+                    <div class="fmod-boss-figure">
+                      {
+                        fmodImages.boss ? (
+                          <img
+                            class="fmod-actor-image fmod-boss-sprite"
+                            src={fmodImages.boss}
+                            alt="Boss render"
+                            loading="lazy"
+                            decoding="async"
+                            width="758"
+                            height="1200"
+                          />
+                        ) : (
+                          <div class="fmod-figure-fallback">BOSS</div>
+                        )
+                      }
+                    </div>
+
+                    <div class="fmod-mobs-container" aria-hidden="true">
+                      {fmodMobLayout.map((mob, i) => (
+                        <div
+                          class="mob-sprite-wrapper"
+                          style={{
+                            "--mob-index": i,
+                            "--mob-x": mob.x,
+                            "--mob-y": mob.y,
+                            "--mob-scale": mob.scale,
+                            "--mob-rotation": `${mob.rotation}deg`,
+                          }}
+                        >
+                          {
+                            fmodImages.mob ? (
+                              <img
+                                class="mob-sprite"
+                                src={fmodImages.mob}
+                                alt=""
+                                loading="lazy"
+                                decoding="async"
+                                width="320"
+                                height="320"
+                              />
+                            ) : (
+                              <div class="fmod-figure-fallback fmod-figure-fallback-mob">
+                                MOB
+                              </div>
+                            )
+                          }
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div class="fmod-stage-floor"></div>
+                </div>
+              </div>
+
+              <div class="fmod-controls-panel">
+                <div class="fmod-controls-meta">
+                  <div class="fmod-controls-copy">
+                    <span class="fmod-controls-kicker">{fmodGameUi.controlsKicker}</span>
+                    <p class="fmod-controls-summary">{fmodGameUi.status.idle}</p>
+                  </div>
+                </div>
+
+                <div class="fmod-action-bar">
+                  <button class="fmod-action-btn attack-btn" type="button" data-action="attack" disabled>
+                    <div class="attack-visuals">
+                      <span class="btn-icon" aria-hidden="true">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M5 18.5L6.4 20L12 14.4L9.6 12L5 16.6V18.5Z"
+                            fill="currentColor"
+                          />
+                          <path
+                            d="M11.1 10.5L13.5 12.9L18.1 8.3L15.7 5.9L11.1 10.5Z"
+                            fill="currentColor"
+                          />
+                          <path
+                            d="M14.2 4.4L19.6 9.8L21 8.4L15.6 3L14.2 4.4Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </span>
+                      <span class="btn-copy">
+                        <span class="btn-label">{fmodGameUi.controls.attack}</span>
+                        <span class="btn-hint">{fmodGameUi.controls.attackHint}</span>
+                      </span>
+                    </div>
+                    <div class="purge-visuals">
+                      <span class="btn-icon" aria-hidden="true">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M7.5 4H16.5L20 8.2L12 20L4 8.2L7.5 4Z"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            stroke-linejoin="round"
+                          />
+                          <path
+                            d="M4 8.2H20"
+                            stroke="currentColor"
+                            stroke-width="1.7"
+                            stroke-linecap="round"
+                          />
+                        </svg>
+                      </span>
+                      <span class="btn-copy">
+                        <span class="btn-label">{fmodGameUi.controls.purge}</span>
+                        <span class="btn-hint">{fmodGameUi.controls.purgeHint}</span>
+                      </span>
+                    </div>
+                    <span class="btn-lock-overlay" aria-hidden="true">
                       <svg
-                        class="ctrl-icon-play"
+                        class="btn-lock-icon"
                         viewBox="0 0 24 24"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                       >
                         <path
-                          d="M8 5.25V18.75L18.5 12L8 5.25Z"
-                          fill="currentColor"
+                          d="M7 10V7.5C7 4.9 9.1 2.8 11.7 2.8C14.3 2.8 16.4 4.9 16.4 7.5V10"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                        />
+                        <rect
+                          x="5"
+                          y="10"
+                          width="14"
+                          height="11"
+                          rx="2.5"
+                          stroke="currentColor"
+                          stroke-width="1.8"
                         />
                       </svg>
+                      <span>{fmodGameUi.controls.locked}</span>
+                    </span>
+                    <div class="btn-glaze"></div>
+                  </button>
+                  <button class="fmod-action-btn special-btn" type="button" data-action="special" disabled>
+                    <span class="btn-icon" aria-hidden="true">
                       <svg
-                        class="ctrl-icon-stop"
                         viewBox="0 0 24 24"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                       >
-                        <rect
-                          x="6.5"
-                          y="6.5"
-                          width="11"
-                          height="11"
-                          rx="2"
+                        <path
+                          d="M12 2.5L14.7 8.2L20.9 9.1L16.4 13.5L17.5 19.7L12 16.7L6.5 19.7L7.6 13.5L3.1 9.1L9.3 8.2L12 2.5Z"
                           fill="currentColor"
                         />
                       </svg>
                     </span>
-                    <span class="ctrl-copy">
-                      <span class="ctrl-kicker">{fmodGameUi.controls.startKicker}</span>
-                      <span class="ctrl-label">{fmodGameUi.controls.start}</span>
+                    <span class="btn-copy">
+                      <span class="btn-label">{fmodGameUi.controls.special}</span>
+                      <span class="btn-hint">{fmodGameUi.controls.specialHint}</span>
                     </span>
+                    <span class="btn-lock-overlay" aria-hidden="true">
+                      <svg
+                        class="btn-lock-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M7 10V7.5C7 4.9 9.1 2.8 11.7 2.8C14.3 2.8 16.4 4.9 16.4 7.5V10"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                        />
+                        <rect
+                          x="5"
+                          y="10"
+                          width="14"
+                          height="11"
+                          rx="2.5"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                        />
+                      </svg>
+                      <span>{fmodGameUi.controls.locked}</span>
+                    </span>
+                    <div class="btn-glaze"></div>
                   </button>
                 </div>
               </div>
             </div>
 
-            <div class="fmod-scene">
-              <div class="fmod-stage">
-                <div class="fmod-stage-boss-hud" data-reveal="live">
-                  <div class="fmod-stage-boss-head">
-                    <div class="fmod-stage-boss-copy">
-                      <span class="health-label">{fmodGameUi.labels.bossHealth}</span>
-                      <span class="fmod-stage-boss-title">{fmodGameUi.labels.bossTitle}</span>
-                    </div>
-                    <div class="fmod-stage-boss-readout">
-                      <span class="fmod-stage-boss-status">{fmodGameUi.labels.liveTarget}</span>
-                      <span class="health-value-display">100%</span>
-                    </div>
-                  </div>
-                  <div class="health-bar modern">
-                    <div class="health-fill" style="width: 100%"></div>
-                  </div>
-                </div>
-
-                <div class="fmod-stage-player">
-                  {
-                    fmodImages.player ? (
-                      <img
-                        class="fmod-actor-image fmod-player-sprite"
-                        src={fmodImages.player}
-                        alt="Player render"
-                        loading="lazy"
-                        decoding="async"
-                        width="992"
-                        height="1000"
-                      />
-                    ) : (
-                      <div class="fmod-figure-fallback">PLAYER</div>
-                    )
-                  }
-                </div>
-
-                <div class="fmod-stage-player-hud">
-                  <div class="fmod-stage-player-meta">
-                    <span class="health-label">{fmodGameUi.labels.playerHealth}</span>
-                    <span class="fmod-stage-player-title">{fmodGameUi.labels.player}</span>
-                  </div>
-                  <div class="health-bar modern">
-                    <div class="health-fill" style="width: 100%"></div>
-                  </div>
-                  <div class="fmod-player-actions">
-                    <button class="fmod-player-kill-btn" type="button" data-action="kill-player">
-                      {fmodGameUi.controls.killPlayer}
-                    </button>
-                  </div>
-                </div>
-
-                <div class="fmod-boss-container">
-                  <div class="fmod-boss-figure">
-                    {
-                      fmodImages.boss ? (
-                        <img
-                          class="fmod-actor-image fmod-boss-sprite"
-                          src={fmodImages.boss}
-                          alt="Boss render"
-                          loading="lazy"
-                          decoding="async"
-                          width="758"
-                          height="1200"
-                        />
-                      ) : (
-                        <div class="fmod-figure-fallback">BOSS</div>
-                      )
-                    }
-                  </div>
-
-                  <div class="fmod-mobs-container" aria-hidden="true">
-                    {fmodMobLayout.map((mob, i) => (
-                      <div
-                        class="mob-sprite-wrapper"
-                        style={{
-                          "--mob-index": i,
-                          "--mob-x": mob.x,
-                          "--mob-y": mob.y,
-                          "--mob-scale": mob.scale,
-                          "--mob-rotation": `${mob.rotation}deg`,
-                        }}
-                      >
-                        {
-                          fmodImages.mob ? (
-                            <img
-                              class="mob-sprite"
-                              src={fmodImages.mob}
-                              alt=""
-                              loading="lazy"
-                              decoding="async"
-                              width="320"
-                              height="320"
-                            />
-                          ) : (
-                            <div class="fmod-figure-fallback fmod-figure-fallback-mob">
-                              MOB
-                            </div>
-                          )
-                        }
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div class="fmod-stage-floor"></div>
-              </div>
-            </div>
-
-            <div class="fmod-controls-panel">
-              <div class="fmod-controls-meta">
-                <div class="fmod-controls-copy">
-                  <span class="fmod-controls-kicker">{fmodGameUi.controlsKicker}</span>
-                  <p class="fmod-controls-summary">{fmodGameUi.status.idle}</p>
-                </div>
-              </div>
-
-              <div class="fmod-action-bar">
-                <button class="fmod-action-btn attack-btn" type="button" data-action="attack" disabled>
-                  <div class="attack-visuals">
-                    <span class="btn-icon" aria-hidden="true">
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M5 18.5L6.4 20L12 14.4L9.6 12L5 16.6V18.5Z"
-                          fill="currentColor"
-                        />
-                        <path
-                          d="M11.1 10.5L13.5 12.9L18.1 8.3L15.7 5.9L11.1 10.5Z"
-                          fill="currentColor"
-                        />
-                        <path
-                          d="M14.2 4.4L19.6 9.8L21 8.4L15.6 3L14.2 4.4Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                    </span>
-                    <span class="btn-copy">
-                      <span class="btn-label">{fmodGameUi.controls.attack}</span>
-                      <span class="btn-hint">{fmodGameUi.controls.attackHint}</span>
-                    </span>
-                  </div>
-                  <div class="purge-visuals">
-                    <span class="btn-icon" aria-hidden="true">
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M7.5 4H16.5L20 8.2L12 20L4 8.2L7.5 4Z"
-                          stroke="currentColor"
-                          stroke-width="1.7"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M4 8.2H20"
-                          stroke="currentColor"
-                          stroke-width="1.7"
-                          stroke-linecap="round"
-                        />
-                      </svg>
-                    </span>
-                    <span class="btn-copy">
-                      <span class="btn-label">{fmodGameUi.controls.purge}</span>
-                      <span class="btn-hint">{fmodGameUi.controls.purgeHint}</span>
-                    </span>
-                  </div>
-                  <span class="btn-lock-overlay" aria-hidden="true">
-                    <svg
-                      class="btn-lock-icon"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M7 10V7.5C7 4.9 9.1 2.8 11.7 2.8C14.3 2.8 16.4 4.9 16.4 7.5V10"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                      />
-                      <rect
-                        x="5"
-                        y="10"
-                        width="14"
-                        height="11"
-                        rx="2.5"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                      />
-                    </svg>
-                    <span>{fmodGameUi.controls.locked}</span>
-                  </span>
-                  <div class="btn-glaze"></div>
-                </button>
-                <button class="fmod-action-btn special-btn" type="button" data-action="special" disabled>
-                  <span class="btn-icon" aria-hidden="true">
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M12 2.5L14.7 8.2L20.9 9.1L16.4 13.5L17.5 19.7L12 16.7L6.5 19.7L7.6 13.5L3.1 9.1L9.3 8.2L12 2.5Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </span>
-                  <span class="btn-copy">
-                    <span class="btn-label">{fmodGameUi.controls.special}</span>
-                    <span class="btn-hint">{fmodGameUi.controls.specialHint}</span>
-                  </span>
-                  <span class="btn-lock-overlay" aria-hidden="true">
-                    <svg
-                      class="btn-lock-icon"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M7 10V7.5C7 4.9 9.1 2.8 11.7 2.8C14.3 2.8 16.4 4.9 16.4 7.5V10"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                      />
-                      <rect
-                        x="5"
-                        y="10"
-                        width="14"
-                        height="11"
-                        rx="2.5"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                      />
-                    </svg>
-                    <span>{fmodGameUi.controls.locked}</span>
-                  </span>
-                  <div class="btn-glaze"></div>
-                </button>
-              </div>
+            <div class="fmod-launch-gate" aria-hidden="false">
+              <button
+                class="fmod-btn fmod-start-btn fmod-start-btn--gate fmod-gate-play-btn"
+                type="button"
+                disabled
+              >
+                <span class="fmod-gate-icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M8 5.25V18.75L18.5 12L8 5.25Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </span>
+                <span class="fmod-gate-label">{fmodGameUi.controls.start}</span>
+              </button>
             </div>
 
             <div class="fmod-hidden-params" style="display: none;">
@@ -8181,12 +8369,15 @@ const accentColorRgbDark =
           function enableGameModeControls() {
             const phaseIndicator = card.querySelector(".fmod-phase-copy");
             const phaseLabel = phaseIndicator?.querySelector(".phase-label");
+            const gameSurface = card.querySelector(".fmod-game-surface");
             const sceneWrapper = card.querySelector(".fmod-scene");
             const stageBoss = card.querySelector(".fmod-stage .fmod-boss-container");
             const bossHud = card.querySelector(".fmod-stage-boss-hud");
             const playerHud = card.querySelector(".fmod-stage-player-hud");
             const controlsPanel = card.querySelector(".fmod-controls-panel");
             const controlsSummary = controlsPanel?.querySelector(".fmod-controls-summary");
+            const launchGate = card.querySelector(".fmod-launch-gate");
+            const gatePlayBtn = launchGate?.querySelector(".fmod-gate-play-btn");
             const bossHealthFill = bossHud?.querySelector(".health-fill");
             const bossHealthValue = bossHud?.querySelector(".health-value-display");
             const playerHealthFill = playerHud?.querySelector(".health-fill");
@@ -8242,11 +8433,48 @@ const accentColorRgbDark =
             let bossIntroFinalizeTimer = null;
             let bossValueAnimationFrame = null;
             let bossHudState = "pending";
+            let launchState = card.dataset.launchState || "loading";
             const eventParameterIds = new WeakMap();
             const primaryControlBtns = Array.from(actionBtns);
 
             function updateControlsSummary(message = FMOD_GAME_UI.status.idle) {
               if (controlsSummary) controlsSummary.textContent = message;
+            }
+
+            function setLaunchState(nextState) {
+              launchState = nextState;
+              card.dataset.launchState = nextState;
+
+              if (launchGate) {
+                launchGate.setAttribute(
+                  "aria-hidden",
+                  nextState === "live" ? "true" : "false",
+                );
+              }
+
+              if (gameSurface) {
+                if (nextState === "live") {
+                  gameSurface.removeAttribute("inert");
+                } else {
+                  gameSurface.setAttribute("inert", "");
+                }
+              }
+
+              if (playBtn) {
+                if (nextState === "live") {
+                  playBtn.removeAttribute("disabled");
+                } else {
+                  playBtn.setAttribute("disabled", "true");
+                }
+              }
+
+              if (gatePlayBtn) {
+                if (nextState === "gated") {
+                  gatePlayBtn.removeAttribute("disabled");
+                } else {
+                  gatePlayBtn.setAttribute("disabled", "true");
+                }
+              }
             }
 
             function setPlayButtonState(state) {
@@ -8272,7 +8500,6 @@ const accentColorRgbDark =
                 "aria-pressed",
                 state === "running" ? "true" : "false",
               );
-              playBtn.removeAttribute("disabled");
             }
 
             function createInitialGameState() {
@@ -8732,6 +8959,20 @@ const accentColorRgbDark =
               stopIntroCountdown();
               stopFmodPolling();
               clearBossIntroAnimation({ reset: true });
+              gameState = createInitialGameState();
+              setBossHudState("live");
+              updateHealthBars();
+              updateToggleButtons();
+              syncSceneState();
+              setButtonStates(false);
+              setPlayButtonState("ready");
+              setLaunchState("gated");
+              setStatus(FMOD_GAME_UI.status.idle);
+              setPhaseState(
+                "waiting",
+                FMOD_GAME_UI.phaseLabels.waiting,
+                phaseDescriptions.waiting,
+              );
             };
 
             function updateHealthBars() {
@@ -8836,10 +9077,88 @@ const accentColorRgbDark =
 
               setButtonStates(false);
               setPlayButtonState("ready");
+              setLaunchState("gated");
 
               setStatus(statusMessage);
               updateControlsSummary(statusMessage);
               setPhaseState(phase, phaseLabelText, phaseDescText);
+            }
+
+            function getPrimaryEventPath() {
+              return card.dataset.fmodEvents
+                ? JSON.parse(card.dataset.fmodEvents)[0]?.path
+                : null;
+            }
+
+            function getOrCreatePrimaryInstance(eventPath) {
+              if (!eventPath || !studioSystem || !isInitialized) return null;
+
+              let instance = eventInstances.get(eventPath);
+              if (instance) return instance;
+
+              const outval = {};
+              let result = studioSystem.getEvent(eventPath, outval);
+              if (result !== FMOD.OK) return null;
+
+              const eventDesc = outval.val;
+              result = eventDesc.createInstance(outval);
+              if (result !== FMOD.OK) return null;
+
+              instance = outval.val;
+              eventInstances.set(eventPath, instance);
+              return instance;
+            }
+
+            function startGameRun() {
+              if (!studioSystem || !isInitialized) return;
+
+              const eventPath = getPrimaryEventPath();
+              if (!eventPath) return;
+
+              const instance = getOrCreatePrimaryInstance(eventPath);
+              if (!instance) return;
+
+              stopIntroCountdown();
+              stopFmodPolling();
+              clearBossIntroAnimation({ reset: true });
+              gameState = createInitialGameState();
+              gameState.isPlaying = true;
+              cacheTrackedParameterIds(instance, eventPath);
+
+              applyParameterToSystemAndInstances("BOSS_HEALTH", 100);
+              applyParameterToSystemAndInstances("PLAYER_HEALTH", 100);
+              applyParameterToSystemAndInstances(mobParamName, 1);
+              applyParameterToSystemAndInstances("isSpecial", 0);
+
+              instance.start();
+              startFmodPolling(instance);
+              updateHealthBars();
+              scheduleBossIntroFill();
+              updateToggleButtons();
+              syncSceneState();
+              setPlayButtonState("running");
+              setLaunchState("live");
+              startIntroCountdown();
+            }
+
+            function stopGameRun() {
+              resetGame({
+                stopMode: FMOD.STUDIO_STOP_ALLOWFADEOUT,
+                statusMessage: FMOD_GAME_UI.status.stopped,
+                phase: "waiting",
+                phaseLabelText: FMOD_GAME_UI.phaseLabels.stopped,
+                phaseDescText: phaseDescriptions.stopped,
+              });
+            }
+
+            function handleTransportToggle() {
+              if (gameState.isPlaying) {
+                stopGameRun();
+                return;
+              }
+
+              if (launchState !== "gated") return;
+              startGameRun();
             }
 
             actionBtns.forEach((btn) => {
@@ -8917,76 +9236,18 @@ const accentColorRgbDark =
               });
             }
 
-            if (playBtn) {
-              setPlayButtonState("ready");
-
-              playBtn.addEventListener("click", () => {
-                if (gameState.isPlaying) {
-                  resetGame({
-                    stopMode: FMOD.STUDIO_STOP_ALLOWFADEOUT,
-                    statusMessage: FMOD_GAME_UI.status.stopped,
-                    phase: "waiting",
-                    phaseLabelText: FMOD_GAME_UI.phaseLabels.stopped,
-                    phaseDescText: phaseDescriptions.stopped,
-                  });
-                  return;
-                }
-
-                if (!studioSystem || !isInitialized) return;
-
-                const eventPath = card.dataset.fmodEvents
-                  ? JSON.parse(card.dataset.fmodEvents)[0]?.path
-                  : null;
-                if (!eventPath) return;
-
-                let instance = eventInstances.get(eventPath);
-                if (!instance) {
-                  const outval = {};
-                  let result = studioSystem.getEvent(eventPath, outval);
-                  if (result === FMOD.OK) {
-                    const eventDesc = outval.val;
-                    result = eventDesc.createInstance(outval);
-                    if (result === FMOD.OK) {
-                      instance = outval.val;
-                      eventInstances.set(eventPath, instance);
-                    }
-                  }
-                }
-
-                if (instance) {
-                  stopIntroCountdown();
-                  stopFmodPolling();
-                  clearBossIntroAnimation({ reset: true });
-                  gameState = createInitialGameState();
-                  gameState.isPlaying = true;
-                  cacheTrackedParameterIds(instance, eventPath);
-
-                  applyParameterToSystemAndInstances("BOSS_HEALTH", 100);
-                  applyParameterToSystemAndInstances("PLAYER_HEALTH", 100);
-                  applyParameterToSystemAndInstances(mobParamName, 1);
-                  applyParameterToSystemAndInstances("isSpecial", 0);
-
-                  instance.start();
-                  startFmodPolling(instance);
-                  updateHealthBars();
-                  scheduleBossIntroFill();
-                  updateToggleButtons();
-                  syncSceneState();
-
-                  setPlayButtonState("running");
-
-                  startIntroCountdown();
-                }
-              });
-            }
+            setPlayButtonState("ready");
+            [playBtn, gatePlayBtn].forEach((button) => {
+              button?.addEventListener("click", handleTransportToggle);
+            });
 
             setButtonStates(false);
-            setPlayButtonState("ready");
             clearBossIntroAnimation({ reset: true });
             setBossHudState("live");
             updateHealthBars();
             updateToggleButtons();
             syncSceneState();
+            setLaunchState("gated");
             setStatus(FMOD_GAME_UI.status.idle);
             updateControlsSummary(FMOD_GAME_UI.status.idle);
             setPhaseState(

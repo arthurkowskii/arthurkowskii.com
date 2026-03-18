@@ -467,3 +467,9 @@
   - Verified FR and EN output on the direct project route.
   - Verified the homepage overlay rendering in both light and dark themes.
   - Confirmed the simplified card reads cleaner and more cohesive with the rest of the bento system.
+
+### FMOD Header Width Correction (2026-03-18)
+- **Layout Fix**: Moved the flexibility to the parent header grid so the right-side action strip receives the available width instead of keeping the phase chip inside an auto-sized column.
+- **Result**: The phase block now stretches between the title block and the Start/Stop CTA, while the CTA stays content-sized and visually anchored on the right.
+- **Responsive Behavior**: Kept the desktop header on one row longer and preserved the narrow-screen stack only at the mobile breakpoint.
+- **Verification**: `npm run build` passes after the header-width correction.
