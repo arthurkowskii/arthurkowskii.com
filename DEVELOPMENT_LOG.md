@@ -1,5 +1,6 @@
 - Status: Phase 4 complete. Stable motion/hover system; overlay and micro-interactions shipped; config-driven.
 - CMS: Decap admin is local-only for now; choose production backend (git-gateway/GitHub) during deploy.
+- Last updated: 2026-03-18
 
 > [!IMPORTANT]
 > **ALWAYS CHECK [`TODO.md`](./TODO.md) AT THE START OF EACH SESSION.**
@@ -69,6 +70,13 @@
 - Scope: Pass server-only values through atom.config.js; don't import userTweaks in client code.
 
 ## Recent Major Changes
+
+### FMOD Boss Header Polish (2026-03-18)
+- Enlarged the FMOD boss phase box so it can display the phase description directly in the header
+- Removed the small `Runtime FMOD` / `FMOD runtime` kicker from the header start button
+- Reused the existing phase-description state data already wired through `setPhaseState`
+- Kept runtime behavior intact for launch, phase transitions, and combat controls
+- Verified with `npm run build` and checked the FR/EN Boss pages in the generated output
 
 ### Phase 4 (2025-08-24/26): Enterprise-Grade Transformation
 - Accessibility compliance & bug fixes (electron motion, focus-visible, bio overlay)
