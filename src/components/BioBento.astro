@@ -60,6 +60,7 @@ const favoriteGamesFavorites = Array.isArray(favoriteGamesConfig.favorites) && f
 const favoriteGamesPlayingNow = Array.isArray(favoriteGamesConfig.playingNow)
   ? favoriteGamesConfig.playingNow
   : [];
+const showPressCard = false;
 ---
 
 <style define:vars={{ topGap: `${atomConfig.bioPageLayout?.topGapPx || 80}px` }}>
@@ -97,7 +98,6 @@ const favoriteGamesPlayingNow = Array.isArray(favoriteGamesConfig.playingNow)
       "hero hero status"
       "bio portrait skills"
       "contact social skills"
-      "press press press"
       "games games games";
   }
 
@@ -793,7 +793,6 @@ const favoriteGamesPlayingNow = Array.isArray(favoriteGamesConfig.playingNow)
         "bio portrait"
         "contact social"
         "skills skills"
-        "press press"
         "games games";
     }
 
@@ -813,7 +812,6 @@ const favoriteGamesPlayingNow = Array.isArray(favoriteGamesConfig.playingNow)
         "contact"
         "social"
         "skills"
-        "press"
         "games";
     }
 
@@ -1270,7 +1268,7 @@ const favoriteGamesPlayingNow = Array.isArray(favoriteGamesConfig.playingNow)
     ) : null}
 
     <!-- Press Card -->
-    {(data?.press || []).length > 0 ? (
+    {showPressCard && (data?.press || []).length > 0 ? (
       <div class="bento-card press-card" data-animation-delay="700">
         <div class="card-label">Press</div>
         <div class="press-articles">
