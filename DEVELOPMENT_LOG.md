@@ -1,6 +1,6 @@
 - Status: Phase 4 complete. Stable motion/hover system; overlay and micro-interactions shipped; config-driven.
 - CMS: Decap admin is local-only for now; choose production backend (git-gateway/GitHub) during deploy.
-- Last updated: 2026-03-18
+- Last updated: 2026-03-20
 
 > [!IMPORTANT]
 > **ALWAYS CHECK [`TODO.md`](./TODO.md) AT THE START OF EACH SESSION.**
@@ -481,3 +481,16 @@
 - **Result**: The phase block now stretches between the title block and the Start/Stop CTA, while the CTA stays content-sized and visually anchored on the right.
 - **Responsive Behavior**: Kept the desktop header on one row longer and preserved the narrow-screen stack only at the mobile breakpoint.
 - **Verification**: `npm run build` passes after the header-width correction.
+
+### Audio Card Light-Mode & Theme Consistency Fix (2026-03-20)
+- **Contrast Bug**: The wide audio tracklist (right column) used hard-coded dark-theme values while the card background switched to light, making tracks, scrollbar, and divider nearly invisible in light mode.
+- **Root Cause**: Base `.audio-track-item`, `.tracklist-title`, `.audio-card-wide .audio-player-column`, and scrollbar rules targeted dark surfaces; there were no light-mode overrides.
+- **Fixes in `src/components/ProjectBento.astro`**:
+  - Replaced dark-only palette with light-mode defaults (near-white card surface, dark text/rows, subtle borders) for the tracklist divider, title, scrollbar, row backgrounds, and active/hover states.
+  - Added `html[data-theme="dark"]` overrides to preserve the original dark styling under dark mode.
+  - Restored visible `:focus-visible` outlines for audio buttons and track rows so keyboard focus is no longer invisible.
+  - Fixed the mojibake French subtitle string and localized play/skip button `aria-label`s.
+- **Theme Consistency in `src/pages/projects/[slug].astro` & `src/pages/en/projects/[slug].astro`**:
+  - Aligned `color-scheme` with active theme (`light` by default, plus `dark` override) so native controls match page theme.
+  - Unified theme default to `dark` on direct project routes, matching the homepage behavior.
+- **Verification**: `npm run build` succeeds; audio card now has full contrast in both light and dark themes across overlay and direct routes.

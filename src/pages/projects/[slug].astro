@@ -161,6 +161,7 @@ const structuredDataNodes = [buildProjectStructuredData({
         filter: blur(var(--vt-soft, 0px));
       }
       :root { color-scheme: light; }
+      html[data-theme="dark"] { color-scheme: dark; }
       body {
         margin: 0;
         padding: 0;
@@ -245,8 +246,7 @@ const structuredDataNodes = [buildProjectStructuredData({
       (function(){
         try {
           const saved = localStorage.getItem('theme');
-          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const theme = saved || (prefersDark ? 'dark' : 'light');
+          const theme = saved || 'dark';
           document.documentElement.setAttribute('data-theme', theme);
         } catch {}
       })();

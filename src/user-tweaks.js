@@ -429,7 +429,7 @@ export const userTweaks = {
   favoriteGames: {
     enabled: true,
     title: 'Favourite Games',
-    games: [
+    favorites: [
       { name: '♥️', image: '/images/games/persona5.jpg' },  // Persona 5
       { name: '♥️', image: '/images/games/totk.jpg' },  // Zelda Totk
       { name: '♥️', image: '/images/games/33.jpg' }, // Clair Obscur
@@ -442,6 +442,13 @@ export const userTweaks = {
       { name: 'RPG', image: '/images/games/metaphor.avif' }, // Metaphor Refantazio
       { name: 'Platform', image: '/images/games/pupeteer.jpg' }, // Pupeteer
       { name: 'Graphism', image: '/images/games/gris.jpg' } // Gris
+    ],
+    playingNowTitle: 'Playing right now',
+    playingNow: [
+      { name: 'The Crew Motorfest', image: 'public/images/games/motorfest.png' },
+      { name: 'Car Mechanic Simulator', image: 'public/images/games/mechanic.png' },
+      { name: 'Gof Of War Ragnarok', image: 'public/images/games/ragnarok.png' },
+      { name: 'Baba is You', image: 'public/images/games/babaisyou.png' }
     ],
     // Visual settings
     columns: 6,  // Number of columns in desktop view

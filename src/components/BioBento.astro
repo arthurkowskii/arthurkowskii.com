@@ -53,6 +53,13 @@ function logoSrcFor(label: string): string | null {
 
 // Sanitize bio HTML (we allow basic tags like strong/em)
 const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
+const favoriteGamesConfig = atomConfig.favoriteGames || {};
+const favoriteGamesFavorites = Array.isArray(favoriteGamesConfig.favorites) && favoriteGamesConfig.favorites.length > 0
+  ? favoriteGamesConfig.favorites
+  : (Array.isArray(favoriteGamesConfig.games) ? favoriteGamesConfig.games : []);
+const favoriteGamesPlayingNow = Array.isArray(favoriteGamesConfig.playingNow)
+  ? favoriteGamesConfig.playingNow
+  : [];
 ---
 
 <style define:vars={{ topGap: `${atomConfig.bioPageLayout?.topGapPx || 80}px` }}>
@@ -91,7 +98,7 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
       "bio portrait skills"
       "contact social skills"
       "press press press"
-      "games games .";
+      "games games games";
   }
 
   /* Accentuate bio and contact height difference */
@@ -500,12 +507,75 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
     min-height: auto; /* Let content determine height */
   }
 
+  .games-header {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) 1px repeat(2, minmax(0, 1fr));
+    gap: clamp(18px, 2vw, 28px);
+    align-items: end;
+    margin-bottom: 16px;
+  }
+
+  .games-header-title {
+    margin: 0;
+  }
+
+  .games-header-title-favorites {
+    grid-column: 1 / span 6;
+  }
+
+  .games-header-title-playing-now {
+    grid-column: 8 / span 2;
+  }
+
+  .games-layout {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) 1px repeat(2, minmax(0, 1fr));
+    gap: clamp(18px, 2vw, 28px);
+    align-items: stretch;
+  }
+
+  .games-panel {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .games-panel-favorites {
+    grid-column: 1 / span 6;
+  }
+
+  .games-panel-playing-now {
+    grid-column: 8 / span 2;
+  }
+
+  .games-panel-title {
+    display: none;
+  }
+
+  .games-divider {
+    grid-column: 7;
+    width: 1px;
+    align-self: stretch;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      var(--border-secondary) 14%,
+      var(--border-secondary) 86%,
+      transparent 100%
+    );
+    opacity: 0.8;
+  }
+
   .games-container {
     display: grid;
     grid-template-columns: repeat(var(--games-columns, 6), minmax(0, 1fr));
     grid-auto-rows: 1fr; /* Auto rows with equal height */
     gap: var(--games-gap, 16px);
-    padding: 8px;
+    padding: 0;
+  }
+
+  .playing-now-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .game-item {
@@ -725,11 +795,10 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
         "skills skills"
         "press press"
         "games games";
+    }
 
     .games-container {
-      grid-template-columns: repeat(4, minmax(0, 1fr)); /* Adjust to 4 columns on medium screens */
-      grid-template-rows: repeat(3, minmax(0, 1fr)); /* 3 rows to fit 12 items */
-    }
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 
@@ -746,15 +815,50 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
         "skills"
         "press"
         "games";
+    }
+
+    .games-header {
+      display: none;
+    }
+
+    .games-layout {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .games-panel-favorites,
+    .games-panel-playing-now,
+    .games-divider {
+      grid-column: auto;
+    }
+
+    .games-panel-title {
+      display: block;
+      margin: 0 0 12px;
+    }
+
+    .games-divider {
+      width: auto;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--border-secondary) 12%,
+        var(--border-secondary) 88%,
+        transparent 100%
+      );
+    }
 
     .games-container {
-      grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columns on mobile */
-      grid-template-rows: repeat(4, minmax(0, 1fr)); /* 4 rows to fit 12 items */
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .playing-now-container {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .favourite-games-card {
-      min-height: auto; /* Auto height for mobile */
-    }
+      min-height: auto;
     }
 
     .hero-name {
@@ -800,6 +904,11 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
     .hero-name {
       font-size: 28px;
       letter-spacing: 2px;
+    }
+
+    .games-container,
+    .playing-now-container {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
@@ -924,6 +1033,33 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
 
   html[data-theme="dark"] .game-title {
     color: #cccccc;
+  }
+
+  html[data-theme="dark"] .games-header-title,
+  html[data-theme="dark"] .games-panel-title {
+    color: #cccccc;
+  }
+
+  html[data-theme="dark"] .games-divider {
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      #3a3a3a 14%,
+      #3a3a3a 86%,
+      transparent 100%
+    );
+  }
+
+  @media (max-width: 899px) {
+    html[data-theme="dark"] .games-divider {
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        #3a3a3a 12%,
+        #3a3a3a 88%,
+        transparent 100%
+      );
+    }
   }
 
   html[data-theme="dark"] .game-placeholder-icon {
@@ -1178,37 +1314,81 @@ const sanitizedBio = data?.bio ? await sanitizeMarkdown(data.bio) : '';
     ) : null}
 
     <!-- Favourite Games Card -->
-    {atomConfig.favoriteGames?.enabled !== false ? (
+    {favoriteGamesConfig.enabled !== false ? (
       <div class="bento-card favourite-games-card" data-animation-delay="800" style={`
-        --games-columns: ${atomConfig.favoriteGames?.columns || 6};
-        --games-rows: ${atomConfig.favoriteGames?.rows || 2};
-        --games-gap: ${atomConfig.favoriteGames?.squareGap || 16}px;
-        --games-border-radius: ${atomConfig.favoriteGames?.squareBorderRadius || 12}px;
-        --games-label-size: ${atomConfig.favoriteGames?.labelFontSize || 12}px;
-        --games-hover-scale: ${atomConfig.favoriteGames?.hoverScale || 1.05};
-        --games-hover-lift: ${atomConfig.favoriteGames?.hoverLift || 4};
-        --games-image-style: ${atomConfig.favoriteGames?.imageStyle || 'cover'};
+        --games-columns: ${favoriteGamesConfig.columns || 6};
+        --games-rows: ${favoriteGamesConfig.rows || 2};
+        --games-gap: ${favoriteGamesConfig.squareGap || 16}px;
+        --games-border-radius: ${favoriteGamesConfig.squareBorderRadius || 12}px;
+        --games-label-size: ${favoriteGamesConfig.labelFontSize || 12}px;
+        --games-hover-scale: ${favoriteGamesConfig.hoverScale || 1.05};
+        --games-hover-lift: ${favoriteGamesConfig.hoverLift || 4};
+        --games-image-style: ${favoriteGamesConfig.imageStyle || 'cover'};
       `}>
-        <div class="card-label">{atomConfig.favoriteGames?.title || 'Favourite Games'}</div>
-        <div class="games-container">
-          {(atomConfig.favoriteGames?.games || []).map((game: any) => (
-            <div class="game-item">
-              <div class="game-square">
-                {game.image ? (
-                  <img
-                    class="game-image"
-                    src={game.image}
-                    alt={game.name}
-                    loading="lazy"
-                  />
-                ) : atomConfig.favoriteGames?.showPlaceholderIfNoImage !== false ? (
-                  <span class="game-placeholder-icon">{atomConfig.favoriteGames?.placeholderIcon || '🎮'}</span>
-                ) : null}
-              </div>
-              <span class="game-title">{game.name || 'Game'}</span>
+        <div class="games-header">
+          <div class="card-label games-header-title games-header-title-favorites">
+            {favoriteGamesConfig.title || 'Favourite Games'}
+          </div>
+          {favoriteGamesPlayingNow.length > 0 ? (
+            <div class="card-label games-header-title games-header-title-playing-now">
+              {favoriteGamesConfig.playingNowTitle || 'Playing right now'}
             </div>
-          ))}
+          ) : null}
         </div>
+        <div class="games-layout">
+          <div class="games-panel games-panel-favorites">
+            <p class="card-label games-panel-title">{favoriteGamesConfig.title || 'Favourite Games'}</p>
+            <div class="games-container">
+              {favoriteGamesFavorites.map((game: any) => (
+                <div class="game-item">
+                  <div class="game-square">
+                    {game.image ? (
+                      <img
+                        class="game-image"
+                        src={game.image}
+                        alt={game.name}
+                        loading="lazy"
+                      />
+                    ) : favoriteGamesConfig.showPlaceholderIfNoImage !== false ? (
+                      <span class="game-placeholder-icon">{favoriteGamesConfig.placeholderIcon || 'ðŸŽ®'}</span>
+                    ) : null}
+                  </div>
+                  <span class="game-title">{game.name || 'Game'}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {favoriteGamesPlayingNow.length > 0 ? (
+            <>
+              <div class="games-divider" aria-hidden="true"></div>
+              <div class="games-panel games-panel-playing-now">
+                <p class="card-label games-panel-title">{favoriteGamesConfig.playingNowTitle || 'Playing right now'}</p>
+                <div class="games-container playing-now-container">
+                  {favoriteGamesPlayingNow.map((game: any) => (
+                    <div class="game-item">
+                      <div class="game-square">
+                        {game.image ? (
+                          <img
+                            class="game-image"
+                            src={game.image}
+                            alt={game.name}
+                            loading="lazy"
+                          />
+                        ) : favoriteGamesConfig.showPlaceholderIfNoImage !== false ? (
+                          <span class="game-placeholder-icon">{favoriteGamesConfig.placeholderIcon || 'ðŸŽ®'}</span>
+                        ) : null}
+                      </div>
+                      <span class="game-title">{game.name || 'Game'}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : null}
+        </div>
+        {/*
+                  <span class="game-placeholder-icon">{atomConfig.favoriteGames?.placeholderIcon || '🎮'}</span>
+        */}
       </div>
     ) : null}
   </div>
