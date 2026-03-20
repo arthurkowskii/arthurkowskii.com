@@ -445,10 +445,10 @@ export const userTweaks = {
     ],
     playingNowTitle: 'Playing right now',
     playingNow: [
-      { name: 'The Crew Motorfest', image: 'public/images/games/motorfest.png' },
-      { name: 'Car Mechanic Simulator', image: 'public/images/games/mechanic.png' },
-      { name: 'Gof Of War Ragnarok', image: 'public/images/games/ragnarok.png' },
-      { name: 'Baba is You', image: 'public/images/games/babaisyou.png' }
+      { name: 'The Crew Motorfest', image: '/images/games/motorfest.png' },
+      { name: 'Car Mechanic Simulator', image: '/images/games/mechanic.png' },
+      { name: 'Gof Of War Ragnarok', image: '/images/games/ragnarok.png' },
+      { name: 'Baba is You', image: '/images/games/babaisyou.png' }
     ],
     // Visual settings
     columns: 6,  // Number of columns in desktop view
