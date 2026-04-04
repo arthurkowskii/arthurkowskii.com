@@ -41,7 +41,9 @@ const alternateOgLocale = currentLocale === 'fr' ? 'en_US' : 'fr_FR';
 
 
 // Get all projects and compute domains from folder structure (prefix-ordered)
-const projects = await getCollection('projects');
+const allProjects = await getCollection('projects');
+// Filter out projects that are not alive (isAlive: false)
+const projects = allProjects.filter(project => project.data?.isAlive !== false);
 // console.log('🔍 DEBUG: Total projects loaded:', projects.length);
 // projects.forEach(p => console.log(`🔍 DEBUG: Project ${p.slug} in folder ${p.id.split('/')[0]}`));
 

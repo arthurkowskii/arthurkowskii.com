@@ -10,6 +10,7 @@ description:
   en: "This is boss fight audio system made with FMOD during a school project, here you can directly try the implementation without leaving this portfolio. Context : dark fantasy boss fight, scored entirely with adaptive music driven by gameplay parameters."
 tech: ["FMOD", "Web API", "JavaScript"]
 status: "completed"
+isAlive: true # Temporarily disabled - set to true to re-enable
 date: 2026-02-21
 useBentoLayout: true
 

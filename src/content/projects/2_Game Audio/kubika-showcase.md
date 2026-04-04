@@ -113,18 +113,18 @@ bento:
       label: "TEAM SIZE"
     - value : "PC"
       label : "PLATFORM"
-    - value : KubiTeam
+    - value : KubiCorp
       label : COMPANY
   
   # Action buttons
   actions:
     title: "Links"
     primary:
-      text: "Download the Alpha here ! ⬇️"
-      url: "https://kubika.itch.io/kubika-a-cube-story/purchase"
+      text: "Wishlist now on Steam 🛍️"
+      url: "https://store.steampowered.com/app/4384150/KUBIKA/wishlist/"
     secondary:
-      text: "Follow us on itch.io"
-      url: "https://kubika.itch.io/kubika-a-cube-story"
+      text: "All of our links 🔗"
+      url: "https://kubicorpstudio.com/links"
 
   # Video configuration
   video:
@@ -184,11 +184,11 @@ bento:
           fr: "Développement d'un système d'écoute audio 3D personnalisé qui maintient les relations spatiales indépendamment de l'orientation du monde"
           en: "Developed custom 3D audio listener system that maintains spatial relationships regardless of world orientation"
       - title:
-          fr: "Concevoir un son joué plus d'une cinquantaine de fois par minute et le rendre plaisant"
-          en: "Designing a sound played over fifty times per minute and making it pleasant"
+          fr: "Bruiter des écosystèmes avec une faune cohérente et intelligente, respectant les relations entre les différentes espèces et les biomes"
+          en: "Creating cohesive and intelligent ecosystems, respecting relationships between different species and biomes"
         description:
-          fr: "Implémentation de systèmes de pooling audio et LOD pour gérer l'audio 3D complexe sans impact sur les performances"
-          en: "Implemented audio pooling and LOD systems to handle complex 3D audio without performance impact"
+          fr: "Un travail important a été fait par dessus le travail des artistes pour déterminer les types d'animaux présents dans les différentes mondes en fonction de visuels. La répartition de ces animaux est intelligente et dynamique."
+          en: "Significant work was done on top of the artists' work to determine the types of animals present in the different worlds based on visuals. The distribution of these animals is intelligent and dynamic."
       - title:
           fr: "Optimisation des performances"
           en: "Performance optimization"
@@ -205,18 +205,21 @@ bento:
       fr: "Impact et reconnaissance"
       en: "Impact and recognition"
     items:
+      - icon: "⭐"
+        text:
+          fr: "Co fondatation du studio indépendant KubiCorp en 2025 avec le reste de l'équipe."
+          en: "Co-founded independent studio KubiCorp in 2025 with the rest of the team."
       - icon: "🕹️"
         text:
-          fr: "Une démo du premier monde disponible sur itch.io et une démo Steam disponible avant la fin 2025"
-          en: "First world demo available on itch.io and a Steam demo coming before the end of 2025"
+          fr: "Sortie PC troisième trimestre 2026, démo disponible en avril."
+          en: "PC release in Q3 2026, demo available in April."
       - icon: "🔉"
-        text:
-          fr: "Un sound design satisfaisant et réactif"
-          en: "Satisfying and responsive sound design"
-      - icon: "👨‍💻"
-        text:
-          fr: "Une intégration puissante mais légère, sans latence"
-          en: "Powerful yet lightweight integration with no latency"
+        title:
+          fr: "Un système musical dynamique."
+          en: "A dynamic musical system."
+        description:
+          fr: "La musique du jeu s'adapte à la progression des joueurs dans le jeu, ainsi celui n'entend jamais les"
+          en: "The game's music seamlessly adapts to gravity changes and different game phases, enhancing immersion and emotional impact."
 ---
 
 # Kubika: A Cube Story

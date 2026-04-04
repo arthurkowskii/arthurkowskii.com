@@ -11,6 +11,7 @@ description:
 tech: ["Reaper", "FMOD"]
 status: "completed"
 link: "https://youtu.be/URPsqY7SwxY?si=orus46GsXuOBT0hj"
+isAlive: false
 date: 2024-03-15
 useBentoLayout: true
 

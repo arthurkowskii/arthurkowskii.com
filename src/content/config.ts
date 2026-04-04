@@ -33,6 +33,7 @@ const projectsCollection = defineCollection({
     github: z.string().url().optional(),
     image: z.string().optional(),
     featured: z.boolean().default(false),
+    isAlive: z.boolean().default(true), // Controls visibility in the atom (false = hidden but page still exists)
     date: z.date(),
     useBentoLayout: z.boolean().default(false),
 
