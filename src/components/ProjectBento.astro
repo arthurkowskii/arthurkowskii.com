@@ -5758,24 +5758,16 @@ const accentColorRgbDark =
       !hasMusicLinks && cards.stats && bento.stats && (
         <div class="bento-card stats-card">
           <h3 class="card-title">
-            {typeof bento.stats?.title === "object"
-              ? bento.stats.title[
-                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
-                ] ||
-                bento.stats.title.fr ||
-                (Astro.url.searchParams.get("lang") === "en"
-                  ? "Project Stats"
-                  : "Infos Projet")
-              : bento.stats?.title ||
-                (Astro.url.searchParams.get("lang") === "en"
-                  ? "Project Stats"
-                  : "Infos Projet")}
+            {resolveLocalizedText(
+              bento.stats?.title,
+              currentLang === "en" ? "Project Stats" : "Infos Projet",
+            )}
           </h3>
           <div class="stats-grid">
             {bento.stats.map((stat) => (
               <div class="stat-item">
-                <span class="stat-value">{stat.value}</span>
-                <span class="stat-label">{stat.label}</span>
+                <span class="stat-value">{resolveLocalizedText(stat.value)}</span>
+                <span class="stat-label">{resolveLocalizedText(stat.label)}</span>
               </div>
             ))}
           </div>

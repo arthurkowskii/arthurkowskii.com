@@ -48,10 +48,22 @@ bento:
 
   # Project stats
   stats:
-    - value: "FMOD"
-      label: "IMPLEMENTATION"
-    - value: "REAPER"
-      label: "COMPOSITION"
+    - value: "FMOD Web"
+      label:
+        fr: "MOTEUR"
+        en: "ENGINE"
+    - value: "JavaScript"
+      label:
+        fr: "LANGAGE"
+        en: "LANGUAGE"
+    - value: "Git"
+      label:
+        fr: "VERSIONNING"
+        en: "VERSION CONTROL"
+    - value: "Technical Audio"
+      label:
+        fr: "RÔLE"
+        en: "ROLE"
 
   # Process steps
   process:

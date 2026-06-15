@@ -6,8 +6,8 @@ altTitle:
   fr: "Helena Rubinstein"
   en: "Helena Rubinstein"
 description:
-  fr: "À l'occasion du salon annuel L'Oréal Paris, j'ai eu l'opportunité de collaborer avec Helena Rubinstein pour la présentation exclusive de ses nouveaux produits. J'ai composé quinze minutes de musique, diffusées tout au long de l'événement afin d'accompagner les différentes sessions."
-  en: "For the annual L'Oréal Paris salon, I had the opportunity to collaborate with Helena Rubinstein for the exclusive presentation of their new products. I composed fifteen minutes of music, broadcast throughout the event to accompany the various sessions."
+  fr: "Dans le cadre d'une collaboration annuelle et toujours en cours avec Helena Rubinstein, je compose la musique du salon L'Oréal Paris pour la présentation exclusive de leurs nouveaux produits. Chaque édition donne lieu à quinze minutes de musique diffusées tout au long de l'événement pour accompagner les différentes sessions."
+  en: "As part of an ongoing annual collaboration with Helena Rubinstein, I compose music for the L'Oréal Paris salon to accompany the exclusive presentation of their new products. Each edition features fifteen minutes of music broadcast throughout the event across the various sessions."
 tech: ["Ableton", "FMOD"]
 status: "completed"
 link: "https://kowskii.com"
@@ -61,7 +61,7 @@ bento:
   
   # Project stats
   stats:
-    - value: "2 Weeks"
+    - value: "Annual"
       label:
         fr: "DURÉE"
         en: "DURATION"

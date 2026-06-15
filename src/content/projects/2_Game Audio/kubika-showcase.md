@@ -107,21 +107,31 @@ bento:
   
   # Project stats
   stats:
-    - value: "1y+"
-      label: "DURATION"
-    - value: "5 👨‍👩‍👦‍👦"
-      label: "TEAM SIZE"
-    - value : "PC"
-      label : "PLATFORM"
-    - value : KubiCorp
-      label : COMPANY
+    - value: "Unity"
+      label:
+        fr: "MOTEUR"
+        en: "ENGINE"
+    - value: "C#"
+      label:
+        fr: "LANGAGE"
+        en: "LANGUAGE"
+    - value: "Git"
+      label:
+        fr: "VERSIONNING"
+        en: "VERSION CONTROL"
+    - value: "Sound Designer"
+      label:
+        fr: "RÔLE"
+        en: "ROLE"
   
   # Action buttons
   actions:
     title: "Links"
     primary:
-      text: "Wishlist now on Steam 🛍️"
-      url: "https://store.steampowered.com/app/4384150/KUBIKA/wishlist/"
+      text:
+        fr: "Jouer à la démo Steam 🎮"
+        en: "Play the Steam Demo 🎮"
+      url: "https://store.steampowered.com/app/4738710/KUBIKA_Demo/"
     secondary:
       text: "All of our links 🔗"
       url: "https://kubicorpstudio.com/links"
@@ -214,11 +224,8 @@ bento:
           fr: "Sortie PC troisième trimestre 2026, démo disponible en avril."
           en: "PC release in Q3 2026, demo available in April."
       - icon: "🔉"
-        title:
-          fr: "Un système musical dynamique."
-          en: "A dynamic musical system."
-        description:
-          fr: "La musique du jeu s'adapte à la progression des joueurs dans le jeu, ainsi celui n'entend jamais les"
+        text:
+          fr: "La musique du jeu s'adapte à la gravité et aux différentes phases de jeu, renforçant l'immersion et l'impact émotionnel."
           en: "The game's music seamlessly adapts to gravity changes and different game phases, enhancing immersion and emotional impact."
 ---
 

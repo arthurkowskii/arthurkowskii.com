@@ -62,14 +62,22 @@ bento:
 
   # Optional stats
   stats:
-    - value: "1 Month"
-      label: "DURATION"
-    - value: "7 🐭"
-      label: "TEAM SIZE"
-    - value : "PC"
-      label : "PLATFORM"
-    - value : "ISART"
-      label : "COMPANY"
+    - value: "Unity"
+      label:
+        fr: "MOTEUR"
+        en: "ENGINE"
+    - value: "C#"
+      label:
+        fr: "LANGAGE"
+        en: "LANGUAGE"
+    - value: "Git"
+      label:
+        fr: "VERSIONNING"
+        en: "VERSION CONTROL"
+    - value: "Composer"
+      label:
+        fr: "RÔLE"
+        en: "ROLE"
 
   # Optional actions
   actions:
