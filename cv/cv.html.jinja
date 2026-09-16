@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ b.name }} — CV</title>
+<style>
+  @font-face { font-family: 'SatoshiLocal'; font-weight: 400; src: url('../fonts/Satoshi-Regular.ttf') format('truetype'); }
+  @font-face { font-family: 'SatoshiLocal'; font-weight: 700; src: url('../fonts/Satoshi-Bold.ttf') format('truetype'); }
+  @font-face { font-family: 'SatoshiLocal'; font-weight: 900; src: url('../fonts/Satoshi-Black.ttf') format('truetype'); }
+
+  @page { size: A4; margin: 12mm 14mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'SatoshiLocal', 'Satoshi', 'Inter', Arial, sans-serif;
+    font-size: {{ fs }}pt;
+    line-height: 1.3;
+    color: #101010;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- En-tête ---------- */
+  h1 { font-size: {{ fs * 2.05 }}pt; font-weight: 900; margin: 0 0 1pt 0; letter-spacing: -0.15pt; }
+  .title { font-size: {{ fs * 1.08 }}pt; font-weight: 500; margin: 0 0 3pt 0; color: #222; }
+  .contact { font-size: {{ fs * 0.94 }}pt; margin: 0; color: #333; }
+  .contact span + span::before { content: "·"; margin: 0 6pt; color: #999; }
+  a { color: #101010; text-decoration: none; }
+
+  /* ---------- Sections ---------- */
+  h2 {
+    font-size: {{ fs * 0.9 }}pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    color: #101010;
+    margin: 11pt 0 5pt 0;
+    padding-bottom: 2pt;
+    border-bottom: 0.7pt solid #c9c9c9;
+  }
+  p { margin: 0 0 1.5pt 0; }
+
+  /* ---------- Timeline ---------- */
+  .tl { border-left: 0.9pt solid #cfcfcf; padding-left: 15pt; margin-left: 2.5pt; }
+  .tl-item { position: relative; margin: 0 0 5pt 0; }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-item::before {
+    content: "";
+    position: absolute;
+    left: -18.4pt;
+    top: 3.4pt;
+    width: 5.4pt;
+    height: 5.4pt;
+    border-radius: 50%;
+    background: #101010;
+  }
+  .tl-date {
+    display: inline-block;
+    min-width: 52pt;
+    margin-right: 6pt;
+    font-weight: 700;
+    font-size: {{ fs * 0.94 }}pt;
+    color: #101010;
+  }
+  .tl-head { font-weight: 700; }
+  .tl-role { font-weight: 500; color: #333; }
+  .tl-detail { color: #2a2a2a; }
+
+  /* ---------- Compétences ---------- */
+  .skillrow { margin: 0 0 1.2pt 0; }
+  .skillrow .k { font-weight: 700; }
+
+  /* ---------- Projets ---------- */
+  .group {
+    font-weight: 700;
+    font-size: {{ fs * 0.9 }}pt;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    color: #555;
+    margin: 4pt 0 2pt 0;
+  }
+  .group:first-of-type { margin-top: 1pt; }
+  .proj { margin: 0 0 2.5pt 0; }
+  .proj .n { font-weight: 700; }
+</style>
+</head>
+<body>
+
+<h1>{{ b.name }}</h1>
+<p class="title">{{ b.title }}</p>
+<p class="contact">
+  <span>{{ b.location }}</span>
+  <span>{{ b.email }}</span>
+  {% if b.phone and b.phone != 'TODO' %}<span>{{ b.phone }}</span>{% endif %}
+  {% for l in b.links %}{% if l.url != 'TODO' %}<span><a href="{{ l.url }}">{{ l.label }}</a></span>{% endif %}{% endfor %}
+</p>
+
+{% if education %}
+<h2>Education</h2>
+<div class="tl">
+  {% for e in education %}
+  <div class="tl-item">
+    <p><span class="tl-date">{{ e.dates }}</span> <span class="tl-head">{{ e.title }}</span>{% if e.role %} <span class="tl-role">— {{ e.role }}</span>{% endif %}</p>
+    {% if e.detail and e.detail != 'TODO' %}<p class="tl-detail">{{ e.detail }}</p>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<h2>Skills</h2>
+{% for s in skills %}
+<p class="skillrow"><span class="k">{{ s.label }}:</span> {{ s.value }}</p>
+{% endfor %}
+
+{% if experience %}
+<h2>Professional Experience</h2>
+<div class="tl">
+  {% for x in experience %}
+  <div class="tl-item">
+    <p><span class="tl-date">{{ x.dates }}</span> <span class="tl-head">{{ x.title }}</span>{% if x.role %} <span class="tl-role">— {{ x.role }}</span>{% endif %}</p>
+    {% if x.detail %}<p class="tl-detail">{{ x.detail }}</p>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<h2>Projects</h2>
+{% for g in projects %}
+<p class="group">{{ g.group }}</p>
+{% for it in g['items'] %}
+<p class="proj"><span class="n">{{ it.name }}:</span> {{ it.detail }}</p>
+{% endfor %}
+{% endfor %}
+
+{% if languages %}
+<h2>Languages</h2>
+<p>{{ languages | join(' · ') }}</p>
+{% endif %}
+
+</body>
+</html>

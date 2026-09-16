@@ -23,6 +23,9 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+# CV build output (source in cv/, published PDF in public/)
+cv/out/
+
 # docs large example projects (ignored)
 docs/Frontend-Projects/
 docs/liquid-glass-react/

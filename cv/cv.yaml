@@ -1,0 +1,78 @@
+# Source de vérité du CV — un seul fichier à éditer.
+# Rendus générés par scripts/build-cv.py (PDF + TXT + DOCX).
+# Les TODO sont des champs à remplir : ne jamais inventer une valeur.
+
+baseline:
+  name: Arthur Kowskii Croquebois
+  title: Technical Sound / Music Designer
+  location: Montreuil (Paris), France
+  email: contact@kowskii.com
+  phone: TODO
+  links:
+    - label: arthurkowskii.com
+      url: https://arthurkowskii.com
+    - label: LinkedIn
+      url: TODO
+    - label: GitHub
+      url: TODO
+
+# La timeline exige des dates : elles viennent du brouillon précédent,
+# à confirmer (années exactes, mois si tu les as).
+education:
+  - dates: "TODO – 2027"
+    title: ISART DIGITAL Paris
+    role: "TODO — intitulé exact du cursus (Mastère / Bachelor)"
+    detail: TODO — spécialisation, projets marquants, mention
+
+experience:
+  # Ordre repris de ton PDF (pédagogie ISART) : ne pas trier par date.
+  - dates: 2026
+    title: Helena Rubinstein — LifeXtend
+    role: Composer (freelance, L'Oréal Retail Lab)
+    detail: 5 minutes of music for the LifeXtend live presentation at the L'Oréal Retail Lab.
+  - dates: 2026
+    title: Givaudan — Corporate Film
+    role: Composer & Sound Designer (freelance)
+    detail: Freelance composer on the 2026 annual Givaudan corporate film.
+  - dates: 2025 – present
+    title: Co-Founder — Kubicorp
+    role: Indie game studio
+    detail: Co-founded the Kubicorp indie game studio and released Kubika commercially.
+
+skills:
+  - label: Middleware Audio
+    value: FMOD, Wwise
+  - label: Game Engines
+    value: Unity, Unreal Engine, id Tech 4
+  - label: Programming
+    value: C++, C#, Blueprint, Vim
+  - label: Audio Production
+    value: REAPER, Pro Tools, iZotope RX
+  - label: Versioning & Production
+    value: Git, Perforce
+  - label: Hardware & Electronics
+    value: Teensy, Teensy Audio Library, KiCad
+
+projects:
+  - group: Released
+    items:
+      - name: "Kubika (Steam, GOG)"
+        detail: Technical sound and music design with Unity, C# and FMOD for a commercial game.
+      - name: "MOUSE: Reloaded (ModDB)"
+        detail: "Community mod for MOUSE: P.I. For Hire. Asset recovery with runtime implementation using BepInEx and Harmony; sound designed missing assets and implemented them with dnSpy and C#."
+      - name: "Quake 4 — The Awakening (ModDB)"
+        detail: Community mod for Quake 4. Composed and sound designed, implemented in C++ and IDScript in the id Tech 4 engine. Led the technical side, version control, and built custom tools for the team.
+  - group: Game Jams
+    items:
+      - name: "ISART Game Week 2026 — Sound Prize"
+        detail: Made a rhythm game in 5 weeks, using C# only for the dynamic sound implementation.
+      - name: "Play Sorbonne Game Jam 2026"
+        detail: Designed gameplay (GDD) and built dynamic sound design and music with Unity & FMOD.
+      - name: "Ubisoft Volunteer Game Jam 2025"
+        detail: Designed gameplay (GDD) and built dynamic music using Unreal Engine and FMOD.
+      - name: "ISART Cine Week 2025 — Grand Prize"
+        detail: Composed and sound designed a film in 5 days; won the grand prize.
+
+languages:
+  - French — native
+  - English — TODO (niveau réel, ex. C1 / professional)
