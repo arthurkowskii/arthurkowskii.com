@@ -117,7 +117,7 @@ import bandcampIcon from "../Assets/music_links assets/bandcamp-logo.png?url";
 
 const { project, studioMode = "preview" } = Astro.props;
 const isStudioDesign = studioMode === "design";
-const currentLang = Astro.url.searchParams.get("lang") === "en" ? "en" : "fr";
+const currentLang = Astro.url.searchParams.get("lang") === "en" || Astro.url.pathname.startsWith("/en/") ? "en" : "fr";
 
 // Handle case where no project is passed (for preview pages)
 if (!project || !project.data) {
@@ -3456,21 +3456,10 @@ const accentColorRgbDark =
           {...studioBlockAttrs("tech")}
         >
           <h3 class="card-title" {...studioFieldAttrs({ blockType: "tech", path: "content.title", kind: "text" })}>
-            {typeof bento.tech?.title === "object"
-              ? bento.tech.title[
-                  Astro.url.searchParams.get("lang") === "en" ? "en" : "fr"
-                ] ||
-                bento.tech.title.en ||
-                (Astro.url.searchParams.get("lang") === "en"
-                  ? "Technology"
-                  : "Technologie")
-              : bento.tech?.title ||
-                (Astro.url.searchParams.get("lang") === "en"
-                  ? "Technology"
-                  : "Technologie")}
+            {getStudioText(bento.tech?.title, currentLang === "en" ? "Technology" : "Technologie")}
           </h3>
           <p class="card-subtitle">
-            {Astro.url.searchParams.get("lang") === "en"
+            {currentLang === "en"
               ? "Tools and technologies used"
               : "Outils et technologies utilisés"}
           </p>
